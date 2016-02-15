@@ -1,6 +1,6 @@
-# pythonwhat
+![banner](https://s3.amazonaws.com/assets.datacamp.com/img/github/content-engineering-repos/pyhonwhat_banner.png)
 
-Python package containing functions to write submission correctness tests for Python exercises on DataCamp.
+Python package with functions to write submission correctness tests for Python exercises on DataCamp.
 
 Coming soon!
 
