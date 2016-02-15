@@ -19,12 +19,11 @@ ip.ifs
 
 from pythonwhat.State import State
 
-state = State("student code","solution code", {"a": None}, {"b": None}, "the output")
+state = State(
+    "student code", "solution code", {
+        "a": None}, {
+            "b": None}, "the output")
 state.to_child_state(None, None)
-
-
-
-
 
 
 import ast
@@ -42,9 +41,11 @@ fp.fors
 
 from pythonwhat.State import State
 
-state = State("student code","solution code", {"a": None}, {"b": None}, "the output")
+state = State(
+    "student code", "solution code", {
+        "a": None}, {
+            "b": None}, "the output")
 state.to_child_state(None, None)
-
 
 
 import ast

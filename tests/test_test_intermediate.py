@@ -622,7 +622,7 @@ msg = "Have you correctly initialized `all_walks` to `[]` and expanded it correc
 test_expression_result(expr_code="len(all_walks)", incorrect_msg=msg)
 
 msg = "Don't forget to print out `all_walks`."
-test_function("print", do_eval=False, not_called_msg=msg, incorrect_msg=msg)
+test_function("print", args=[], not_called_msg=msg, incorrect_msg=msg)
 
 success_msg("Well done!")
     '''

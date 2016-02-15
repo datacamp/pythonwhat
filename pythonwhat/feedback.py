@@ -1,69 +1,80 @@
 # This class will contain the feedback message system
 # Probably gonna replace part if it by .format
-# Have to look in to conditional string completion (within string, 
+# Have to look in to conditional string completion (within string,
 # with information filled in by tests, so can't use short if in sct's)
 
 import re
 
 from pythonwhat import utils
 
+
 class FeedbackMessage(object):
 
-	def __init__(self, message_string):
-		self.set(message_string)
-		self.information = {}
+    def __init__(self, message_string):
+        self.set(message_string)
+        self.information = {}
 
-	def add_information(self, key, value):
-		if (not(key in self.information)):
-			self.set_information(key, value)
+    def add_information(self, key, value):
+        if (not(key in self.information)):
+            self.set_information(key, value)
 
-	def set_information(self, key, value):
-		self.information[key] = utils.shorten_str(str(value))
+    def set_information(self, key, value):
+        self.information[key] = utils.shorten_str(str(value))
 
-	def remove_information(self, key):
-		if (key in self.information):
-			self.information.pop(key)
+    def remove_information(self, key):
+        if (key in self.information):
+            self.information.pop(key)
 
-	def set(self, message_string):
-		self.message_string = str(message_string)
+    def set(self, message_string):
+        self.message_string = str(message_string)
 
-	def append(self, message_string):
-		self.message_string += str(message_string)
+    def append(self, message_string):
+        self.message_string += str(message_string)
 
-	def cond_append(self, cond, message_string):
-		self.message_string += "${{"+str(cond)+" ? "+str(message_string)+"}}"
+    def cond_append(self, cond, message_string):
+        self.message_string += "${{" + \
+            str(cond) + " ? " + str(message_string) + "}}"
 
-	def generateString(self):
-		generated_string = FeedbackMessage.replaceRegularTags(self.message_string, self.information)
-		generated_string = FeedbackMessage.replaceConditionalTags(generated_string, self.information)
-		return(generated_string)
+    def generateString(self):
+        generated_string = FeedbackMessage.replaceRegularTags(
+            self.message_string, self.information)
+        generated_string = FeedbackMessage.replaceConditionalTags(
+            generated_string, self.information)
+        return(generated_string)
 
-	def replaceRegularTags(message_string, information):
-		generated_string = message_string 
+    def replaceRegularTags(message_string, information):
+        generated_string = message_string
 
-		pattern = "\${([a-zA-Z]*?)}"
+        pattern = "\${([a-zA-Z]*?)}"
 
-		keywords = re.findall(pattern, generated_string)
-		for keyword in keywords:
-			replace = "\${"+keyword+"}"
-			if (keyword in information):
-				generated_string = re.sub(replace, information[keyword], generated_string)
-			else:
-				generated_string = re.sub(replace, "", generated_string)
+        keywords = re.findall(pattern, generated_string)
+        for keyword in keywords:
+            replace = "\${" + keyword + "}"
+            if (keyword in information):
+                generated_string = re.sub(
+                    replace, information[keyword], generated_string)
+            else:
+                generated_string = re.sub(replace, "", generated_string)
 
-		return(generated_string)
+        return(generated_string)
 
-	def replaceConditionalTags(message_string, information):
-		generated_string = message_string
+    def replaceConditionalTags(message_string, information):
+        generated_string = message_string
 
-		pattern = "\${{([a-zA-Z]*?) \? (.*?)}}"
+        pattern = "\${{([a-zA-Z]*?) \? (.*?)}}"
 
-		cond_keywords = re.findall(pattern, message_string)
-		for (keyword,k_string) in cond_keywords:
-			replace = "\${{"+keyword+" \? "+re.escape(k_string)+"}}"
-			if (keyword in information):
-				generated_string = re.sub(replace, " "+FeedbackMessage.replaceRegularTags(k_string, information), generated_string)
-			else:
-				generated_string = re.sub(replace, "", generated_string)
+        cond_keywords = re.findall(pattern, message_string)
+        for (keyword, k_string) in cond_keywords:
+            replace = "\${{" + keyword + " \? " + re.escape(k_string) + "}}"
+            if (keyword in information):
+                generated_string = re.sub(
+                    replace,
+                    " " +
+                    FeedbackMessage.replaceRegularTags(
+                        k_string,
+                        information),
+                    generated_string)
+            else:
+                generated_string = re.sub(replace, "", generated_string)
 
-		return(generated_string)
+        return(generated_string)
