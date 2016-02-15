@@ -1,4 +1,4 @@
-![banner](https://s3.amazonaws.com/assets.datacamp.com/img/github/content-engineering-repos/pyhonwhat_banner.png)
+![banner](https://s3.amazonaws.com/assets.datacamp.com/img/github/content-engineering-repos/pythonwhat_banner.png)
 
 Python package with functions to write submission correctness tests for Python exercises on DataCamp.
 
