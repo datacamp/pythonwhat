@@ -4,12 +4,15 @@ from pythonwhat.parsing import FunctionParser, IfParser, WhileParser, ForParser,
 
 from pythonwhat.Reporter import Reporter
 
-# Can be EASILY refactored to use a map like this: parsed_solution['functions'] => FunctionParser()
-# No time now, will do later! (works so that's ok)
-# TODO: Vincent
-
-
+# TODO (Vincent): refactor using dict: e.g. parsed_solution['functions'] => FunctionParser()
 class State(object):
+    """State of the SCT environment.
+
+    This class holds all information relevevant to test the correctness of an exercise. 
+    It is coded suboptimally and it will be refactored soon, and documented thouroughly 
+    after that.
+
+    """
     active_state = None
 
     def __init__(
@@ -218,6 +221,13 @@ class State(object):
             self.solution_for_calls = fp.fors
 
     def to_child_state(self, student_subtree, solution_subtree):
+        """Dive into nested tree.
+
+        Set the current state as a state with a subtree of this syntax tree as
+        student tree and solution tree. This is necessary when testing if statements or
+        for loops for example.
+        """
+
         args = inspect.getargspec(self.__class__.__init__)
         arg_values = [self.__dict__[arg] for arg in args.args[1:]]
         child = State(*arg_values)
@@ -232,6 +242,10 @@ class State(object):
         return(child)
 
     def get_subcode(subtree, full_code):
+        """Extract code subtree.
+
+        Extract all the code belonging to a subtree of the code.
+        """
         try:
             if isinstance(subtree, list):
                 subtree = ast.Module(body=subtree)

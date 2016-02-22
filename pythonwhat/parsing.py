@@ -2,18 +2,19 @@ import ast
 
 """
 This file handles the parsing of the student and solution code. Generally, an abstract syntax tree
-is build frome the code string and this tree is passed to several visitors to create the data
+is built from the code string and this tree is passed to several visitors to create the data
 structures that are used by the tests.
 
 For information about how the ast package works, I refer to its documentation:
     https://docs.python.org/2/library/ast.html
-as well as the extra documentation on this package:
+as well as some extra documentation:
     https://greentreesnakes.readthedocs.org/en/latest/
 """
 
 
 class Parser(ast.NodeVisitor):
-    """
+    """Basic parser.
+
     The basic Parser, should not be used on itself but should be used to inherit certain basic
     features from. The Parser itself inherits from ast.Nodevisitor, which is a helper class to
     go through the abstract syntax tree objects.
@@ -30,12 +31,12 @@ class Parser(ast.NodeVisitor):
             node (ast.Module): The node which is visited.
         """
         for line in node.body:
-            # We only want to visit the module nodes on a first level. Going
-            # deeper
-            self.visit(line)
+            # We only want to visit the module nodes on a first level. Going deeper
             # should be handeled by the specific parsers and the test function, as
             # nesting requires the State to generate a subtree. The Parser object
-            # does not now about the State object.
+            # does not now about the State object.            
+            self.visit(line)
+
 
     def visit_Expression(self, node):
         """
@@ -56,10 +57,23 @@ class Parser(ast.NodeVisitor):
             node (ast.Node): The node which is visited.
         """
         pass  # This ignore is necessary to keep the parser at base level, also look comment above in
-        # the visit_Module function body.
+              # the visit_Module function body.
 
 
 class OperatorParser(Parser):
+    """Find operations.
+
+    A parser which inherits from the basic parser. It will walk through the syntax tree and put all
+    operators in a relevant data structure, which can later be used in the test.
+
+    Attributes:
+        ops (list(tuple(num, ast.BinOp, list(str)))): A list of tuples containing the linenumber, node and list of used binary operations.
+        level (num): A number representing the level at which the parser is parsing.
+        used (list(str)): The operators that are used in the BinOp that we're handling.
+    """
+
+
+    # All possible operations and their sign
     O_MAP = {}
     O_MAP['Add'] = '+'
     O_MAP['Sub'] = '-'
@@ -73,16 +87,6 @@ class OperatorParser(Parser):
     O_MAP['BitXor'] = '^'
     O_MAP['BitAnd'] = '&'
     O_MAP['FloorDiv'] = '//'
-
-    """
-    A parser which inherits from the basic parser. It will walk through the syntax tree and put all
-    operators in a relevant data structure, which can later be used in the test.
-
-    Attributes:
-        ops (list(tuple(num, ast.BinOp, list(str)))): A list of tuples containing the linenumber, node and list of used binary operations.
-        level (num): A number representing the level at which the parser is parsing.
-        used (list(str)): The operators that are used in the BinOp that we're handling.
-    """
 
     def __init__(self):
         """
@@ -129,8 +133,8 @@ class OperatorParser(Parser):
         """
         if not self.level:
             self.ops.append((  # A number can be seen as a operator on base level.
-                node.lineno,  # When student is asked to use operators but just puts in a number instead,
-                node,         # this will help creating a consistent feedback message,
+                node.lineno,   # When student is asked to use operators but just puts in a number instead,
+                node,          # this will help creating a consistent feedback message,
                 self.used))
 
     def visit_UnaryOp(self, node):
@@ -169,7 +173,8 @@ class OperatorParser(Parser):
 
 
 class BoolParser(Parser):
-    """
+    """Find boolean operations.
+
     A parser which inherits from the basic parser. It will walk through the syntax tree and put all
     boolean operators in a relevant data structure, which can later be used in the test.
 
@@ -185,21 +190,45 @@ class BoolParser(Parser):
 
 
 class ImportParser(Parser):
+    """Find import statement.
+
+    A parser which inherits from the basic parser. It will walk through the syntax tree and put all
+    import statements in a relevant data structure, which can later be used in the test.
+
+    Attributes:
+        imports (dict()): A dict containing the correct data structure.
+    """
 
     def __init__(self):
+        """
+        Initialize the parser and its attributes.
+        """
         self.imports = {}
 
     def visit_Import(self, node):
+        """
+        This function is called when an Import node is encountered when traversing the tree.
+
+        Args:
+            node (ast.Import): The node which is visited.
+        """
         for imp in node.names:
             self.imports[imp.name] = imp.asname
 
     def visit_ImportFrom(self, node):
+        """
+        This function is called when an ImportFrom node is encountered when traversing the tree.
+
+        Args:
+            node (ast.ImportFrom): The node which is visited.
+        """
         for imp in node.names:
             self.imports[node.module + "." + imp.name] = imp.asname
 
 
 class FunctionParser(Parser):
-    """
+    """Find function calls. 
+
     A parser which inherits from the basic parser. It will walk through the syntax tree and put all
     function calls in a relevant data structure, which can later be used in the test.
 
@@ -215,7 +244,7 @@ class FunctionParser(Parser):
         Initialize the parser and its attributes.
         """
         self.current = ''
-        self.imports = {}
+        self.imports = {} # We need to keep track of imports to match the correction function calls
         self.calls = {}
 
     def visit_BinOp(self, node):
@@ -296,7 +325,8 @@ class FunctionParser(Parser):
 
 
 class IfParser(Parser):
-    """
+    """Find if structures.
+
     A parser which inherits from the basic parser. It will walk through the syntax tree and put all
     function calls in a relevant data structure, which can later be used in the test.
 
@@ -341,7 +371,8 @@ class WhileParser(Parser):
 
 
 class ForParser(Parser):
-    """
+    """Find for structures.
+
     A parser which inherits from the basic parser. It will walk through the syntax tree and put all
     for calls in a relevant data structure, which can later be used in the test.
 
@@ -381,7 +412,10 @@ class ForParser(Parser):
 
 
 class FindLastLineParser(ast.NodeVisitor):
+    """Find the last line.
 
+    Search the last line number of a code part.
+    """
     def __init__(self):
         self.last_line = 0
 

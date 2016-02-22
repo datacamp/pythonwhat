@@ -1,15 +1,20 @@
-# This class will contain the feedback message system
-# Probably gonna replace part if it by .format
-# Have to look in to conditional string completion (within string,
-# with information filled in by tests, so can't use short if in sct's)
-
 import re
-
 from pythonwhat import utils
 
-
+# TODO (Vincent): refactor using .format()
 class FeedbackMessage(object):
+    """Generate feedback.
 
+    Don't use this yet!
+
+    This class will hold all functionality which is related to feedback messaging. 
+    At the moment it is NOT used, feedback generation is still HIGLY interwoven with
+    test_... files. Should be decoupled. 
+
+    Class should be refactored to use .format() instead.
+
+    Will be documented when it's refactored.
+    """
     def __init__(self, message_string):
         self.set(message_string)
         self.information = {}

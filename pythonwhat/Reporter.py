@@ -1,4 +1,13 @@
+"""
+This file holds the reporter class. 
+"""
+
 class Reporter(object):
+    """Do reporting.
+
+    This class holds the feedback- or success message and tracks whether there are failed tests
+    or not. All tests are executed trough do_test() in the Reporter.
+    """
     active_reporter = None
 
     def __init__(self):

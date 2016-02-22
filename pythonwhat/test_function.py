@@ -33,13 +33,13 @@ def test_function(name,
         | ``numpy.mean([1,2,3], axis = 0)``
         | ``numpy.std([4,5,6])``
       sct 
-        | ``test_function(index = 1, args = [0])``: pass.
-        | ``test_function(index = 1)``: fails with "Your operation at line 2 is missing a `*` operation".
+        | ``test_function("numpy.mean", index = 1, keywords = [])``: pass.
+        | ``test_function("numpy.mean", index = 1)``: fails with "Your operation at line 2 is missing a `*` operation".
         | ``test_function(index = 1, incorrect_op_msg = "Use the correct operators")``: fails with "Use the correct operators".
         | ``test_function(index = 1, used = [], incorrect_result_msg = "Incorrect result")``: fails with "Incorrect result".
 
     Args:
-        index (int): Index of the operator group to be checked. Defaults to 1.
+        index (int): index of the function call to be checked. Defaults to 1.
         eq_condition (str): The condition which is checked on the eval of the group. Can be "equal" -- 
           meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
           can be used when you expect an integer and the result can differ slightly. Defaults to "equal".

@@ -29,6 +29,50 @@ def test_expression_output(extra_env=None,
                            eq_condition="equal",
                            pre_code=None,
                            keep_objs_in_env=None):
+    """Test output of expression.
+
+    The code of the student is ran in the active state and the output it generates is
+    compared with the code of the solution. This can be used in nested pythonwhat calls
+    like test_if_else. In these kind of calls, the code of the active state is set to 
+    the code in a part of the sub statement (e.g. the body of an if statement). It 
+    has various parameters to control the execution of the (sub)expression.
+
+    Example:
+      student_code
+        | ``a = 12``
+        | ``if a > 3:``
+        | ``    print('test %d' % a)``
+      solution_code
+        | ``a = 4``
+        | ``if a > 3:``
+        | ``    print('test %d' % a)``
+      sct
+        | ``test_if_else(1,``
+        | ``             body = lambda: test_expression_output(extra_env = { 'a': 5 }``
+        | ``                                                   incorrect_msg = "Print out the correct things"))``
+      This SCT will pass as the subexpression will output 'test 5' in both student as solution environment,
+      since the extra environment sets `a` to 5.
+
+    Args:
+        extra_env (dict): set variables to the extra environment. They will update the student
+          and solution environment in the active state before the student/solution code in the active 
+          state is ran. This argument should contain a dictionary with the keys the names of 
+          the variables you want to set, and the values are the values of these variables.
+        context_vals (list): set variables which are bound in a for loop to certain values. This argument is
+          only useful if you use the function in a test_for_loop. It contains a list with the values 
+          of the bound variables.
+        incorrect_msg (str): feedback message if the output of the expression in the solution doesn't match
+          the one of the student. This feedback message will be expanded if it is used in the context of
+          another test function, like test_if_else.
+        eq_condition (str): the condition which is checked on the eval of the group. Can be "equal" -- 
+          meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
+          can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
+        pre_code (str): the code in string form that should be executed before the expression is executed.
+          This is the ideal place to set a random seed, for example.
+        keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
+          the expression is evaluated. All primitive types are copied automatically, other objects have to 
+          be passed explicitely.
+    """
     state = State.active_state
     rep = Reporter.active_reporter
 
