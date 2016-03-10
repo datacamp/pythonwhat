@@ -35,6 +35,11 @@ class Reporter(object):
         self.feedback_msg = failure_msg
 
     def do_test(self, test_object):
+        """Do test.
+
+        Execute a given test, unless some previous test has failed. If the test has failed,
+        the state of the reporter changes and the feedback is kept.
+        """
         if self.failed_test:
             return
 
@@ -45,6 +50,10 @@ class Reporter(object):
             self.feedback_msg = test_object.feedback()
 
     def do_tests(self, test_objects):
+        """Do multiple tests.
+
+        Execute an array of tests.
+        """
         for test_object in test_objects:
             if self.failed_test:
                 break

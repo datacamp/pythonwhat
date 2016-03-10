@@ -39,29 +39,29 @@ def test_function(name,
         | ``test_function(index = 1, used = [], incorrect_result_msg = "Incorrect result")``: fails with "Incorrect result".
 
     Args:
+        name (str): the name of the function to be tested.
         index (int): index of the function call to be checked. Defaults to 1.
+        args (list(int)): the indices of the positional arguments that have to be checked. If it is set to
+          None, all positional arguments which are in the solution will be checked.
+        keywords (list(str)): the indices of the keyword arguments that have to be checked. If it is set to
+          None, all keyword arguments which are in the solution will be checked.
         eq_condition (str): The condition which is checked on the eval of the group. Can be "equal" -- 
           meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
           can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
-        used(List[str]): A list of operators that have to be in the group. Valid operators are: "+", "-", 
-          "*", "/", "%", "**", "<<", ">>", "|", "^", "&" and "//". If the list is None, operators that are
-          in the group in the solution have to be in the student code. Defaults to None.
         do_eval (bool): Boolean representing whether the group should be evaluated and compared or not. 
           Defaults to True.
-        not_found_msg (str): Feedback message if not enough operators groups are found in the student's code.
-        incorrect_op_msg (str): Feedback message if the wrong operators are used in the student's code.
-        incorrect_result_msg (str): Feedback message if the operator group evaluates to the wrong result in
-          the student's code.
+        not_called_msg (str): feedback message if the function is not called.
+        incorret_msg (str): feedback message if the arguments of the function in the solution doesn't match
+          the one of the student.
 
     Raises:
       NameError: the eq_condition you passed is not "equal" or "equivalent".
-      IndexError: not enough operation groups in the solution environment.
+      NameError: function is not called in the solution
 
     """
     state = State.active_state
     rep = Reporter.active_reporter
 
-    index = index - 1
     eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}
     student_env, solution_env = state.student_env, state.solution_env
 
