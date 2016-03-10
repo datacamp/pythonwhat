@@ -62,6 +62,7 @@ def test_function(name,
     state = State.active_state
     rep = Reporter.active_reporter
 
+    index = index - 1
     eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}
     student_env, solution_env = state.student_env, state.solution_env
 
@@ -106,8 +107,6 @@ def test_function(name,
 
     if args is None:
         args = range(0, len(args_solution))
-    else:
-        args = [i - 1 for i in args]
 
     if keywords is None:
         keywords = keyw_solution
