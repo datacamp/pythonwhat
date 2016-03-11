@@ -6,12 +6,4 @@ For a detailed guide on how to use `pythonwhat`, head over to the [wiki](https:/
 
 To learn more about course creation for DataCamp, visit our [Teach Documentation](http://docs.datacamp.com/teach).
 
-## Installation
-
-```
-install.packages("devtools")
-library("devtools")
-install_github("Data-Camp/testwhat")
-```
-
 For more details, questions and suggestions, you can contact <b>content-engineering@datacamp.com</b>.
