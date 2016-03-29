@@ -13,7 +13,7 @@ def test_for_loop(index=1,
 
     This test function will allow you to extract parts of a specific for loop and perform a set of tests
     specifically on these parts. A for loop consists of two parts: the sequence, `for_iter`, which is the
-    values over which are looped, and the `body`. A for loop can have a else part as well, `orelse`, but 
+    values over which are looped, and the `body`. A for loop can have a else part as well, `orelse`, but
     this is almost never used.
 
         ``for i in range(10):``
@@ -54,6 +54,7 @@ def test_for_loop(index=1,
     """
     state = State.active_state
     rep = Reporter.active_reporter
+    rep.set_tag("fun", "test_for_loop")
 
     index = index - 1
 

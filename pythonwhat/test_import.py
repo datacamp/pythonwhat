@@ -11,7 +11,7 @@ def test_import(name,
                 incorrect_as_msg=None):
     """Test import.
 
-    Test whether an import statement is used the same in the student's environment as in the solution 
+    Test whether an import statement is used the same in the student's environment as in the solution
     environment.
 
     Example:
@@ -34,6 +34,7 @@ def test_import(name,
     """
     state = State.active_state
     rep = Reporter.active_reporter
+    rep.set_tag("fun", "test_import")
 
     state.extract_imports()
 

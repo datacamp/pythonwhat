@@ -42,7 +42,8 @@ def test_exercise(sct,
             ex_type (str): The type of the exercise.
             error (tuple): A tuple with some information on possible errors.
     Returns:
-            tuple(bool,str): The first bool is true if the sct passed. The str contains the feedback message.
+            dict: Returns dict with correct - whether the SCT passed, message - the feedback message and
+              tags - the tags belonging to the SCT execution.
     """
 
     # Syntax errors will stop execution immediatly. Nothing to be tested.
@@ -59,7 +60,8 @@ def test_exercise(sct,
 
                 return({
                     "correct": False,
-                    "message": feedback_msg})
+                    "message": feedback_msg,
+                    "tags": {"fun": "syntax_error"}})
         except IndexError as e:
             # Something changed in the backend
             raise IndexError(
@@ -90,11 +92,13 @@ def test_exercise(sct,
         feedback_msg = "Your code contains an error: " + str(error[1])
         return({
             "correct": False,
-            "message": to_html(feedback_msg)})
+            "message": to_html(feedback_msg),
+            "tags": rep.get_tags()})
 
     return({
         "correct": not rep.failed_test,
-        "message": to_html(feedback_msg)})
+        "message": to_html(feedback_msg),
+        "tags": rep.get_tags()})
 
 def to_html(msg):
     return(re.sub("<p>(.*)</p>", "\\1", markdown2.markdown(msg)).strip())

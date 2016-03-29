@@ -27,7 +27,7 @@ def test_operator(index=1,
       solution_code
         | ``3.1415 + 5``
         | ``1 + 238``
-      sct 
+      sct
         | ``test_operator(index = 2, used = ["+"])``: pass.
         | ``test_operator(index = 2)``: fails with "Your operation at line 2 is missing a `*` operation".
         | ``test_operator(index = 1, incorrect_op_msg = "Use the correct operators")``: fails with "Use the correct operators".
@@ -35,13 +35,13 @@ def test_operator(index=1,
 
     Args:
         index (int): Index of the operator group to be checked. Defaults to 1.
-        eq_condition (str): The condition which is checked on the eval of the group. Can be "equal" -- 
+        eq_condition (str): The condition which is checked on the eval of the group. Can be "equal" --
           meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
           can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
-        used(List[str]): A list of operators that have to be in the group. Valid operators are: "+", "-", 
+        used(List[str]): A list of operators that have to be in the group. Valid operators are: "+", "-",
           "*", "/", "%", "**", "<<", ">>", "|", "^", "&" and "//". If the list is None, operators that are
           in the group in the solution have to be in the student code. Defaults to None.
-        do_eval (bool): Boolean representing whether the group should be evaluated and compared or not. 
+        do_eval (bool): Boolean representing whether the group should be evaluated and compared or not.
           Defaults to True.
         not_found_msg (str): Feedback message if not enough operators groups are found in the student's code.
         incorrect_op_msg (str): Feedback message if the wrong operators are used in the student's code.
@@ -55,6 +55,7 @@ def test_operator(index=1,
     """
     state = State.active_state
     rep = Reporter.active_reporter
+    rep.set_tag("fun", "test_operator")
 
     # Indexing starts at 1 for the pythonwhat user.
     index = index - 1
