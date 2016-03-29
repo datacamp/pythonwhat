@@ -57,10 +57,9 @@ def test_exercise(sct,
                     feedback_msg = "Your code can not be excuted due to a syntax error: %s." % str(
                         err_obj)
 
-                return((
-                    False,
-                    feedback_msg,
-                    None))
+                return({
+                    "correct": False,
+                    "message": feedback_msg})
         except IndexError as e:
             # Something changed in the backend
             raise IndexError(
@@ -89,16 +88,13 @@ def test_exercise(sct,
 
     if (error and not rep.failed_test and not rep.allow_errors):
         feedback_msg = "Your code contains an error: " + str(error[1])
-        return((
-            False,
-            to_html(feedback_msg),
-            None))
+        return({
+            "correct": False,
+            "message": to_html(feedback_msg)})
 
-    return((
-        not rep.failed_test,
-        to_html(feedback_msg),
-        None))  # Implement challenge
-
+    return({
+        "correct": not rep.failed_test,
+        "message": to_html(feedback_msg)})
 
 def to_html(msg):
     return(re.sub("<p>(.*)</p>", "\\1", markdown2.markdown(msg)).strip())
