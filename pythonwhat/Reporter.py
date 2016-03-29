@@ -1,5 +1,5 @@
 """
-This file holds the reporter class. 
+This file holds the reporter class.
 """
 
 class Reporter(object):
@@ -16,6 +16,7 @@ class Reporter(object):
         self.success_msg = "Great work!"
         self.allow_errors = False
         self.correct_steps = 0
+        self.tags = {}
 
     def set_success_msg(self, success_msg):
         self.success_msg = success_msg
@@ -59,3 +60,9 @@ class Reporter(object):
                 break
 
             self.do_test(test_object)
+
+    def set_tag(self, key, value):
+        self.tags[key] = value
+
+    def get_tags(self):
+        return(self.tags)

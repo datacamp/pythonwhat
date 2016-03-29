@@ -8,16 +8,17 @@ def test_output_contains(text,
                          no_output_msg=None):
     """Test the output.
 
-    Tests if the output contains a (pattern of) text. 
+    Tests if the output contains a (pattern of) text.
 
-    Args: 
-      text (str): the text that is searched for 
+    Args:
+      text (str): the text that is searched for
       pattern (bool): if True, the text is treated as a pattern. If False, it is treated as plain text.
         Defaults to False.
       no_output_msg (str): feedback message to be displayed if the output is not found.
     """
     state = State.active_state
     rep = Reporter.active_reporter
+    rep.set_tag("fun", "test_output_contains")
 
     if not no_output_msg:
         no_output_msg = "You did not output the correct things."

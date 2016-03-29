@@ -21,7 +21,7 @@ def test_function(name,
 
     This function compares a function call in the student's code with the corresponding one in the solution
     code. It will cause the reporter to fail if the corresponding calls do not match. The fail message
-    that is returned will depend on the sort of fail. 
+    that is returned will depend on the sort of fail.
 
     Example:
       student_code
@@ -32,7 +32,7 @@ def test_function(name,
         | ``import numpy``
         | ``numpy.mean([1,2,3], axis = 0)``
         | ``numpy.std([4,5,6])``
-      sct 
+      sct
         | ``test_function("numpy.mean", index = 1, keywords = [])``: pass.
         | ``test_function("numpy.mean", index = 1)``: fails with "Your operation at line 2 is missing a `*` operation".
         | ``test_function(index = 1, incorrect_op_msg = "Use the correct operators")``: fails with "Use the correct operators".
@@ -45,10 +45,10 @@ def test_function(name,
           None, all positional arguments which are in the solution will be checked.
         keywords (list(str)): the indices of the keyword arguments that have to be checked. If it is set to
           None, all keyword arguments which are in the solution will be checked.
-        eq_condition (str): The condition which is checked on the eval of the group. Can be "equal" -- 
+        eq_condition (str): The condition which is checked on the eval of the group. Can be "equal" --
           meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
           can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
-        do_eval (bool): Boolean representing whether the group should be evaluated and compared or not. 
+        do_eval (bool): Boolean representing whether the group should be evaluated and compared or not.
           Defaults to True.
         not_called_msg (str): feedback message if the function is not called.
         incorret_msg (str): feedback message if the arguments of the function in the solution doesn't match
@@ -61,6 +61,7 @@ def test_function(name,
     """
     state = State.active_state
     rep = Reporter.active_reporter
+    rep.set_tag("fun", "test_function")
 
     index = index - 1
     eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}

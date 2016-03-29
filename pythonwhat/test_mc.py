@@ -9,7 +9,7 @@ MC_VAR_NAME = "selected_option"
 def test_mc(correct, msgs):
     """Test multiple choice exercise.
 
-    Test for a MultipleChoiceExercise. The correct answer (as an integer) and feedback messages 
+    Test for a MultipleChoiceExercise. The correct answer (as an integer) and feedback messages
     are passed to this function.
 
     Args:
@@ -23,6 +23,7 @@ def test_mc(correct, msgs):
     state = State.active_state
     student_env = state.student_env
     rep = Reporter.active_reporter
+    rep.set_tag("fun", "test_mc")
 
     if MC_VAR_NAME not in student_env:
         raise NameError("%r not set in the student environment" % MC_VAR_NAME)

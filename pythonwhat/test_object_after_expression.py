@@ -20,7 +20,7 @@ def test_object_after_expression(name,
 
     The code of the student is ran in the active state and the the value of the given object is
     compared with the value of that object in the solution. This can be used in nested pythonwhat calls
-    like test_for_loop. In these kind of calls, the code of the active state is set to 
+    like test_for_loop. In these kind of calls, the code of the active state is set to
     the code in a part of the sub statement (e.g. the body of a for loop). It has various
     parameters to control the execution of the (sub)expression. This test function is ideal to check if
     a value is updated correctly in the body of a for loop.
@@ -40,21 +40,21 @@ def test_object_after_expression(name,
         | ``                                                          extra_env = { 'count': 20 },``
         | ``                                                          contex_vals = [ 10 ])``
       This SCT will pass as the value of `count` is updated identically in the body of the for loop in the
-      student code and solution code. 
+      student code and solution code.
 
     Args:
         name (str): the name of the object which value has to be checked after evaluation of the expression.
         extra_env (dict): set variables to the extra environment. They will update the student
-          and solution environment in the active state before the student/solution code in the active 
-          state is ran. This argument should contain a dictionary with the keys the names of 
+          and solution environment in the active state before the student/solution code in the active
+          state is ran. This argument should contain a dictionary with the keys the names of
           the variables you want to set, and the values are the values of these variables.
         context_vals (list): set variables which are bound in a for loop to certain values. This argument is
-          only useful if you use the function in a test_for_loop. It contains a list with the values 
+          only useful if you use the function in a test_for_loop. It contains a list with the values
           of the bound variables.
         incorrect_msg (str): feedback message if the value of the object in the solution environment doesn't match
           the one in the student environment. This feedback message will be expanded if it is used in the context of
           another test function, like test_for_loop.
-        eq_condition (str): the condition which is checked on the eval of the object. Can be "equal" -- 
+        eq_condition (str): the condition which is checked on the eval of the object. Can be "equal" --
           meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
           can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
         expr_code (str): if this variable is not None, the expression in the studeont/solution code will not
@@ -63,11 +63,12 @@ def test_object_after_expression(name,
         pre_code (str): the code in string form that should be executed before the expression is executed.
           This is the ideal place to set a random seed, for example.
         keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
-          the expression is evaluated. All primitive types are copied automatically, other objects have to 
+          the expression is evaluated. All primitive types are copied automatically, other objects have to
           be passed explicitely.
     """
     state = State.active_state
     rep = Reporter.active_reporter
+    rep.set_tag("fun", "test_object_after_expression")
 
     undefined_msg, incorrect_msg = build_strings(
         undefined_msg, incorrect_msg, name)
