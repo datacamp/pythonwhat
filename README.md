@@ -12,4 +12,4 @@ To learn more about course creation for DataCamp, visit our [Teach Documentation
 pip3 install git+https://github.com/datacamp/pythonwhat
 ```
 
-For more details, questions and suggestions, you can contact <b>content-engineering@datacamp.com</b>.
+For more details, questions and suggestions, contact <b>content-engineering@datacamp.com</b>.
