@@ -16,29 +16,12 @@ def test_if_else(index=1,
     which specifies the condition of the if statement, the `body`, which is what's executed if the condition is
     True and a else part, `orelse`, which will be executed if the condition is not True.
 
-        ``if 5 == 3:``
-        ``    print("success")``
-        ``else:``
-        ``    print("fail")``
-
+        | ``if 5 == 3:``
+        |     ``print("success")``
+        | ``else:``
+        |     ``print("fail")``
 
     Has `5 == 3` as the condition test, `print("success")` as the body and `print("fail")` as the else part.
-
-    Example:
-      student_code
-        | ``a = 12``
-        | ``if a > 3:``
-        | ``    print('test %d' % a)``
-      solution_code
-        | ``a = 4``
-        | ``if a > 3:``
-        | ``    print('test %d' % a)``
-      sct
-        | ``test_if_else(1,``
-        | ``             body = lambda: test_expression_output(extra_env = { 'a': 5 }``
-        | ``                                                   incorrect_msg = "Print out the correct things"))``
-      This SCT will pass as `test_expression_output()` is ran on the body of the if statement and it will output
-      the same thing in the solution as in the student code.
 
     Args:
       index (int): index of the function call to be checked. Defaults to 1.
@@ -56,6 +39,28 @@ def test_if_else(index=1,
         the if statement.
       expand_message (bool): if true, feedback messages will be expanded with `in the ___ of the if statement on
         line ___`. Defaults to True. If False, `test_if_else()` will generate no extra feedback.
+
+    Examples:
+        Student code
+
+        | ``a = 12``
+        | ``if a > 3:``
+        |     ``print('test %d' % a)``
+
+        Solution code
+
+        | ``a = 4``
+        | ``if a > 3:``
+        |     ``print('test %d' % a)``
+
+        SCT
+
+        | ``test_if_else(1,``
+        |     ``body = lambda: test_expression_output(extra_env = { 'a': 5 }``
+        |         ``incorrect_msg = "Print out the correct things"))``
+
+        This SCT will pass as `test_expression_output()` is ran on the body of the if statement and it will output
+        the same thing in the solution as in the student code.
     """
     state = State.active_state
     rep = Reporter.active_reporter

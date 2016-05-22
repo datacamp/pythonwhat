@@ -25,23 +25,6 @@ def test_object_after_expression(name,
     parameters to control the execution of the (sub)expression. This test function is ideal to check if
     a value is updated correctly in the body of a for loop.
 
-    Example:
-      student_code
-        | ``count = 1``
-        | ``for i in range(100):``
-        | ``    count = count + i``
-      solution_code
-        | ``count = 15``
-        | ``for n in range(30):``
-        | ``    count = count + n``
-      sct
-        | ``test_for_loop(1,``
-        | ``              body = lambda: test_object_after_expression("count",``
-        | ``                                                          extra_env = { 'count': 20 },``
-        | ``                                                          contex_vals = [ 10 ])``
-      This SCT will pass as the value of `count` is updated identically in the body of the for loop in the
-      student code and solution code.
-
     Args:
         name (str): the name of the object which value has to be checked after evaluation of the expression.
         extra_env (dict): set variables to the extra environment. They will update the student
@@ -65,6 +48,29 @@ def test_object_after_expression(name,
         keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
           the expression is evaluated. All primitive types are copied automatically, other objects have to
           be passed explicitely.
+
+    Examples:
+      Student code
+
+        | ``count = 1``
+        | ``for i in range(100):``
+        |     ``count = count + i``
+
+        Solution code
+
+        | ``count = 15``
+        | ``for n in range(30):``
+        |     ``count = count + n``
+
+        SCT
+
+        | ``test_for_loop(1,``
+        |     ``body = lambda: test_object_after_expression("count",``
+        |         ``extra_env = { 'count': 20 },``
+        |         ``contex_vals = [ 10 ])``
+
+        This SCT will pass as the value of `count` is updated identically in the body of the for loop in the
+        student code and solution code.
     """
     state = State.active_state
     rep = Reporter.active_reporter

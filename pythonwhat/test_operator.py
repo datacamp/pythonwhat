@@ -20,19 +20,6 @@ def test_operator(index=1,
     that is returned will depend on the sort of fail. We say that one operator group correpsonds to a group of
     operators that is evaluated to one value (e.g. 3 + 5 * (1/3)).
 
-    Example:
-      student_code
-        | ``1 + 5 * (3+5)``
-        | ``1 + 1 * 238``
-      solution_code
-        | ``3.1415 + 5``
-        | ``1 + 238``
-      sct
-        | ``test_operator(index = 2, used = ["+"])``: pass.
-        | ``test_operator(index = 2)``: fails with "Your operation at line 2 is missing a `*` operation".
-        | ``test_operator(index = 1, incorrect_op_msg = "Use the correct operators")``: fails with "Use the correct operators".
-        | ``test_operator(index = 1, used = [], incorrect_result_msg = "Incorrect result")``: fails with "Incorrect result".
-
     Args:
         index (int): Index of the operator group to be checked. Defaults to 1.
         eq_condition (str): The condition which is checked on the eval of the group. Can be "equal" --
@@ -49,9 +36,26 @@ def test_operator(index=1,
           the student's code.
 
     Raises:
-      NameError: the eq_condition you passed is not "equal" or "equivalent".
-      IndexError: not enough operation groups in the solution environment.
+        NameError: the eq_condition you passed is not "equal" or "equivalent".
+        IndexError: not enough operation groups in the solution environment.
 
+    Examples:
+        Student code
+
+        | ``1 + 5 * (3+5)``
+        | ``1 + 1 * 238``
+
+        Solution code
+
+        | ``3.1415 + 5``
+        | ``1 + 238``
+
+        SCT
+
+        | ``test_operator(index = 2, used = ["+"])``: pass.
+        | ``test_operator(index = 2)``: fail.
+        | ``test_operator(index = 1, incorrect_op_msg = "Use the correct operators")``: fail.
+        | ``test_operator(index = 1, used = [], incorrect_result_msg = "Incorrect result")``: fail.
     """
     state = State.active_state
     rep = Reporter.active_reporter

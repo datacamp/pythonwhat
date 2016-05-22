@@ -11,10 +11,10 @@ def test_student_typed(text,
     Tests if the student typed a (pattern of) text.
 
     Args:
-      text (str): the text that is searched for
-      pattern (bool): if True, the text is treated as a pattern. If False, it is treated as plain text.
-        Defaults to False.
-      not_typed_msg (str): feedback message to be displayed if the student did not type the text.
+        text (str): the text that is searched for
+        pattern (bool): if True, the text is treated as a pattern. If False, it is treated as plain text.
+          Defaults to False.
+        not_typed_msg (str): feedback message to be displayed if the student did not type the text.
     """
     state = State.active_state
     rep = Reporter.active_reporter

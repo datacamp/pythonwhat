@@ -23,24 +23,6 @@ def test_expression_result(extra_env=None,
     the code in a part of the sub statement (e.g. the condition of an if statement). It
     has various parameters to control the execution of the (sub)expression.
 
-    Example:
-      student_code
-        | ``a = 12``
-        | ``if a > 3:``
-        | ``    print('test %d' % a)``
-      solution_code
-        | ``a = 4``
-        | ``b = 5``
-        | ``if (a + 1) > (b - 1):``
-        | ``    print('test %d' % a)``
-      sct
-        | ``test_if_else(1,``
-        | ``             test = lambda: test_expression_result(extra_env = { 'a': 3 }``
-        | ``                                                   incorrect_msg = "Test if `a` > 3"))``
-      This SCT will pass as the condition in the student's code (`a > 3`) will evaluate to the
-      same value as the code in the solution code (`(a + 1) > (b - 1)`), with value of `a` set
-      to `3`.
-
     Args:
         extra_env (dict): set variables to the extra environment. They will update the student
           and solution environment in the active state before the student/solution code in the active
@@ -63,6 +45,31 @@ def test_expression_result(extra_env=None,
         keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
           the expression is evaluated. All primitive types are copied automatically, other objects have to
           be passed explicitely.
+
+    Examples:
+        Student code
+
+        | ``a = 12``
+        | ``if a > 3:``
+        |     ``print('test %d' % a)``
+
+        Solution code
+
+        | ``a = 4``
+        | ``b = 5``
+        | ``if (a + 1) > (b - 1):``
+        |     ``print('test %d' % a)``
+
+        SCT
+
+        | ``test_if_else(1,``
+        |     ``test = lambda: test_expression_result(extra_env = { 'a': 3 }``
+        |         ``incorrect_msg = "Test if `a` > 3"))``
+
+        This SCT will pass as the condition in the student's code (`a > 3`) will evaluate to the
+        same value as the code in the solution code (`(a + 1) > (b - 1)`), with value of `a` set
+        to `3`.
+
     """
     state = State.active_state
     rep = Reporter.active_reporter

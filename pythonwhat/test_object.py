@@ -13,17 +13,6 @@ def test_object(name,
     The value of an object in the ending environment is compared in the student's environment and the
     solution environment.
 
-    Example:
-      student_code
-        | ``a = 1``
-        | ``b = 5``
-      solution_code
-        | ``a = 1``
-        | ``b = 2``
-      sct
-        | ``test_object("a")``: passes
-        | ``test_object("b")``: fails
-
     Args:
         name (str): the name of the object which value has to be checked.
         eq_condition (str): the condition which is checked on the eval of the object. Can be "equal" --
@@ -33,6 +22,22 @@ def test_object(name,
         undefined_msg (str): feedback message when the object is not defined
         incorrect_msg (str): feedback message if the value of the object in the solution environment doesn't match
           the one in the student environment.
+
+    Examples:
+        Student code
+
+        | ``a = 1``
+        | ``b = 5``
+
+        Solution code
+
+        | ``a = 1``
+        | ``b = 2``
+
+        SCT
+
+        | ``test_object("a")``: pass.
+        | ``test_object("b")``: fail.
     """
     state = State.active_state
     rep = Reporter.active_reporter

@@ -37,22 +37,6 @@ def test_expression_output(extra_env=None,
     the code in a part of the sub statement (e.g. the body of an if statement). It
     has various parameters to control the execution of the (sub)expression.
 
-    Example:
-      student_code
-        | ``a = 12``
-        | ``if a > 3:``
-        | ``    print('test %d' % a)``
-      solution_code
-        | ``a = 4``
-        | ``if a > 3:``
-        | ``    print('test %d' % a)``
-      sct
-        | ``test_if_else(1,``
-        | ``             body = lambda: test_expression_output(extra_env = { 'a': 5 }``
-        | ``                                                   incorrect_msg = "Print out the correct things"))``
-      This SCT will pass as the subexpression will output 'test 5' in both student as solution environment,
-      since the extra environment sets `a` to 5.
-
     Args:
         extra_env (dict): set variables to the extra environment. They will update the student
           and solution environment in the active state before the student/solution code in the active
@@ -72,6 +56,28 @@ def test_expression_output(extra_env=None,
         keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
           the expression is evaluated. All primitive types are copied automatically, other objects have to
           be passed explicitely.
+
+    Examples:
+        Student code
+
+        |    ``a = 12``
+        |    ``if a > 3:``
+        |        ``print('test %d' % a)``
+
+        Soltuion code
+
+        |   ``a = 4``
+        |   ``if a > 3:``
+        |       ``print('test %d' % a)``
+
+        SCT
+
+        |   ``test_if_else(1,``
+        |       ``body = lambda: test_expression_output(extra_env = { 'a': 5 },``
+        |           ``incorrect_msg = "Print out the correct things"))``
+
+        This SCT will pass as the subexpression will output 'test 5' in both student as solution environment,
+        since the extra environment sets `a` to 5.
     """
     state = State.active_state
     rep = Reporter.active_reporter

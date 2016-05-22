@@ -23,21 +23,6 @@ def test_function(name,
     code. It will cause the reporter to fail if the corresponding calls do not match. The fail message
     that is returned will depend on the sort of fail.
 
-    Example:
-      student_code
-        | ``import numpy as np``
-        | ``np.mean([1,2,3])``
-        | ``np.std([2,3,4])``
-      solution_code
-        | ``import numpy``
-        | ``numpy.mean([1,2,3], axis = 0)``
-        | ``numpy.std([4,5,6])``
-      sct
-        | ``test_function("numpy.mean", index = 1, keywords = [])``: pass.
-        | ``test_function("numpy.mean", index = 1)``: fails with "Your operation at line 2 is missing a `*` operation".
-        | ``test_function(index = 1, incorrect_op_msg = "Use the correct operators")``: fails with "Use the correct operators".
-        | ``test_function(index = 1, used = [], incorrect_result_msg = "Incorrect result")``: fails with "Incorrect result".
-
     Args:
         name (str): the name of the function to be tested.
         index (int): index of the function call to be checked. Defaults to 1.
@@ -55,9 +40,28 @@ def test_function(name,
           the one of the student.
 
     Raises:
-      NameError: the eq_condition you passed is not "equal" or "equivalent".
-      NameError: function is not called in the solution
+        NameError: the eq_condition you passed is not "equal" or "equivalent".
+        NameError: function is not called in the solution
 
+    Examples:
+        Student code
+
+        | ``import numpy as np``
+        | ``np.mean([1,2,3])``
+        | ``np.std([2,3,4])``
+
+        Solution code
+
+        | ``import numpy``
+        | ``numpy.mean([1,2,3], axis = 0)``
+        | ``numpy.std([4,5,6])``
+
+        SCT
+
+        | ``test_function("numpy.mean", index = 1, keywords = [])``: pass.
+        | ``test_function("numpy.mean", index = 1)``: fail.
+        | ``test_function(index = 1, incorrect_op_msg = "Use the correct operators")``: fail.
+        | ``test_function(index = 1, used = [], incorrect_result_msg = "Incorrect result")``: fail.
     """
     state = State.active_state
     rep = Reporter.active_reporter

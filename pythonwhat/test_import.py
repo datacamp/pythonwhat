@@ -14,23 +14,29 @@ def test_import(name,
     Test whether an import statement is used the same in the student's environment as in the solution
     environment.
 
-    Example:
-      student_code
-        | ``import numpy as np``
-        | ``import pandas as pa``
-      solution_code
-        | ``import numpy as np``
-        | ``import pandas as pd``
-      sct
-        | ``test_import("numpy")``: passes
-        | ``test_import("pandas")``: fails
-        | ``test_import("pandas", same_as = False)``: passes
-
     Args:
         name (str): the name of the package that has to be checked.
         same_as (bool): if false, the alias of the package doesn't have to be the same. Defaults to True.
         not_imported_msg (str): feedback message when the package is not imported.
         incorrect_as_msg (str): feedback message if the alias is wrong.
+
+
+    Examples:
+        Student code
+
+        | ``import numpy as np``
+        | ``import pandas as pa``
+
+        Solution code
+
+        | ``import numpy as np``
+        | ``import pandas as pd``
+
+        SCT
+
+        | ``test_import("numpy")``: pass.
+        | ``test_import("pandas")``: fail.
+        | ``test_import("pandas", same_as = False)``: pass.
     """
     state = State.active_state
     rep = Reporter.active_reporter

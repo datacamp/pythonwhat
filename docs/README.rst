@@ -1,16 +1,10 @@
 
-Welcome to Pythonwhat's documentation!
-**************************************
+pythonwhat
+**********
 
 
-Submodules
-==========
-
-
-pythonwhat.test_expression_output module
-========================================
-
-pythonwhat.test_expression_output.capture_output(*args, **kwds)
+test_expression_output
+======================
 
 pythonwhat.test_expression_output.test_expression_output(extra_env=None, context_vals=None, incorrect_msg=None, eq_condition='equal', pre_code=None, keep_objs_in_env=None)
 
@@ -22,27 +16,6 @@ pythonwhat.test_expression_output.test_expression_output(extra_env=None, context
    calls, the code of the active state is set to the code in a part of
    the sub statement (e.g. the body of an if statement). It has
    various parameters to control the execution of the (sub)expression.
-
-   -[ Example ]-
-
-   student_code
-         "a = 12"
-         "if a > 3:"
-         ``    print('test %d' % a)``
-
-   solution_code
-         "a = 4"
-         "if a > 3:"
-         ``    print('test %d' % a)``
-
-   sct
-         "test_if_else(1,"
-         ``             body = lambda: test_expression_output(extra_env = { 'a': 5 }``
-         ``                                                   incorrect_msg = "Print out the correct things"))``
-
-   This SCT will pass as the subexpression will output 'test 5' in
-   both student as solution environment, since the extra environment
-   sets *a* to 5.
 
    Parameters:
       * **extra_env** (*dict*) -- set variables to the extra
@@ -77,9 +50,33 @@ pythonwhat.test_expression_output.test_expression_output(extra_env=None, context
         expression is evaluated. All primitive types are copied
         automatically, other objects have to be passed explicitely.
 
+   -[ Examples ]-
 
-pythonwhat.test_expression_result module
-========================================
+   Student code
+
+      "a = 12"
+      "if a > 3:"
+         "print('test %d' % a)"
+
+   Soltuion code
+
+      "a = 4"
+      "if a > 3:"
+         "print('test %d' % a)"
+
+   SCT
+
+      "test_if_else(1,"
+         "body = lambda: test_expression_output(extra_env = { 'a': 5 },"
+            "incorrect_msg = "Print out the correct things"))"
+
+   This SCT will pass as the subexpression will output 'test 5' in
+   both student as solution environment, since the extra environment
+   sets *a* to 5.
+
+
+test_expression_result
+======================
 
 pythonwhat.test_expression_result.test_expression_result(extra_env=None, context_vals=None, incorrect_msg=None, eq_condition='equal', expr_code=None, pre_code=None, keep_objs_in_env=None)
 
@@ -92,28 +89,6 @@ pythonwhat.test_expression_result.test_expression_result(extra_env=None, context
    part of the sub statement (e.g. the condition of an if statement).
    It has various parameters to control the execution of the
    (sub)expression.
-
-   -[ Example ]-
-
-   student_code
-         "a = 12"
-         "if a > 3:"
-         ``    print('test %d' % a)``
-
-   solution_code
-         "a = 4"
-         "b = 5"
-         "if (a + 1) > (b - 1):"
-         ``    print('test %d' % a)``
-
-   sct
-         "test_if_else(1,"
-         ``             test = lambda: test_expression_result(extra_env = { 'a': 3 }``
-         ``                                                   incorrect_msg = "Test if *a* > 3"))``
-
-   This SCT will pass as the condition in the student's code (*a > 3*)
-   will evaluate to the same value as the code in the solution code
-   (*(a + 1) > (b - 1)*), with value of *a* set to *3*.
 
    Parameters:
       * **extra_env** (*dict*) -- set variables to the extra
@@ -154,9 +129,34 @@ pythonwhat.test_expression_result.test_expression_result(extra_env=None, context
         expression is evaluated. All primitive types are copied
         automatically, other objects have to be passed explicitely.
 
+   -[ Examples ]-
 
-pythonwhat.test_for_loop module
-===============================
+   Student code
+
+      "a = 12"
+      "if a > 3:"
+         "print('test %d' % a)"
+
+   Solution code
+
+      "a = 4"
+      "b = 5"
+      "if (a + 1) > (b - 1):"
+         "print('test %d' % a)"
+
+   SCT
+
+      "test_if_else(1,"
+         "test = lambda: test_expression_result(extra_env = { 'a': 3 }"
+            "incorrect_msg = "Test if `a` > 3"))"
+
+   This SCT will pass as the condition in the student's code (*a > 3*)
+   will evaluate to the same value as the code in the solution code
+   (*(a + 1) > (b - 1)*), with value of *a* set to *3*.
+
+
+test_for_loop
+=============
 
 pythonwhat.test_for_loop.test_for_loop(index=1, for_iter=None, body=None, orelse=None, expand_message=True)
 
@@ -168,28 +168,10 @@ pythonwhat.test_for_loop.test_for_loop(index=1, for_iter=None, body=None, orelse
    the values over which are looped, and the *body*. A for loop can
    have a else part as well, *orelse*, but this is almost never used.
 
-      "for i in range(10):" ``    print(i)``
+         "for i in range(10):"
+            "print(i)"
 
    Has *range(10)* as the sequence and *print(i)* as the body.
-
-   -[ Example ]-
-
-   student_code
-         "for i in range(10):"
-         ``    print(i)``
-
-   solution_code
-         "for n in range(10):"
-         ``    print(n)``
-
-   sct
-         "test_for_loop(1,"
-         ``              for_iter = lamdba: test_function("range"),``
-         ``              body = lambda: test_expression_output(context_val = [5])``
-
-   This SCT will evaluate to True as the function *"range"* is used in
-   the sequence and the function *test_exression_output()* will pass
-   on the body code.
 
    Parameters:
       * **index** (*int*) -- index of the function call to be
@@ -221,13 +203,31 @@ pythonwhat.test_for_loop.test_for_loop(index=1, for_iter=None, body=None, orelse
         ___*. Defaults to True. If False, *test_for_loop()* will
         generate no extra feedback.
 
+   -[ Examples ]-
 
-pythonwhat.test_function module
-===============================
+   Student code
 
-pythonwhat.test_function.construct_incorrect_msg(nb_call)
+      "for i in range(10):"
+         "print(i)"
 
-pythonwhat.test_function.ordinal(n)
+   Solution code
+
+      "for n in range(10):"
+         "print(n)"
+
+   SCT
+
+      "test_for_loop(1,"
+         "for_iter = lamdba: test_function("range"),"
+         "body = lambda: test_expression_output(context_val = [5])"
+
+   This SCT will evaluate to True as the function *"range"* is used in
+   the sequence and the function *test_exression_output()* will pass
+   on the body code.
+
+
+test_function
+=============
 
 pythonwhat.test_function.test_function(name, index=1, args=None, keywords=None, eq_condition='equal', do_eval=True, not_called_msg=None, incorrect_msg=None)
 
@@ -237,24 +237,6 @@ pythonwhat.test_function.test_function(name, index=1, args=None, keywords=None, 
    the corresponding one in the solution code. It will cause the
    reporter to fail if the corresponding calls do not match. The fail
    message that is returned will depend on the sort of fail.
-
-   -[ Example ]-
-
-   student_code
-         "import numpy as np"
-         "np.mean([1,2,3])"
-         "np.std([2,3,4])"
-
-   solution_code
-         "import numpy"
-         "numpy.mean([1,2,3], axis = 0)"
-         "numpy.std([4,5,6])"
-
-   sct
-         "test_function("numpy.mean", index = 1, keywords = [])": pass.
-         "test_function("numpy.mean", index = 1)": fails with "Your operation at line 2 is missing a *** operation".
-         "test_function(index = 1, incorrect_op_msg = "Use the correct operators")": fails with "Use the correct operators".
-         "test_function(index = 1, used = [], incorrect_result_msg = "Incorrect result")": fails with "Incorrect result".
 
    Parameters:
       * **name** (*str*) -- the name of the function to be tested.
@@ -294,9 +276,30 @@ pythonwhat.test_function.test_function(name, index=1, args=None, keywords=None, 
 
       * "NameError" -- function is not called in the solution
 
+   -[ Examples ]-
 
-pythonwhat.test_if_else module
-==============================
+   Student code
+
+      "import numpy as np"
+      "np.mean([1,2,3])"
+      "np.std([2,3,4])"
+
+   Solution code
+
+      "import numpy"
+      "numpy.mean([1,2,3], axis = 0)"
+      "numpy.std([4,5,6])"
+
+   SCT
+
+      "test_function("numpy.mean", index = 1, keywords = [])": pass.
+      "test_function("numpy.mean", index = 1)": fail.
+      "test_function(index = 1, incorrect_op_msg = "Use the correct operators")": fail.
+      "test_function(index = 1, used = [], incorrect_result_msg = "Incorrect result")": fail.
+
+
+test_if_else module
+===================
 
 pythonwhat.test_if_else.test_if_else(index=1, test=None, body=None, orelse=None, expand_message=True)
 
@@ -310,32 +313,13 @@ pythonwhat.test_if_else.test_if_else(index=1, test=None, body=None, orelse=None,
    else part, *orelse*, which will be executed if the condition is not
    True.
 
-      "if 5 == 3:" ``    print("success")`` "else:" ``
-      print("fail")``
+         "if 5 == 3:"
+            "print("success")"
+         "else:"
+            "print("fail")"
 
    Has *5 == 3* as the condition test, *print("success")* as the body
    and *print("fail")* as the else part.
-
-   -[ Example ]-
-
-   student_code
-         "a = 12"
-         "if a > 3:"
-         ``    print('test %d' % a)``
-
-   solution_code
-         "a = 4"
-         "if a > 3:"
-         ``    print('test %d' % a)``
-
-   sct
-         "test_if_else(1,"
-         ``             body = lambda: test_expression_output(extra_env = { 'a': 5 }``
-         ``                                                   incorrect_msg = "Print out the correct things"))``
-
-   This SCT will pass as *test_expression_output()* is ran on the body
-   of the if statement and it will output the same thing in the
-   solution as in the student code.
 
    Parameters:
       * **index** (*int*) -- index of the function call to be
@@ -367,9 +351,33 @@ pythonwhat.test_if_else.test_if_else(index=1, test=None, body=None, orelse=None,
         ___*. Defaults to True. If False, *test_if_else()* will
         generate no extra feedback.
 
+   -[ Examples ]-
 
-pythonwhat.test_import module
-=============================
+   Student code
+
+      "a = 12"
+      "if a > 3:"
+         "print('test %d' % a)"
+
+   Solution code
+
+      "a = 4"
+      "if a > 3:"
+         "print('test %d' % a)"
+
+   SCT
+
+      "test_if_else(1,"
+         "body = lambda: test_expression_output(extra_env = { 'a': 5 }"
+            "incorrect_msg = "Print out the correct things"))"
+
+   This SCT will pass as *test_expression_output()* is ran on the body
+   of the if statement and it will output the same thing in the
+   solution as in the student code.
+
+
+test_import
+===========
 
 pythonwhat.test_import.test_import(name, same_as=True, not_imported_msg=None, incorrect_as_msg=None)
 
@@ -377,21 +385,6 @@ pythonwhat.test_import.test_import(name, same_as=True, not_imported_msg=None, in
 
    Test whether an import statement is used the same in the student's
    environment as in the solution environment.
-
-   -[ Example ]-
-
-   student_code
-         "import numpy as np"
-         "import pandas as pa"
-
-   solution_code
-         "import numpy as np"
-         "import pandas as pd"
-
-   sct
-         "test_import("numpy")": passes
-         "test_import("pandas")": fails
-         "test_import("pandas", same_as = False)": passes
 
    Parameters:
       * **name** (*str*) -- the name of the package that has to be
@@ -406,9 +399,27 @@ pythonwhat.test_import.test_import(name, same_as=True, not_imported_msg=None, in
       * **incorrect_as_msg** (*str*) -- feedback message if the
         alias is wrong.
 
+   -[ Examples ]-
 
-pythonwhat.test_mc module
-=========================
+   Student code
+
+      "import numpy as np"
+      "import pandas as pa"
+
+   Solution code
+
+      "import numpy as np"
+      "import pandas as pd"
+
+   SCT
+
+      "test_import("numpy")": pass.
+      "test_import("pandas")": fail.
+      "test_import("pandas", same_as = False)": pass.
+
+
+test_mc
+=======
 
 pythonwhat.test_mc.test_mc(correct, msgs)
 
@@ -422,14 +433,14 @@ pythonwhat.test_mc.test_mc(correct, msgs)
         (should be an instruction). Starts at 1.
 
       * **msgs** (*list(str*) -- a list containing all feedback
-        messages belonging to each choice of the student. The list
-        should have the same length as the number of instructions.
+        messages belonging to each choice of the
+
+      * **The list should have the same length as the number of
+        instructions.** (*student.*) --
 
 
-pythonwhat.test_object module
-=============================
-
-pythonwhat.test_object.build_strings(undefined_msg, incorrect_msg, name)
+test_object
+===========
 
 pythonwhat.test_object.test_object(name, eq_condition='equal', do_eval=True, undefined_msg=None, incorrect_msg=None)
 
@@ -437,20 +448,6 @@ pythonwhat.test_object.test_object(name, eq_condition='equal', do_eval=True, und
 
    The value of an object in the ending environment is compared in the
    student's environment and the solution environment.
-
-   -[ Example ]-
-
-   student_code
-         "a = 1"
-         "b = 5"
-
-   solution_code
-         "a = 1"
-         "b = 2"
-
-   sct
-         "test_object("a")": passes
-         "test_object("b")": fails
 
    Parameters:
       * **name** (*str*) -- the name of the object which value has
@@ -472,11 +469,26 @@ pythonwhat.test_object.test_object(name, eq_condition='equal', do_eval=True, und
         of the object in the solution environment doesn't match the
         one in the student environment.
 
+   -[ Examples ]-
 
-pythonwhat.test_object_after_expression module
-==============================================
+   Student code
 
-pythonwhat.test_object_after_expression.build_strings(undefined_msg, incorrect_msg, name)
+      "a = 1"
+      "b = 5"
+
+   Solution code
+
+      "a = 1"
+      "b = 2"
+
+   SCT
+
+      "test_object("a")": pass.
+      "test_object("b")": fail.
+
+
+test_object_after_expression
+============================
 
 pythonwhat.test_object_after_expression.test_object_after_expression(name, extra_env=None, context_vals=None, undefined_msg=None, incorrect_msg=None, eq_condition='equal', pre_code=None, keep_objs_in_env=None)
 
@@ -490,27 +502,6 @@ pythonwhat.test_object_after_expression.test_object_after_expression(name, extra
    a for loop). It has various parameters to control the execution of
    the (sub)expression. This test function is ideal to check if a
    value is updated correctly in the body of a for loop.
-
-   -[ Example ]-
-
-   student_code
-         "count = 1"
-         "for i in range(100):"
-         ``    count = count + i``
-
-   solution_code
-         "count = 15"
-         "for n in range(30):"
-         ``    count = count + n``
-
-   sct
-         "test_for_loop(1,"
-         ``              body = lambda: test_object_after_expression("count",``
-         ``                                                          extra_env = { 'count': 20 },``
-         ``                                                          contex_vals = [ 10 ])``
-
-   This SCT will pass as the value of *count* is updated identically
-   in the body of the for loop in the student code and solution code.
 
    Parameters:
       * **name** (*str*) -- the name of the object which value has
@@ -555,9 +546,34 @@ pythonwhat.test_object_after_expression.test_object_after_expression(name, extra
         expression is evaluated. All primitive types are copied
         automatically, other objects have to be passed explicitely.
 
+   -[ Examples ]-
 
-pythonwhat.test_operator module
-===============================
+   Student code
+
+         "count = 1"
+         "for i in range(100):"
+            "count = count + i"
+
+      Solution code
+
+         "count = 15"
+         "for n in range(30):"
+            "count = count + n"
+
+      SCT
+
+         "test_for_loop(1,"
+            "body = lambda: test_object_after_expression("count","
+               "extra_env = { 'count': 20 },"
+               "contex_vals = [ 10 ])"
+
+      This SCT will pass as the value of *count* is updated
+      identically in the body of the for loop in the student code and
+      solution code.
+
+
+test_operator
+=============
 
 pythonwhat.test_operator.test_operator(index=1, eq_condition='equal', used=None, do_eval=True, not_found_msg=None, incorrect_op_msg=None, incorrect_result_msg=None)
 
@@ -569,22 +585,6 @@ pythonwhat.test_operator.test_operator(index=1, eq_condition='equal', used=None,
    fail message that is returned will depend on the sort of fail. We
    say that one operator group correpsonds to a group of operators
    that is evaluated to one value (e.g. 3 + 5 * (1/3)).
-
-   -[ Example ]-
-
-   student_code
-         "1 + 5 * (3+5)"
-         "1 + 1 * 238"
-
-   solution_code
-         "3.1415 + 5"
-         "1 + 238"
-
-   sct
-         "test_operator(index = 2, used = ["+"])": pass.
-         "test_operator(index = 2)": fails with "Your operation at line 2 is missing a *** operation".
-         "test_operator(index = 1, incorrect_op_msg = "Use the correct operators")": fails with "Use the correct operators".
-         "test_operator(index = 1, used = [], incorrect_result_msg = "Incorrect result")": fails with "Incorrect result".
 
    Parameters:
       * **index** (*int*) -- Index of the operator group to be
@@ -623,9 +623,28 @@ pythonwhat.test_operator.test_operator(index=1, eq_condition='equal', used=None,
       * "IndexError" -- not enough operation groups in the solution
         environment.
 
+   -[ Examples ]-
 
-pythonwhat.test_output_contains module
-======================================
+   Student code
+
+      "1 + 5 * (3+5)"
+      "1 + 1 * 238"
+
+   Solution code
+
+      "3.1415 + 5"
+      "1 + 238"
+
+   SCT
+
+      "test_operator(index = 2, used = ["+"])": pass.
+      "test_operator(index = 2)": fail.
+      "test_operator(index = 1, incorrect_op_msg = "Use the correct operators")": fail.
+      "test_operator(index = 1, used = [], incorrect_result_msg = "Incorrect result")": fail.
+
+
+test_output_contains
+====================
 
 pythonwhat.test_output_contains.test_output_contains(text, pattern=True, no_output_msg=None)
 
@@ -644,8 +663,8 @@ pythonwhat.test_output_contains.test_output_contains(text, pattern=True, no_outp
         displayed if the output is not found.
 
 
-pythonwhat.test_student_typed module
-====================================
+test_student_typed
+==================
 
 pythonwhat.test_student_typed.test_student_typed(text, pattern=True, not_typed_msg=None)
 
@@ -664,8 +683,8 @@ pythonwhat.test_student_typed.test_student_typed(text, pattern=True, not_typed_m
         displayed if the student did not type the text.
 
 
-pythonwhat.test_while_loop module
-=================================
+test_while_loop module
+======================
 
 pythonwhat.test_while_loop.test_while_loop(index=1, test=None, body=None, orelse=None, expand_message=True)
 
@@ -678,32 +697,12 @@ pythonwhat.test_while_loop.test_while_loop(index=1, test=None, body=None, orelse
    *body*. A for while can have a else part as well, *orelse*, but
    this is almost never used.
 
-      "a = 10" "while a < 5:" ``    print(a)`` ``    a -= 1``
-
-   Has *a < 5* as the condition test and *print(i)* as the body.
-
-   -[ Example ]-
-
-   student_code
          "a = 10"
          "while a < 5:"
-         ``    print(a)``
-         ``    a -= 1``
+            "print(a)"
+            "a -= 1"
 
-   solution_code
-         "a = 20"
-         "while a < 5:"
-         ``    print(a)``
-         ``    a -= 1``
-
-   sct
-         "test_while_loop(1,"
-         ``                test = lamdba: test_expression_result({"a": 5}),``
-         ``                body = lambda: test_expression_output({"a": 5}))``
-
-   This SCT will evaluate to True as condition test will have thes
-   same result in student and solution code and
-   *test_exression_output()* will pass on the body code.
+   Has *a < 5* as the condition test and *print(i)* as the body.
 
    Parameters:
       * **index** (*int*) -- index of the function call to be
@@ -734,3 +733,29 @@ pythonwhat.test_while_loop.test_while_loop(index=1, test=None, body=None, orelse
         will be expanded with *in the ___ of the while loop on line
         ___*. Defaults to True. If False, *test_for_loop()* will
         generate no extra feedback.
+
+   -[ Examples ]-
+
+   Student code
+
+      "a = 10"
+      "while a < 5:"
+         "print(a)"
+         "a -= 1"
+
+   Solution code
+
+      "a = 20"
+      "while a < 5:"
+         "print(a)"
+         "a -= 1"
+
+   SCT
+
+      "test_while_loop(1,"
+         "test = lamdba: test_expression_result({"a": 5}),"
+         "body = lambda: test_expression_output({"a": 5}))"
+
+      This SCT will evaluate to True as condition test will have thes
+      same result in student and solution code and
+      *test_exression_output()* will pass on the body code.
