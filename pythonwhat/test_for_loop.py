@@ -32,7 +32,7 @@ def test_for_loop(index=1,
         | ``test_for_loop(1,``
         | ``              for_iter = lamdba: test_function("range"),``
         | ``              body = lambda: test_expression_output(context_val = [5])``
-      This SCT will evaluate to TRUE as the function `"range"` is used in the sequence and the function
+      This SCT will evaluate to True as the function `"range"` is used in the sequence and the function
       `test_exression_output()` will pass on the body code.
 
     Args:
