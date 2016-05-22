@@ -1,0 +1,1613 @@
+
+Welcome to Pythonwhat's documentation!
+**************************************
+
+
+Submodules
+==========
+
+
+pythonwhat.Reporter module
+==========================
+
+This file holds the reporter class.
+
+class pythonwhat.Reporter.Reporter
+
+   Bases: "object"
+
+   Do reporting.
+
+   This class holds the feedback- or success message and tracks
+   whether there are failed tests or not. All tests are executed
+   trough do_test() in the Reporter.
+
+   active_reporter = None
+
+   allow_errors()
+
+   do_test(test_object)
+
+      Do test.
+
+      Execute a given test, unless some previous test has failed. If
+      the test has failed, the state of the reporter changes and the
+      feedback is kept.
+
+   do_tests(test_objects)
+
+      Do multiple tests.
+
+      Execute an array of tests.
+
+   fail(failure_msg)
+
+   get_tags()
+
+   inc_correct_steps_to(correct_steps)
+
+   reject_errors()
+
+   set_success_msg(success_msg)
+
+   set_tag(key, value)
+
+
+pythonwhat.State module
+=======================
+
+class pythonwhat.State.State(student_code, solution_code, pre_exercise_code, student_env, solution_env, raw_student_output)
+
+   Bases: "object"
+
+   State of the SCT environment.
+
+   This class holds all information relevevant to test the correctness
+   of an exercise. It is coded suboptimally and it will be refactored
+   soon, and documented thouroughly after that.
+
+   active_state = None
+
+   add_pre_exercise_code(pre_exercise_code)
+
+   add_raw_student_output(raw_student_output)
+
+   add_solution_code(solution_code)
+
+   add_solution_env(solution_env)
+
+   add_student_code(student_code)
+
+   add_student_env(student_env)
+
+   extract_for_calls()
+
+   extract_function_calls()
+
+   extract_if_calls()
+
+   extract_imports()
+
+   extract_operators()
+
+   extract_while_calls()
+
+   get_subcode(subtree, full_code)
+
+      Extract code subtree.
+
+      Extract all the code belonging to a subtree of the code.
+
+   parse_code()
+
+   set_active_state(to_state)
+
+   to_child_state(student_subtree, solution_subtree)
+
+      Dive into nested tree.
+
+      Set the current state as a state with a subtree of this syntax
+      tree as student tree and solution tree. This is necessary when
+      testing if statements or for loops for example.
+
+   to_parent_state()
+
+
+pythonwhat.Test module
+======================
+
+class pythonwhat.Test.BiggerTest(obj1, obj2, failure_msg)
+
+   Bases: "pythonwhat.Test.Test"
+
+   Check if two objects are equal. Equal means the objects are exactly
+   the same. This test should only be used with numeric variables (for
+   now).
+
+   failure_msg
+
+      *str*
+
+      A string containing the failure message in case the test fails.
+
+   obj1
+
+      *str*
+
+      The first object that should be compared with.
+
+   obj2
+
+      *str*
+
+      This object is compared to obj1.
+
+   result
+
+      *bool*
+
+      True if the test succeed, False if it failed. None if it hasn't
+      been tested yet.
+
+   specific_test()
+
+      Perform the actual test. result is set to False if the objects
+      differ, True otherwise.
+
+class pythonwhat.Test.CollectionContainsTest(obj, coll, failure_msg)
+
+   Bases: "pythonwhat.Test.Test"
+
+   specific_test()
+
+class pythonwhat.Test.DefinedTest(obj, coll, failure_msg)
+
+   Bases: "pythonwhat.Test.Test"
+
+   Check if an object with a certain name is defined in a collection.
+
+   failure_msg
+
+      *str*
+
+      A string containing the failure message in case the test fails.
+
+   obj
+
+      *str*
+
+      Contains the name of the object that is searched for.
+
+   coll
+
+      *list/dict/set*
+
+      Contains any object on which the 'in' operator can be performed.
+
+   result
+
+      *bool*
+
+      True if the test succeed, False if it failed. None if it hasn't
+      been tested yet.
+
+   specific_test()
+
+      Perform the actual test. Result is True if obj is in coll, False
+      otherwise.
+
+class pythonwhat.Test.EnvironmentTest(obj, student_env, solution_env, failure_msg)
+
+   Bases: "pythonwhat.Test.Test"
+
+   This class should be subclassed. Subclasses of this test will be
+   performed within the student and the solution environment.
+
+   Note: This test should not be used by itself, subclasses should
+     be used.
+
+   failure_msg
+
+      *str*
+
+      A string containing the failure message in case the test fails.
+
+   student_env
+
+      *dict*
+
+      Contains the student environment as a dictionary.
+
+   solution_env
+
+      *dict*
+
+      Contains the solution environment as a dictionary.
+
+   result
+
+      *bool*
+
+      True if the test succeed, False if it failed. None if it hasn't
+      been tested yet.
+
+class pythonwhat.Test.EqualEnvironmentTest(obj, student_env, solution_env, failure_msg)
+
+   Bases: "pythonwhat.Test.EnvironmentTest"
+
+   Check if an variable with a certain name is equal in both student
+   and solution environment. Equal means the objects are exactly the
+   same.
+
+   failure_msg
+
+      *str*
+
+      A string containing the failure message in case the test fails.
+
+   obj
+
+      *str*
+
+      The name of the variable that will be tested in both
+      environments.
+
+   student_env
+
+      *dict*
+
+      Contains the student environment as a dictionary.
+
+   solution_env
+
+      *dict*
+
+      Contains the solution environment as a dictionary.
+
+   result
+
+      *bool*
+
+      True if the test succeed, False if it failed. None if it hasn't
+      been tested yet.
+
+   specific_test()
+
+      Perform the actual test. result is set to False if the variables
+      differ, True otherwise.
+
+class pythonwhat.Test.EqualTest(obj1, obj2, failure_msg)
+
+   Bases: "pythonwhat.Test.Test"
+
+   Check if two objects are equal. Equal means the objects are exactly
+   the same. This test should only be used with numeric variables (for
+   now).
+
+   failure_msg
+
+      *str*
+
+      A string containing the failure message in case the test fails.
+
+   obj1
+
+      *str*
+
+      The first object that should be compared with.
+
+   obj2
+
+      *str*
+
+      This object is compared to obj1.
+
+   result
+
+      *bool*
+
+      True if the test succeed, False if it failed. None if it hasn't
+      been tested yet.
+
+   specific_test()
+
+      Perform the actual test. result is set to False if the objects
+      differ, True otherwise.
+
+class pythonwhat.Test.EquivalentEnvironmentTest(obj, student_env, solution_env, failure_msg)
+
+   Bases: "pythonwhat.Test.EnvironmentTest"
+
+   Check if an variable with a certain name is equivalent in both
+   student and solution environment. Equivalence means the objects are
+   almost the same. This test should only be used with numeric
+   variables (for now).
+
+   failure_msg
+
+      *str*
+
+      A string containing the failure message in case the test fails.
+
+   obj
+
+      *str*
+
+      The name of the variable that will be tested in both
+      environments.
+
+   student_env
+
+      *dict*
+
+      Contains the student environment as a dictionary.
+
+   solution_env
+
+      *dict*
+
+      Contains the solution environment as a dictionary.
+
+   result
+
+      *bool*
+
+      True if the test succeed, False if it failed. None if it hasn't
+      been tested yet.
+
+   specific_test()
+
+class pythonwhat.Test.EquivalentTest(obj1, obj2, failure_msg)
+
+   Bases: "pythonwhat.Test.Test"
+
+   Check if two objects are equivalent. Equivalence means the objects
+   are almost the same. This test should only be used with numeric
+   variables (for now).
+
+   failure_msg
+
+      *str*
+
+      A string containing the failure message in case the test fails.
+
+   obj1
+
+      *str*
+
+      The first object that should be compared with.
+
+   obj2
+
+      *str*
+
+      This object is compared to obj1.
+
+   result
+
+      *bool*
+
+      True if the test succeed, False if it failed. None if it hasn't
+      been tested yet.
+
+   specific_test()
+
+      Perform the actual test. result is set to False if the
+      difference between the objects is more than 0.5e-8, True
+      otherwise.
+
+class pythonwhat.Test.StringContainsTest(string, search_string, pattern, failure_msg)
+
+   Bases: "pythonwhat.Test.Test"
+
+   Check if a string is present in a text. Can use literal strings or
+   a regex.
+
+   failure_msg
+
+      *str*
+
+      A string containing the failure message in case the test fails.
+
+   string
+
+      *regex/str*
+
+      String or regular expression which is searched for.
+
+   search_string
+
+      *str*
+
+      The text in which is searched.
+
+   pattern
+
+      *bool*
+
+      If set to True, string is matched with a regex. Literal
+      otherwise.
+
+   result
+
+      *bool*
+
+      True if the test succeed, False if it failed. None if it hasn't
+      been tested yet.
+
+   specific_test()
+
+      Perform the actual test. result will be True if string is found
+      (whether or not with a pattern), False otherwise.
+
+class pythonwhat.Test.Test(failure_msg)
+
+   Bases: "object"
+
+   The basic Test. It should only contain a failure message, as all
+   tests should result in a failure message when they fail.
+
+   Note: This test should not be used by itself, subclasses should
+     be used.
+
+   failure_msg
+
+      *str*
+
+      A string containing the failure message in case the test fails.
+
+   result
+
+      *bool*
+
+      True if the test succeed, False if it failed. None if it hasn't
+      been tested yet.
+
+   feedback()
+
+   specific_test()
+
+      Perform the actual test. For the standard test, result will be
+      set to False.
+
+   test()
+
+      Wrapper around specific tests. Tests only get one chance.
+
+
+pythonwhat.feedback module
+==========================
+
+class pythonwhat.feedback.FeedbackMessage(message_string)
+
+   Bases: "object"
+
+   Generate feedback.
+
+   Don't use this yet!
+
+   This class will hold all functionality which is related to feedback
+   messaging. At the moment it is NOT used, feedback generation is
+   still HIGLY interwoven with >>test_<<... files. Should be
+   decoupled.
+
+   Class should be refactored to use .format() instead.
+
+   Will be documented when it's refactored.
+
+   add_information(key, value)
+
+   append(message_string)
+
+   cond_append(cond, message_string)
+
+   generateString()
+
+   remove_information(key)
+
+   replaceConditionalTags(message_string, information)
+
+   replaceRegularTags(message_string, information)
+
+   set(message_string)
+
+   set_information(key, value)
+
+
+pythonwhat.parsing module
+=========================
+
+class pythonwhat.parsing.BoolParser
+
+   Bases: "pythonwhat.parsing.Parser"
+
+   Find boolean operations.
+
+   A parser which inherits from the basic parser. It will walk through
+   the syntax tree and put all boolean operators in a relevant data
+   structure, which can later be used in the test.
+
+   bools
+
+      *list(*
+
+      A list containing the correct data structure.
+
+class pythonwhat.parsing.FindLastLineParser
+
+   Bases: "ast.NodeVisitor"
+
+   Find the last line.
+
+   Search the last line number of a code part.
+
+   generic_visit(node)
+
+class pythonwhat.parsing.ForParser
+
+   Bases: "pythonwhat.parsing.Parser"
+
+   Find for structures.
+
+   A parser which inherits from the basic parser. It will walk through
+   the syntax tree and put all for calls in a relevant data structure,
+   which can later be used in the test.
+
+   current
+
+      *str*
+
+      The function call which is being constructed, important for
+      dotted function calls.
+
+   calls (dict(str
+
+      list(tuple(num, list(ast.Node), list(keyword))))): A dictionary
+      containing the function names as a key, and a list of structured
+      tuples as value. The tuples contain information about the line
+      number, the arguments and the keywords of each call.
+
+   visit_For(node)
+
+      This function is called when a For node is encountered when
+      traversing the tree.
+
+      Parameters:
+         **node** (*ast.For*) -- The node which is visited.
+
+class pythonwhat.parsing.FunctionParser
+
+   Bases: "pythonwhat.parsing.Parser"
+
+   Find function calls.
+
+   A parser which inherits from the basic parser. It will walk through
+   the syntax tree and put all function calls in a relevant data
+   structure, which can later be used in the test.
+
+   current
+
+      *str*
+
+      The function call which is being constructed, important for
+      dotted function calls.
+
+   calls (dict(str
+
+      list(tuple(num, list(ast.Node), list(keyword))))): A dictionary
+      containing the function names as a key, and a list of structured
+      tuples as value. The tuples contain information about the line
+      number, the arguments and the keywords of each call.
+
+   visit_Assign(node)
+
+   visit_Attribute(node)
+
+      This function is called when a Attribute node is encountered
+      when traversing the tree.
+
+      Parameters:
+         **node** (*ast.Attribute*) -- The node which is visited.
+
+   visit_BinOp(node)
+
+   visit_Call(node)
+
+      This function is called when a Call node is encountered when
+      traversing the tree.
+
+      Parameters:
+         **node** (*ast.Call*) -- The node which is visited.
+
+   visit_Expr(node)
+
+      This function is called when a Expr node is encountered when
+      traversing the tree.
+
+      Parameters:
+         **node** (*ast.Expr*) -- The node which is visited.
+
+   visit_Import(node)
+
+   visit_ImportFrom(node)
+
+   visit_Name(node)
+
+      This function is called when a Name node is encountered when
+      traversing the tree.
+
+      Parameters:
+         **node** (*ast.Name*) -- The node which is visited.
+
+   visit_UnaryOp(node)
+
+class pythonwhat.parsing.IfParser
+
+   Bases: "pythonwhat.parsing.Parser"
+
+   Find if structures.
+
+   A parser which inherits from the basic parser. It will walk through
+   the syntax tree and put all function calls in a relevant data
+   structure, which can later be used in the test.
+
+   current
+
+      *str*
+
+      The function call which is being constructed, important for
+      dotted function calls.
+
+   calls (dict(str
+
+      list(tuple(num, list(ast.Node), list(keyword))))): A dictionary
+      containing the function names as a key, and a list of structured
+      tuples as value. The tuples contain information about the line
+      number, the arguments and the keywords of each call.
+
+   visit_If(node)
+
+      This function is called when a If node is encountered when
+      traversing the tree.
+
+      Parameters:
+         **node** (*ast.If*) -- The node which is visited.
+
+class pythonwhat.parsing.ImportParser
+
+   Bases: "pythonwhat.parsing.Parser"
+
+   Find import statement.
+
+   A parser which inherits from the basic parser. It will walk through
+   the syntax tree and put all import statements in a relevant data
+   structure, which can later be used in the test.
+
+   imports
+
+      *dict(*
+
+      A dict containing the correct data structure.
+
+   visit_Import(node)
+
+      This function is called when an Import node is encountered when
+      traversing the tree.
+
+      Parameters:
+         **node** (*ast.Import*) -- The node which is visited.
+
+   visit_ImportFrom(node)
+
+      This function is called when an ImportFrom node is encountered
+      when traversing the tree.
+
+      Parameters:
+         **node** (*ast.ImportFrom*) -- The node which is visited.
+
+class pythonwhat.parsing.OperatorParser
+
+   Bases: "pythonwhat.parsing.Parser"
+
+   Find operations.
+
+   A parser which inherits from the basic parser. It will walk through
+   the syntax tree and put all operators in a relevant data structure,
+   which can later be used in the test.
+
+   ops
+
+      *list(tuple(num, ast.BinOp, list(str*
+
+      A list of tuples containing the linenumber, node and list of
+      used binary operations.
+
+   level
+
+      *num*
+
+      A number representing the level at which the parser is parsing.
+
+   used
+
+      *list(str*
+
+      The operators that are used in the BinOp that we're handling.
+
+   O_MAP = {'RShift': '>>', 'Sub': '-', 'Pow': '**', 'BitAnd': '&', 'Add': '+', 'FloorDiv': '//', 'LShift': '<<', 'BitXor': '^', 'Div': '/', 'BitOr': '|', 'Mult': '*', 'Mod': '%'}
+
+   visit_Assign(node)
+
+      This function is called when a Assign node is encountered when
+      traversing the tree.
+
+      Parameters:
+         **node** (*ast.Assign*) -- The node which is visited.
+
+   visit_BinOp(node)
+
+      This function is called when a BinOp node is encountered when
+      traversing the tree.
+
+      Parameters:
+         **node** (*ast.BinOp*) -- The node which is visited.
+
+   visit_Call(node)
+
+      This function is called when a Call node is encountered when
+      traversing the tree.
+
+      Parameters:
+         **node** (*ast.Call*) -- The node which is visited.
+
+   visit_Expr(node)
+
+      This function is called when a Expr node is encountered when
+      traversing the tree.
+
+      Parameters:
+         **node** (*ast.Expr*) -- The node which is visited.
+
+   visit_Num(node)
+
+      This function is called when a Num node is encountered when
+      traversing the tree.
+
+      Parameters:
+         **node** (*ast.Num*) -- The node which is visited.
+
+   visit_UnaryOp(node)
+
+      This function is called when a UnaryOp node is encountered when
+      traversing the tree.
+
+      Parameters:
+         **node** (*ast.UnaryOp*) -- The node which is visited.
+
+class pythonwhat.parsing.Parser
+
+   Bases: "ast.NodeVisitor"
+
+   Basic parser.
+
+   The basic Parser, should not be used on itself but should be used
+   to inherit certain basic features from. The Parser itself inherits
+   from ast.Nodevisitor, which is a helper class to go through the
+   abstract syntax tree objects.
+
+   In the basic version, each node in the Module body will be visited.
+   Expression bodies will be visited as well. In this standard parser,
+   all other nodes are ignored.
+
+   generic_visit(node)
+
+      This function is called when all other nodes are encountered
+      when traversing the tree. When inheriting form this standard
+      parser, this function will make the parser ignore all nodes that
+      are not relevant to build its data structures.
+
+      Parameters:
+         **node** (*ast.Node*) -- The node which is visited.
+
+   visit_Expression(node)
+
+      This function is called when a Expression node is encountered
+      when traversing the tree.
+
+      Parameters:
+         **node** (*ast.Expression*) -- The node which is visited.
+
+   visit_Module(node)
+
+      This function is called when a Module node is encountered when
+      traversing the tree.
+
+      Parameters:
+         **node** (*ast.Module*) -- The node which is visited.
+
+class pythonwhat.parsing.WhileParser
+
+   Bases: "pythonwhat.parsing.Parser"
+
+   visit_While(node)
+
+
+pythonwhat.test_exercise module
+===============================
+
+pythonwhat.test_exercise.allow_errors()
+
+pythonwhat.test_exercise.success_msg(message)
+
+   Set the succes message of the sct. This message will be the
+   feedback if all tests pass. :param message: A string containing the
+   feedback message.
+
+pythonwhat.test_exercise.test_exercise(sct, student_code, solution_code, pre_exercise_code, student_environment, solution_environment, raw_student_output, ex_type, error)
+
+   Point of interaction with the Python backend. :param sct: The
+   solution corectness test as a string of code. :type sct: str :param
+   student_code: The code which is entered by the student. :type
+   student_code: str :param solution_code: The code which is in the
+   solution. :type solution_code: str :param pre_exercise_code: The
+   code which is executed pre exercise. :type pre_exercise_code: str
+   :param student_environment: A dictionary representing the ending
+   environment of the student's program. :type student_environment:
+   dict :param solution_environment: A dictionary representing the
+   ending environment of the solution. :type solution_environment:
+   dict :param raw_student_output: The output which is given by
+   executing the student's program. :type raw_student_output: str
+   :param ex_type: The type of the exercise. :type ex_type: str :param
+   error: A tuple with some information on possible errors. :type
+   error: tuple
+
+   Returns:
+      Returns dict with correct - whether the SCT passed, message -
+      the feedback message and tags - the tags belonging to the SCT
+      execution.
+
+   Return type:
+      dict
+
+pythonwhat.test_exercise.to_html(msg)
+
+
+pythonwhat.test_expression_output module
+========================================
+
+pythonwhat.test_expression_output.capture_output(*args, **kwds)
+
+pythonwhat.test_expression_output.test_expression_output(extra_env=None, context_vals=None, incorrect_msg=None, eq_condition='equal', pre_code=None, keep_objs_in_env=None)
+
+   Test output of expression.
+
+   The code of the student is ran in the active state and the output
+   it generates is compared with the code of the solution. This can be
+   used in nested pythonwhat calls like test_if_else. In these kind of
+   calls, the code of the active state is set to the code in a part of
+   the sub statement (e.g. the body of an if statement). It has
+   various parameters to control the execution of the (sub)expression.
+
+   -[ Example ]-
+
+   student_code
+         "a = 12"
+         "if a > 3:"
+         ``    print('test %d' % a)``
+
+   solution_code
+         "a = 4"
+         "if a > 3:"
+         ``    print('test %d' % a)``
+
+   sct
+         "test_if_else(1,"
+         ``             body = lambda: test_expression_output(extra_env = { 'a': 5 }``
+         ``                                                   incorrect_msg = "Print out the correct things"))``
+
+   This SCT will pass as the subexpression will output 'test 5' in
+   both student as solution environment, since the extra environment
+   sets *a* to 5.
+
+   Parameters:
+      * **extra_env** (*dict*) -- set variables to the extra
+        environment. They will update the student and solution
+        environment in the active state before the student/solution
+        code in the active state is ran. This argument should contain
+        a dictionary with the keys the names of the variables you want
+        to set, and the values are the values of these variables.
+
+      * **context_vals** (*list*) -- set variables which are bound
+        in a for loop to certain values. This argument is only useful
+        if you use the function in a test_for_loop. It contains a list
+        with the values of the bound variables.
+
+      * **incorrect_msg** (*str*) -- feedback message if the output
+        of the expression in the solution doesn't match the one of the
+        student. This feedback message will be expanded if it is used
+        in the context of another test function, like test_if_else.
+
+      * **eq_condition** (*str*) -- the condition which is checked
+        on the eval of the group. Can be "equal" -- meaning that the
+        operators have to evaluate to exactly the same value, or
+        "equivalent" -- which can be used when you expect an integer
+        and the result can differ slightly. Defaults to "equal".
+
+      * **pre_code** (*str*) -- the code in string form that should
+        be executed before the expression is executed. This is the
+        ideal place to set a random seed, for example.
+
+      * **keep_obj_in_env** (*list(*) -- a list of variable names
+        that should be hold in the copied environment where the
+        expression is evaluated. All primitive types are copied
+        automatically, other objects have to be passed explicitely.
+
+
+pythonwhat.test_expression_result module
+========================================
+
+pythonwhat.test_expression_result.test_expression_result(extra_env=None, context_vals=None, incorrect_msg=None, eq_condition='equal', expr_code=None, pre_code=None, keep_objs_in_env=None)
+
+   Test result of expression.
+
+   The code of the student is ran in the active state and the result
+   of the evaluation is compared with the result of the solution. This
+   can be used in nested pythonwhat calls like test_if_else. In these
+   kind of calls, the code of the active state is set to the code in a
+   part of the sub statement (e.g. the condition of an if statement).
+   It has various parameters to control the execution of the
+   (sub)expression.
+
+   -[ Example ]-
+
+   student_code
+         "a = 12"
+         "if a > 3:"
+         ``    print('test %d' % a)``
+
+   solution_code
+         "a = 4"
+         "b = 5"
+         "if (a + 1) > (b - 1):"
+         ``    print('test %d' % a)``
+
+   sct
+         "test_if_else(1,"
+         ``             test = lambda: test_expression_result(extra_env = { 'a': 3 }``
+         ``                                                   incorrect_msg = "Test if *a* > 3"))``
+
+   This SCT will pass as the condition in the student's code (*a > 3*)
+   will evaluate to the same value as the code in the solution code
+   (*(a + 1) > (b - 1)*), with value of *a* set to *3*.
+
+   Parameters:
+      * **extra_env** (*dict*) -- set variables to the extra
+        environment. They will update the student and solution
+        environment in the active state before the student/solution
+        code in the active state is ran. This argument should contain
+        a dictionary with the keys the names of the variables you want
+        to set, and the values are the values of these variables.
+
+      * **context_vals** (*list*) -- set variables which are bound
+        in a for loop to certain values. This argument is only useful
+        if you use the function in a test_for_loop. It contains a list
+        with the values of the bound variables.
+
+      * **incorrect_msg** (*str*) -- feedback message if the result
+        of the expression in the solution doesn't match the one of the
+        student. This feedback message will be expanded if it is used
+        in the context of another test function, like test_if_else.
+
+      * **eq_condition** (*str*) -- the condition which is checked
+        on the eval of the group. Can be "equal" -- meaning that the
+        operators have to evaluate to exactly the same value, or
+        "equivalent" -- which can be used when you expect an integer
+        and the result can differ slightly. Defaults to "equal".
+
+      * **expr_code** (*str*) -- if this variable is not None, the
+        expression in the studeont/solution code will not be ran.
+        Instead, the given piece of code will be ran in the student as
+        well as the solution environment and the result will be
+        compared.
+
+      * **pre_code** (*str*) -- the code in string form that should
+        be executed before the expression is executed. This is the
+        ideal place to set a random seed, for example.
+
+      * **keep_obj_in_env** (*list(*) -- a list of variable names
+        that should be hold in the copied environment where the
+        expression is evaluated. All primitive types are copied
+        automatically, other objects have to be passed explicitely.
+
+
+pythonwhat.test_for_loop module
+===============================
+
+pythonwhat.test_for_loop.test_for_loop(index=1, for_iter=None, body=None, orelse=None, expand_message=True)
+
+   Test parts of the for loop.
+
+   This test function will allow you to extract parts of a specific
+   for loop and perform a set of tests specifically on these parts. A
+   for loop consists of two parts: the sequence, *for_iter*, which is
+   the values over which are looped, and the *body*. A for loop can
+   have a else part as well, *orelse*, but this is almost never used.
+
+      "for i in range(10):" ``    print(i)``
+
+   Has *range(10)* as the sequence and *print(i)* as the body.
+
+   -[ Example ]-
+
+   student_code
+         "for i in range(10):"
+         ``    print(i)``
+
+   solution_code
+         "for n in range(10):"
+         ``    print(n)``
+
+   sct
+         "test_for_loop(1,"
+         ``              for_iter = lamdba: test_function("range"),``
+         ``              body = lambda: test_expression_output(context_val = [5])``
+
+   This SCT will evaluate to True as the function *"range"* is used in
+   the sequence and the function *test_exression_output()* will pass
+   on the body code.
+
+   Parameters:
+      * **index** (*int*) -- index of the function call to be
+        checked. Defaults to 1.
+
+      * **for_iter** -- this argument holds the part of code that
+        will be ran to check the sequence of the for loop. It should
+        be passed as a lambda expression or a function definition. The
+        functions that are ran should be other pythonwhat test
+        functions, and they will be tested specifically on only the
+        sequence part of the for loop.
+
+      * **body** -- this argument holds the part of code that will
+        be ran to check the body of the for loop. It should be passed
+        as a lambda expression or a function definition. The functions
+        that are ran should be other pythonwhat test functions, and
+        they will be tested specifically on only the body of the for
+        loop.
+
+      * **orelse** -- this argument holds the part of code that will
+        be ran to check the else part of the for loop. It should be
+        passed as a lambda expression or a function definition. The
+        functions that are ran should be other pythonwhat test
+        functions, and they will be tested specifically on only the
+        else part of the for loop.
+
+      * **expand_message** (*bool*) -- if true, feedback messages
+        will be expanded with *in the ___ of the for loop on line
+        ___*. Defaults to True. If False, *test_for_loop()* will
+        generate no extra feedback.
+
+
+pythonwhat.test_function module
+===============================
+
+pythonwhat.test_function.construct_incorrect_msg(nb_call)
+
+pythonwhat.test_function.ordinal(n)
+
+pythonwhat.test_function.test_function(name, index=1, args=None, keywords=None, eq_condition='equal', do_eval=True, not_called_msg=None, incorrect_msg=None)
+
+   Test if function calls match.
+
+   This function compares a function call in the student's code with
+   the corresponding one in the solution code. It will cause the
+   reporter to fail if the corresponding calls do not match. The fail
+   message that is returned will depend on the sort of fail.
+
+   -[ Example ]-
+
+   student_code
+         "import numpy as np"
+         "np.mean([1,2,3])"
+         "np.std([2,3,4])"
+
+   solution_code
+         "import numpy"
+         "numpy.mean([1,2,3], axis = 0)"
+         "numpy.std([4,5,6])"
+
+   sct
+         "test_function("numpy.mean", index = 1, keywords = [])": pass.
+         "test_function("numpy.mean", index = 1)": fails with "Your operation at line 2 is missing a *** operation".
+         "test_function(index = 1, incorrect_op_msg = "Use the correct operators")": fails with "Use the correct operators".
+         "test_function(index = 1, used = [], incorrect_result_msg = "Incorrect result")": fails with "Incorrect result".
+
+   Parameters:
+      * **name** (*str*) -- the name of the function to be tested.
+
+      * **index** (*int*) -- index of the function call to be
+        checked. Defaults to 1.
+
+      * **args** (*list(int*) -- the indices of the positional
+        arguments that have to be checked. If it is set to None, all
+        positional arguments which are in the solution will be
+        checked.
+
+      * **keywords** (*list(str*) -- the indices of the keyword
+        arguments that have to be checked. If it is set to None, all
+        keyword arguments which are in the solution will be checked.
+
+      * **eq_condition** (*str*) -- The condition which is checked
+        on the eval of the group. Can be "equal" -- meaning that the
+        operators have to evaluate to exactly the same value, or
+        "equivalent" -- which can be used when you expect an integer
+        and the result can differ slightly. Defaults to "equal".
+
+      * **do_eval** (*bool*) -- Boolean representing whether the
+        group should be evaluated and compared or not. Defaults to
+        True.
+
+      * **not_called_msg** (*str*) -- feedback message if the
+        function is not called.
+
+      * **incorret_msg** (*str*) -- feedback message if the
+        arguments of the function in the solution doesn't match the
+        one of the student.
+
+   Raises:
+      * "NameError" -- the eq_condition you passed is not "equal" or
+        "equivalent".
+
+      * "NameError" -- function is not called in the solution
+
+
+pythonwhat.test_if_else module
+==============================
+
+pythonwhat.test_if_else.test_if_else(index=1, test=None, body=None, orelse=None, expand_message=True)
+
+   Test parts of the if statement.
+
+   This test function will allow you to extract parts of a specific if
+   statement and perform a set of tests specifically on these parts. A
+   for loop consists of three potential parts: the condition test,
+   *test*, which specifies the condition of the if statement, the
+   *body*, which is what's executed if the condition is True and a
+   else part, *orelse*, which will be executed if the condition is not
+   True.
+
+      "if 5 == 3:" ``    print("success")`` "else:" ``
+      print("fail")``
+
+   Has *5 == 3* as the condition test, *print("success")* as the body
+   and *print("fail")* as the else part.
+
+   -[ Example ]-
+
+   student_code
+         "a = 12"
+         "if a > 3:"
+         ``    print('test %d' % a)``
+
+   solution_code
+         "a = 4"
+         "if a > 3:"
+         ``    print('test %d' % a)``
+
+   sct
+         "test_if_else(1,"
+         ``             body = lambda: test_expression_output(extra_env = { 'a': 5 }``
+         ``                                                   incorrect_msg = "Print out the correct things"))``
+
+   This SCT will pass as *test_expression_output()* is ran on the body
+   of the if statement and it will output the same thing in the
+   solution as in the student code.
+
+   Parameters:
+      * **index** (*int*) -- index of the function call to be
+        checked. Defaults to 1.
+
+      * **test** -- this argument holds the part of code that will
+        be ran to check the condition test of the if statement. It
+        should be passed as a lambda expression or a function
+        definition. The functions that are ran should be other
+        pythonwhat test functions, and they will be tested
+        specifically on only the condition test of the if statement.
+
+      * **body** -- this argument holds the part of code that will
+        be ran to check the body of the if statement. It should be
+        passed as a lambda expression or a function definition. The
+        functions that are ran should be other pythonwhat test
+        functions, and they will be tested specifically on only the
+        body of the if statement.
+
+      * **orelse** -- this argument holds the part of code that will
+        be ran to check the else part of the if statement. It should
+        be passed as a lambda expression or a function definition. The
+        functions that are ran should be other pythonwhat test
+        functions, and they will be tested specifically on only the
+        else part of the if statement.
+
+      * **expand_message** (*bool*) -- if true, feedback messages
+        will be expanded with *in the ___ of the if statement on line
+        ___*. Defaults to True. If False, *test_if_else()* will
+        generate no extra feedback.
+
+
+pythonwhat.test_import module
+=============================
+
+pythonwhat.test_import.test_import(name, same_as=True, not_imported_msg=None, incorrect_as_msg=None)
+
+   Test import.
+
+   Test whether an import statement is used the same in the student's
+   environment as in the solution environment.
+
+   -[ Example ]-
+
+   student_code
+         "import numpy as np"
+         "import pandas as pa"
+
+   solution_code
+         "import numpy as np"
+         "import pandas as pd"
+
+   sct
+         "test_import("numpy")": passes
+         "test_import("pandas")": fails
+         "test_import("pandas", same_as = False)": passes
+
+   Parameters:
+      * **name** (*str*) -- the name of the package that has to be
+        checked.
+
+      * **same_as** (*bool*) -- if false, the alias of the package
+        doesn't have to be the same. Defaults to True.
+
+      * **not_imported_msg** (*str*) -- feedback message when the
+        package is not imported.
+
+      * **incorrect_as_msg** (*str*) -- feedback message if the
+        alias is wrong.
+
+
+pythonwhat.test_mc module
+=========================
+
+pythonwhat.test_mc.test_mc(correct, msgs)
+
+   Test multiple choice exercise.
+
+   Test for a MultipleChoiceExercise. The correct answer (as an
+   integer) and feedback messages are passed to this function.
+
+   Parameters:
+      * **correct** (*int*) -- the index of the correct answer
+        (should be an instruction). Starts at 1.
+
+      * **msgs** (*list(str*) -- a list containing all feedback
+        messages belonging to each choice of the student. The list
+        should have the same length as the number of instructions.
+
+
+pythonwhat.test_object module
+=============================
+
+pythonwhat.test_object.build_strings(undefined_msg, incorrect_msg, name)
+
+pythonwhat.test_object.test_object(name, eq_condition='equal', do_eval=True, undefined_msg=None, incorrect_msg=None)
+
+   Test object.
+
+   The value of an object in the ending environment is compared in the
+   student's environment and the solution environment.
+
+   -[ Example ]-
+
+   student_code
+         "a = 1"
+         "b = 5"
+
+   solution_code
+         "a = 1"
+         "b = 2"
+
+   sct
+         "test_object("a")": passes
+         "test_object("b")": fails
+
+   Parameters:
+      * **name** (*str*) -- the name of the object which value has
+        to be checked.
+
+      * **eq_condition** (*str*) -- the condition which is checked
+        on the eval of the object. Can be "equal" -- meaning that the
+        operators have to evaluate to exactly the same value, or
+        "equivalent" -- which can be used when you expect an integer
+        and the result can differ slightly. Defaults to "equal".
+
+      * **do_eval** (*bool*) -- if False, the object will only be
+        checked for existence. Defaults to True.
+
+      * **undefined_msg** (*str*) -- feedback message when the
+        object is not defined
+
+      * **incorrect_msg** (*str*) -- feedback message if the value
+        of the object in the solution environment doesn't match the
+        one in the student environment.
+
+
+pythonwhat.test_object_after_expression module
+==============================================
+
+pythonwhat.test_object_after_expression.build_strings(undefined_msg, incorrect_msg, name)
+
+pythonwhat.test_object_after_expression.test_object_after_expression(name, extra_env=None, context_vals=None, undefined_msg=None, incorrect_msg=None, eq_condition='equal', pre_code=None, keep_objs_in_env=None)
+
+   Test object after expression.
+
+   The code of the student is ran in the active state and the the
+   value of the given object is compared with the value of that object
+   in the solution. This can be used in nested pythonwhat calls like
+   test_for_loop. In these kind of calls, the code of the active state
+   is set to the code in a part of the sub statement (e.g. the body of
+   a for loop). It has various parameters to control the execution of
+   the (sub)expression. This test function is ideal to check if a
+   value is updated correctly in the body of a for loop.
+
+   -[ Example ]-
+
+   student_code
+         "count = 1"
+         "for i in range(100):"
+         ``    count = count + i``
+
+   solution_code
+         "count = 15"
+         "for n in range(30):"
+         ``    count = count + n``
+
+   sct
+         "test_for_loop(1,"
+         ``              body = lambda: test_object_after_expression("count",``
+         ``                                                          extra_env = { 'count': 20 },``
+         ``                                                          contex_vals = [ 10 ])``
+
+   This SCT will pass as the value of *count* is updated identically
+   in the body of the for loop in the student code and solution code.
+
+   Parameters:
+      * **name** (*str*) -- the name of the object which value has
+        to be checked after evaluation of the expression.
+
+      * **extra_env** (*dict*) -- set variables to the extra
+        environment. They will update the student and solution
+        environment in the active state before the student/solution
+        code in the active state is ran. This argument should contain
+        a dictionary with the keys the names of the variables you want
+        to set, and the values are the values of these variables.
+
+      * **context_vals** (*list*) -- set variables which are bound
+        in a for loop to certain values. This argument is only useful
+        if you use the function in a test_for_loop. It contains a list
+        with the values of the bound variables.
+
+      * **incorrect_msg** (*str*) -- feedback message if the value
+        of the object in the solution environment doesn't match the
+        one in the student environment. This feedback message will be
+        expanded if it is used in the context of another test
+        function, like test_for_loop.
+
+      * **eq_condition** (*str*) -- the condition which is checked
+        on the eval of the object. Can be "equal" -- meaning that the
+        operators have to evaluate to exactly the same value, or
+        "equivalent" -- which can be used when you expect an integer
+        and the result can differ slightly. Defaults to "equal".
+
+      * **expr_code** (*str*) -- if this variable is not None, the
+        expression in the studeont/solution code will not be ran.
+        Instead, the given piece of code will be ran in the student as
+        well as the solution environment and the result will be
+        compared.
+
+      * **pre_code** (*str*) -- the code in string form that should
+        be executed before the expression is executed. This is the
+        ideal place to set a random seed, for example.
+
+      * **keep_obj_in_env** (*list(*) -- a list of variable names
+        that should be hold in the copied environment where the
+        expression is evaluated. All primitive types are copied
+        automatically, other objects have to be passed explicitely.
+
+
+pythonwhat.test_operator module
+===============================
+
+pythonwhat.test_operator.test_operator(index=1, eq_condition='equal', used=None, do_eval=True, not_found_msg=None, incorrect_op_msg=None, incorrect_result_msg=None)
+
+   Test if operator groups match.
+
+   This function compares an operator group in the student's code with
+   the corresponding one in the solution code. It will cause the
+   reporter to fail if the corresponding operators do not match. The
+   fail message that is returned will depend on the sort of fail. We
+   say that one operator group correpsonds to a group of operators
+   that is evaluated to one value (e.g. 3 + 5 * (1/3)).
+
+   -[ Example ]-
+
+   student_code
+         "1 + 5 * (3+5)"
+         "1 + 1 * 238"
+
+   solution_code
+         "3.1415 + 5"
+         "1 + 238"
+
+   sct
+         "test_operator(index = 2, used = ["+"])": pass.
+         "test_operator(index = 2)": fails with "Your operation at line 2 is missing a *** operation".
+         "test_operator(index = 1, incorrect_op_msg = "Use the correct operators")": fails with "Use the correct operators".
+         "test_operator(index = 1, used = [], incorrect_result_msg = "Incorrect result")": fails with "Incorrect result".
+
+   Parameters:
+      * **index** (*int*) -- Index of the operator group to be
+        checked. Defaults to 1.
+
+      * **eq_condition** (*str*) -- The condition which is checked
+        on the eval of the group. Can be "equal" -- meaning that the
+        operators have to evaluate to exactly the same value, or
+        "equivalent" -- which can be used when you expect an integer
+        and the result can differ slightly. Defaults to "equal".
+
+      * **used** (*List[str]*) -- A list of operators that have to
+        be in the group. Valid operators are: "+", "-", "*", "/", "%",
+        "**", "<<", ">>", "|", "^", "&" and "//". If the list is None,
+        operators that are in the group in the solution have to be in
+        the student code. Defaults to None.
+
+      * **do_eval** (*bool*) -- Boolean representing whether the
+        group should be evaluated and compared or not. Defaults to
+        True.
+
+      * **not_found_msg** (*str*) -- Feedback message if not enough
+        operators groups are found in the student's code.
+
+      * **incorrect_op_msg** (*str*) -- Feedback message if the
+        wrong operators are used in the student's code.
+
+      * **incorrect_result_msg** (*str*) -- Feedback message if the
+        operator group evaluates to the wrong result in the student's
+        code.
+
+   Raises:
+      * "NameError" -- the eq_condition you passed is not "equal" or
+        "equivalent".
+
+      * "IndexError" -- not enough operation groups in the solution
+        environment.
+
+
+pythonwhat.test_output_contains module
+======================================
+
+pythonwhat.test_output_contains.test_output_contains(text, pattern=True, no_output_msg=None)
+
+   Test the output.
+
+   Tests if the output contains a (pattern of) text.
+
+   Parameters:
+      * **text** (*str*) -- the text that is searched for
+
+      * **pattern** (*bool*) -- if True, the text is treated as a
+        pattern. If False, it is treated as plain text. Defaults to
+        False.
+
+      * **no_output_msg** (*str*) -- feedback message to be
+        displayed if the output is not found.
+
+
+pythonwhat.test_student_typed module
+====================================
+
+pythonwhat.test_student_typed.test_student_typed(text, pattern=True, not_typed_msg=None)
+
+   Test the student code.
+
+   Tests if the student typed a (pattern of) text.
+
+   Parameters:
+      * **text** (*str*) -- the text that is searched for
+
+      * **pattern** (*bool*) -- if True, the text is treated as a
+        pattern. If False, it is treated as plain text. Defaults to
+        False.
+
+      * **not_typed_msg** (*str*) -- feedback message to be
+        displayed if the student did not type the text.
+
+
+pythonwhat.test_while_loop module
+=================================
+
+pythonwhat.test_while_loop.test_while_loop(index=1, test=None, body=None, orelse=None, expand_message=True)
+
+   Test parts of the while loop.
+
+   This test function will allow you to extract parts of a specific
+   while loop and perform a set of tests specifically on these parts.
+   A while loop generally consists of two parts: the condition test,
+   *test*, which is the condition that is tested each loop, and the
+   *body*. A for while can have a else part as well, *orelse*, but
+   this is almost never used.
+
+      "a = 10" "while a < 5:" ``    print(a)`` ``    a -= 1``
+
+   Has *a < 5* as the condition test and *print(i)* as the body.
+
+   -[ Example ]-
+
+   student_code
+         "a = 10"
+         "while a < 5:"
+         ``    print(a)``
+         ``    a -= 1``
+
+   solution_code
+         "a = 20"
+         "while a < 5:"
+         ``    print(a)``
+         ``    a -= 1``
+
+   sct
+         "test_while_loop(1,"
+         ``                test = lamdba: test_expression_result({"a": 5}),``
+         ``                body = lambda: test_expression_output({"a": 5}))``
+
+   This SCT will evaluate to True as condition test will have thes
+   same result in student and solution code and
+   *test_exression_output()* will pass on the body code.
+
+   Parameters:
+      * **index** (*int*) -- index of the function call to be
+        checked. Defaults to 1.
+
+      * **test** -- this argument holds the part of code that will
+        be ran to check the condition test of the while loop. It
+        should be passed as a lambda expression or a function
+        definition. The functions that are ran should be other
+        pythonwhat test functions, and they will be tested
+        specifically on only the condition test of the while loop.
+
+      * **body** -- this argument holds the part of code that will
+        be ran to check the body of the while loop. It should be
+        passed as a lambda expression or a function definition. The
+        functions that are ran should be other pythonwhat test
+        functions, and they will be tested specifically on only the
+        body of the while loop.
+
+      * **orelse** -- this argument holds the part of code that will
+        be ran to check the else part of the while loop. It should be
+        passed as a lambda expression or a function definition. The
+        functions that are ran should be other pythonwhat test
+        functions, and they will be tested specifically on only the
+        else part of the while loop.
+
+      * **expand_message** (*bool*) -- if true, feedback messages
+        will be expanded with *in the ___ of the while loop on line
+        ___*. Defaults to True. If False, *test_for_loop()* will
+        generate no extra feedback.
+
+
+pythonwhat.utils module
+=======================
+
+pythonwhat.utils.copy_env(env, keep_objs=None)
+
+pythonwhat.utils.shorten_str(text, to_chars=100)
+
+
+Module contents
+===============
