@@ -1,3 +1,4 @@
+This is the result of what's automatically generated with Sphinx. The code blocks are a bit messed up here, so it might be better to check out the `.pdf` version.
 
 pythonwhat
 **********
