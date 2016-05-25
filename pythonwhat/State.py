@@ -1,6 +1,6 @@
 import ast
 import inspect
-from pythonwhat.parsing import FunctionParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FindLastLineParser
+from pythonwhat.parsing import FunctionParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, FindLastLineParser
 
 from pythonwhat.Reporter import Reporter
 
@@ -8,8 +8,8 @@ from pythonwhat.Reporter import Reporter
 class State(object):
     """State of the SCT environment.
 
-    This class holds all information relevevant to test the correctness of an exercise. 
-    It is coded suboptimally and it will be refactored soon, and documented thouroughly 
+    This class holds all information relevevant to test the correctness of an exercise.
+    It is coded suboptimally and it will be refactored soon, and documented thouroughly
     after that.
 
     """
@@ -53,6 +53,9 @@ class State(object):
 
         self.student_for_calls = None
         self.solution_for_calls = None
+
+        self.student_function_defs = None
+        self.solution_function_defs = None
 
         self.parent_state = None
 
@@ -219,6 +222,19 @@ class State(object):
             fp = ForParser()
             fp.visit(self.solution_tree)
             self.solution_for_calls = fp.fors
+
+    def extract_function_defs(self):
+        self.parse_code()
+
+        if (self.student_function_defs is None):
+            fp = FunctionDefParser()
+            fp.visit(self.student_tree)
+            self.student_function_defs = fp.defs
+
+        if (self.solution_function_defs is None):
+            fp = FunctionDefParser()
+            fp.visit(self.solution_tree)
+            self.solution_function_defs = fp.defs
 
     def to_child_state(self, student_subtree, solution_subtree):
         """Dive into nested tree.

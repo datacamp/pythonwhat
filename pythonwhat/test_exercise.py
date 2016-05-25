@@ -13,6 +13,7 @@ from pythonwhat.test_student_typed import test_student_typed
 from pythonwhat.test_output_contains import test_output_contains
 from pythonwhat.test_expression_result import test_expression_result
 from pythonwhat.test_expression_output import test_expression_output
+from pythonwhat.test_function_definition import test_function_definition
 from pythonwhat.test_object_after_expression import test_object_after_expression
 
 import markdown2

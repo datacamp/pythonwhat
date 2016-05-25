@@ -34,7 +34,7 @@ class Parser(ast.NodeVisitor):
             # We only want to visit the module nodes on a first level. Going deeper
             # should be handeled by the specific parsers and the test function, as
             # nesting requires the State to generate a subtree. The Parser object
-            # does not now about the State object.            
+            # does not now about the State object.
             self.visit(line)
 
 
@@ -227,7 +227,7 @@ class ImportParser(Parser):
 
 
 class FunctionParser(Parser):
-    """Find function calls. 
+    """Find function calls.
 
     A parser which inherits from the basic parser. It will walk through the syntax tree and put all
     function calls in a relevant data structure, which can later be used in the test.
@@ -410,6 +410,24 @@ class ForParser(Parser):
             ast.Module(node.body),
             ast.Module(node.orelse)))
 
+class FunctionDefParser(Parser):
+    def __init__(self):
+        self.defs = {}
+
+    def visit_FunctionDef(self, node):
+        args = [arg.arg for arg in node.args.args]
+        defaults = [FunctionDefParser.getNodeLiteralValue(lit) for lit in node.args.defaults]
+        defaults = [None] * (len(args) - len(defaults)) + defaults
+        self.defs[node.name] = {
+            "args": [(arg, default) for arg, default in zip(args,defaults)],
+            "body": ReturnTransformer().visit(ast.Module(node.body))
+        }
+
+    def getNodeLiteralValue(node):
+        if isinstance(node, ast.Num):
+            return node.n
+        if isinstance(node, ast.Str) or isinstance(node, ast.Bytes):
+            return node.s
 
 class FindLastLineParser(ast.NodeVisitor):
     """Find the last line.
@@ -424,3 +442,7 @@ class FindLastLineParser(ast.NodeVisitor):
             self.last_line = node.lineno
 
         ast.NodeVisitor.generic_visit(self, node)
+
+class ReturnTransformer(ast.NodeTransformer):
+    def visit_Return(self, node):
+        return ast.copy_location(ast.Pass(), node)

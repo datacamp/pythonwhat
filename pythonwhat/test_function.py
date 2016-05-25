@@ -97,7 +97,7 @@ def test_function(name,
         not_called_msg = FeedbackMessage(not_called_msg)
 
     if name not in solution_calls:
-        raise NameError("%r not in solution environment " % name)
+        raise NameError("%r not in solution environment" % name)
 
     rep.do_test(DefinedTest(name, student_calls, not_called_msg))
     if rep.failed_test:
