@@ -58,7 +58,7 @@ test_function("open", incorrect_msg = "Pass the correct arguments to `open()`" )
 
 msg = "Make sure to print out the contents of the file like this: `print(file.read())`."
 test_function("file.read", incorrect_msg = msg)
-test_function("print", 1, incorrect_msg = msg)
+test_function("print", 1, args=[], incorrect_msg = msg)
 test_function("file.close", not_called_msg = "Make sure to close the file, man!")
 success_msg("You aced selecting observations from DataFrames; over to selecting both rows and columns!")
     '''

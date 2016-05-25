@@ -74,17 +74,17 @@ def test_function_definition(name,
     Examples:
         Student code
 
-        | ``def shout( word ):``
+        | ``def shout( word, times = 3):``
         |     ``shout_word = not_word + '???'``
         |     ``print( shout_word )``
-        |     ``return word * 2``
+        |     ``return word * times``
 
         Solution code
 
-        | ``def shout( word = 'help' ):``
+        | ``def shout( word = 'help', times = 3 ):``
         |     ``shout_word = word + '!!!'``
         |     ``print( shout_word )``
-        |     ``return word * 2``
+        |     ``return word * times``
 
         SCT
 
@@ -93,7 +93,9 @@ def test_function_definition(name,
         | ``test_function_definition('shout', arg_defaults = False,``
         |     ``outputs = [('help')])``: fail.
         | ``test_function_definition('shout', arg_defaults = False,``
-        |     ``results = [('help')])``: pass.
+        |     ``results = [('help', 2)])``: pass.
+        | ``test_function_definition('shout', args_defaults = False``
+        |     ``body = lambda: test_function('print', args = []]))``: pass.
     """
     state = State.active_state
     rep = Reporter.active_reporter
@@ -180,12 +182,12 @@ def test_function_definition(name,
             except:
                 wrong_result_msg = wrong_result_msg or \
                     ("Calling `%s%s` should result in `%s`, instead got an error." %
-                        (name, str(call), solution_result))
+                        (name, arguments_as_string(call), solution_result))
                 rep.do_test(Test(wrong_result_msg))
                 return
             wrong_result_msg = wrong_result_msg or \
                 ("Calling `%s%s` should result in `%s`, instead got `%s`." %
-                    (name, str(call), solution_result, student_result))
+                    (name, arguments_as_string(call), solution_result, student_result))
             rep.do_test(EqualTest(solution_result, student_result, wrong_result_msg))
             if rep.failed_test:
                 return
@@ -208,13 +210,22 @@ def test_function_definition(name,
             except:
                 wrong_output_msg = wrong_output_msg or \
                     ("Calling `%s%s` should output in `%s`, instead got an error." %
-                        (name, str(call), solution_output))
+                        (name, arguments_as_string(call), solution_output))
                 rep.do_test(Test(wrong_output_msg))
                 return
             wrong_output_msg = wrong_output_msg or \
                 ("Calling `%s%s` should output `%s`, instead got `%s`." %
-                    (name, str(call), solution_output, student_output))
+                    (name, arguments_as_string(call), solution_output, student_output))
             rep.do_test(EqualTest(solution_output, student_output, wrong_output_msg))
             if rep.failed_test:
                 return
+
+
+def arguments_as_string(args):
+    if len(args) > 1:
+        return str(args)
+    elif isinstance(args[0], str):
+        return "('"+args[0]+"')"
+    else:
+        return '('+str(args)+')'
 
