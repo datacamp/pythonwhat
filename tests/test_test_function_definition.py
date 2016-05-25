@@ -199,13 +199,14 @@ test_function_definition('shout', arg_defaults = False)
 
   def test_Fail2(self):
     self.data["DC_SCT"] = '''
-test_function_definition('shout', arg_defaults = False, outputs = [('help')])
+test_function_definition('shout', arg_defaults = False, outputs = [('help')], wrong_output_msg = "WRONG")
     '''
     self.exercise = Exercise(self.data)
     self.exercise.runInit()
     output = self.exercise.runSubmit(self.data)
     sct_payload = helper.get_sct_payload(output)
     self.assertEqual(sct_payload['correct'], False)
+    self.assertEqual(sct_payload['message'], "WRONG")
 
   def test_Pass2(self):
     self.data["DC_SCT"] = '''
@@ -314,6 +315,95 @@ success_msg("Nice work!")
     sct_payload = helper.get_sct_payload(output)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "Calling <code>shout('help', 'fire')</code> should output <code>helpfire</code>, instead got ``.")
+
+  class TestExercise5(unittest.TestCase):
+
+    def setUp(self):
+      self.data = {
+        "DC_PEC": '''''',
+        "DC_CODE": '''
+  # Define the function shout, which accepts the parameters word1 and word2
+  def shout (word1, word2):
+
+      # Concatenate the string '!!!' to word1 and assign to shout1
+      shout1 = word1 + '!!!'
+
+      # Concatenate the string '!!!' to word2 and assign to shout2
+      shout2 = word2 + '!!!'
+
+      # Concatenate word2 to word1 and assign to new_shout
+      new_shout = word1 + word2
+
+      # Return new_shout
+      return new_shout
+
+  # Call shout with the strings 'help' and 'fire' and assign the result to yell
+  yell = shout('help', 'fire')
+
+  # Print the value of yell
+  print(yell)
+        ''',
+        "DC_SOLUTION": '''
+  # Define the function shout, which accepts the parameters word1 and word2
+  def shout (word1, word2, word3 = "nothing"):
+
+      # Concatenate the string '!!!' to word1 and assign to shout1
+      shout1 = word1 + '!!!'
+
+      # Concatenate the string '!!!' to word2 and assign to shout2
+      shout2 = word2 + '!!!'
+
+      # Concatenate word2 to word1 and assign to new_shout
+      new_shout = word1 + word2
+
+      print(new_shout)
+
+      # Return new_shout
+      return new_shout
+
+  # Call shout with the strings 'help' and 'fire' and assign the result to yell
+  yell = shout('help', 'fire')
+
+  # Print the value of yell
+  print(yell)
+  '''
+      }
+
+    def test_Fail1(self):
+      self.data["DC_SCT"] = '''
+  test_function_definition("pout", not_called_msg = 'bad luck!')
+  success_msg("Nice work man!")
+      '''
+      self.exercise = Exercise(self.data)
+      self.exercise.runInit()
+      output = self.exercise.runSubmit(self.data)
+      sct_payload = helper.get_sct_payload(output)
+      self.assertEqual(sct_payload['correct'], False)
+      self.assertEqual(sct_payload['message'], 'bad luck!')
+
+    def test_Fail2(self):
+      self.data["DC_SCT"] = '''
+  test_function_definition("shout", arg_names_msg = "not good")
+  success_msg("Nice work!")
+      '''
+      self.exercise = Exercise(self.data)
+      self.exercise.runInit()
+      output = self.exercise.runSubmit(self.data)
+      sct_payload = helper.get_sct_payload(output)
+      self.assertEqual(sct_payload['correct'], False)
+      self.assertEqual(sct_payload['message'], 'not good')
+
+    def test_Fail2(self):
+      self.data["DC_SCT"] = '''
+  test_function_definition("shout", arg_defafults = False, arg_names_msg = "not good", arg_defaults_msg = "Not good at all")
+  success_msg("Nice work!")
+      '''
+      self.exercise = Exercise(self.data)
+      self.exercise.runInit()
+      output = self.exercise.runSubmit(self.data)
+      sct_payload = helper.get_sct_payload(output)
+      self.assertEqual(sct_payload['correct'], False)
+      self.assertEqual(sct_payload['message'], 'Not good at all')
 
 if __name__ == "__main__":
   unittest.main()
