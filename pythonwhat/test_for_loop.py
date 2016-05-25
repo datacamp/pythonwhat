@@ -24,15 +24,15 @@ def test_for_loop(index=1,
     Args:
       index (int): index of the function call to be checked. Defaults to 1.
       for_iter: this argument holds the part of code that will be ran to check the sequence of the for loop.
-        It should be passed as a lambda expression or a function definition. The functions that are ran should
+        It should be passed as a lambda expression or a function. The functions that are ran should
         be other pythonwhat test functions, and they will be tested specifically on only the sequence part of
         the for loop.
       body: this argument holds the part of code that will be ran to check the body of the for loop.
-        It should be passed as a lambda expression or a function definition. The functions that are ran should
+        It should be passed as a lambda expression or a function. The functions that are ran should
         be other pythonwhat test functions, and they will be tested specifically on only the body of
         the for loop.
       orelse: this argument holds the part of code that will be ran to check the else part of the for loop.
-        It should be passed as a lambda expression or a function definition. The functions that are ran should
+        It should be passed as a lambda expression or a function. The functions that are ran should
         be other pythonwhat test functions, and they will be tested specifically on only the else part of
         the for loop.
       expand_message (bool): if true, feedback messages will be expanded with `in the ___ of the for loop on
