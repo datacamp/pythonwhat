@@ -1,4 +1,3 @@
-This is the result of what's automatically generated with Sphinx. The code blocks are a bit messed up here, so it might be better to check out the `.pdf` version.
 
 pythonwhat
 **********
@@ -180,24 +179,23 @@ pythonwhat.test_for_loop.test_for_loop(index=1, for_iter=None, body=None, orelse
 
       * **for_iter** -- this argument holds the part of code that
         will be ran to check the sequence of the for loop. It should
-        be passed as a lambda expression or a function definition. The
-        functions that are ran should be other pythonwhat test
-        functions, and they will be tested specifically on only the
-        sequence part of the for loop.
+        be passed as a lambda expression or a function. The functions
+        that are ran should be other pythonwhat test functions, and
+        they will be tested specifically on only the sequence part of
+        the for loop.
 
       * **body** -- this argument holds the part of code that will
         be ran to check the body of the for loop. It should be passed
-        as a lambda expression or a function definition. The functions
-        that are ran should be other pythonwhat test functions, and
-        they will be tested specifically on only the body of the for
-        loop.
+        as a lambda expression or a function. The functions that are
+        ran should be other pythonwhat test functions, and they will
+        be tested specifically on only the body of the for loop.
 
       * **orelse** -- this argument holds the part of code that will
         be ran to check the else part of the for loop. It should be
-        passed as a lambda expression or a function definition. The
-        functions that are ran should be other pythonwhat test
-        functions, and they will be tested specifically on only the
-        else part of the for loop.
+        passed as a lambda expression or a function. The functions
+        that are ran should be other pythonwhat test functions, and
+        they will be tested specifically on only the else part of the
+        for loop.
 
       * **expand_message** (*bool*) -- if true, feedback messages
         will be expanded with *in the ___ of the for loop on line
@@ -225,6 +223,110 @@ pythonwhat.test_for_loop.test_for_loop(index=1, for_iter=None, body=None, orelse
    This SCT will evaluate to True as the function *"range"* is used in
    the sequence and the function *test_exression_output()* will pass
    on the body code.
+
+
+test_function_definition
+========================
+
+pythonwhat.test_function_definition.test_function_definition(name, arg_names=True, arg_defaults=True, body=None, results=None, outputs=None, not_called_msg=None, nb_args_msg=None, arg_names_msg=None, arg_defaults_msg=None, wrong_result_msg=None, wrong_output_msg=None, expand_message=True)
+
+   Test a function definition.
+
+   This function helps you test a function definition. Generally four
+   things can be tested:
+      1. The argument names of the function (including if the
+         correct defaults are used)
+
+      2. The body of the functions (does it output correctly, are
+         the correct functions used)
+
+      3. The return value with a certain input
+
+      4. The output value with a certain input
+
+   Custom feedback messages can be set for all these parts, default
+   messages are generated automatically if none are set.
+
+   Parameters:
+      * **name** (*str*) -- the name of the function definition to
+        be tested.
+
+      * **arg_names** (*bool*) -- if True, the argument names will
+        be tested, if False they won't be tested. Defaults to True.
+
+      * **arg_defaults** (*bool*) -- if True, the default values of
+        the arguments will be tested, if False they won't be tested.
+        Defaults to True.
+
+      * **body** -- this arguments holds the part of the code that
+        will be ran to check the body of the function definition. It
+        should be passed as a lambda expression or a function. The
+        functions that are ran should be other pythonwhat test
+        functions, and they will be tested specifically on only the
+        body of the for loop. Defaults to None.
+
+      * **results** (*list(tuple*) -- a list of tuples representing
+        arguments that should be passed to the defined function. These
+        arguments are passed to the function in the student
+        environment and the solution environment, the results (what's
+        returned) are compared.
+
+      * **outputs** (*list(tuple*) -- a list of tuples representing
+        arguments that should be passed to the defined function. These
+        arguments are passed to the function in the student
+        environment and the solution environment, the outpus are
+        compared.
+
+      * **not_called_msg** (*str*) -- message if the function is not
+        defined.
+
+      * **nb_args_msg** (*str*) -- message if the number of
+        arguments do not matched.
+
+      * **arg_names_msg** (*str*) -- message if the argument names
+        do not match.
+
+      * **arg_defaults_msg** (*str*) -- message if the argument
+        default values do not match.
+
+      * **wrong_result_msg** (*str*) -- message if one of the tested
+        function call's result did not match.
+
+      * **wrong_output_msg** (*str*) -- message if one of the tested
+        functions call's output did not match.
+
+      * **expand_message** (*bool*) -- only relevant if there is a
+        body test. If True, feedback messages defined in the body test
+        will be preceded by 'In your definition of ___, '. If False,
+        *test_function_definition()* will generate no extra feedback
+        if the body test fails. Defaults to True.
+
+   -[ Examples ]-
+
+   Student code
+
+      "def shout( word, times = 3):"
+         "shout_word = not_word + '???'"
+         "print( shout_word )"
+         "return word * times"
+
+   Solution code
+
+      "def shout( word = 'help', times = 3 ):"
+         "shout_word = word + '!!!'"
+         "print( shout_word )"
+         "return word * times"
+
+   SCT
+
+      "test_function_definition('shout')": fail.
+      "test_function_definition('shout', arg_defaults = False)": pass.
+      "test_function_definition('shout', arg_defaults = False,"
+         "outputs = [('help')])": fail.
+      "test_function_definition('shout', arg_defaults = False,"
+         "results = [('help', 2)])": pass.
+      "test_function_definition('shout', args_defaults = False"
+         "body = lambda: test_function('print', args = []]))": pass.
 
 
 test_function

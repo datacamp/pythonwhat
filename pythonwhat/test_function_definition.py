@@ -37,11 +37,11 @@ def test_function_definition(name,
                              expand_message=True):
     """Test a function definition.
 
-    This function helps you test a function definition. Generally three things Calling
-    be tested:
+    This function helps you test a function definition. Generally four things can be tested:
         1) The argument names of the function (including if the correct defaults are used)
         2) The body of the functions (does it output correctly, are the correct functions used)
         3) The return value with a certain input
+        4) The output value with a certain input
     Custom feedback messages can be set for all these parts, default messages are generated
     automatically if none are set.
 
@@ -135,19 +135,19 @@ def test_function_definition(name,
             arg_name_solution, arg_default_solution = args_solution[i]
             arg_name_student, arg_default_student = args_student[i]
             if arg_names:
-                arg_names_msg = arg_names_msg or \
+                c_arg_names_msg = arg_names_msg or \
                     ("In your definition of `%s()`, the %s argument should be called `%s`, instead got `%s`." %
-                        (name, ordinal(i), arg_name_solution, arg_name_student))
+                        (name, ordinal(i+1), arg_name_solution, arg_name_student))
                 rep.do_test(
-                    EqualTest(arg_name_solution, arg_name_student, arg_names_msg))
+                    EqualTest(arg_name_solution, arg_name_student, c_arg_names_msg))
                 if rep.failed_test:
                     return
             if arg_defaults:
-                arg_defaults_msg = arg_defaults_msg or \
+                c_arg_defaults_msg = arg_defaults_msg or \
                     ("In your definition of `%s()`, the %s argument should have `%s` as default, instead got `%s`." %
-                        (name, ordinal(i), arg_default_solution, arg_default_student))
+                        (name, ordinal(i+1), arg_default_solution, arg_default_student))
                 rep.do_test(
-                    EqualTest(arg_default_solution, arg_default_student, arg_defaults_msg))
+                    EqualTest(arg_default_solution, arg_default_student, c_arg_defaults_msg))
                 if rep.failed_test:
                     return
     if rep.failed_test:
@@ -180,15 +180,15 @@ def test_function_definition(name,
             try:
                 student_result = student_func(*call)
             except:
-                wrong_result_msg = wrong_result_msg or \
+                c_wrong_result_msg = wrong_result_msg or \
                     ("Calling `%s%s` should result in `%s`, instead got an error." %
                         (name, arguments_as_string(call), solution_result))
-                rep.do_test(Test(wrong_result_msg))
+                rep.do_test(Test(c_wrong_result_msg))
                 return
-            wrong_result_msg = wrong_result_msg or \
+            c_wrong_result_msg = wrong_result_msg or \
                 ("Calling `%s%s` should result in `%s`, instead got `%s`." %
                     (name, arguments_as_string(call), solution_result, student_result))
-            rep.do_test(EqualTest(solution_result, student_result, wrong_result_msg))
+            rep.do_test(EqualTest(solution_result, student_result, c_wrong_result_msg))
             if rep.failed_test:
                 return
     if rep.failed_test:
@@ -208,15 +208,15 @@ def test_function_definition(name,
                     student_func(*call)
                 student_output = out[0].strip()
             except:
-                wrong_output_msg = wrong_output_msg or \
+                c_wrong_output_msg = wrong_output_msg or \
                     ("Calling `%s%s` should output in `%s`, instead got an error." %
                         (name, arguments_as_string(call), solution_output))
-                rep.do_test(Test(wrong_output_msg))
+                rep.do_test(Test(c_wrong_output_msg))
                 return
-            wrong_output_msg = wrong_output_msg or \
+            c_wrong_output_msg = wrong_output_msg or \
                 ("Calling `%s%s` should output `%s`, instead got `%s`." %
                     (name, arguments_as_string(call), solution_output, student_output))
-            rep.do_test(EqualTest(solution_output, student_output, wrong_output_msg))
+            rep.do_test(EqualTest(solution_output, student_output, c_wrong_output_msg))
             if rep.failed_test:
                 return
 
