@@ -1,3 +1,5 @@
+**NOTE**: The pdf version of the docs is better formated. Code parts are a bit messed in the `.rst` file.
+
 
 pythonwhat
 **********
