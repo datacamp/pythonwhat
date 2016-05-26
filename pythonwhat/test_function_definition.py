@@ -110,10 +110,10 @@ def test_function_definition(name,
     except KeyError:
         raise NameError("%s not in solution environment" % name)
 
-    not_called_msg = not_called_msg or \
+    c_not_called_msg = not_called_msg or \
         ("You didn't define the following function: `%s()`." %
             name)
-    rep.do_test(DefinedTest(name, student_defs, not_called_msg))
+    rep.do_test(DefinedTest(name, student_defs, c_not_called_msg))
     if rep.failed_test:
         return
     student_def = student_defs[name]
@@ -124,10 +124,10 @@ def test_function_definition(name,
 
         nb_args_solution = len(args_solution)
         nb_args_student = len(args_student)
-        nb_args_msg = nb_args_msg or \
+        c_nb_args_msg = nb_args_msg or \
             ("You should define `%s()` with %d arguments, instead got %d." %
                 (name, nb_args_solution, nb_args_student))
-        rep.do_test(EqualTest(nb_args_solution, nb_args_student, nb_args_msg))
+        rep.do_test(EqualTest(nb_args_solution, nb_args_student, c_nb_args_msg))
         if rep.failed_test:
             return
 
