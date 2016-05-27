@@ -492,7 +492,7 @@ success_msg("Nice work!")
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "Calling <code>shout('help', 'fire')</code> should output <code>helpfire</code>, instead got ``.")
 
-class TestExercise6(unittest.TestCase):
+class TestExercise7(unittest.TestCase):
 
   def setUp(self):
     self.data = {

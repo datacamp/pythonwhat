@@ -7,9 +7,9 @@ class FeedbackMessage(object):
 
     Don't use this yet!
 
-    This class will hold all functionality which is related to feedback messaging. 
+    This class will hold all functionality which is related to feedback messaging.
     At the moment it is NOT used, feedback generation is still HIGLY interwoven with
-    test_... files. Should be decoupled. 
+    test_... files. Should be decoupled.
 
     Class should be refactored to use .format() instead.
 
@@ -64,11 +64,10 @@ class FeedbackMessage(object):
         return(generated_string)
 
     def replaceConditionalTags(message_string, information):
-        generated_string = message_string
-
+        generated_string = message_string.replace("\n", "\\\\n")
         pattern = "\${{([a-zA-Z]*?) \? (.*?)}}"
 
-        cond_keywords = re.findall(pattern, message_string)
+        cond_keywords = re.findall(pattern, generated_string)
         for (keyword, k_string) in cond_keywords:
             replace = "\${{" + keyword + " \? " + re.escape(k_string) + "}}"
             if (keyword in information):

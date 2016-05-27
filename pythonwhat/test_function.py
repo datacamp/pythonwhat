@@ -117,6 +117,7 @@ def test_function(name,
         keywords = keyw_solution
 
     def eval_arg(arg_student, arg_solution, feedback):
+        got_error = False
         if do_eval:
             try:
                 eval_student = eval(
@@ -126,7 +127,7 @@ def test_function(name,
                         "eval"),
                     student_env)
             except:
-                eval_student = None
+                got_error = True
 
             eval_solution = eval(
                 compile(
@@ -138,10 +139,11 @@ def test_function(name,
             eval_student = arg_student
             eval_solution = arg_solution
 
-        feedback.set_information("result", eval_student)
-        feedback.set_information("expected", eval_solution)
+        feedback.set_information("result", ("an error" if got_error else ("`%r`" % eval_student)))
+        feedback.set_information("expected", ("%r" % eval_solution))
 
-        return(eq_map[eq_condition](eval_student, eval_solution, feedback))
+        return(Test(feedback) if got_error else
+            eq_map[eq_condition](eval_student, eval_solution, feedback))
 
     success = None
     incorrect_msg = (FeedbackMessage(incorrect_msg) if incorrect_msg else None)
@@ -166,7 +168,7 @@ def test_function(name,
             arg_student = args_student[arg]
             arg_solution = args_solution[arg]
 
-            feedback.set_information("argument", arg + 1)
+            feedback.set_information("argument", ordinal(arg + 1))
 
             test = eval_arg(arg_student, arg_solution, feedback)
 
@@ -220,11 +222,11 @@ def construct_incorrect_msg(nb_call):
     feedback.cond_append("line", "Call on line ${line} has wrong arguments.")
     feedback.cond_append(
         "argument",
-        "Argument ${argument} seems to be incorrect.")
+        "The ${argument} argument seems to be incorrect.")
     feedback.cond_append(
         "keyword",
         "Keyword `${keyword}` seems to be incorrect.")
     feedback.cond_append(
         "expected",
-        "Expected `${expected}`, got `${result}`.")
+        "Expected `${expected}`, but got ${result}.")
     return(feedback)

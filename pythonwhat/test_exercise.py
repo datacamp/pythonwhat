@@ -2,6 +2,7 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 
 from pythonwhat.test_mc import test_mc
+from pythonwhat.test_with import test_with
 from pythonwhat.test_import import test_import
 from pythonwhat.test_object import test_object
 from pythonwhat.test_if_else import test_if_else
