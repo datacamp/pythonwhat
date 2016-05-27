@@ -420,7 +420,8 @@ class FunctionDefParser(Parser):
         defaults = [None] * (len(args) - len(defaults)) + defaults
         self.defs[node.name] = {
             "args": [(arg, default) for arg, default in zip(args,defaults)],
-            "body": ReturnTransformer().visit(ast.Module(node.body))
+            "body": ReturnTransformer().visit(ast.Module(node.body)),
+            "lineno": node.lineno
         }
 
     def get_node_literal_value(node):
@@ -442,7 +443,8 @@ class WithParser(Parser):
         self.withs.append({
             "context": [{"context_expr" : ast.Expression(item.context_expr),
                 "optional_vars": item.optional_vars and WithParser.get_node_ids_in_list(item.optional_vars)} for item in items],
-            "body": ast.Module(node.body)
+            "body": ast.Module(node.body),
+            "lineno": node.lineno
         })
 
     def get_node_ids_in_list(node):
