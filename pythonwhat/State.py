@@ -1,6 +1,6 @@
 import ast
 import inspect
-from pythonwhat.parsing import FunctionParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, FindLastLineParser
+from pythonwhat.parsing import FunctionParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, FindLastLineParser, WithParser
 
 from pythonwhat.Reporter import Reporter
 
@@ -56,6 +56,9 @@ class State(object):
 
         self.student_function_defs = None
         self.solution_function_defs = None
+
+        self.student_withs = None
+        self.solution_withs = None
 
         self.parent_state = None
 
@@ -236,6 +239,19 @@ class State(object):
             fp.visit(self.solution_tree)
             self.solution_function_defs = fp.defs
 
+    def extract_withs(self):
+        self.parse_code()
+
+        if (self.student_withs is None):
+            wp = WithParser()
+            wp.visit(self.student_tree)
+            self.student_withs = wp.withs
+
+        if (self.solution_withs is None):
+            wp = WithParser()
+            wp.visit(self.solution_tree)
+            self.solution_withs = wp.withs
+
     def to_child_state(self, student_subtree, solution_subtree):
         """Dive into nested tree.
 
@@ -244,8 +260,8 @@ class State(object):
         for loops for example.
         """
 
-        args = inspect.getargspec(self.__class__.__init__)
-        arg_values = [self.__dict__[arg] for arg in args.args[1:]]
+        args = inspect.signature(self.__class__.__init__)
+        arg_values = [self.__dict__[arg] for arg in list(args.parameters.keys())[1:]]
         child = State(*arg_values)
         child.student_tree = student_subtree
         child.solution_tree = solution_subtree

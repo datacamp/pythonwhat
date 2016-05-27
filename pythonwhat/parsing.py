@@ -416,18 +416,45 @@ class FunctionDefParser(Parser):
 
     def visit_FunctionDef(self, node):
         args = [arg.arg for arg in node.args.args]
-        defaults = [FunctionDefParser.getNodeLiteralValue(lit) for lit in node.args.defaults]
+        defaults = [FunctionDefParser.get_node_literal_value(lit) for lit in node.args.defaults]
         defaults = [None] * (len(args) - len(defaults)) + defaults
         self.defs[node.name] = {
             "args": [(arg, default) for arg, default in zip(args,defaults)],
-            "body": ReturnTransformer().visit(ast.Module(node.body))
+            "body": ReturnTransformer().visit(ast.Module(node.body)),
+            "lineno": node.lineno
         }
 
-    def getNodeLiteralValue(node):
+    def get_node_literal_value(node):
         if isinstance(node, ast.Num):
             return node.n
         if isinstance(node, ast.Str) or isinstance(node, ast.Bytes):
             return node.s
+
+class ReturnTransformer(ast.NodeTransformer):
+    def visit_Return(self, node):
+        return ast.copy_location(ast.Pass(), node)
+
+class WithParser(Parser):
+    def __init__(self):
+        self.withs = []
+
+    def visit_With(self, node):
+        items = node.items
+        self.withs.append({
+            "context": [{"context_expr" : ast.Expression(item.context_expr),
+                "optional_vars": item.optional_vars and WithParser.get_node_ids_in_list(item.optional_vars)} for item in items],
+            "body": ast.Module(node.body),
+            "lineno": node.lineno
+        })
+
+    def get_node_ids_in_list(node):
+        if isinstance(node, ast.Name):
+            node_ids = [node.id]
+        elif isinstance(node, ast.Tuple):
+            node_ids = [name.id for name in node.elts]
+        else:
+            node_ids = []
+        return node_ids
 
 class FindLastLineParser(ast.NodeVisitor):
     """Find the last line.
@@ -442,7 +469,3 @@ class FindLastLineParser(ast.NodeVisitor):
             self.last_line = node.lineno
 
         ast.NodeVisitor.generic_visit(self, node)
-
-class ReturnTransformer(ast.NodeTransformer):
-    def visit_Return(self, node):
-        return ast.copy_location(ast.Pass(), node)

@@ -405,8 +405,8 @@ success_msg("Nice work!")
       self.assertEqual(sct_payload['correct'], False)
       self.assertEqual(sct_payload['message'], 'Not good at all')
 
-class TestExercise5(unittest.TestCase):
 
+class TestExercise6(unittest.TestCase):
   def setUp(self):
     self.data = {
       "DC_PEC": '''''',
@@ -492,7 +492,8 @@ success_msg("Nice work!")
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "Calling <code>shout('help', 'fire')</code> should output <code>helpfire</code>, instead got ``.")
 
-class TestExercise6(unittest.TestCase):
+
+class TestExercise7(unittest.TestCase):
 
   def setUp(self):
     self.data = {
@@ -526,6 +527,25 @@ test_function_definition("to_decimal", arg_names = False, arg_defaults = False, 
   def test_Fail1(self):
     self.data["DC_CODE"] = '''
 def to_decimal(number, base = 3):
+  print("Converting %d from base %s to base 10" % (number, base))
+  number_str = str(number)
+  number_range = range(len(number_str))
+  multipliers = [base ** ((len(number_str) - 1) - i) for i in number_range]
+  decimal = sum([int(number_str[i]) * multipliers[i] for i in number_range])
+  return decimal
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertEqual(sct_payload['message'], 'In your definition of <code>to_decimal()</code>, the 2nd argument should have <code>2</code> as default, instead got <code>3</code>.')
+
+
+  def test_Fail2(self):
+    self.data["DC_CODE"] = '''
+from numpy import sum
+def to_decimal(number, base = 2):
   print("Converting %d from base %s to base 10" % (number, base))
   number_str = str(number)
   number_range = range(len(number_str))
