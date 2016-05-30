@@ -29,7 +29,7 @@ class Reporter(object):
 
     def inc_correct_steps_to(self, correct_steps):
         if self.correct_steps < correct_steps:
-            self.correct_stepst = correct_steps
+            self.correct_steps = correct_steps
 
     def fail(self, failure_msg):
         self.failed_test = True

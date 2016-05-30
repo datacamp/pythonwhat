@@ -9,6 +9,7 @@ from pythonwhat.test_if_else import test_if_else
 from pythonwhat.test_for_loop import test_for_loop
 from pythonwhat.test_function import test_function
 from pythonwhat.test_operator import test_operator
+from pythonwhat.test_data_frame import test_data_frame
 from pythonwhat.test_while_loop import test_while_loop
 from pythonwhat.test_student_typed import test_student_typed
 from pythonwhat.test_output_contains import test_output_contains
