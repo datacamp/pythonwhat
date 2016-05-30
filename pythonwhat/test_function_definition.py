@@ -164,7 +164,7 @@ def test_function_definition(name,
         child.to_parent_state()
         if expand_message and (failed_before is not rep.failed_test):
             rep.feedback_msg = ("In your definition of `%s()`, " % name) + \
-                rep.feedback_msg
+                utils.first_lower(rep.feedback_msg)
     if rep.failed_test:
         return
 

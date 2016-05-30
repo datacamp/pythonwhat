@@ -45,20 +45,25 @@ def test_with(index,
         len_context_solution = len(solution_with['context'])
         len_context_student = len(student_with['context'])
 
-        rep.do_test(EqualTest(len_context_solution, len_context_student,
-            context_vals_len_msg or "In your `with` statement on line %d, make sure to use " + \
-            " the correct number of context variables. It seems you defined %s." %
-                (student_with['lineno'],
-                 ("too many" if len_context_student > len_context_solution else "too little"))))
+        if len_context_solution > len_context_student:
+            enough_contexts_string = "too little"
+        else:
+            enough_contexts_string = "too many"
+
+        c_context_vals_len_msg = context_vals_len_msg or \
+            "In your `with` statement on line %d, make sure to use the correct number of context variables. It seems you defined %s."\
+                % (student_with['lineno'], enough_contexts_string)
+
+        rep.do_test(EqualTest(len_context_solution, len_context_student, c_context_vals_len_msg))
         if rep.failed_test:
             return
 
         for (context_solution, context_student) in zip(solution_with['context'], student_with['context']):
-            rep.do_test(EqualTest(context_solution['optional_vars'], context_student['optional_vars']),
-                context_vals_msg or "In your `with` statement on line %d, make sure to use " + \
-            " the correct context variable names. Was expecting %s but got %s." %
-                (student_with['lineno'], names_as_string(context_solution['optional_vars']),
-                    names_as_string(context_student['optional_vars'])))
+            c_context_vals_msg = context_vals_msg or "In your `with` statement on line %d, make sure to use the correct context variable names. Was expecting `%s` but got `%s`."\
+                % (student_with['lineno'], names_as_string(context_solution['optional_vars']),
+                    names_as_string(context_student['optional_vars']))
+            rep.do_test(EqualTest(context_solution['optional_vars'], context_student['optional_vars'],
+                c_context_vals_msg))
             if rep.failed_test:
                 return
 
