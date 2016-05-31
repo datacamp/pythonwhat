@@ -25,7 +25,14 @@ cd /path/to/pythonwhat/tests
 ipython3 run_all.py
 ```
 
+## Generate Documentation PDF
 
-
+```
+pip3 install sphinx
+python3 setup.py install
+cd docs
+make latexpdf
+open build/latex/Pythonwhat.pdf
+```
 
 For more details, questions and suggestions, contact <b>content-engineering@datacamp.com</b>.
