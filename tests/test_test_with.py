@@ -146,5 +146,69 @@ success_msg("Nice work!")
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "In your <code>with</code> statement on line 12, make sure to use the correct context variable names. Was expecting <code>file</code> but got <code>not_file</code>.")
 
+class TestExercise3(unittest.TestCase):
+
+  def setUp(self):
+    self.data = {
+      "DC_PEC": '''''',
+      "DC_CODE": '''
+# # Read & print the first 3 lines
+with open('moby_dick.txt') as file:
+    print(file.readline())
+    print(file.readline())
+    print('test')
+
+# # The rows that you wish to print
+I = [0,1,3,5,6,7,8,9]
+
+# # Print out these rows
+with open('moby_dick.txt') as not_file:
+    for i, row in enumerate(not_file):
+        if i in I:
+            print(row)
+      ''',
+      "DC_SOLUTION": '''
+# # Read & print the first 3 lines
+with open('moby_dick.txt') as file,  open('moby_dick.txt'):
+    print(file.readline())
+    print(file.readline())
+    print(file.readline())
+
+# # The rows that you wish to print
+I = [0,1,3,5,6,7,8,9]
+
+# # Print out these rows
+with open('moby_dick.txt') as file:
+    for i, row in enumerate(file):
+        if i in I:
+            print(row)
+'''
+    }
+
+  def test_Fail1(self):
+    self.data["DC_SCT"] = '''
+test_with(1, context_tests=lambda: test_function('open'))
+success_msg("Nice work!")
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], True)
+
+  def test_Fail2(self):
+    self.data["DC_SCT"] = '''
+test_with(1, context_tests=[
+  lambda: test_function('open'),
+  lambda: test_function('open')])
+success_msg("Nice work!")
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertEqual(sct_payload['message'], "In your <code>with</code> statement on line 12, make sure to use the correct context variable names. Was expecting <code>file</code> but got <code>not_file</code>.")
+
 if __name__ == "__main__":
   unittest.main()
