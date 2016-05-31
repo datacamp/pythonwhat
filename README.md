@@ -21,7 +21,9 @@ sudo pip3 install boto3
 cd path/to/pythonbackend
 python3 setup.py install
 
-cd /path/to/pythonwhat/tests
+cd /path/to/pythonwhat
+python3 setup.py install
+cd tests
 ipython3 run_all.py
 ```
 
