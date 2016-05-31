@@ -4,12 +4,28 @@ The `pythonwhat` package provides rich functionality to write Submission Correct
 
 For a detailed guide on how to use `pythonwhat`, head over to the [wiki](https://github.com/datacamp/pythonwhat/wiki).
 
-To learn more about course creation for DataCamp, visit our [Teach Documentation](http://docs.datacamp.com/teach).
+Visit [DataCamp Teach](https://www.datacamp.com/teach) to create your own DataCamp Python course, powered by `pythonwhat`.
 
 ## Installation
 
 ```
+pip3 install markdown2
 pip3 install git+https://github.com/datacamp/pythonwhat
 ```
+
+## Run tests
+
+```
+# install python backend (private)
+sudo pip3 install boto3
+cd path/to/pythonbackend
+python3 setup.py install
+
+cd /path/to/pythonwhat/tests
+ipython3 run_all.py
+```
+
+
+
 
 For more details, questions and suggestions, contact <b>content-engineering@datacamp.com</b>.

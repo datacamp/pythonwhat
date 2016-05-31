@@ -64,3 +64,7 @@ target/
 
 # pyenv
 .python-version
+
+tests/moby_dick.txt
+tests/cars.csv
+
