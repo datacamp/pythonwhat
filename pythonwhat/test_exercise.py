@@ -1,7 +1,7 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 
-
+# explicitly import all functions so that they can be used in SCT
 from pythonwhat.test_mc import test_mc
 from pythonwhat.test_with import test_with
 from pythonwhat.test_import import test_import
