@@ -87,7 +87,7 @@ def test_with(index,
             context_test()
             child.to_parent_state()
             if expand_message and (failed_before is not rep.failed_test):
-                rep.feedback_msg = ("Check the %d context in the `with` statement on line %d. " % (ordinal(i+1),student_with['lineno'])) + \
+                rep.feedback_msg = ("Check the %s context in the `with` statement on line %d. " % (ordinal(i+1),student_with['lineno'])) + \
                     rep.feedback_msg
     if rep.failed_test:
         return

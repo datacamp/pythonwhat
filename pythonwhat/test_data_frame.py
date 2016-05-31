@@ -18,8 +18,6 @@ def test_data_frame(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_data_frame")
 
-    index = index - 1
-
     solution_env = state.solution_env
     student_env = state.student_env
 
@@ -32,7 +30,7 @@ def test_data_frame(name,
       raise ValueError("%r is not a pandas.DataFrame in the solution environment" % name)
 
     rep.do_test(DefinedTest(name, student_env,
-      undefined_msg or "Are you sure you defined the pandas DataFrame: %s?" % name))
+      undefined_msg or "Are you sure you defined the pandas DataFrame: `%s`?" % name))
     if rep.failed_test:
         return
     student_df = student_env[name]
@@ -41,7 +39,7 @@ def test_data_frame(name,
     if rep.failed_test:
       return
 
-    columns = columns or list(solution_dff.columns)
+    columns = columns or list(solution_df.columns)
 
     for column in columns:
         try:
@@ -50,12 +48,14 @@ def test_data_frame(name,
             raise NameError("%r is not a column in the %r DataFrame in the solution environment" % (column, name))
 
         rep.do_test(DefinedTest(column, student_df,
-            undefined_cols_msg or "You did not define column `%s` in the pandas DataFrame, `%s`" % (column, name)))
+            undefined_cols_msg or "You did not define column `%s` in the pandas DataFrame, `%s`." % (column, name)))
         if rep.failed_test:
             return
 
+        student_column = student_df[column]
+
         rep.do_test(EqualTest(solution_column, student_column,
-            incorrect_msg or "Column `%s` of your pandas DataFrame, `%s`, is not correct."))
+            incorrect_msg or "Column `%s` of your pandas DataFrame, `%s`, is not correct." % (column, name)))
         if rep.failed_test:
             return
 

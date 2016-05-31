@@ -712,6 +712,86 @@ shout('congratulations')
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, you should use the <code>print()</code> function with the correct argument.')
 
+class TestExercise9(unittest.TestCase):
+
+  def setUp(self):
+    self.data = {
+      "DC_PEC": '''''',
+      "DC_SOLUTION": '''
+# Define the function shout
+def shout():
+
+    # Concatenate the strings
+    shout_word = 'congratulations' + '!!!'
+
+    # Print shout_word
+    print(shout_word)
+
+# Call shout
+shout()
+      ''',
+      "DC_SCT": '''
+# The sct section defines the Submission Correctness Tests (SCTs) used to
+# evaluate the student's response. All functions used here are defined in the
+# pythonwhat Python package. Documentation can also be found at github.com/datacamp/pythonwhat/wiki
+
+# Note [FRANCIS]: Tests appear code-level, that is, as they appear top-down in the code.
+
+# Test definition of shout()
+test_function_definition("shout", arg_names = True)
+
+# Test the value of shout_word
+test_function_definition(
+    "shout",
+    arg_names = False,
+    body = lambda: test_object_after_expression("shout_word"))
+
+# Test the print() call
+test_function_definition(
+    "shout",
+    arg_names = False,
+    arg_defaults = False, # Already tested this
+    # args argument of test_function doesn't work yet within test_function_definition
+    body = lambda: test_function("print", args = [], incorrect_msg = "you should use the `print()` function."))
+
+# Test the output of shout_word
+test_function_definition(
+    "shout",
+    arg_names = False,
+    arg_defaults = False,
+    outputs = [()],
+    wrong_output_msg = "be sure to print out `shout_word`.")
+
+# Test if shout() is called
+test_function("shout")
+
+# Test the output
+test_output_contains("congratulations!!!", pattern = False)
+
+success_msg("Great work!")
+      '''
+    }
+
+  def test_Fail1(self):
+    self.data["DC_CODE"] = '''
+    # Define the function shout
+def shout():
+
+    # Concatenate the strings
+    shout_word = 'congratulations' + '!!'
+
+    # Print shout_word
+    print(shout_word)
+
+# Call shout
+shout()
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, are you sure you assigned the correct value to <code>shout_word</code>?')
 
 
 

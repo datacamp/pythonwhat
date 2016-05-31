@@ -162,7 +162,7 @@ with open('moby_dick.txt') as file:
 I = [0,1,3,5,6,7,8,9]
 
 # # Print out these rows
-with open('moby_dick.txt') as not_file:
+with open('moby_dick.txt') as not_file, open('moby_dick.txt') as file:
     for i, row in enumerate(not_file):
         if i in I:
             print(row)
@@ -178,7 +178,7 @@ with open('moby_dick.txt') as file,  open('moby_dick.txt'):
 I = [0,1,3,5,6,7,8,9]
 
 # # Print out these rows
-with open('moby_dick.txt') as file:
+with open('moby_dick.txt') as file, open('not_moby_dick.txt') as not_file:
     for i, row in enumerate(file):
         if i in I:
             print(row)
@@ -208,7 +208,22 @@ success_msg("Nice work!")
     output = self.exercise.runSubmit(self.data)
     sct_payload = helper.get_sct_payload(output)
     self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], "In your <code>with</code> statement on line 12, make sure to use the correct context variable names. Was expecting <code>file</code> but got <code>not_file</code>.")
+    self.assertEqual(sct_payload['message'], "In your <code>with</code> statement on line 3, make sure to use the correct number of context variables. It seems you defined too little.")
+
+  def test_Fail3(self):
+    self.data["DC_SCT"] = '''
+test_with(2, context_tests=[
+  lambda: test_function('open'),
+  lambda: test_function('open')])
+success_msg("Nice work!")
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertEqual(sct_payload['message'], "Check the 2nd context in the <code>with</code> statement on line 12. Did you call <code>open()</code> with the correct arguments? Call on line 12 has wrong arguments. The 1st argument seems to be incorrect. Expected <code>'not_moby_dick.txt'</code>, but got <code>'moby_dick.txt'</code>.")
+
 
 if __name__ == "__main__":
   unittest.main()
