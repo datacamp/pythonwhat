@@ -73,15 +73,14 @@ def test_with(index,
         for i in range(len(context_tests)):
             context_test = context_tests[i]
             try:
-                solution_context = solution_with['context'][i]
+                solution_context = solution_with['context'][i]['context_expr']
             except IndexError:
                 raise NameError("not enough contexts in with statement on line %d in solution environment" % solution_with['lineno'])
             try:
-                student_context = student_with['context'][i]
+                student_context = student_with['context'][i]['context_expr']
             except:
-                rep.do_test(Test(context_vals_len_msg or "In your `with` statement on line %d, make sure to use " + \
-                    " the correct number of context variables. It seems you defined too little." %
-                        (student_with['lineno'])))
+                rep.do_test(Test(context_vals_len_msg or "In your `with` statement on line %d, make sure to use the correct number of context variables. It seems you defined too little."\
+                        % (student_with['lineno'])))
                 return
             failed_before = rep.failed_test
             child = state.to_child_state(student_context, solution_context)
