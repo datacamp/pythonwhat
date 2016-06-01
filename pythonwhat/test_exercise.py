@@ -1,15 +1,21 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 
+# explicitly import all functions so that they can be used in SCT
 from pythonwhat.test_mc import test_mc
+from pythonwhat.test_or import test_or
 from pythonwhat.test_with import test_with
 from pythonwhat.test_import import test_import
 from pythonwhat.test_object import test_object
+from pythonwhat.test_correct import test_correct
 from pythonwhat.test_if_else import test_if_else
+from pythonwhat.set_extra_env import set_extra_env
 from pythonwhat.test_for_loop import test_for_loop
 from pythonwhat.test_function import test_function
 from pythonwhat.test_operator import test_operator
+from pythonwhat.test_data_frame import test_data_frame
 from pythonwhat.test_while_loop import test_while_loop
+from pythonwhat.set_context_vals import set_context_vals
 from pythonwhat.test_student_typed import test_student_typed
 from pythonwhat.test_output_contains import test_output_contains
 from pythonwhat.test_expression_result import test_expression_result

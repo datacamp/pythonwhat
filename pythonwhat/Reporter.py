@@ -15,7 +15,6 @@ class Reporter(object):
         self.feedback_msg = "Oh no, your solution is incorrect! Please, try again."
         self.success_msg = "Great work!"
         self.allow_errors = False
-        self.correct_steps = 0
         self.tags = {}
 
     def set_success_msg(self, success_msg):
@@ -26,10 +25,6 @@ class Reporter(object):
 
     def reject_errors(self):
         self.allow_errors = False
-
-    def inc_correct_steps_to(self, correct_steps):
-        if self.correct_steps < correct_steps:
-            self.correct_stepst = correct_steps
 
     def fail(self, failure_msg):
         self.failed_test = True

@@ -10,9 +10,11 @@ ordinal = lambda n: "%d%s" % (
 
 def test_with(index,
               context_vals=False,
-              context=None,
+              context_tests=None,
               body=None,
               undefined_msg=None,
+              context_vals_len_msg=None,
+              context_vals_msg=None,
               expand_message=True):
     """Test a with statement.
 
@@ -30,13 +32,64 @@ def test_with(index,
 
     try:
         solution_with = solution_withs[index]
-    except KeyError:
-        raise NameError("not enough with statements in solution environment" % name)
+    except IndexError:
+        raise NameError("not enough with statements in solution environment")
 
     try:
         student_with = student_withs[index]
     except:
         rep.do_test(Test(undefined_msg or "Define more `with` statements."))
+        return
+
+    if context_vals:
+        len_context_solution = len(solution_with['context'])
+        len_context_student = len(student_with['context'])
+
+        if len_context_solution > len_context_student:
+            enough_contexts_string = "too little"
+        else:
+            enough_contexts_string = "too many"
+
+        c_context_vals_len_msg = context_vals_len_msg or \
+            "In your `with` statement on line %d, make sure to use the correct number of context variables. It seems you defined %s."\
+                % (student_with['lineno'], enough_contexts_string)
+
+        rep.do_test(EqualTest(len_context_solution, len_context_student, c_context_vals_len_msg))
+        if rep.failed_test:
+            return
+
+        for (context_solution, context_student) in zip(solution_with['context'], student_with['context']):
+            c_context_vals_msg = context_vals_msg or "In your `with` statement on line %d, make sure to use the correct context variable names. Was expecting `%s` but got `%s`."\
+                % (student_with['lineno'], names_as_string(context_solution['optional_vars']),
+                    names_as_string(context_student['optional_vars']))
+            rep.do_test(EqualTest(context_solution['optional_vars'], context_student['optional_vars'],
+                c_context_vals_msg))
+            if rep.failed_test:
+                return
+
+    if context_tests is not None:
+        if not isinstance(context_tests, list):
+            context_tests = [context_tests]
+        for i in range(len(context_tests)):
+            context_test = context_tests[i]
+            try:
+                solution_context = solution_with['context'][i]['context_expr']
+            except IndexError:
+                raise NameError("not enough contexts in with statement on line %d in solution environment" % solution_with['lineno'])
+            try:
+                student_context = student_with['context'][i]['context_expr']
+            except:
+                rep.do_test(Test(context_vals_len_msg or "In your `with` statement on line %d, make sure to use the correct number of context variables. It seems you defined too little."\
+                        % (student_with['lineno'])))
+                return
+            failed_before = rep.failed_test
+            child = state.to_child_state(student_context, solution_context)
+            context_test()
+            child.to_parent_state()
+            if expand_message and (failed_before is not rep.failed_test):
+                rep.feedback_msg = ("Check the %s context in the `with` statement on line %d. " % (ordinal(i+1),student_with['lineno'])) + \
+                    rep.feedback_msg
+    if rep.failed_test:
         return
 
     if body is not None:
@@ -78,7 +131,7 @@ def test_with(index,
                     "not using the context manager correctly." % (ordinal(index))))
         child.to_parent_state()
         if expand_message and (failed_before is not rep.failed_test):
-            rep.feedback_msg = ("Check the `with` statement on line %d. " % student_with['lineno']) + \
+            rep.feedback_msg = ("Check the body of the `with` statement on line %d. " % student_with['lineno']) + \
                 rep.feedback_msg
 
 def context_env_update(context_list, env):
@@ -90,7 +143,6 @@ def context_env_update(context_list, env):
             env)
         context_objs.append(context_obj)
         context_obj_init = context_obj.__enter__()
-        print("OPENED")
         context_keys = context['optional_vars']
         if context_keys is None:
             continue
@@ -107,9 +159,13 @@ def context_objs_exit(context_objs):
     for context_obj in context_objs:
         try:
             context_obj.__exit__()
-            print("CLOSED")
         except Exception as e:
             got_error = e
 
     return got_error
 
+def names_as_string(names):
+    if len(names) > 1:
+        return ("(%s)" % (', '.join(names)))
+    else:
+        return names[0]

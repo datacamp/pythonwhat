@@ -13,6 +13,7 @@ def test_function(name,
                   index=1,
                   args=None,
                   keywords=None,
+                  context_vals=None,
                   eq_condition="equal",
                   do_eval=True,
                   not_called_msg=None,
@@ -139,8 +140,11 @@ def test_function(name,
             eval_student = arg_student
             eval_solution = arg_solution
 
-        feedback.set_information("result", ("an error" if got_error else ("`%r`" % eval_student)))
-        feedback.set_information("expected", ("%r" % eval_solution))
+        # The (eval_student, ) part is important, because when eval_student is a tuple, we don't want
+        # to expand them all over the %'s during formatting, we just want the tuple to be represented
+        # in the place of the %r. Same for eval_solution.
+        feedback.set_information("result", ("an error" if got_error else ("`%r`" % (eval_student,))))
+        feedback.set_information("expected", ("%r" % (eval_solution,)))
 
         return(Test(feedback) if got_error else
             eq_map[eq_condition](eval_student, eval_solution, feedback))
@@ -228,5 +232,5 @@ def construct_incorrect_msg(nb_call):
         "Keyword `${keyword}` seems to be incorrect.")
     feedback.cond_append(
         "expected",
-        "Expected `${expected}`, but got ${result}.")
+        "Expected `${expected}`, but got `${result}`.")
     return(feedback)

@@ -269,9 +269,9 @@ class EqualTest(Test):
         """
         Perform the actual test. result is set to False if the objects differ, True otherwise.
         """
-        if isinstance(self.obj1, type(self.obj2)):
+        try:
             self.result = (self.obj1 == self.obj2)
-        else:
+        except:
             self.result = False
 
 

@@ -557,8 +557,243 @@ def to_decimal(number, base = 2):
     self.exercise.runInit()
     output = self.exercise.runSubmit(self.data)
     sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], True)
+
+class TestExercise8(unittest.TestCase):
+
+  def setUp(self):
+    self.data = {
+      "DC_PEC": '''''',
+      "DC_SOLUTION": '''
+# Define the function shout
+def shout():
+
+    # Concatenate the string 'congratulations' to '!!!' and assign to shout_word
+    shout_word = 'congratulations' + '!!!'
+
+    # Print the value of shout_word
+    print(shout_word)
+
+# Call the shout function
+shout()
+      ''',
+      "DC_SCT": '''
+# Test the value of shout_word
+test_function_definition(
+    "shout",
+    arg_names = False,
+    body = lambda: test_object_after_expression("shout_word"))
+
+'''
+    }
+
+  def test_Pass(self):
+    self.data["DC_CODE"] = '''
+# Define the function shout
+def shout():
+
+    # Concatenate the string 'congratulations' to '!!!' and assign to shout_word
+    shout_word = 'congratulations' + '!!!'
+
+    # Print the value of shout_word
+    print(shout_word)
+
+# Call the shout function
+shout()
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], True)
+
+  def test_Fail1(self):
+    self.data["DC_CODE"] = '''
+# Define the function shout
+def shout():
+
+    # Concatenate the string 'congratulations' to '!!!' and assign to shout_word
+    shout_word = 'congratulations' + '!!'
+
+    # Print the value of shout_word
+    print(shout_word)
+
+# Call the shout function
+shout()
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
     self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], 'In your definition of <code>to_decimal()</code>, the 2nd argument should have <code>2</code> as default, instead got <code>3</code>.')
+    self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, are you sure you assigned the correct value to <code>shout_word</code>?')
+
+
+class TestExercise9(unittest.TestCase):
+
+  def setUp(self):
+    self.data = {
+      "DC_PEC": '''''',
+      "DC_SOLUTION": '''
+# Define the function shout, which accepts the parameter word
+def shout(word):
+
+    # Concatenate the string in word with '!!!' and assign to shout_word
+    shout_word = word + '!!!'
+
+    # Print the value of shout_word
+    print(shout_word)
+
+# Call the shout function, with the string 'congratulations'
+shout('congratulations')
+      ''',
+      "DC_SCT": '''
+# The sct section defines the Submission Correctness Tests (SCTs) used to
+# evaluate the student's response. All functions used here are defined in the
+# pythonwhat Python package. Documentation can also be found at github.com/datacamp/pythonwhat/wiki
+
+# Note [FRANCIS]: Tests appear code-level, that is, as they appear top-down in the code.
+
+# Test definition of shout()
+test_function_definition("shout", arg_names = True)
+
+# Test the value of word
+test_function_definition(
+    "shout",
+    arg_names = False,
+    body = lambda: test_object_after_expression("word", context_vals = ["congratulations"])
+)
+
+# Test the value of shout_word
+test_function_definition(
+    "shout",
+    arg_names = False,
+    body = lambda: test_object_after_expression("shout_word", context_vals = ["congratulations!!!"])
+)
+
+# Test the print() call
+test_function_definition("shout", arg_names = False, arg_defaults = False, # Already tested this
+    body = lambda: [
+      set_extra_env(extra_env={'shout_word': "congratulations"}),
+      test_function("print", incorrect_msg = "you should use the `print()` function with the correct argument.")])
+
+
+test_function_definition("shout", arg_names = False, arg_defaults = False,
+  outputs = [('congratulations!!!')])
+
+# Test if shout() is called
+test_function("shout")
+
+# Test the output
+test_output_contains("congratulations!!!", pattern = False)
+
+success_msg("Great work!")
+'''
+    }
+
+  def test_Fail1(self):
+    self.data["DC_CODE"] = '''
+# Define the function shout, which accepts the parameter word
+def shout(word):
+
+    # Concatenate the string in word with '!!!' and assign to shout_word
+    shout_word = word + '!!!'
+
+    # Print the value of shout_word
+    print(shout_word + '!')
+
+# Call the shout function, with the string 'congratulations'
+shout('congratulations')
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, you should use the <code>print()</code> function with the correct argument.')
+
+class TestExercise9(unittest.TestCase):
+
+  def setUp(self):
+    self.data = {
+      "DC_PEC": '''''',
+      "DC_SOLUTION": '''
+# Define the function shout
+def shout():
+
+    # Concatenate the strings
+    shout_word = 'congratulations' + '!!!'
+
+    # Print shout_word
+    print(shout_word)
+
+# Call shout
+shout()
+      ''',
+      "DC_SCT": '''
+# The sct section defines the Submission Correctness Tests (SCTs) used to
+# evaluate the student's response. All functions used here are defined in the
+# pythonwhat Python package. Documentation can also be found at github.com/datacamp/pythonwhat/wiki
+
+# Note [FRANCIS]: Tests appear code-level, that is, as they appear top-down in the code.
+
+# Test definition of shout()
+test_function_definition("shout", arg_names = True)
+
+# Test the value of shout_word
+test_function_definition(
+    "shout",
+    arg_names = False,
+    body = lambda: test_object_after_expression("shout_word"))
+
+# Test the print() call
+test_function_definition(
+    "shout",
+    arg_names = False,
+    arg_defaults = False, # Already tested this
+    # args argument of test_function doesn't work yet within test_function_definition
+    body = lambda: test_function("print", args = [], incorrect_msg = "you should use the `print()` function."))
+
+# Test the output of shout_word
+test_function_definition(
+    "shout",
+    arg_names = False,
+    arg_defaults = False,
+    outputs = [()],
+    wrong_output_msg = "be sure to print out `shout_word`.")
+
+# Test if shout() is called
+test_function("shout")
+
+# Test the output
+test_output_contains("congratulations!!!", pattern = False)
+
+success_msg("Great work!")
+      '''
+    }
+
+  def test_Fail1(self):
+    self.data["DC_CODE"] = '''
+    # Define the function shout
+def shout():
+
+    # Concatenate the strings
+    shout_word = 'congratulations' + '!!'
+
+    # Print shout_word
+    print(shout_word)
+
+# Call shout
+shout()
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, are you sure you assigned the correct value to <code>shout_word</code>?')
+
+
 
 if __name__ == "__main__":
   unittest.main()

@@ -164,7 +164,7 @@ def test_function_definition(name,
         child.to_parent_state()
         if expand_message and (failed_before is not rep.failed_test):
             rep.feedback_msg = ("In your definition of `%s()`, " % name) + \
-                rep.feedback_msg
+                utils.first_lower(rep.feedback_msg)
     if rep.failed_test:
         return
 
@@ -222,7 +222,9 @@ def test_function_definition(name,
 
 
 def arguments_as_string(args):
-    if len(args) > 1:
+    if len(args) == 0:
+        return '()'
+    elif len(args) > 1:
         return str(args)
     elif isinstance(args[0], str):
         return "('"+args[0]+"')"

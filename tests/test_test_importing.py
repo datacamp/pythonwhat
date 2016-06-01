@@ -14,9 +14,6 @@ class TestExercise1(unittest.TestCase):
   def setUp(self):
     self.data = {
       "DC_PEC": '''
-fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt'
-from urllib.request import urlretrieve
-urlretrieve(fn, 'moby_dick.txt')
       ''',
       "DC_CODE": '''
 # Open a file

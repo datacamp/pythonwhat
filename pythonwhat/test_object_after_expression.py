@@ -3,6 +3,9 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import DefinedTest, EqualEnvironmentTest, EquivalentEnvironmentTest
 
+from pythonwhat.set_extra_env import set_extra_env
+from pythonwhat.set_context_vals import set_context_vals
+
 from pythonwhat import utils
 
 import copy
@@ -91,24 +94,8 @@ def test_object_after_expression(name,
     student_env = utils.copy_env(state.student_env, keep_objs_in_env)
     solution_env = utils.copy_env(state.solution_env, keep_objs_in_env)
 
-    if extra_env:
-        student_env.update(copy.deepcopy(extra_env))
-        solution_env.update(copy.deepcopy(extra_env))
-
-    if context_vals is not None:
-        if len(state.context_student) > 1:
-            student_env.update({key: value for (key, value) in zip(
-                state.context_student, context_vals)})
-        else:
-            student_env.update({state.context_student[0]: (
-                context_vals[0] if len(context_vals) == 1 else context_vals)})
-
-        if len(state.context_solution) > 1:
-            solution_env.update({key: value for (key, value) in zip(
-                state.context_solution, context_vals)})
-        else:
-            solution_env.update({state.context_solution[0]: (
-                context_vals[0] if len(context_vals) == 1 else context_vals)})
+    set_extra_env(student_env, solution_env, extra_env)
+    set_context_vals(student_env, solution_env, context_vals)
 
     try:
         if pre_code is not None:

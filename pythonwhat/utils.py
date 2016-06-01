@@ -29,3 +29,7 @@ def copy_env(env, keep_objs=None):
     updated_env = dict(env)
     updated_env.update(update_env)
     return(updated_env)
+
+
+def first_lower(s):
+    return (s[:1].lower() + s[1:] if s else '')
