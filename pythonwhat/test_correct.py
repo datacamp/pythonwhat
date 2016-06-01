@@ -1,7 +1,9 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 
-def test_or(check, diagnose):
+from pythonwhat.test_or import test_or
+
+def test_correct(check, diagnose):
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_correct")
 
@@ -12,4 +14,4 @@ def test_or(check, diagnose):
         diagnose()
         check()
 
-    test_or(check, diagnose_and_check)
+    test_or(diagnose_and_check, check)
