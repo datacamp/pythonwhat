@@ -158,7 +158,7 @@ def context_objs_exit(context_objs):
     got_error = False
     for context_obj in context_objs:
         try:
-            context_obj.__exit__()
+            context_obj.__exit__(*([None]*3))
         except Exception as e:
             got_error = e
 
