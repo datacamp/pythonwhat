@@ -5,6 +5,9 @@ if __name__ == "__main__":
   from urllib.request import urlretrieve
   urlretrieve(fn, 'moby_dick.txt')
   urlretrieve(fn, 'not_moby_dick.txt')
+  fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/sales.sas7bdat'
+  from urllib.request import urlretrieve
+  urlretrieve(fn, 'sales.sas7bdat')
   f = open('cars.csv', "w")
   f.write(""",cars_per_cap,country,drives_right
   US,809,United States,True

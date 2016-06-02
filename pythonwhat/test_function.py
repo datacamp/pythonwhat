@@ -232,5 +232,5 @@ def construct_incorrect_msg(nb_call):
         "Keyword `${keyword}` seems to be incorrect.")
     feedback.cond_append(
         "expected",
-        "Expected `${expected}`, but got `${result}`.")
+        "Expected `${expected}`, but got ${result}.")
     return(feedback)
