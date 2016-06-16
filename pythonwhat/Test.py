@@ -127,82 +127,7 @@ class EnvironmentTest(Test):
         self.student_env = student_env
         self.solution_env = solution_env
         self.obj = obj
-        self.failure_msg.add_information("student", self.student_env[self.obj])
-        self.failure_msg.add_information(
-            "solution", self.solution_env[self.obj])
 
-# TODO (Vincent): Add support for equivalence of strings. Use hamming distance.
-
-
-class EquivalentEnvironmentTest(EnvironmentTest):
-    """
-    Check if an variable with a certain name is equivalent in both student and solution
-    environment. Equivalence means the objects are almost the same. This test should
-    only be used with numeric variables (for now).
-
-    Attributes:
-            failure_msg (str): A string containing the failure message in case the test fails.
-            obj (str): The name of the variable that will be tested in both environments.
-            student_env (dict): Contains the student environment as a dictionary.
-            solution_env (dict): Contains the solution environment as a dictionary.
-            result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
-    """
-
-    def __init__(self, obj, student_env, solution_env, failure_msg):
-        """
-        Initialize with an object, student and solution environment.
-
-        Args:
-                obj (str): The variable name, obj will be set to this.
-                student_env (dict): The student environment will be set to this.
-                solution_env (dict): The solution environment will be set to this.
-                failure_msg (str): The failure message will be set to this.
-        """
-        super().__init__(obj, student_env, solution_env, failure_msg)
-
-    """
-	Perform the actual test. result is set to False if the difference between the variables is
-	more than 0.5e-8, True otherwise.
-	"""
-
-    def specific_test(self):
-        self.result = (
-            abs(self.student_env[self.obj] - self.solution_env[self.obj]) < 0.5e-8)
-
-
-class EqualEnvironmentTest(EnvironmentTest):
-    """
-    Check if an variable with a certain name is equal in both student and solution
-    environment. Equal means the objects are exactly the same.
-
-    Attributes:
-            failure_msg (str): A string containing the failure message in case the test fails.
-            obj (str): The name of the variable that will be tested in both environments.
-            student_env (dict): Contains the student environment as a dictionary.
-            solution_env (dict): Contains the solution environment as a dictionary.
-            result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
-    """
-
-    def __init__(self, obj, student_env, solution_env, failure_msg):
-        """
-        Initialize with an object, student and solution environment.
-
-        Args:
-                obj (str): The variable name, obj will be set to this.
-                student_env (dict): The student environment will be set to this.
-                solution_env (dict): The solution environment will be set to this.
-                failure_msg (str): The failure message will be set to this.
-        """
-        super().__init__(obj, student_env, solution_env, failure_msg)
-
-    def specific_test(self):
-        """
-        Perform the actual test. result is set to False if the variables differ, True otherwise.
-        """
-        self.result = (
-            self.student_env[
-                self.obj] == self.solution_env[
-                self.obj])
 
 # TODO (Vincent): Add support for equivalence of strings. Use hamming distance.
 
@@ -277,6 +202,62 @@ class EqualTest(Test):
                 self.result = (self.obj1 == self.obj2)
         except Exception as e:
             self.result = False
+
+
+class EquivalentEnvironmentTest(EquivalentTest):
+    """
+    Check if an variable with a certain name is equivalent in both student and solution
+    environment. Equivalence means the objects are almost the same. This test should
+    only be used with numeric variables (for now).
+
+    Attributes:
+            failure_msg (str): A string containing the failure message in case the test fails.
+            obj (str): The name of the variable that will be tested in both environments.
+            student_env (dict): Contains the student environment as a dictionary.
+            solution_env (dict): Contains the solution environment as a dictionary.
+            result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+    """
+
+    def __init__(self, obj, student_env, solution_env, failure_msg):
+        """
+        Initialize with an object, student and solution environment.
+
+        Args:
+                obj (str): The variable name, obj will be set to this.
+                student_env (dict): The student environment will be set to this.
+                solution_env (dict): The solution environment will be set to this.
+                failure_msg (str): The failure message will be set to this.
+        """
+        super().__init__(student_env[obj], solution_env[obj], failure_msg)
+
+
+class EqualEnvironmentTest(EqualTest):
+    """
+    Check if an variable with a certain name is equal in both student and solution
+    environment. Equal means the objects are exactly the same.
+
+    Attributes:
+            failure_msg (str): A string containing the failure message in case the test fails.
+            obj (str): The name of the variable that will be tested in both environments.
+            student_env (dict): Contains the student environment as a dictionary.
+            solution_env (dict): Contains the solution environment as a dictionary.
+            result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+    """
+
+    def __init__(self, obj, student_env, solution_env, failure_msg):
+        """
+        Initialize with an object, student and solution environment.
+
+        Args:
+                obj (str): The variable name, obj will be set to this.
+                student_env (dict): The student environment will be set to this.
+                solution_env (dict): The solution environment will be set to this.
+                failure_msg (str): The failure message will be set to this.
+        """
+        super().__init__(student_env[obj], solution_env[obj], failure_msg)
+
+
+# TODO (Vincent): Add support for equivalence of strings. Use hamming distance.
 
 
 class BiggerTest(Test):

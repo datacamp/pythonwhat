@@ -180,5 +180,129 @@ success_msg("Good job!")
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "Make sure to call <code>print()</code> the attribute <code>file.closed</code> twice, once before you closed the <code>file</code> and once after.")
 
+
+class TestTestFunctionInWith(unittest.TestCase):
+
+  def setUp(self):
+    self.data = {
+      "DC_PEC": '''
+# pec comes here
+      ''',
+      "DC_CODE": '''
+# Import pickle package
+import pickle
+
+# Open pickle file and load data
+with open('data.p','rb') as file:
+    d = pickle.load(file)
+
+# Print data
+print(d)
+
+# Print datatype
+print(type(d))
+      ''',
+      "DC_SOLUTION": '''
+# Import pickle package
+import pickle
+
+# Open pickle file and load data
+with open('data.p','rb') as file:
+    d = pickle.load(file)
+
+# Print data
+print(d)
+
+# Print datatype
+print(type(d))
+'''
+    }
+
+  def test_Pass(self):
+    self.data["DC_SCT"] = '''
+# Test: import pickle package
+import_msg = "Did you import `pickle` correctly?"
+test_import("pickle", same_as = True, not_imported_msg = import_msg, incorrect_as_msg = import_msg)
+
+# For testing statements inside with statement
+def test_with_body():
+    test_object("d")
+    test_function("pickle.load", do_eval = False)
+
+# Test: Context manager
+test_with(
+    1,
+    context_vals = True,
+    context_tests = lambda: test_function("open"),
+    body = test_with_body
+)
+
+# Test: print() statement
+test_function("print", index = 0)
+
+# Test: print() statement and call to type()
+type_msg = "Print out the type of `d` as follows: `print(type(d))`."
+test_function("type", index = 1, incorrect_msg = type_msg)
+test_function("print", index = 1, incorrect_msg = type_msg)
+
+success_msg("Awesome!")
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], True)
+
+  def test_Fail(self):
+    self.data["DC_CODE"] = '''
+# Import pickle package
+import pickle
+
+# Open pickle file and load data
+with open('data.p','rb') as file:
+    d = pickle.load('something_else')
+
+# Print data
+print(d)
+
+# Print datatype
+print(type(d))
+      '''
+    self.data["DC_SCT"] = '''
+# Test: import pickle package
+import_msg = "Did you import `pickle` correctly?"
+test_import("pickle", same_as = True, not_imported_msg = import_msg, incorrect_as_msg = import_msg)
+
+# For testing statements inside with statement
+def test_with_body():
+    test_function("pickle.load", do_eval = False)
+    test_object("d")
+
+# Test: Context manager
+test_with(
+    1,
+    context_vals = True,
+    context_tests = lambda: test_function("open"),
+    body = test_with_body
+)
+
+# Test: print() statement
+test_function("print", index = 0)
+
+# Test: print() statement and call to type()
+type_msg = "Print out the type of `d` as follows: `print(type(d))`."
+test_function("type", index = 1, incorrect_msg = type_msg)
+test_function("print", index = 1, incorrect_msg = type_msg)
+
+success_msg("Awesome!")
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertEqual(sct_payload['message'], 'Check the body of the <code>with</code> statement on line 6. Did you call <code>pickle.load()</code> with the correct arguments? Call on line 7 has wrong arguments. The 1st argument seems to be incorrect.')
+
+
 if __name__ == "__main__":
     unittest.main()

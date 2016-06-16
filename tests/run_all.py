@@ -8,6 +8,9 @@ if __name__ == "__main__":
   fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/sales.sas7bdat'
   from urllib.request import urlretrieve
   urlretrieve(fn, 'sales.sas7bdat')
+  fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/data.p'
+  from urllib.request import urlretrieve
+  urlretrieve(fn, 'data.p')
   f = open('cars.csv', "w")
   f.write(""",cars_per_cap,country,drives_right
   US,809,United States,True
