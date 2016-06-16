@@ -270,8 +270,12 @@ class EqualTest(Test):
         Perform the actual test. result is set to False if the objects differ, True otherwise.
         """
         try:
-            self.result = (self.obj1 == self.obj2)
-        except:
+            if isinstance(self.obj1, np.ndarray) & isinstance(self.obj2, np.ndarray):
+                np.testing.assert_equal(self.obj1, self.obj2)
+                self.result = True
+            else:
+                self.result = (self.obj1 == self.obj2)
+        except Exception as e:
             self.result = False
 
 
