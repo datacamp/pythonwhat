@@ -190,12 +190,19 @@ class EqualTest(Test):
         self.obj1 = obj1
         self.obj2 = obj2
 
+    def objs_are(self, list_of_classes):
+        return (
+            any([isinstance(self.obj1, x) for x in list_of_classes]) &
+            any([isinstance(self.obj2, x) for x in list_of_classes])
+        )
+
+
     def specific_test(self):
         """
         Perform the actual test. result is set to False if the objects differ, True otherwise.
         """
         try:
-            if isinstance(self.obj1, np.ndarray) & isinstance(self.obj2, np.ndarray):
+            if self.objs_are([np.ndarray, dict, list]):
                 np.testing.assert_equal(self.obj1, self.obj2)
                 self.result = True
             else:

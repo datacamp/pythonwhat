@@ -242,7 +242,7 @@ test_function("print", index = 0)
 
 # Test: print() statement and call to type()
 type_msg = "Print out the type of `d` as follows: `print(type(d))`."
-test_function("type", index = 1, incorrect_msg = type_msg)
+test_function("type", index = 0, incorrect_msg = type_msg)
 test_function("print", index = 1, incorrect_msg = type_msg)
 
 success_msg("Awesome!")
@@ -291,7 +291,7 @@ test_function("print", index = 0)
 
 # Test: print() statement and call to type()
 type_msg = "Print out the type of `d` as follows: `print(type(d))`."
-test_function("type", index = 1, incorrect_msg = type_msg)
+test_function("type", index = 0, incorrect_msg = type_msg)
 test_function("print", index = 1, incorrect_msg = type_msg)
 
 success_msg("Awesome!")
@@ -303,6 +303,92 @@ success_msg("Awesome!")
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], 'Check the body of the <code>with</code> statement on line 6. Did you call <code>pickle.load()</code> with the correct arguments? Call on line 7 has wrong arguments. The 1st argument seems to be incorrect.')
 
+class TestTestFunctionAndTestCorrectInWith(unittest.TestCase):
+  def setUp(self):
+    self.data = {
+      "DC_PEC": '''
+# pec comes here
+      ''',
+      "DC_CODE": '''
+# Import package
+import scipy.io
+
+# Load MATLAB file: mat
+mat = scipy.io.loadmat('albeck_gene_expression.mat')
+
+# Print the datatype type that we have created
+print(type(mat))
+      ''',
+      "DC_SOLUTION": '''
+# Import package
+import scipy.io
+
+# Load MATLAB file: mat
+mat = scipy.io.loadmat('albeck_gene_expression.mat')
+
+# Print the datatype type that we have created
+print(type(mat))
+'''
+    }
+
+  def test_Pass(self):
+    self.data["DC_SCT"] = '''
+# Test: import scipy.io
+test_import("scipy.io", same_as = True)
+
+# Test: call to scipy.io.loadmat() and 'mat' variable
+test_correct(
+    lambda: test_object("mat"),
+    lambda: test_function("scipy.io.loadmat", do_eval = False)
+)
+
+# Test: print() statement and call to type()
+type_msg = "Print out the type of `mat` as follows: `print(type(mat))`."
+test_function("type", incorrect_msg = type_msg)
+test_function("print", incorrect_msg = type_msg)
+
+success_msg("Great job!")
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], True)
+
+  def test_Fail(self):
+    self.data["DC_CODE"] = '''
+# Import package
+import scipy.io
+
+# Load MATLAB file: mat
+mat = scipy.io.loadmat('test')
+
+# Print the datatype type that we have created
+print(type(mat))
+      '''
+    self.data["DC_SCT"] = '''
+# Test: import scipy.io
+# test_import("scipy.io", same_as = True)
+
+# Test: call to scipy.io.loadmat() and 'mat' variable
+test_correct(
+    lambda: test_object("mat"),
+    lambda: test_function("scipy.io.loadmat", do_eval = False)
+)
+
+# Test: print() statement and call to type()
+type_msg = "Print out the type of `mat` as follows: `print(type(mat))`."
+test_function("type", incorrect_msg = type_msg)
+test_function("print", incorrect_msg = type_msg)
+
+success_msg("Great job!")
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertEqual(sct_payload['message'], 'Did you call <code>scipy.io.loadmat()</code> with the correct arguments? Call on line 6 has wrong arguments. The 1st argument seems to be incorrect.')
 
 if __name__ == "__main__":
     unittest.main()

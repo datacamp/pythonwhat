@@ -69,4 +69,5 @@ tests/moby_dick.txt
 tests/not_moby_dick.txt
 tests/cars.csv
 tests/sales.sas7bdat
-
+tests/albeck_gene_expression.mat
+tests/data.p

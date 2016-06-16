@@ -12,6 +12,9 @@ if __name__ == "__main__":
   from urllib.request import urlretrieve
   urlretrieve(fn, 'data.p')
   f = open('cars.csv', "w")
+  fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/ja_data2.mat'
+  from urllib.request import urlretrieve
+  urlretrieve(fn, 'albeck_gene_expression.mat')
   f.write(""",cars_per_cap,country,drives_right
   US,809,United States,True
   AUS,731,Australia,False
