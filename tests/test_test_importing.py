@@ -66,5 +66,46 @@ success_msg("You aced selecting observations from DataFrames; over to selecting 
     self.assertEqual(sct_payload['correct'], True)
 
 
+class TestExercise2(unittest.TestCase):
+
+  def setUp(self):
+    self.data = {
+      "DC_PEC": '''
+      ''',
+      "DC_CODE": '''
+# Import necessary module
+from sqlalchemy import create_engine
+
+# Create engine: engine
+engine = create_engine('sqlite:///Chinook.sqlite')
+      ''',
+      "DC_SOLUTION": '''
+# Import necessary module
+from sqlalchemy import create_engine
+
+# Create engine: engine
+engine = create_engine('sqlite:///Chinook.sqlite')
+'''
+    }
+
+  def test_Pass(self):
+    self.data["DC_SCT"] = '''
+# Test: import sqlalchemy
+import_msg = "Did you correctly import the required package?"
+test_import("sqlalchemy.create_engine", not_imported_msg = import_msg, incorrect_as_msg = import_msg)
+
+# Test: call to create_engine() and 'engine' variable
+test_object("engine", do_eval = False)
+test_function("create_engine")
+
+success_msg("Awesome!")
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], True)
+
+
 if __name__ == "__main__":
   unittest.main()

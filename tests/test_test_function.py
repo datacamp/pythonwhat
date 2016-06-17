@@ -390,5 +390,70 @@ success_msg("Great job!")
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], 'Did you call <code>scipy.io.loadmat()</code> with the correct arguments? Call on line 6 has wrong arguments. The 1st argument seems to be incorrect.')
 
+class TestTestFunctionAndTestCorrectWithoutWith(unittest.TestCase):
+  def setUp(self):
+    self.data = {
+      "DC_PEC": '''
+# pec comes here
+      ''',
+      "DC_CODE": '''
+# Import package
+import tweepy
+
+# Store OAuth authentication credentials in relevant variables
+access_token = "1092294848-aHN7DcRP9B4VMTQIhwqOYiB14YkW92fFO8k8EPy"
+access_token_secret = "X4dHmhPfaksHcQ7SCbmZa2oYBBVSD2g8uIHXsp5CTaksx"
+consumer_key = "nZ6EA0FxZ293SxGNg8g8aP0HM"
+consumer_secret = "fJGEodwe3KiKUnsYJC3VRndj7jevVvXbK2D5EiJ2nehafRgA6i"
+
+# Pass OAuth details to tweepy's OAuth handler
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+      ''',
+      "DC_SOLUTION": '''
+# Import package
+import tweepy
+
+# Store OAuth authentication credentials in relevant variables
+access_token = "1092294848-aHN7DcRP9B4VMTQIhwqOYiB14YkW92fFO8k8EPy"
+access_token_secret = "X4dHmhPfaksHcQ7SCbmZa2oYBBVSD2g8uIHXsp5CTaksx"
+consumer_key = "nZ6EA0FxZ293SxGNg8g8aP0HM"
+consumer_secret = "fJGEodwe3KiKUnsYJC3VRndj7jevVvXbK2D5EiJ2nehafRgA6i"
+
+# Pass OAuth details to tweepy's OAuth handler
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+'''
+    }
+
+  def test_Pass(self):
+    self.data["DC_SCT"] = '''
+# Test: import tweepy
+import_msg = "Did you correctly import the required package?"
+test_import("tweepy", same_as = True, not_imported_msg = import_msg, incorrect_as_msg = import_msg)
+
+# Test: Predefined code
+predef_msg = "You don't have to change any of the predefined code."
+test_object("access_token", undefined_msg = predef_msg, incorrect_msg = predef_msg)
+test_object("access_token_secret", undefined_msg = predef_msg, incorrect_msg = predef_msg)
+test_object("consumer_key", undefined_msg = predef_msg, incorrect_msg = predef_msg)
+test_object("consumer_secret", undefined_msg = predef_msg, incorrect_msg = predef_msg)
+
+# Test: call to tweepy.OAuthHandler() and 'auth' variable
+test_object("auth", do_eval = False)
+test_function("tweepy.OAuthHandler")
+
+# Test: call to auth.set_access_token()
+test_function("auth.set_access_token")
+
+success_msg("Awesome!")
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], True)
+
+
 if __name__ == "__main__":
     unittest.main()
