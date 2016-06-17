@@ -71,3 +71,5 @@ tests/cars.csv
 tests/sales.sas7bdat
 tests/albeck_gene_expression.mat
 tests/data.p
+tests/battledeath.xlsx
+tests/Chinook.sqlite

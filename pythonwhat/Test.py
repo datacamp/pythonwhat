@@ -1,6 +1,7 @@
 import re
 import pythonwhat.feedback as fb
 import numpy as np
+import pandas as pd
 
 """
 This file contains all tests that can be done on specific objects. All tests are represented
@@ -205,9 +206,21 @@ class EqualTest(Test):
             if self.objs_are([np.ndarray, dict, list]):
                 np.testing.assert_equal(self.obj1, self.obj2)
                 self.result = True
+            elif self.objs_are([pd.DataFrame]):
+                pd.util.testing.assert_frame_equal(self.obj1, self.obj2)
+                self.result = True
+            elif self.objs_are([pd.Series]):
+                pd.util.testing.assert_series_equal(self.obj1, self.obj2)
+                self.result = True
+            elif self.objs_are([pd.io.excel.ExcelFile]):
+                data_obj1 = {sheet: self.obj1.parse(sheet) for sheet in self.obj1.sheet_names}
+                data_obj2 = {sheet: self.obj2.parse(sheet) for sheet in self.obj2.sheet_names}
+                for k in set(data_obj1.keys()).union(set(data_obj2.keys())):
+                    pd.util.testing.assert_frame_equal(data_obj1[k], data_obj2[k])
+                self.result = True
             else:
                 self.result = (self.obj1 == self.obj2)
-        except Exception as e:
+        except Exception:
             self.result = False
 
 

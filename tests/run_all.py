@@ -1,20 +1,21 @@
 import unittest
 
 if __name__ == "__main__":
-  fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt'
   from urllib.request import urlretrieve
+  fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt'
   urlretrieve(fn, 'moby_dick.txt')
   urlretrieve(fn, 'not_moby_dick.txt')
   fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/sales.sas7bdat'
-  from urllib.request import urlretrieve
   urlretrieve(fn, 'sales.sas7bdat')
   fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/data.p'
-  from urllib.request import urlretrieve
   urlretrieve(fn, 'data.p')
-  f = open('cars.csv', "w")
   fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/ja_data2.mat'
-  from urllib.request import urlretrieve
   urlretrieve(fn, 'albeck_gene_expression.mat')
+  fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx'
+  urlretrieve(fn, 'battledeath.xlsx')
+  fn1 = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/Chinook.sqlite'
+  urlretrieve(fn1, 'Chinook.sqlite')
+  f = open('cars.csv', "w")
   f.write(""",cars_per_cap,country,drives_right
   US,809,United States,True
   AUS,731,Australia,False
