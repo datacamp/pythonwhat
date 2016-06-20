@@ -364,6 +364,87 @@ success_msg("Great work!")
     sct_payload = helper.get_sct_payload(output)
     self.assertEqual(sct_payload['correct'], False)
 
+class TestExercise6(unittest.TestCase):
+
+  def setUp(self):
+    self.data = {
+      "DC_PEC": '''
+from sqlalchemy import create_engine
+import pandas as pd
+#
+engine = create_engine('sqlite:///Chinook.sqlite')
+      ''',
+      "DC_CODE": '''
+# Open engine in context manager
+# Perform query and save results to dataframe: df
+with engine.connect() as con:
+    rs = con.execute("SELECT LastName, Title FROM Employee")
+    df = pd.DataFrame(rs.fetchmany(size=3))
+    df.columns = rs.keys()
+
+# Print the length of the dataframe df
+print(len(df))
+
+#Print the head of the dataframe df
+print(df.head())
+      ''',
+      "DC_SOLUTION": '''
+# Open engine in context manager
+# Perform query and save results to dataframe: df
+with engine.connect() as con:
+    rs = con.execute("SELECT LastName, Title FROM Employee")
+    df = pd.DataFrame(rs.fetchmany(size=3))
+    df.columns = rs.keys()
+
+# Print the length of the dataframe df
+print(len(df))
+
+#Print the head of the dataframe df
+print(df.head())
+'''
+    }
+
+  def test_Pass(self):
+    self.data["DC_SCT"] = '''
+# Tests for the context manager body
+def test_with_body():
+
+    # Test: call to con.execute() and 'rs' variable
+    test_object("rs", do_eval = False)
+    test_function("con.execute")
+
+    # Test: call to pd.DataFrame() and 'df' variable
+    test_correct(
+        lambda: test_object_after_expression("df"),
+        lambda: test_function("pandas.DataFrame", do_eval = False)
+    )
+
+     # Test: call to rs.keys() and df.columns
+    test_correct(
+        lambda: test_expression_result(expr_code = "df.columns"),
+        lambda: test_function("rs.keys")
+    )
+
+# Test: Context manager
+test_with(
+    1,
+    context_vals = True,
+    context_tests = lambda: test_function("engine.connect"),
+    body = test_with_body
+)
+
+# Test: Predefined code
+predef_msg = "You don't have to change any of the predefined code."
+test_function("print", index = 1, incorrect_msg = predef_msg)
+test_function("print", index = 2, incorrect_msg = predef_msg)
+
+success_msg("Awesome!")
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], True)
 
 if __name__ == "__main__":
   unittest.main()
