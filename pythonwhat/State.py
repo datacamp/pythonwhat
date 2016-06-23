@@ -252,6 +252,19 @@ class State(object):
             wp.visit(self.solution_tree)
             self.solution_withs = wp.withs
 
+    def extract_object_accesses(self):
+        self.parse_code()
+
+        if (self.student_object_accesses is None):
+            oap = ObjectAccessParser()
+            oap.visit(self.student_tree)
+            self.student_object_accesses = oap.object_accesses
+
+        if (self.solution_object_accesses is None):
+            oap = ObjectAccessParser()
+            oap.visit(self.solution_tree)
+            self.solution_object_accesses = oap.object_accesses
+
     def to_child_state(self, student_subtree, solution_subtree):
         """Dive into nested tree.
 

@@ -4,3 +4,4 @@ def get_sct_payload(output):
 		return(output[0]['payload'])
 	else:
 		return(None)
+		
