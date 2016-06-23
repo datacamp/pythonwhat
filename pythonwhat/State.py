@@ -101,11 +101,11 @@ class State(object):
             # Should never happen, SyntaxErrors are handled sooner.
             except IndentationError as e:
                 rep.fail(
-                    "Your code can not be excuted due to an error in the indentation: %s." %
+                    "Your code can not be executed due to an error in the indentation: %s." %
                     str(e))
             except SyntaxError as e:
                 rep.fail(
-                    "Your code can not be excuted due to a syntax error: %s." %
+                    "Your code can not be executed due to a syntax error: %s." %
                     str(e))
 
             # Can happen, can't catch this earlier because we can't differentiate between

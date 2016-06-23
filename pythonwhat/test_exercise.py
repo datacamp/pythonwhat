@@ -54,7 +54,7 @@ def test_exercise(sct,
               tags - the tags belonging to the SCT execution.
     """
 
-    # Syntax errors will stop execution immediatly. Nothing to be tested.
+    # Syntax errors will stop execution immediately. Nothing to be tested.
     if (error):
         try:
             err_obj = error[1]
