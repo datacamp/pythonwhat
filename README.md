@@ -10,6 +10,9 @@ Visit [DataCamp Teach](https://www.datacamp.com/teach) to create your own DataCa
 
 ```
 pip3 install markdown2
+pip3 install numpy
+pip3 install pandas
+pip3 install matplotlib
 pip3 install git+https://github.com/datacamp/pythonwhat
 ```
 
