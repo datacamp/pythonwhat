@@ -136,15 +136,16 @@ def test_function(name,
                     "<solution>",
                     "eval"),
                 solution_env)
+            # The (eval_student, ) part is important, because when eval_student is a tuple, we don't want
+            # to expand them all over the %'s during formatting, we just want the tuple to be represented
+            # in the place of the %r. Same for eval_solution.
+            feedback.set_information("result", ("an error" if got_error else ("`%r`" % (eval_student,))))
+            feedback.set_information("expected", ("%r" % (eval_solution,)))
         else:
-            eval_student = arg_student
-            eval_solution = arg_solution
-
-        # The (eval_student, ) part is important, because when eval_student is a tuple, we don't want
-        # to expand them all over the %'s during formatting, we just want the tuple to be represented
-        # in the place of the %r. Same for eval_solution.
-        feedback.set_information("result", ("an error" if got_error else ("`%r`" % (eval_student,))))
-        feedback.set_information("expected", ("%r" % (eval_solution,)))
+            # We don't want the 'expected...' message here. It's a pain in the ass to deparse the ASTs to
+            # give something meaningful.
+            eval_student = ast.dump(arg_student)
+            eval_solution = ast.dump(arg_solution)
 
         return(Test(feedback) if got_error else
             eq_map[eq_condition](eval_student, eval_solution, feedback))
