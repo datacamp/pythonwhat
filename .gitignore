@@ -73,3 +73,5 @@ tests/albeck_gene_expression.mat
 tests/data.p
 tests/battledeath.xlsx
 tests/Chinook.sqlite
+tests/titanic.csv
+tests/tweets.txt

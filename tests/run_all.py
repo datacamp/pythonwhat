@@ -15,6 +15,10 @@ if __name__ == "__main__":
   urlretrieve(fn, 'battledeath.xlsx')
   fn1 = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/Chinook.sqlite'
   urlretrieve(fn1, 'Chinook.sqlite')
+  fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/titanic_sub.csv'
+  urlretrieve(fn, 'titanic.csv')
+  fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/tweets3.txt'
+  urlretrieve(fn, 'tweets.txt')
   f = open('cars.csv', "w")
   f.write(""",cars_per_cap,country,drives_right
   US,809,United States,True

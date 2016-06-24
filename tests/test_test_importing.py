@@ -446,5 +446,201 @@ success_msg("Awesome!")
     sct_payload = helper.get_sct_payload(output)
     self.assertEqual(sct_payload['correct'], True)
 
+
+class TestExercise7(unittest.TestCase):
+
+  def setUp(self):
+    self.data = {
+      "DC_PEC": '''
+import numpy as np
+      ''',
+      "DC_CODE": '''
+file = 'titanic.csv'
+
+# Import file using np.genfromtxt: data
+data = np.genfromtxt(file , delimiter = ",", names = True , dtype = None)
+
+# Print out datatype of data
+print(type(data))
+
+# Import file using np.recfromcsv: d
+d = np.recfromcsv(file)
+
+# Print out first three entries of d
+print(d[:3])
+      ''',
+      "DC_SOLUTION": '''
+file = 'titanic.csv'
+
+# Import file using np.genfromtxt: data
+data = np.genfromtxt(file , delimiter = ",", names = True , dtype = None)
+
+# Print out datatype of data
+print(type(data))
+
+# Import file using np.recfromcsv: d
+d = np.recfromcsv(file)
+
+# Print out first three entries of d
+print(d[:3])
+'''
+    }
+
+  def test_Pass(self):
+    self.data["DC_SCT"] = '''
+# Test: Predefined code
+predef_msg = "You don't have to change any of the predefined code."
+test_object("file", undefined_msg = predef_msg, incorrect_msg = predef_msg)
+
+# [6-21-2016: UPDATED WITH FIX]
+# Test: call to np.genfromtxt() and 'data' variable
+test_object("data", do_eval = False)
+test_function(
+    "numpy.genfromtxt",
+    not_called_msg = "Make sure you call `np.genfromtxt()`.",
+    incorrect_msg = "Did you pass the correct arguments to `np.genfromtxt()`?")
+
+# [6-21-2016: NEEDS FIX]
+# Test: Predefined code
+test_function("type", do_eval = False, not_called_msg = "error in type", incorrect_msg = "error in type")
+test_function("print", not_called_msg = predef_msg, incorrect_msg = predef_msg)
+
+# [6-21-2016: UPDATED WITH FIX]
+# Test: call to np.recfromcsv() and 'd' variable
+test_object("d", do_eval = False)
+test_function(
+    "numpy.recfromcsv",
+    not_called_msg = "Make sure you call `np.recfromcsv()`.",
+    incorrect_msg = "Did you pass the correct arguments to `np.recfromcsv()`?")
+
+# Test: Predefined code
+test_function("print", index = 2, incorrect_msg = "error is in print2")
+
+success_msg("Good job!")
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], True)
+
+
+class TestExercise8(unittest.TestCase):
+
+  def setUp(self):
+    self.data = {
+      "DC_PEC": '''
+import re
+def word_in_text(word, text):
+    word = word.lower()
+    text = text.lower()
+    match = re.search(word, text)
+    if match:
+        return True
+    return False
+
+# Import package
+import json
+
+# String of path to file
+tweets_data_path = 'tweets.txt'
+
+# Initialize empty list to store tweets
+tweets_data = []
+
+# Open connection to file
+tweets_file = open(tweets_data_path, "r")
+
+# Read in tweets and store in list 'tweets_data'
+for line in tweets_file:
+    tweet = json.loads(line)
+    tweets_data.append(tweet)
+
+# Close connection to file
+tweets_file.close()
+
+# Import package
+import pandas as pd
+
+# Build dataframe of tweet texts and languages
+df = pd.DataFrame(tweets_data, columns = ['text','lang'])
+      ''',
+      "DC_CODE": '''
+# Initialize list to store tweet counts
+[clinton, trump, sanders, cruz] = [0,0,0,0]
+
+# Interate through df, counting the number of tweets in which
+# each candidate is mentioned
+for index, row in df.iterrows():
+    clinton += word_in_text('clinton', row['text'])
+    trump += word_in_text('trump', row['text'])
+    sanders += word_in_text('sanders', row['text'])
+    cruz += word_in_text('cruz', row['text'])
+      ''',
+      "DC_SOLUTION": '''
+# Initialize list to store tweet counts
+[clinton, trump, sanders, cruz] = [0,0,0,0]
+
+# Interate through df, counting the number of tweets in which
+# each candidate is mentioned
+for index, row in df.iterrows():
+    clinton += word_in_text('clinton', row['text'])
+    trump += word_in_text('trump', row['text'])
+    sanders += word_in_text('sanders', row['text'])
+    cruz += word_in_text('cruz', row['text'])
+'''
+    }
+
+  def test_Pass(self):
+    self.data["DC_SCT"] = '''
+# Test: Predefined code
+predef_msg = "You don't have to change any of the predefined code."
+
+# Test: [clinton, trump, sanders, cruz] objects
+test_student_typed("[clinton, trump, sanders, cruz]", pattern = False, not_typed_msg = predef_msg)
+
+def test_for_body():
+    # Test: call to word_in_text() and 'clinton' variable
+    test_correct(
+        lambda: test_object("clinton"),
+        lambda: test_function("word_in_text")
+    )
+
+    # Test: call to word_in_text() and 'trump' variable
+    test_correct(
+        lambda: test_object("trump"),
+        lambda: test_function("word_in_text")
+    )
+
+    # Test: call to word_in_text() and 'sanders' variable
+    test_correct(
+        lambda: test_object("sanders"),
+        lambda: test_function("word_in_text")
+    )
+
+    # Test: call to word_in_text() and 'cruz' variable
+    test_correct(
+        lambda: test_object("cruz"),
+        lambda: test_function("word_in_text")
+    )
+
+msg = "You have to iterate over `df.iterrows()`"
+test_for_loop(
+    index = 1,
+    for_iter = lambda msg = msg: test_function("df.iterrows",
+                                            not_called_msg = msg,
+                                            incorrect_msg = msg),
+    body = test_for_body
+)
+
+success_msg("Awesome!")
+    '''
+    self.exercise = Exercise(self.data)
+    self.exercise.runInit()
+    output = self.exercise.runSubmit(self.data)
+    sct_payload = helper.get_sct_payload(output)
+    self.assertEqual(sct_payload['correct'], True)
+
+
 if __name__ == "__main__":
   unittest.main()

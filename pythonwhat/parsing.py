@@ -254,6 +254,9 @@ class FunctionParser(Parser):
     def visit_Assign(self, node):
         self.visit(node.value)
 
+    def visit_AugAssign(self, node):
+        self.visit(node.value)
+
     def visit_UnaryOp(self, node):
         self.visit(node.operand)
 
