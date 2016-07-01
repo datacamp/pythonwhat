@@ -286,8 +286,7 @@ class FunctionParser(Parser):
         Args:
             node (ast.Call): The node which is visited.
         """
-        self.visit(
-            node.func)       # Need to visit func to start recording the current function name.
+        self.visit(node.func)       # Need to visit func to start recording the current function name.
 
         if self.current:
             if (self.current not in self.calls):

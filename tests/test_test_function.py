@@ -454,6 +454,93 @@ success_msg("Awesome!")
     sct_payload = helper.get_sct_payload(output)
     self.assertEqual(sct_payload['correct'], True)
 
+class TestMessaging(unittest.TestCase):
+  def setUp(self):
+    self.data = {
+       "DC_PEC": '',
+       "DC_CODE": '''
+import pandas as pd
+x = pd.DataFrame({"a":[1, 2, 3]})
+print(x)
+# no data_range call
+# no type(y) call
+z = pd.Series([1, 2, 3])
+len(z)
+print(z)
+      ''',
+      "DC_SOLUTION": '''
+import pandas as pad
+x = pad.DataFrame({"a":[1, 2, 3]}) # correct
+print(x) # correct
+y = pad.date_range('1/1/2000', periods=8)
+type(y)
+z = pad.Series([1, 2, 4]) # incorrect
+len(z) # incorrect
+print(z) # incorrect
+      '''
+    }
+
+  def test_auto(self):
+    self.data["DC_SCT"] = '''
+test_function("pandas.DataFrame")
+test_function("print")
+    '''
+    sct_payload = helper.run(self.data)
+    self.assertEqual(sct_payload['correct'], True)
+
+    self.data["DC_SCT"] = 'test_function("pandas.date_range")'
+    sct_payload = helper.run(self.data)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertIn("Make sure you call <code>pd.date_range()</code>.", sct_payload['message'])
+
+    self.data["DC_SCT"] = 'test_function("type")'
+    sct_payload = helper.run(self.data)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertIn("Make sure you call <code>type()</code>.", sct_payload['message'])
+
+    self.data["DC_SCT"] = 'test_function("pandas.Series")'
+    sct_payload = helper.run(self.data)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertIn("Did you call <code>pd.Series()</code> with the correct arguments?", sct_payload['message'])
+
+    self.data["DC_SCT"] = 'test_function("len")'
+    sct_payload = helper.run(self.data)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertIn("Did you call <code>len()</code> with the correct arguments?", sct_payload['message'])
+
+    self.data["DC_SCT"] = 'test_function("print", index = 1); test_function("print", index = 2)'
+    sct_payload = helper.run(self.data)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertIn("Did you call <code>print()</code> with the correct arguments the 2nd time?", sct_payload['message'])
+
+    sct_payload
+  def test_custom(self):
+    self.data["DC_SCT"] = '''
+test_function("pandas.DataFrame")
+test_function("print")
+    '''
+    sct_payload = helper.run(self.data)
+    self.assertEqual(sct_payload['correct'], True)
+
+    self.data["DC_SCT"] = 'test_function("pandas.date_range", not_called_msg = "stupid")'
+    sct_payload = helper.run(self.data)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertEqual(sct_payload['message'], "stupid")
+
+    self.data["DC_SCT"] = 'test_function("type", not_called_msg = "stupid")'
+    sct_payload = helper.run(self.data)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertEqual(sct_payload['message'], "stupid")
+
+    self.data["DC_SCT"] = 'test_function("pandas.Series", incorrect_msg = "stupid")'
+    sct_payload = helper.run(self.data)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertEqual(sct_payload['message'], "stupid")
+
+    self.data["DC_SCT"] = 'test_function("len", incorrect_msg = "stupid")'
+    sct_payload = helper.run(self.data)
+    self.assertEqual(sct_payload['correct'], False)
+    self.assertEqual(sct_payload['message'], "stupid")
 
 if __name__ == "__main__":
     unittest.main()

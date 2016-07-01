@@ -39,6 +39,7 @@ class State(object):
 
         self.pre_exercise_imports = None
         self.student_function_calls = None
+        self.student_imports = None
         self.solution_function_calls = None
         self.used_student_function = None
 
@@ -164,13 +165,14 @@ class State(object):
 
         if (self.student_function_calls is None):
             fp = FunctionParser()
-            fp.imports = self.pre_exercise_imports
+            fp.imports = self.pre_exercise_imports.copy()
             fp.visit(self.student_tree)
             self.student_function_calls = fp.calls
+            self.student_imports = fp.imports
 
         if (self.solution_function_calls is None):
             fp = FunctionParser()
-            fp.imports = self.pre_exercise_imports
+            fp.imports = self.pre_exercise_imports.copy()
             fp.visit(self.solution_tree)
             self.solution_function_calls = fp.calls
 
