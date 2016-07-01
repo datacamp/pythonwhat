@@ -1,8 +1,10 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-
+from pythonwhat.Test import BiggerTest
+import pythonwhat.utils
 
 def test_object_accessed(name,
+                         times=1,
                          not_accessed_msg=None):
     """Test if object accessed
 
@@ -10,6 +12,7 @@ def test_object_accessed(name,
 
     Args:
         name (str): the name of the object that should be accessed; can contain dots (for attributes)
+        times (int): how often the object specified in name should be accessed.
         not_accessed_msg (str): custom feedback message when the object was not accessed.
 
     Examples:
@@ -39,29 +42,16 @@ def test_object_accessed(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object_accessed")
 
-    not_accessed_msg = build_strings(not_accessed_msg, name)
+    if not not_accessed_msg:
+        add = " at least %s" % pythonwhat.utils.get_times(times) if times > 1 else ""
+        not_accessed_msg = "Have you accessed `%s`%s?" % (name, add)
 
     state.extract_object_accesses()
-
-    student_env = state.student_env
-    solution_env = state.solution_env
-
-    if name not in solution_env:
-        raise NameError("%r not in solution environment " % name)
-
-    rep.do_test(DefinedTest(name, student_env, undefined_msg))
-    if (rep.failed_test):
-        return
-
-    ## CONTINUE HERE
+    student_object_accesses = state.student_object_accesses
+    student_hits = [c for c in student_object_accesses if name in c]
+    rep.do_test(BiggerTest(len(student_hits) + 1, times, not_accessed_msg))
 
 
+def count_hits (calls, name):
+    matching = [s for c in calls if name in c]
 
-
-
-def build_strings(not_called_msg, name):
-
-    if not not_called_msg:
-        incorrect_msg = "Still make meaningful message"
-
-    return(undefined_msg, not_called_msg)

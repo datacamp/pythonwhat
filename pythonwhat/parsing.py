@@ -326,6 +326,48 @@ class FunctionParser(Parser):
             node.id if not node.id in self.imports else self.imports[
                 node.id])
 
+class ObjectAccessParser(FunctionParser):
+    """Find object accesses
+
+    A parser which inherits from the FunctionParser. It will walk through the syntax tree and put all
+    object accesses in a list, which can later be used in the test.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.accesses = []
+
+    def visit_Call(self, node):
+        for arg in node.args:
+            self.visit(arg)
+
+        for key in node.keywords:
+            self.visit(key.value)
+
+    def visit_List(self, node):
+        for el in node.elts:
+            self.visit(el)
+
+    def visit_Tuple(self, node):
+        for el in node.elts:
+            self.visit(el)
+
+    def visit_Attribute(self, node):
+        if self.current:
+            self.current = node.attr + "." + self.current
+        else:
+            self.current = node.attr
+        self.visit(node.value)
+
+    def visit_Name(self, node):
+        if self.current:
+            self.current = node.id + "." + self.current
+        else:
+            self.current = node.id
+
+        self.accesses.append(self.current)
+        self.current = ''
+
 
 class IfParser(Parser):
     """Find if structures.
