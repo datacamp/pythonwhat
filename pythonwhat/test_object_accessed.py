@@ -51,7 +51,3 @@ def test_object_accessed(name,
     student_hits = [c for c in student_object_accesses if name in c]
     rep.do_test(BiggerTest(len(student_hits) + 1, times, not_accessed_msg))
 
-
-def count_hits (calls, name):
-    matching = [s for c in calls if name in c]
-
