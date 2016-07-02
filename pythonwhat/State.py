@@ -39,7 +39,6 @@ class State(object):
 
         self.pre_exercise_imports = None
         self.student_function_calls = None
-        self.student_imports = None
         self.solution_function_calls = None
         self.used_student_function = None
 
