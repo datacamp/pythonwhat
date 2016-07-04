@@ -1,6 +1,6 @@
 import ast
 import inspect
-from pythonwhat.parsing import FunctionParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, FindLastLineParser, WithParser
+from pythonwhat.parsing import FunctionParser, ObjectAccessParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, FindLastLineParser, WithParser
 
 from pythonwhat.Reporter import Reporter
 
@@ -41,6 +41,8 @@ class State(object):
         self.student_function_calls = None
         self.solution_function_calls = None
         self.used_student_function = None
+
+        self.student_object_accesses = None
 
         self.student_imports = None
         self.solution_imports = None
@@ -173,6 +175,15 @@ class State(object):
             fp.imports = self.pre_exercise_imports
             fp.visit(self.solution_tree)
             self.solution_function_calls = fp.calls
+
+    def extract_object_accesses(self):
+        self.parse_code()
+
+        if (self.student_object_accesses is None):
+            oap = ObjectAccessParser()
+            oap.visit(self.student_tree)
+            self.student_object_accesses = oap.accesses
+            self.student_imports = oap.imports
 
     def extract_imports(self):
         self.parse_code()

@@ -5,6 +5,21 @@ def shorten_str(text, to_chars=100):
 from types import ModuleType
 import copy
 
+def get_ord(num):
+    nums = {1: "first", 2: "second", 3:"third", 4:"fourth",
+            5: "fifth", 6: "sixth", 7:"seventh", 8:"eight",
+            9: "nineth", 10: "tenth"}
+    if num in nums:
+        return(nums[num])
+    else:
+        return("%dth" % num)
+
+def get_times(num):
+    nums = {1:"once", 2:"twice"}
+    if num in nums:
+        return(nums[num])
+    else:
+        return("%d times" % num)
 
 def copy_env(env, keep_objs=None):
     if keep_objs is None:

@@ -282,13 +282,12 @@ class EqualEnvironmentTest(EqualTest):
 
 class BiggerTest(Test):
     """
-    Check if two objects are equal. Equal means the objects are exactly the same.
-    This test should only be used with numeric variables (for now).
+    Check if one object is greater than another. This test should only be used with numeric variables (for now).
 
     Attributes:
             failure_msg (str): A string containing the failure message in case the test fails.
-            obj1 (str): The first object that should be compared with.
-            obj2 (str): This object is compared to obj1.
+            obj1 (str): The first object, that should be the greatest
+            obj2 (str): The second object, that should be smaller
             result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
 

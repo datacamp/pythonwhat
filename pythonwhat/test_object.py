@@ -45,7 +45,7 @@ def test_object(name,
 
     undefined_msg, incorrect_msg = build_strings(
         undefined_msg, incorrect_msg, name)
-    tests = []
+    
     eq_map = {"equal": EqualEnvironmentTest,
               "equivalent": EquivalentEnvironmentTest}
     student_env = state.student_env
