@@ -183,6 +183,7 @@ class State(object):
             oap = ObjectAccessParser()
             oap.visit(self.student_tree)
             self.student_object_accesses = oap.accesses
+            self.student_imports = oap.imports
 
     def extract_imports(self):
         self.parse_code()

@@ -353,18 +353,18 @@ class ObjectAccessParser(FunctionParser):
             self.visit(el)
 
     def visit_Attribute(self, node):
-        if self.current:
-            self.current = node.attr + "." + self.current
-        else:
-            self.current = node.attr
+        # if already a chain, prepend, else initialize self.current
+        self.current = node.attr + "." + self.current if self.current else node.attr
         self.visit(node.value)
 
     def visit_Name(self, node):
-        if self.current:
-            self.current = node.id + "." + self.current
+        # if name refers to an import, replace
+        prefix = None
+        if node.id in self.imports:
+            prefix = self.imports[node.id]
         else:
-            self.current = node.id
-
+            prefix = node.id
+        self.current = prefix + "." + self.current if self.current else prefix
         self.accesses.append(self.current)
         self.current = ''
 

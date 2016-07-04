@@ -42,12 +42,26 @@ def test_object_accessed(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object_accessed")
 
-    if not not_accessed_msg:
-        add = " at least %s" % pythonwhat.utils.get_times(times) if times > 1 else ""
-        not_accessed_msg = "Have you accessed `%s`%s?" % (name, add)
-
     state.extract_object_accesses()
     student_object_accesses = state.student_object_accesses
-    student_hits = [c for c in student_object_accesses if name in c]
+    student_imports = state.student_imports
+
+    if not not_accessed_msg:
+        stud_name = name
+        if "." in stud_name:
+            student_imports_rev = {v: k for k, v in student_imports.items()}
+            els = name.split(".")
+            front_part = ".".join(els[0:-1])
+            if front_part in student_imports_rev.keys():
+                stud_name = student_imports_rev[front_part] + "." + els[-1]
+
+        add = " at least %s" % pythonwhat.utils.get_times(times) if times > 1 else ""
+        not_accessed_msg = "Have you accessed `%s`%s?" % (stud_name, add)
+        
+
+    # name should be contained inside the student_object_accesses.
+    # hack: add a dot and do a match on the name with the dot,
+    # to make sure you're not matching substrings
+    student_hits = [c for c in student_object_accesses if name + "." in c + "."]
     rep.do_test(BiggerTest(len(student_hits) + 1, times, not_accessed_msg))
 
