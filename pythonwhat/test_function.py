@@ -37,7 +37,7 @@ def test_function(name,
         do_eval (bool): Boolean representing whether the group should be evaluated and compared or not.
           Defaults to True.
         not_called_msg (str): feedback message if the function is not called.
-        incorret_msg (str): feedback message if the arguments of the function in the solution doesn't match
+        incorrect_msg (str): feedback message if the arguments of the function in the solution doesn't match
           the one of the student.
 
     Raises:
@@ -78,6 +78,15 @@ def test_function(name,
     state.extract_function_calls()
     solution_calls = state.solution_function_calls
     student_calls = state.student_function_calls
+    student_imports = state.student_imports
+
+    # for messaging purposes: replace with original alias or import again.
+    stud_name = name
+    if "." in stud_name:
+        student_imports_rev = {v: k for k, v in student_imports.items()}
+        els = name.split(".")
+        front_part = ".".join(els[0:-1])
+        stud_name = student_imports_rev[front_part] + "." + els[-1]
 
     if name not in state.used_student_function:
         state.used_student_function[name] = 0
@@ -93,7 +102,7 @@ def test_function(name,
         else:
             not_called_msg = FeedbackMessage("Make sure you call `${name}()`.")
 
-        not_called_msg.add_information("name", name)
+        not_called_msg.add_information("name", stud_name)
     else:
         not_called_msg = FeedbackMessage(not_called_msg)
 
@@ -165,7 +174,7 @@ def test_function(name,
             continue
 
         feedback = construct_incorrect_msg(nb_call)
-        feedback.set_information("name", name)
+        feedback.set_information("name", stud_name)
         feedback.set_information("line", lineno_student)
 
         success = True
@@ -209,7 +218,7 @@ def test_function(name,
     if not success:
         if not incorrect_msg:
             incorrect_msg = construct_incorrect_msg(nb_call)
-            incorrect_msg.set_information("name", name)
+            incorrect_msg.set_information("name", stud_name)
 
         rep.do_test(Test(incorrect_msg))
 
