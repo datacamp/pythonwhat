@@ -26,8 +26,6 @@ from pythonwhat.test_object_after_expression import test_object_after_expression
 
 import markdown2
 import re
-# TODO (Vincent): Think about better package structure
-
 
 def test_exercise(sct,
                   student_code,

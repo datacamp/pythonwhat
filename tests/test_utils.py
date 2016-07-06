@@ -1,8 +1,4 @@
-import os
 import unittest
-
-from os.path import exists
-from unittest.mock import patch
 from pythonwhat import utils
 
 class TestUtils(unittest.TestCase):

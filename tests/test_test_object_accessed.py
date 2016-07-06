@@ -1,9 +1,4 @@
-import os
 import unittest
-
-from os.path import exists
-from unittest.mock import patch
-
 import helper
 
 class TestTestObjectAccessed(unittest.TestCase):

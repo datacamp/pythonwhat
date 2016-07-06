@@ -86,7 +86,8 @@ def test_function(name,
         student_imports_rev = {v: k for k, v in student_imports.items()}
         els = name.split(".")
         front_part = ".".join(els[0:-1])
-        stud_name = student_imports_rev[front_part] + "." + els[-1]
+        if front_part in student_imports_rev.keys():
+                stud_name = student_imports_rev[front_part] + "." + els[-1]
 
     if name not in state.used_student_function:
         state.used_student_function[name] = 0

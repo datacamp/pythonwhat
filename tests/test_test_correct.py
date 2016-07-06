@@ -61,7 +61,7 @@ test = 19
         output = self.exercise.runSubmit(self.data)
         sct_payload = helper.get_sct_payload(output)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], 'Make sure you call <code>numpy.sum()</code>.')
+        self.assertEqual(sct_payload['message'], 'Make sure you call <code>np.sum()</code>.')
 
 
     def test_Fail2(self):
@@ -73,7 +73,7 @@ test = np.sum([5, 2, 3])
         output = self.exercise.runSubmit(self.data)
         sct_payload = helper.get_sct_payload(output)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], 'Did you call <code>numpy.sum()</code> with the correct arguments? Call on line 2 has wrong arguments. The 1st argument seems to be incorrect. Expected <code>[5, 2, 4, 9]</code>, but got <code>[5, 2, 3]</code>.')
+        self.assertEqual(sct_payload['message'], 'Did you call <code>np.sum()</code> with the correct arguments? Call on line 2 has wrong arguments. The 1st argument seems to be incorrect. Expected <code>[5, 2, 4, 9]</code>, but got <code>[5, 2, 3]</code>.')
 
     def test_Fail3(self):
         self.data["DC_SCT"] = '''
