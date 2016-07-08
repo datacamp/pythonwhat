@@ -296,7 +296,7 @@ success_msg("Awesome!")
     output = self.exercise.runSubmit(self.data)
     sct_payload = helper.get_sct_payload(output)
     self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], 'Check the body of the <code>with</code> statement on line 6. Did you call <code>pickle.load()</code> with the correct arguments? Call on line 7 has wrong arguments. The 1st argument seems to be incorrect.')
+    self.assertEqual(sct_payload['message'], 'Check the body of the <code>with</code> statement on line 6. Did you call <code>pickle.load()</code> with the correct arguments? Call on line 7 has wrong arguments. The first argument seems to be incorrect.')
 
 class TestTestFunctionAndTestCorrectInWith(unittest.TestCase):
   def setUp(self):
@@ -383,7 +383,7 @@ success_msg("Great job!")
     output = self.exercise.runSubmit(self.data)
     sct_payload = helper.get_sct_payload(output)
     self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], 'Did you call <code>scipy.io.loadmat()</code> with the correct arguments? Call on line 6 has wrong arguments. The 1st argument seems to be incorrect.')
+    self.assertEqual(sct_payload['message'], 'Did you call <code>scipy.io.loadmat()</code> with the correct arguments? Call on line 6 has wrong arguments. The first argument seems to be incorrect.')
 
 class TestTestFunctionAndTestCorrectWithoutWith(unittest.TestCase):
   def setUp(self):
@@ -449,6 +449,50 @@ success_msg("Awesome!")
     sct_payload = helper.get_sct_payload(output)
     self.assertEqual(sct_payload['correct'], True)
 
+class TestBlacklisting(unittest.TestCase):
+
+  # test if blacklisting works
+    def test_bookkeeping(self):
+        self.data = {
+          "DC_PEC": '',
+          "DC_SOLUTION": '''
+round(1.23456, ndigits = 1)
+round(1.65432, ndigits = 3)
+          ''',
+          "DC_CODE": '''
+round(1.23456, ndigits = 1)
+round(1.65432, ndigits = 3)
+          ''',
+          "DC_SCT": '''
+test_function('round', index = 1) # all in one
+test_function('round', args = [0], index = 2) # separate first
+test_function('round', keywords = ['ndigits'], index = 2) # separate second
+          '''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_bookkeeping2(self):
+        self.data = {
+        "DC_PEC": '',
+        "DC_SOLUTION": '''
+round(1.23456, ndigits = 1)
+round(1.65432, ndigits = 3)
+        ''',
+        "DC_CODE": '''
+round(1.23456, ndigits = 1)
+round(1.65432, ndigits = 4)
+        ''',
+        "DC_SCT": '''
+test_function('round', index = 1) # all in one
+test_function('round', args = [0], index = 2) # separate first
+test_function('round', keywords = ['ndigits'], index = 2) # separate second
+        '''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+
 class TestMessaging(unittest.TestCase):
   def setUp(self):
     self.data = {
@@ -486,12 +530,12 @@ test_function("print")
     self.data["DC_SCT"] = 'test_function("pandas.date_range")'
     sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
-    self.assertIn("Make sure you call <code>pd.date_range()</code>.", sct_payload['message'])
+    self.assertIn("first call of <code>pd.date_range()</code>", sct_payload['message'])
 
     self.data["DC_SCT"] = 'test_function("type")'
     sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
-    self.assertIn("Make sure you call <code>type()</code>.", sct_payload['message'])
+    self.assertIn("first call of <code>type()</code>", sct_payload['message'])
 
     self.data["DC_SCT"] = 'test_function("pandas.Series")'
     sct_payload = helper.run(self.data)
@@ -506,7 +550,7 @@ test_function("print")
     self.data["DC_SCT"] = 'test_function("print", index = 1); test_function("print", index = 2)'
     sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
-    self.assertIn("Did you call <code>print()</code> with the correct arguments the 2nd time?", sct_payload['message'])
+    self.assertIn("Did you call <code>print()</code> with the correct arguments?", sct_payload['message'])
 
     sct_payload
   def test_custom(self):

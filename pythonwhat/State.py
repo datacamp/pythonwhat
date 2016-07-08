@@ -40,7 +40,7 @@ class State(object):
         self.pre_exercise_imports = None
         self.student_function_calls = None
         self.solution_function_calls = None
-        self.used_student_function = None
+        self.fun_usage = None
 
         self.student_object_accesses = None
 
@@ -153,11 +153,30 @@ class State(object):
             op.visit(self.solution_tree)
             self.solution_operators = op.ops
 
+    def set_used(self, name, stud_index, sol_index):
+        if name in self.fun_usage.keys():
+            self.fun_usage[name][sol_index] = stud_index
+        else:
+            self.fun_usage[name] = {sol_index: stud_index}
+
+    def get_options(self, name, stud_indices, sol_index):
+        if name in self.fun_usage.keys():
+            if sol_index in self.fun_usage[name].keys():
+                # sol_index has already been used
+                return [self.fun_usage[name][sol_index]]
+            else:
+                # sol_index hasn't been used yet
+                # exclude stud_index that have been hit elsewhere
+                used = set(list(self.fun_usage[name].values()))
+                return list(set(stud_indices) - used)
+        else:
+            return stud_indices
+
     def extract_function_calls(self):
         self.parse_code()
 
-        if (self.used_student_function is None):
-            self.used_student_function = {}
+        if (self.fun_usage is None):
+            self.fun_usage = {}
 
         if (self.pre_exercise_imports is None):
             fp = FunctionParser()

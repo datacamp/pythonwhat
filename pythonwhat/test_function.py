@@ -4,6 +4,7 @@ from pythonwhat.Test import Test, DefinedTest, EqualTest, EquivalentTest, Bigger
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.feedback import FeedbackMessage
+import pythonwhat.utils as pwut
 
 ordinal = lambda n: "%d%s" % (
     n, "tsnrhtdd"[(n / 10 % 10 != 1) * (n % 10 < 4) * n % 10::4])
@@ -89,21 +90,9 @@ def test_function(name,
         if front_part in student_imports_rev.keys():
                 stud_name = student_imports_rev[front_part] + "." + els[-1]
 
-    if name not in state.used_student_function:
-        state.used_student_function[name] = 0
-
-    nb_call = state.used_student_function[name] + 1
-
     if not(not_called_msg):
-        if nb_call > 1:
-            not_called_msg = FeedbackMessage(
-                "Don't forget the " +
-                ordinal(nb_call) +
-                " call of `${name}()`.")
-        else:
-            not_called_msg = FeedbackMessage("Make sure you call `${name}()`.")
-
-        not_called_msg.add_information("name", stud_name)
+        not_called_msg = FeedbackMessage(("The system wants to check the %s call of `%s()`, " +
+            "but hasn't found it; have another look at your code.") % (pwut.get_ord(index + 1), stud_name))
     else:
         not_called_msg = FeedbackMessage(not_called_msg)
 
@@ -122,10 +111,10 @@ def test_function(name,
     keyw_solution = {keyword.arg: keyword.value for keyword in keyw_solution}
 
     if args is None:
-        args = range(0, len(args_solution))
+        args = list(range(len(args_solution)))
 
     if keywords is None:
-        keywords = keyw_solution
+        keywords = list(keyw_solution.keys())
 
     def eval_arg(arg_student, arg_solution, feedback):
         got_error = False
@@ -160,48 +149,37 @@ def test_function(name,
         return(Test(feedback) if got_error else
             eq_map[eq_condition](eval_student, eval_solution, feedback))
 
-    success = None
-    incorrect_msg = (FeedbackMessage(incorrect_msg) if incorrect_msg else None)
 
-    for call in range(len(student_calls[name])):
-        lineno_student, args_student, keyw_student = student_calls[name][call]
-        keyw_student = {keyword.arg: keyword.value for keyword in keyw_student}
+    if len(args) > 0 or len(keywords) > 0:
 
-        if len(args) > len(args_student):
-            continue
+        success = None
+        incorrect_msg = (FeedbackMessage(incorrect_msg) if incorrect_msg else None)
 
-        if len(set(keywords)) > 0 and not set(
-                keywords.keys()).issubset(set(keyw_student.keys())):
-            continue
+        call_indices = state.get_options(name, list(range(len(student_calls[name]))), index)
 
-        feedback = construct_incorrect_msg(nb_call)
-        feedback.set_information("name", stud_name)
-        feedback.set_information("line", lineno_student)
+        for call in call_indices:
+            lineno_student, args_student, keyw_student = student_calls[name][call]
+            keyw_student = {keyword.arg: keyword.value for keyword in keyw_student}
 
-        success = True
-        for arg in args:
-            arg_student = args_student[arg]
-            arg_solution = args_solution[arg]
+            if len(args) > len(args_student):
+                continue
 
-            feedback.set_information("argument", ordinal(arg + 1))
+            if len(set(keywords)) > 0 and not set(
+                    keywords).issubset(set(keyw_student.keys())):
+                continue
 
-            test = eval_arg(arg_student, arg_solution, feedback)
+            feedback = construct_incorrect_msg()
+            feedback.set_information("name", stud_name)
+            feedback.set_information("line", lineno_student)
 
-            test.test()
+            success = True
+            for arg in args:
+                arg_student = args_student[arg]
+                arg_solution = args_solution[arg]
 
-            if not test.result:
-                success = False
-                break
+                feedback.set_information("argument", pwut.get_ord(arg + 1))
 
-        if success:
-            feedback.remove_information("argument")
-            for key in keywords:
-                key_student = keyw_student[key]
-                key_solution = keyw_solution[key]
-
-                feedback.set_information("keyword", key)
-
-                test = eval_arg(key_student, key_solution, feedback)
+                test = eval_arg(arg_student, arg_solution, feedback)
 
                 test.test()
 
@@ -209,31 +187,39 @@ def test_function(name,
                     success = False
                     break
 
-        if success:
-            state.used_student_function[name] += 1
-            del state.student_function_calls[name][call]
-            break
-        elif incorrect_msg is None:
-            incorrect_msg = feedback
+            if success:
+                feedback.remove_information("argument")
+                for key in keywords:
 
-    if not success:
-        if not incorrect_msg:
-            incorrect_msg = construct_incorrect_msg(nb_call)
-            incorrect_msg.set_information("name", stud_name)
+                    key_student = keyw_student[key]
+                    key_solution = keyw_solution[key]
 
-        rep.do_test(Test(incorrect_msg))
+                    feedback.set_information("keyword", key)
+
+                    test = eval_arg(key_student, key_solution, feedback)
+
+                    test.test()
+
+                    if not test.result:
+                        success = False
+                        break
+
+            if success:
+                state.set_used(name, call, index)
+                break
+            elif incorrect_msg is None:
+                incorrect_msg = feedback
+
+        if not success:
+            if not incorrect_msg:
+                incorrect_msg = construct_incorrect_msg()
+                incorrect_msg.set_information("name", stud_name)
+
+            rep.do_test(Test(incorrect_msg))
 
 
-def construct_incorrect_msg(nb_call):
-    if nb_call > 1:
-        feedback = FeedbackMessage(
-            "Did you call `${name}()` with the correct arguments the " +
-            ordinal(nb_call) +
-            " time?")
-    else:
-        feedback = FeedbackMessage(
-            "Did you call `${name}()` with the correct arguments?")
-
+def construct_incorrect_msg():
+    feedback = FeedbackMessage("Did you call `${name}()` with the correct arguments?")
     feedback.cond_append("line", "Call on line ${line} has wrong arguments.")
     feedback.cond_append(
         "argument",
