@@ -155,6 +155,7 @@ def test_function(name,
         success = None
         incorrect_msg = (FeedbackMessage(incorrect_msg) if incorrect_msg else None)
 
+        # Get all options (some function calls may be blacklisted)
         call_indices = state.get_options(name, list(range(len(student_calls[name]))), index)
 
         for call in call_indices:

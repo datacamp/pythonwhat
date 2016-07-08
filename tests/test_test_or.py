@@ -84,7 +84,7 @@ print('not test')
         output = self.exercise.runSubmit(self.data)
         sct_payload = helper.get_sct_payload(output)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], "Did you call <code>print()</code> with the correct arguments? Call on line 3 has wrong arguments. The 1st argument seems to be incorrect. Expected <code>'test'</code>, but got <code>'not test'</code>.")
+        self.assertEqual(sct_payload['message'], "Did you call <code>print()</code> with the correct arguments? Call on line 3 has wrong arguments. The first argument seems to be incorrect. Expected <code>'test'</code>, but got <code>'not test'</code>.")
 
 if __name__ == "__main__":
     unittest.main()

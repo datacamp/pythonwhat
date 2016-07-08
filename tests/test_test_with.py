@@ -50,7 +50,7 @@ with open('moby_dick.txt') as file:
 
   def test_Fail1(self):
     self.data["DC_SCT"] = '''
-test_with(1, body = lambda: [test_function('print') for _ in range(3)])
+test_with(1, body = lambda: [test_function('print', index = i + 1) for i in range(3)])
 success_msg("Nice work!")
     '''
     self.exercise = Exercise(self.data)
@@ -62,7 +62,7 @@ success_msg("Nice work!")
 
   def test_Fail2(self):
     self.data["DC_SCT"] = '''
-test_with(1, body = lambda: [test_function('print') for _ in range(3)], expand_message = False)
+test_with(1, body = lambda: [test_function('print', index = i + 1) for i in range(3)], expand_message = False)
 success_msg("Nice work!")
     '''
     self.exercise = Exercise(self.data)
