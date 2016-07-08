@@ -35,9 +35,7 @@ df = pd.DataFrame({
 })
         '''
         self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], True)
 
     def test_Pass2(self):
@@ -50,9 +48,7 @@ df = pd.DataFrame({
 })
         '''
         self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], True)
 
     def test_Pass3(self):
@@ -65,9 +61,7 @@ df = pd.DataFrame({
 })
         '''
         self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], True)
 
     def test_Pass4(self):
@@ -80,9 +74,7 @@ df = pd.DataFrame({
 })
         '''
         self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], True)
 
 
@@ -95,9 +87,7 @@ df = pd.DataFrame({
 })
         '''
         self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], 'Column <code>a</code> of your pandas DataFrame, <code>df</code>, is not correct.')
 
@@ -109,10 +99,7 @@ df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], 'Column <code>b</code> of your pandas DataFrame, <code>df</code>, is not correct.')
 
@@ -124,10 +111,7 @@ df = pd.DataFrame({
     'c': [True, False, False]
 })
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], 'Column <code>c</code> of your pandas DataFrame, <code>df</code>, is not correct.')
 
@@ -139,10 +123,7 @@ not_df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], 'Are you sure you defined the pandas DataFrame: <code>df</code>?')
 
@@ -154,10 +135,7 @@ df = {
     'c': [True, False, True]
 }
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], 'The object you defined as <code>df</code> is not pandas DataFrame.')
 
@@ -171,10 +149,7 @@ df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], 'test 1')
 
@@ -187,10 +162,7 @@ not_df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], 'test 2')
 
@@ -203,10 +175,7 @@ df = {
     'c': [True, False, True]
 }
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], 'test 3')
 
@@ -227,10 +196,7 @@ df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], 'You did not define column <code>d</code> in the pandas DataFrame, <code>df</code>.')
 
@@ -251,10 +217,7 @@ df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], 'test 4')
 

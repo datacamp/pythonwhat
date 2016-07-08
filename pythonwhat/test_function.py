@@ -91,10 +91,12 @@ def test_function(name,
                 stud_name = student_imports_rev[front_part] + "." + els[-1]
 
     if not(not_called_msg):
-        not_called_msg = FeedbackMessage(("The system wants to check the %s call of `%s()`, " +
-            "but hasn't found it; have another look at your code.") % (pwut.get_ord(index + 1), stud_name))
-    else:
-        not_called_msg = FeedbackMessage(not_called_msg)
+        if index == 0:
+            not_called_msg = "Have you called `%s()`?" % stud_name
+        else:
+            not_called_msg = ("The system wants to check the %s call of `%s()`, " +
+                "but hasn't found it; have another look at your code.") % (pwut.get_ord(index + 1), stud_name)
+    not_called_msg = FeedbackMessage(not_called_msg)
 
     if name not in solution_calls:
         raise NameError("%r not in solution environment" % name)

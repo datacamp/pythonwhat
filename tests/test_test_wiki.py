@@ -37,10 +37,7 @@ test_object("s")
 test_function("print")
 success_msg("Great job!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 class TestExercise2(unittest.TestCase):
@@ -81,10 +78,7 @@ test_function("print",
               incorrect_msg = msg)
 success_msg("Great job!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 
@@ -121,10 +115,7 @@ test_object("result",
 test_function("print")
 success_msg("Great!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 class TestExercise4(unittest.TestCase):
@@ -160,10 +151,7 @@ test_object("result",
 test_function("print")
 success_msg("Great!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 class TestExercise5(unittest.TestCase):
@@ -207,10 +195,7 @@ def test_for_body():
 test_for_loop(index = 1,
               body = test_for_body)
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 

@@ -59,10 +59,7 @@ test_function("print", 1, args=[], incorrect_msg = msg)
 test_function("file.close", not_called_msg = "Make sure to close the file, man!")
 success_msg("You aced selecting observations from DataFrames; over to selecting both rows and columns!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 
@@ -100,10 +97,7 @@ test_function("create_engine")
 
 success_msg("Awesome!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 
@@ -163,10 +157,7 @@ test_function("print", incorrect_msg = type_msg)
 
 success_msg("Good job!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 
@@ -224,10 +215,7 @@ test_function("print", incorrect_msg = "Did you correctly pass `xl.sheet_names` 
 
 success_msg("Great job!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 class TestExercise4(unittest.TestCase):
@@ -312,10 +300,7 @@ test_function("con.close")
 
 success_msg("Good job!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 class TestExercise5(unittest.TestCase):
@@ -358,10 +343,7 @@ test_function("print", incorrect_msg = predef_msg)
 
 success_msg("Great work!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
 
 class TestExercise6(unittest.TestCase):
@@ -440,10 +422,7 @@ test_function("print", index = 2, incorrect_msg = predef_msg)
 
 success_msg("Awesome!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 
@@ -518,10 +497,7 @@ test_function("print", index = 2, incorrect_msg = "error is in print2")
 
 success_msg("Good job!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 
@@ -635,10 +611,7 @@ test_for_loop(
 
 success_msg("Awesome!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 

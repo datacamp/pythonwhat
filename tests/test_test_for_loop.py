@@ -41,10 +41,7 @@ test_for_loop(1,
               lambda: test_expression_output({"size": 5}, [1]))
 success_msg("Great!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Great!")
 
@@ -82,10 +79,7 @@ msg = "Have another look at the example. Print out the correct string by looping
 test_for_loop(1, body=lambda msg=msg: test_expression_output(incorrect_msg = msg, context_vals = [2, "test"]))
 success_msg("Well done!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Well done!")
 

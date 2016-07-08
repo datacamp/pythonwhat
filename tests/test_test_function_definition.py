@@ -48,10 +48,7 @@ test_function_definition("shout",
                          body = lambda: test_expression_output(context_vals = ['help']))
 success_msg("Nice work!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 class TestExercise2(unittest.TestCase):
@@ -93,10 +90,7 @@ test_function_definition("shout",
                          body = lambda: test_expression_output(context_vals = ['help'], incorrect_msg = 'make sure to output the correct string.'))
 success_msg("Nice work!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "In your definition of <code>shout()</code>, make sure to output the correct string.")
 
@@ -139,10 +133,7 @@ test_function_definition("shout", arg_names=False, arg_defaults=False,
                          body = lambda: test_expression_output(context_vals = ['help'], incorrect_msg = 'make sure to output the correct string.'))
 success_msg("Nice work man!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
   def test_Fail(self):
@@ -151,10 +142,7 @@ test_function_definition("shout",
                          body = lambda: test_expression_output(context_vals = ['help'], incorrect_msg = 'make sure to output the correct string.'))
 success_msg("Nice work!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "You should define <code>shout()</code> with 2 arguments, instead got 1.")
 
@@ -181,30 +169,21 @@ def shout ( word = 'help', times = 3 ):
     self.data["DC_SCT"] = '''
 test_function_definition('shout')
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
 
   def test_Pass1(self):
     self.data["DC_SCT"] = '''
 test_function_definition('shout', arg_defaults = False)
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
   def test_Fail2(self):
     self.data["DC_SCT"] = '''
 test_function_definition('shout', arg_defaults = False, outputs = [('help')], wrong_output_msg = "WRONG")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "WRONG")
 
@@ -212,20 +191,14 @@ test_function_definition('shout', arg_defaults = False, outputs = [('help')], wr
     self.data["DC_SCT"] = '''
 test_function_definition('shout', arg_defaults = False, results = [('help')])
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
   def test_Pass3(self):
     self.data["DC_SCT"] = '''
 test_function_definition('shout', arg_defaults = False, body = lambda: test_function('print', args=[]))
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 
@@ -287,10 +260,7 @@ print(yell)
 test_function_definition("shout")
 success_msg("Nice work man!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
   def test_Pass2(self):
@@ -298,10 +268,7 @@ success_msg("Nice work man!")
 test_function_definition("shout", results=[('help', 'fire')])
 success_msg("Nice work!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
   def test_Fail1(self):
@@ -309,10 +276,7 @@ success_msg("Nice work!")
 test_function_definition("shout", outputs=[('help', 'fire')])
 success_msg("Nice work!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "Calling <code>shout('help', 'fire')</code> should output <code>helpfire</code>, instead got ``.")
 
@@ -374,10 +338,7 @@ success_msg("Nice work!")
   test_function_definition("pout", not_called_msg = 'bad luck!')
   success_msg("Nice work man!")
       '''
-      self.exercise = Exercise(self.data)
-      self.exercise.runInit()
-      output = self.exercise.runSubmit(self.data)
-      sct_payload = helper.get_sct_payload(output)
+      sct_payload = helper.run(self.data)
       self.assertEqual(sct_payload['correct'], False)
       self.assertEqual(sct_payload['message'], 'bad luck!')
 
@@ -386,10 +347,7 @@ success_msg("Nice work!")
   test_function_definition("shout", arg_names_msg = "not good")
   success_msg("Nice work!")
       '''
-      self.exercise = Exercise(self.data)
-      self.exercise.runInit()
-      output = self.exercise.runSubmit(self.data)
-      sct_payload = helper.get_sct_payload(output)
+      sct_payload = helper.run(self.data)
       self.assertEqual(sct_payload['correct'], False)
       self.assertEqual(sct_payload['message'], 'not good')
 
@@ -398,10 +356,7 @@ success_msg("Nice work!")
   test_function_definition("shout", arg_defafults = False, arg_names_msg = "not good", arg_defaults_msg = "Not good at all")
   success_msg("Nice work!")
       '''
-      self.exercise = Exercise(self.data)
-      self.exercise.runInit()
-      output = self.exercise.runSubmit(self.data)
-      sct_payload = helper.get_sct_payload(output)
+      sct_payload = helper.run(self.data)
       self.assertEqual(sct_payload['correct'], False)
       self.assertEqual(sct_payload['message'], 'Not good at all')
 
@@ -463,10 +418,7 @@ print(yell)
 test_function_definition("shout")
 success_msg("Nice work man!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
   def test_Pass2(self):
@@ -474,10 +426,7 @@ success_msg("Nice work man!")
 test_function_definition("shout", results=[('help', 'fire')])
 success_msg("Nice work!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
   def test_Fail1(self):
@@ -485,10 +434,7 @@ success_msg("Nice work!")
 test_function_definition("shout", outputs=[('help', 'fire')])
 success_msg("Nice work!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "Calling <code>shout('help', 'fire')</code> should output <code>helpfire</code>, instead got ``.")
 
@@ -534,10 +480,7 @@ def to_decimal(number, base = 3):
   decimal = sum([int(number_str[i]) * multipliers[i] for i in number_range])
   return decimal
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], 'In your definition of <code>to_decimal()</code>, the 2nd argument should have <code>2</code> as default, instead got <code>3</code>.')
 
@@ -553,10 +496,7 @@ def to_decimal(number, base = 2):
   decimal = sum([int(number_str[i]) * multipliers[i] for i in number_range])
   return decimal
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
 class TestExercise8(unittest.TestCase):
@@ -601,10 +541,7 @@ def shout():
 # Call the shout function
 shout()
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
   def test_Fail1(self):
@@ -621,10 +558,7 @@ def shout():
 # Call the shout function
 shout()
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, are you sure you assigned the correct value to <code>shout_word</code>?')
 
@@ -705,10 +639,7 @@ def shout(word):
 # Call the shout function, with the string 'congratulations'
 shout('congratulations')
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, you should use the <code>print()</code> function with the correct argument.')
 
@@ -786,10 +717,7 @@ def shout():
 # Call shout
 shout()
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, are you sure you assigned the correct value to <code>shout_word</code>?')
 

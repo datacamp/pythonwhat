@@ -25,20 +25,14 @@ test = 3
         self.data["DC_CODE"] = '''
 test = 3
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], True)
 
     def test_Pass2(self):
         self.data["DC_CODE"] = '''
 print('test')
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], True)
 
     def test_Pass3(self):
@@ -46,10 +40,7 @@ print('test')
 test = 3
 print('test')
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], True)
 
     def test_Pass4(self):
@@ -57,10 +48,7 @@ print('test')
 test = 4
 print('test')
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], True)
 
     def test_Pass4(self):
@@ -68,10 +56,7 @@ print('test')
 test = 3
 print('not test')
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], True)
 
     def test_Fail1(self):
@@ -79,10 +64,7 @@ print('not test')
 test = 4
 print('not test')
         '''
-        self.exercise = Exercise(self.data)
-        self.exercise.runInit()
-        output = self.exercise.runSubmit(self.data)
-        sct_payload = helper.get_sct_payload(output)
+        sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], "Did you call <code>print()</code> with the correct arguments? Call on line 3 has wrong arguments. The first argument seems to be incorrect. Expected <code>'test'</code>, but got <code>'not test'</code>.")
 
