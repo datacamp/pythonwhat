@@ -56,10 +56,7 @@ test_function_definition(
 )
 success_msg("Nice work!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, test')
 
@@ -76,10 +73,7 @@ test_function_definition(
 )
 success_msg("Nice work!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, are you sure you assigned the correct value to <code>shout_word</code>?')
 
