@@ -427,7 +427,23 @@ success_msg("Awesome!")
 
 class TestBlacklisting(unittest.TestCase):
 
-  # test if blacklisting works
+    def test_bookkeeping(self):
+        self.data = {
+          "DC_PEC": '',
+          "DC_SOLUTION": '''
+round(1.23456, ndigits = 1)
+          ''',
+          "DC_CODE": '''
+round(1.23456, ndigits = 1)
+          ''',
+          "DC_SCT": '''
+test_function('round', index = 1) # all in one
+test_function('round', index = 1) # same call, should be fine.
+          '''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
     def test_bookkeeping(self):
         self.data = {
           "DC_PEC": '',
@@ -443,6 +459,7 @@ round(1.65432, ndigits = 3)
 test_function('round', index = 1) # all in one
 test_function('round', args = [0], index = 2) # separate first
 test_function('round', keywords = ['ndigits'], index = 2) # separate second
+test_function('round', index = 2) # all-in-one
           '''
         }
         sct_payload = helper.run(self.data)
