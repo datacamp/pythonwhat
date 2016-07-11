@@ -1,11 +1,4 @@
-import os
 import unittest
-
-from os.path import exists
-from unittest.mock import patch
-
-from pythonbackend.Exercise import Exercise
-
 import helper
 
 class TestExercise1(unittest.TestCase):
@@ -34,7 +27,6 @@ df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], True)
 
@@ -47,7 +39,6 @@ df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], True)
 
@@ -60,7 +51,6 @@ df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], True)
 
@@ -73,7 +63,6 @@ df = pd.DataFrame({
     'c': [True, True, True]
 })
         '''
-        self.exercise = Exercise(self.data)
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], True)
 
@@ -86,7 +75,6 @@ df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], 'Column <code>a</code> of your pandas DataFrame, <code>df</code>, is not correct.')
