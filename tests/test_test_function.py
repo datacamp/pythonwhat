@@ -545,7 +545,7 @@ test_function("print")
     self.assertEqual(sct_payload['correct'], False)
     self.assertIn("Did you call <code>print()</code> with the correct arguments?", sct_payload['message'])
 
-    sct_payload
+    
   def test_custom(self):
     self.data["DC_SCT"] = '''
 test_function("pandas.DataFrame")
