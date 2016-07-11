@@ -37,9 +37,10 @@ class State(object):
         self.student_operators = None
         self.solution_operators = None
 
-        self.pre_exercise_imports = None
+        self.pre_exercise_mappings = None
         self.student_function_calls = None
         self.solution_function_calls = None
+        self.student_mappings = None
         self.fun_usage = None
 
         self.student_object_accesses = None
@@ -178,21 +179,21 @@ class State(object):
         if (self.fun_usage is None):
             self.fun_usage = {}
 
-        if (self.pre_exercise_imports is None):
+        if (self.pre_exercise_mappings is None):
             fp = FunctionParser()
             fp.visit(self.pre_exercise_tree)
-            self.pre_exercise_imports = fp.imports
+            self.pre_exercise_mappings = fp.mappings
 
         if (self.student_function_calls is None):
             fp = FunctionParser()
-            fp.imports = self.pre_exercise_imports.copy()
+            fp.mappings = self.pre_exercise_mappings.copy()
             fp.visit(self.student_tree)
             self.student_function_calls = fp.calls
-            self.student_imports = fp.imports
+            self.student_mappings = fp.mappings
 
         if (self.solution_function_calls is None):
             fp = FunctionParser()
-            fp.imports = self.pre_exercise_imports.copy()
+            fp.mappings = self.pre_exercise_mappings.copy()
             fp.visit(self.solution_tree)
             self.solution_function_calls = fp.calls
 
@@ -203,7 +204,7 @@ class State(object):
             oap = ObjectAccessParser()
             oap.visit(self.student_tree)
             self.student_object_accesses = oap.accesses
-            self.student_imports = oap.imports
+            self.student_mappings = oap.mappings
 
     def extract_imports(self):
         self.parse_code()

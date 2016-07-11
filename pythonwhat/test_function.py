@@ -79,16 +79,16 @@ def test_function(name,
     state.extract_function_calls()
     solution_calls = state.solution_function_calls
     student_calls = state.student_function_calls
-    student_imports = state.student_imports
+    student_mappings = state.student_mappings
 
     # for messaging purposes: replace with original alias or import again.
     stud_name = name
     if "." in stud_name:
-        student_imports_rev = {v: k for k, v in student_imports.items()}
+        student_mappings_rev = {v: k for k, v in student_mappings.items()}
         els = name.split(".")
         front_part = ".".join(els[0:-1])
-        if front_part in student_imports_rev.keys():
-                stud_name = student_imports_rev[front_part] + "." + els[-1]
+        if front_part in student_mappings_rev.keys():
+                stud_name = student_mappings_rev[front_part] + "." + els[-1]
 
     if not(not_called_msg):
         if index == 0:

@@ -1,7 +1,5 @@
 import unittest
 from pythonbackend.Exercise import Exercise
-from pythonbackend import utils
-
 import helper
 
 class TestFunctionBase(unittest.TestCase):

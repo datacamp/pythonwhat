@@ -244,7 +244,7 @@ class FunctionParser(Parser):
         Initialize the parser and its attributes.
         """
         self.current = ''
-        self.imports = {} # We need to keep track of imports to match the correction function calls
+        self.mappings = {}
         self.calls = {}
 
     def visit_BinOp(self, node):
@@ -263,12 +263,12 @@ class FunctionParser(Parser):
     def visit_Import(self, node):
         for imp in node.names:
             if imp.asname is not None:
-                self.imports[imp.asname] = imp.name
+                self.mappings[imp.asname] = imp.name
 
     def visit_ImportFrom(self, node):
         for imp in node.names:
             if imp.asname is not None:
-                self.imports[imp.asname] = node.module + "." + imp.name
+                self.mappings[imp.asname] = node.module + "." + imp.name
 
     def visit_Expr(self, node):
         """
@@ -322,7 +322,7 @@ class FunctionParser(Parser):
             node (ast.Name): The node which is visited.
         """
         self.current = (
-            node.id if not node.id in self.imports else self.imports[
+            node.id if not node.id in self.mappings else self.mappings[
                 node.id])
 
 class ObjectAccessParser(FunctionParser):
@@ -359,8 +359,8 @@ class ObjectAccessParser(FunctionParser):
     def visit_Name(self, node):
         # if name refers to an import, replace
         prefix = None
-        if node.id in self.imports:
-            prefix = self.imports[node.id]
+        if node.id in self.mappings:
+            prefix = self.mappings[node.id]
         else:
             prefix = node.id
         self.current = prefix + "." + self.current if self.current else prefix
