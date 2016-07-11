@@ -30,6 +30,8 @@ cd tests
 ipython3 run_all.py
 ```
 
+To disable deprecation warnings: `$ export PYTHONWARNINGS="ignore"`
+
 ## Generate Documentation PDF
 
 ```

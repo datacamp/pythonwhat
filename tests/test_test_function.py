@@ -33,10 +33,7 @@ test_function("print", 2)
 
 success_msg("Great!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Great!")
 
@@ -107,10 +104,7 @@ test_function("print", 2, incorrect_msg = "You can print the shape of `np_baseba
 
 success_msg("Great! You're ready to convert the actual MLB data to a 2D Numpy array now!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Great! You're ready to convert the actual MLB data to a 2D Numpy array now!")
 
@@ -168,10 +162,7 @@ test_expression_output(incorrect_msg = file_read_msg)
 test_function("file.close", not_called_msg = "Make sure to close the file, man!")
 success_msg("Good job!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "Make sure to call <code>print()</code> the attribute <code>file.closed</code> twice, once before you closed the <code>file</code> and once after.")
 
@@ -242,10 +233,7 @@ test_function("print", index = 1, incorrect_msg = type_msg)
 
 success_msg("Awesome!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
   def test_Fail(self):
@@ -291,12 +279,9 @@ test_function("print", index = 1, incorrect_msg = type_msg)
 
 success_msg("Awesome!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], 'Check the body of the <code>with</code> statement on line 6. Did you call <code>pickle.load()</code> with the correct arguments? Call on line 7 has wrong arguments. The 1st argument seems to be incorrect.')
+    self.assertEqual(sct_payload['message'], 'Check the body of the <code>with</code> statement on line 6. Did you call <code>pickle.load()</code> with the correct arguments? Call on line 7 has wrong arguments. The first argument seems to be incorrect.')
 
 class TestTestFunctionAndTestCorrectInWith(unittest.TestCase):
   def setUp(self):
@@ -344,10 +329,7 @@ test_function("print", incorrect_msg = type_msg)
 
 success_msg("Great job!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
 
   def test_Fail(self):
@@ -378,12 +360,9 @@ test_function("print", incorrect_msg = type_msg)
 
 success_msg("Great job!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], 'Did you call <code>scipy.io.loadmat()</code> with the correct arguments? Call on line 6 has wrong arguments. The 1st argument seems to be incorrect.')
+    self.assertEqual(sct_payload['message'], 'Did you call <code>scipy.io.loadmat()</code> with the correct arguments? Call on line 6 has wrong arguments. The first argument seems to be incorrect.')
 
 class TestTestFunctionAndTestCorrectWithoutWith(unittest.TestCase):
   def setUp(self):
@@ -443,11 +422,69 @@ test_function("auth.set_access_token")
 
 success_msg("Awesome!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
+
+class TestBlacklisting(unittest.TestCase):
+
+    def test_bookkeeping(self):
+        self.data = {
+          "DC_PEC": '',
+          "DC_SOLUTION": '''
+round(1.23456, ndigits = 1)
+          ''',
+          "DC_CODE": '''
+round(1.23456, ndigits = 1)
+          ''',
+          "DC_SCT": '''
+test_function('round', index = 1) # all in one
+test_function('round', index = 1) # same call, should be fine.
+          '''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_bookkeeping(self):
+        self.data = {
+          "DC_PEC": '',
+          "DC_SOLUTION": '''
+round(1.23456, ndigits = 1)
+round(1.65432, ndigits = 3)
+          ''',
+          "DC_CODE": '''
+round(1.23456, ndigits = 1)
+round(1.65432, ndigits = 3)
+          ''',
+          "DC_SCT": '''
+test_function('round', index = 1) # all in one
+test_function('round', args = [0], index = 2) # separate first
+test_function('round', keywords = ['ndigits'], index = 2) # separate second
+test_function('round', index = 2) # all-in-one
+          '''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_bookkeeping2(self):
+        self.data = {
+        "DC_PEC": '',
+        "DC_SOLUTION": '''
+round(1.23456, ndigits = 1)
+round(1.65432, ndigits = 3)
+        ''',
+        "DC_CODE": '''
+round(1.23456, ndigits = 1)
+round(1.65432, ndigits = 4)
+        ''',
+        "DC_SCT": '''
+test_function('round', index = 1) # all in one
+test_function('round', args = [0], index = 2) # separate first
+test_function('round', keywords = ['ndigits'], index = 2) # separate second
+        '''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
 
 class TestMessaging(unittest.TestCase):
   def setUp(self):
@@ -486,12 +523,12 @@ test_function("print")
     self.data["DC_SCT"] = 'test_function("pandas.date_range")'
     sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
-    self.assertIn("Make sure you call <code>pd.date_range()</code>.", sct_payload['message'])
+    self.assertEqual(sct_payload['message'], "Have you called <code>pd.date_range()</code>?")
 
     self.data["DC_SCT"] = 'test_function("type")'
     sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
-    self.assertIn("Make sure you call <code>type()</code>.", sct_payload['message'])
+    self.assertIn(sct_payload['message'], "Have you called <code>type()</code>?")
 
     self.data["DC_SCT"] = 'test_function("pandas.Series")'
     sct_payload = helper.run(self.data)
@@ -506,7 +543,7 @@ test_function("print")
     self.data["DC_SCT"] = 'test_function("print", index = 1); test_function("print", index = 2)'
     sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
-    self.assertIn("Did you call <code>print()</code> with the correct arguments the 2nd time?", sct_payload['message'])
+    self.assertIn("Did you call <code>print()</code> with the correct arguments?", sct_payload['message'])
 
     sct_payload
   def test_custom(self):

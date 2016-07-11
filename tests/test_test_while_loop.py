@@ -51,10 +51,7 @@ for i in range(3,4):
 
 success_msg("Great!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Great!")
 

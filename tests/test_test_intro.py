@@ -69,10 +69,7 @@ test_function("print", index = 7)
 
 success_msg("Time for another video!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Time for another video!")
 
@@ -106,10 +103,7 @@ test_object("savings")
 test_function("print")
 success_msg("Great! Let's try to do some calculations with this variable now!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Great! Let's try to do some calculations with this variable now!")
 
@@ -160,10 +154,7 @@ test_object("result", incorrect_msg = "Assign the correct value to result.")
 test_function("print")
 success_msg("Awesome! If you now change the value of `savings` and submit your script again, `result` will change as well.")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Awesome! If you now change the value of <code>savings</code> and submit your script again, <code>result</code> will change as well.")
 
@@ -201,10 +192,7 @@ test_object("profitable")
 
 success_msg("Nice!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Nice!")
 
@@ -274,10 +262,7 @@ test_object("doubledesc")
 test_function("print", 2)
 success_msg("Nice. Notice how `desc + desc` causes the strings to be pasted together.")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Nice. Notice how `desc + desc` causes the strings to be pasted together.")
 
@@ -330,10 +315,7 @@ test_object("pi_float")
 
 success_msg("Great! You have a profit of around \$95, that's pretty awesome indeed!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Great! You have a profit of around \$95, that's pretty awesome indeed!")
 
@@ -390,10 +372,7 @@ test_function("print")
 
 success_msg("Nice! A list is way better here, isn't it?")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Nice! A list is way better here, isn't it?")
 
@@ -447,10 +426,7 @@ print("Area: " + str(A))
 test_import("math")
 success_msg("Nice!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Nice!")
 
@@ -500,10 +476,7 @@ print(areas)
 test_function("areas.append")
 success_msg("Nice!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], True)
     self.assertEqual(sct_payload['message'], "Nice!")
 
@@ -565,10 +538,7 @@ test_object("doubledesc", incorrect_msg  = "Assign the resulting string to `doub
 test_function("print", 2, incorrect_msg = "Be sure to print out `double_desc`.")
 success_msg('Nice. Notice how `desc + desc` causes `"compound interest"` and `"compound interest"` to be pasted together.')
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "Calculate <code>year1</code> using the <code>*</code> operator.")
 
@@ -660,10 +630,7 @@ test_if_else(1, lambda: test_expression_result({"year": 6}, incorrect_msg = "Tes
 
 success_msg("Great! Time to use all of your new data science skills in the last exercise!")
     '''
-    self.exercise = Exercise(self.data)
-    self.exercise.runInit()
-    output = self.exercise.runSubmit(self.data)
-    sct_payload = helper.get_sct_payload(output)
+    sct_payload = helper.run(self.data)
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "Test if <code>year &gt; 10</code> in the condition of the <code>if</code> statement on line 24.")
 
