@@ -1,5 +1,4 @@
 import unittest
-from pythonbackend.Exercise import Exercise
 import helper
 
 class TestExercise1(unittest.TestCase):

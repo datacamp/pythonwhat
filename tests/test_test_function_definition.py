@@ -1,12 +1,4 @@
-import os
 import unittest
-
-from os.path import exists
-from unittest.mock import patch
-
-from pythonbackend.Exercise import Exercise
-from pythonbackend import utils
-
 import helper
 
 class TestExercise1(unittest.TestCase):
