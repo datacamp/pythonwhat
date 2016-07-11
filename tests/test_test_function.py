@@ -3,50 +3,50 @@ import helper
 
 class TestFunctionBase(unittest.TestCase):
 
-  def setUp(self):
-    self.data = {
-      "DC_PEC": '''
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '''
 # pec comes here
-      ''',
-      "DC_CODE": '''
+            ''',
+            "DC_CODE": '''
 print(5 / 8)
 print(7 + 10)
-      ''',
-      "DC_SOLUTION": '''
+            ''',
+            "DC_SOLUTION": '''
 print(5 / 8)
 print(7 + 10)
 '''
-    }
+        }
 
-  def test_Pass(self):
-    self.data["DC_SCT"] = '''
+    def test_Pass(self):
+        self.data["DC_SCT"] = '''
 msg = "Don't remove the first statement. It is an example which is coded for you!"
 test_operator(1, incorrect_op_msg = msg, incorrect_result_msg = msg, not_found_msg = msg)
 test_operator(2, not_found_msg = "You should add a second operation, as instructed.",
-  incorrect_op_msg = "Your second operation is wrong, be sure to add `7` to `10`.",
-  incorrect_result_msg = "The operation you added should add up to `17`.")
+    incorrect_op_msg = "Your second operation is wrong, be sure to add `7` to `10`.",
+    incorrect_result_msg = "The operation you added should add up to `17`.")
 test_function("print", 1)
 test_function("print", 2)
 
 success_msg("Great!")
-    '''
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], True)
-    self.assertEqual(sct_payload['message'], "Great!")
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], True)
+        self.assertEqual(sct_payload['message'], "Great!")
 
 class TestFunctionExerciseNumpy(unittest.TestCase):
 
-  def setUp(self):
-    self.data = {
-      "DC_PEC": '''
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '''
 # pec comes here
-      ''',
-      "DC_CODE": '''
+            ''',
+            "DC_CODE": '''
 # Create baseball, a list of lists
 baseball = [[180, 78.4],
-            [215, 102.7],
-            [210, 98.5],
-            [188, 75.2]]
+                        [215, 102.7],
+                        [210, 98.5],
+                        [188, 75.2]]
 
 # Import numpy
 import numpy as np
@@ -59,13 +59,13 @@ print(type(np_baseball))
 
 # Print out the shape of np_baseball
 print(np_baseball.shape)
-      ''',
-      "DC_SOLUTION": '''
+            ''',
+            "DC_SOLUTION": '''
 # Create baseball, a list of lists
 baseball = [[180, 78.4],
-            [215, 102.7],
-            [210, 98.5],
-            [188, 75.2]]
+                        [215, 102.7],
+                        [210, 98.5],
+                        [188, 75.2]]
 
 # Import numpy
 import numpy as np
@@ -79,10 +79,10 @@ print(type(np_baseball))
 # Print out the shape of np_baseball
 print(np_baseball.shape)
 '''
-    }
+        }
 
-  def test_Pass(self):
-    self.data["DC_SCT"] = '''
+    def test_Pass(self):
+        self.data["DC_SCT"] = '''
 msg = "You don't have to change or remove the predefined variables."
 test_object("baseball", undefined_msg = msg, incorrect_msg = msg)
 
@@ -90,7 +90,7 @@ test_import("numpy", same_as = False)
 
 test_object("np_baseball", do_eval = False)
 test_function("numpy.array", not_called_msg = "Be sure to call [`np.array()`](http://docs.scipy.org/doc/numpy-1.10.0/glossary.html#term-array).",
-                             incorrect_msg = "You should call `np.array(baseball)` to make a 2D numpy array out of `baseball`.")
+                                                         incorrect_msg = "You should call `np.array(baseball)` to make a 2D numpy array out of `baseball`.")
 test_object("np_baseball", incorrect_msg = "Assign the correct value to `np_baseball`.")
 
 msg = "Make sure to print out the type of `np_baseball` like this: `print(type(np_baseball))`."
@@ -100,19 +100,19 @@ test_function("print", 1, incorrect_msg = msg)
 test_function("print", 2, incorrect_msg = "You can print the shape of `np_baseball` like this: `np_baseball.shape`.")
 
 success_msg("Great! You're ready to convert the actual MLB data to a 2D Numpy array now!")
-    '''
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], True)
-    self.assertEqual(sct_payload['message'], "Great! You're ready to convert the actual MLB data to a 2D Numpy array now!")
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], True)
+        self.assertEqual(sct_payload['message'], "Great! You're ready to convert the actual MLB data to a 2D Numpy array now!")
 
 class TestFunctionImporting(unittest.TestCase):
 
-  def setUp(self):
-    self.data = {
-      "DC_PEC": '''
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '''
 # pec comes here
-      ''',
-      "DC_CODE": '''
+            ''',
+            "DC_CODE": '''
 # Open a file
 file = open('moby_dick.txt' , 'r') # 'r' is to read only.
 
@@ -127,8 +127,8 @@ file.close()
 
 # Check whether file is closed
 print(file.closed)
-      ''',
-      "DC_SOLUTION": '''
+            ''',
+            "DC_SOLUTION": '''
 # Open a file
 file = open('moby_dick.txt' , 'r') # 'r' is to read only.
 
@@ -144,10 +144,10 @@ file.close()
 # Check whether file is closed
 print(file.closed)
 '''
-    }
+        }
 
-  def test_Fail(self):
-    self.data["DC_SCT"] = '''
+    def test_Fail(self):
+        self.data["DC_SCT"] = '''
 test_function("open", incorrect_msg = "Pass the correct arguments to `open()`" )
 file_read_msg = "Make sure to print out the contents of the file like this: `print(file.read())`."
 test_function("file.read", incorrect_msg = file_read_msg)
@@ -158,40 +158,40 @@ test_function("print", 3, incorrect_msg = file_closed_msg)
 test_expression_output(incorrect_msg = file_read_msg)
 test_function("file.close", not_called_msg = "Make sure to close the file, man!")
 success_msg("Good job!")
-    '''
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], "Make sure to call <code>print()</code> the attribute <code>file.closed</code> twice, once before you closed the <code>file</code> and once after.")
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], False)
+        self.assertEqual(sct_payload['message'], "Make sure to call <code>print()</code> the attribute <code>file.closed</code> twice, once before you closed the <code>file</code> and once after.")
 
 
 class TestTestFunctionInWith(unittest.TestCase):
 
-  def setUp(self):
-    self.data = {
-      "DC_PEC": '''
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '''
 # pec comes here
-      ''',
-      "DC_CODE": '''
+            ''',
+            "DC_CODE": '''
 # Import pickle package
 import pickle
 
 # Open pickle file and load data
 with open('data.p','rb') as file:
-    d = pickle.load(file)
+        d = pickle.load(file)
 
 # Print data
 print(d)
 
 # Print datatype
 print(type(d))
-      ''',
-      "DC_SOLUTION": '''
+            ''',
+            "DC_SOLUTION": '''
 # Import pickle package
 import pickle
 
 # Open pickle file and load data
 with open('data.p','rb') as file:
-    d = pickle.load(file)
+        d = pickle.load(file)
 
 # Print data
 print(d)
@@ -199,25 +199,25 @@ print(d)
 # Print datatype
 print(type(d))
 '''
-    }
+        }
 
-  def test_Pass(self):
-    self.data["DC_SCT"] = '''
+    def test_Pass(self):
+        self.data["DC_SCT"] = '''
 # Test: import pickle package
 import_msg = "Did you import `pickle` correctly?"
 test_import("pickle", same_as = True, not_imported_msg = import_msg, incorrect_as_msg = import_msg)
 
 # For testing statements inside with statement
 def test_with_body():
-    test_object("d")
-    test_function("pickle.load", do_eval = False)
+        test_object("d")
+        test_function("pickle.load", do_eval = False)
 
 # Test: Context manager
 test_with(
-    1,
-    context_vals = True,
-    context_tests = lambda: test_function("open"),
-    body = test_with_body
+        1,
+        context_vals = True,
+        context_tests = lambda: test_function("open"),
+        body = test_with_body
 )
 
 # Test: print() statement
@@ -229,41 +229,41 @@ test_function("type", index = 0, incorrect_msg = type_msg)
 test_function("print", index = 1, incorrect_msg = type_msg)
 
 success_msg("Awesome!")
-    '''
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], True)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], True)
 
-  def test_Fail(self):
-    self.data["DC_CODE"] = '''
+    def test_Fail(self):
+        self.data["DC_CODE"] = '''
 # Import pickle package
 import pickle
 
 # Open pickle file and load data
 with open('data.p','rb') as file:
-    d = pickle.load('something_else')
+        d = pickle.load('something_else')
 
 # Print data
 print(d)
 
 # Print datatype
 print(type(d))
-      '''
-    self.data["DC_SCT"] = '''
+            '''
+        self.data["DC_SCT"] = '''
 # Test: import pickle package
 import_msg = "Did you import `pickle` correctly?"
 test_import("pickle", same_as = True, not_imported_msg = import_msg, incorrect_as_msg = import_msg)
 
 # For testing statements inside with statement
 def test_with_body():
-    test_function("pickle.load", do_eval = False)
-    test_object("d")
+        test_function("pickle.load", do_eval = False)
+        test_object("d")
 
 # Test: Context manager
 test_with(
-    1,
-    context_vals = True,
-    context_tests = lambda: test_function("open"),
-    body = test_with_body
+        1,
+        context_vals = True,
+        context_tests = lambda: test_function("open"),
+        body = test_with_body
 )
 
 # Test: print() statement
@@ -275,18 +275,18 @@ test_function("type", index = 0, incorrect_msg = type_msg)
 test_function("print", index = 1, incorrect_msg = type_msg)
 
 success_msg("Awesome!")
-    '''
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], 'Check the body of the <code>with</code> statement on line 6. Did you call <code>pickle.load()</code> with the correct arguments? Call on line 7 has wrong arguments. The first argument seems to be incorrect.')
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], False)
+        self.assertEqual(sct_payload['message'], 'Check the body of the <code>with</code> statement on line 6. Did you call <code>pickle.load()</code> with the correct arguments? Call on line 7 has wrong arguments. The first argument seems to be incorrect.')
 
 class TestTestFunctionAndTestCorrectInWith(unittest.TestCase):
-  def setUp(self):
-    self.data = {
-      "DC_PEC": '''
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '''
 # pec comes here
-      ''',
-      "DC_CODE": '''
+            ''',
+            "DC_CODE": '''
 # Import package
 import scipy.io
 
@@ -295,8 +295,8 @@ mat = scipy.io.loadmat('albeck_gene_expression.mat')
 
 # Print the datatype type that we have created
 print(type(mat))
-      ''',
-      "DC_SOLUTION": '''
+            ''',
+            "DC_SOLUTION": '''
 # Import package
 import scipy.io
 
@@ -306,17 +306,17 @@ mat = scipy.io.loadmat('albeck_gene_expression.mat')
 # Print the datatype type that we have created
 print(type(mat))
 '''
-    }
+        }
 
-  def test_Pass(self):
-    self.data["DC_SCT"] = '''
+    def test_Pass(self):
+        self.data["DC_SCT"] = '''
 # Test: import scipy.io
 test_import("scipy.io", same_as = True)
 
 # Test: call to scipy.io.loadmat() and 'mat' variable
 test_correct(
-    lambda: test_object("mat"),
-    lambda: test_function("scipy.io.loadmat", do_eval = False)
+        lambda: test_object("mat"),
+        lambda: test_function("scipy.io.loadmat", do_eval = False)
 )
 
 # Test: print() statement and call to type()
@@ -325,12 +325,12 @@ test_function("type", incorrect_msg = type_msg)
 test_function("print", incorrect_msg = type_msg)
 
 success_msg("Great job!")
-    '''
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], True)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], True)
 
-  def test_Fail(self):
-    self.data["DC_CODE"] = '''
+    def test_Fail(self):
+        self.data["DC_CODE"] = '''
 # Import package
 import scipy.io
 
@@ -339,15 +339,15 @@ mat = scipy.io.loadmat('test')
 
 # Print the datatype type that we have created
 print(type(mat))
-      '''
-    self.data["DC_SCT"] = '''
+            '''
+        self.data["DC_SCT"] = '''
 # Test: import scipy.io
 # test_import("scipy.io", same_as = True)
 
 # Test: call to scipy.io.loadmat() and 'mat' variable
 test_correct(
-    lambda: test_object("mat"),
-    lambda: test_function("scipy.io.loadmat", do_eval = False)
+        lambda: test_object("mat"),
+        lambda: test_function("scipy.io.loadmat", do_eval = False)
 )
 
 # Test: print() statement and call to type()
@@ -356,18 +356,18 @@ test_function("type", incorrect_msg = type_msg)
 test_function("print", incorrect_msg = type_msg)
 
 success_msg("Great job!")
-    '''
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], 'Did you call <code>scipy.io.loadmat()</code> with the correct arguments? Call on line 6 has wrong arguments. The first argument seems to be incorrect.')
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], False)
+        self.assertEqual(sct_payload['message'], 'Did you call <code>scipy.io.loadmat()</code> with the correct arguments? Call on line 6 has wrong arguments. The first argument seems to be incorrect.')
 
 class TestTestFunctionAndTestCorrectWithoutWith(unittest.TestCase):
-  def setUp(self):
-    self.data = {
-      "DC_PEC": '''
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '''
 # pec comes here
-      ''',
-      "DC_CODE": '''
+            ''',
+            "DC_CODE": '''
 # Import package
 import tweepy
 
@@ -380,8 +380,8 @@ consumer_secret = "fJGEodwe3KiKUnsYJC3VRndj7jevVvXbK2D5EiJ2nehafRgA6i"
 # Pass OAuth details to tweepy's OAuth handler
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
-      ''',
-      "DC_SOLUTION": '''
+            ''',
+            "DC_SOLUTION": '''
 # Import package
 import tweepy
 
@@ -395,10 +395,10 @@ consumer_secret = "fJGEodwe3KiKUnsYJC3VRndj7jevVvXbK2D5EiJ2nehafRgA6i"
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 '''
-    }
+        }
 
-  def test_Pass(self):
-    self.data["DC_SCT"] = '''
+    def test_Pass(self):
+        self.data["DC_SCT"] = '''
 # Test: import tweepy
 import_msg = "Did you correctly import the required package?"
 test_import("tweepy", same_as = True, not_imported_msg = import_msg, incorrect_as_msg = import_msg)
@@ -418,46 +418,46 @@ test_function("tweepy.OAuthHandler")
 test_function("auth.set_access_token")
 
 success_msg("Awesome!")
-    '''
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], True)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], True)
 
 class TestBlacklisting(unittest.TestCase):
 
     def test_bookkeeping(self):
         self.data = {
-          "DC_PEC": '',
-          "DC_SOLUTION": '''
+            "DC_PEC": '',
+            "DC_SOLUTION": '''
 round(1.23456, ndigits = 1)
-          ''',
-          "DC_CODE": '''
+            ''',
+            "DC_CODE": '''
 round(1.23456, ndigits = 1)
-          ''',
-          "DC_SCT": '''
+            ''',
+            "DC_SCT": '''
 test_function('round', index = 1) # all in one
 test_function('round', index = 1) # same call, should be fine.
-          '''
+            '''
         }
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
     def test_bookkeeping(self):
         self.data = {
-          "DC_PEC": '',
-          "DC_SOLUTION": '''
+            "DC_PEC": '',
+            "DC_SOLUTION": '''
 round(1.23456, ndigits = 1)
 round(1.65432, ndigits = 3)
-          ''',
-          "DC_CODE": '''
+            ''',
+            "DC_CODE": '''
 round(1.23456, ndigits = 1)
 round(1.65432, ndigits = 3)
-          ''',
-          "DC_SCT": '''
+            ''',
+            "DC_SCT": '''
 test_function('round', index = 1) # all in one
 test_function('round', args = [0], index = 2) # separate first
 test_function('round', keywords = ['ndigits'], index = 2) # separate second
 test_function('round', index = 2) # all-in-one
-          '''
+            '''
         }
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
@@ -484,10 +484,10 @@ test_function('round', keywords = ['ndigits'], index = 2) # separate second
 
 
 class TestMessaging(unittest.TestCase):
-  def setUp(self):
-    self.data = {
-       "DC_PEC": '',
-       "DC_CODE": '''
+    def setUp(self):
+        self.data = {
+             "DC_PEC": '',
+             "DC_CODE": '''
 import pandas as pd
 x = pd.DataFrame({"a":[1, 2, 3]})
 print(x)
@@ -496,8 +496,8 @@ print(x)
 z = pd.Series([1, 2, 3])
 len(z)
 print(z)
-      ''',
-      "DC_SOLUTION": '''
+            ''',
+            "DC_SOLUTION": '''
 import pandas as pad
 x = pad.DataFrame({"a":[1, 2, 3]}) # correct
 print(x) # correct
@@ -506,70 +506,70 @@ type(y)
 z = pad.Series([1, 2, 4]) # incorrect
 len(z) # incorrect
 print(z) # incorrect
-      '''
-    }
+            '''
+        }
 
-  def test_auto(self):
-    self.data["DC_SCT"] = '''
+    def test_auto(self):
+        self.data["DC_SCT"] = '''
 test_function("pandas.DataFrame")
 test_function("print")
-    '''
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], True)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], True)
 
-    self.data["DC_SCT"] = 'test_function("pandas.date_range")'
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], "Have you called <code>pd.date_range()</code>?")
+        self.data["DC_SCT"] = 'test_function("pandas.date_range")'
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], False)
+        self.assertEqual(sct_payload['message'], "Have you called <code>pd.date_range()</code>?")
 
-    self.data["DC_SCT"] = 'test_function("type")'
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], False)
-    self.assertIn(sct_payload['message'], "Have you called <code>type()</code>?")
+        self.data["DC_SCT"] = 'test_function("type")'
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], False)
+        self.assertIn(sct_payload['message'], "Have you called <code>type()</code>?")
 
-    self.data["DC_SCT"] = 'test_function("pandas.Series")'
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], False)
-    self.assertIn("Did you call <code>pd.Series()</code> with the correct arguments?", sct_payload['message'])
+        self.data["DC_SCT"] = 'test_function("pandas.Series")'
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], False)
+        self.assertIn("Did you call <code>pd.Series()</code> with the correct arguments?", sct_payload['message'])
 
-    self.data["DC_SCT"] = 'test_function("len")'
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], False)
-    self.assertIn("Did you call <code>len()</code> with the correct arguments?", sct_payload['message'])
+        self.data["DC_SCT"] = 'test_function("len")'
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], False)
+        self.assertIn("Did you call <code>len()</code> with the correct arguments?", sct_payload['message'])
 
-    self.data["DC_SCT"] = 'test_function("print", index = 1); test_function("print", index = 2)'
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], False)
-    self.assertIn("Did you call <code>print()</code> with the correct arguments?", sct_payload['message'])
+        self.data["DC_SCT"] = 'test_function("print", index = 1); test_function("print", index = 2)'
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], False)
+        self.assertIn("Did you call <code>print()</code> with the correct arguments?", sct_payload['message'])
 
-    
-  def test_custom(self):
-    self.data["DC_SCT"] = '''
+        
+    def test_custom(self):
+        self.data["DC_SCT"] = '''
 test_function("pandas.DataFrame")
 test_function("print")
-    '''
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], True)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], True)
 
-    self.data["DC_SCT"] = 'test_function("pandas.date_range", not_called_msg = "stupid")'
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], "stupid")
+        self.data["DC_SCT"] = 'test_function("pandas.date_range", not_called_msg = "stupid")'
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], False)
+        self.assertEqual(sct_payload['message'], "stupid")
 
-    self.data["DC_SCT"] = 'test_function("type", not_called_msg = "stupid")'
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], "stupid")
+        self.data["DC_SCT"] = 'test_function("type", not_called_msg = "stupid")'
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], False)
+        self.assertEqual(sct_payload['message'], "stupid")
 
-    self.data["DC_SCT"] = 'test_function("pandas.Series", incorrect_msg = "stupid")'
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], "stupid")
+        self.data["DC_SCT"] = 'test_function("pandas.Series", incorrect_msg = "stupid")'
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], False)
+        self.assertEqual(sct_payload['message'], "stupid")
 
-    self.data["DC_SCT"] = 'test_function("len", incorrect_msg = "stupid")'
-    sct_payload = helper.run(self.data)
-    self.assertEqual(sct_payload['correct'], False)
-    self.assertEqual(sct_payload['message'], "stupid")
+        self.data["DC_SCT"] = 'test_function("len", incorrect_msg = "stupid")'
+        sct_payload = helper.run(self.data)
+        self.assertEqual(sct_payload['correct'], False)
+        self.assertEqual(sct_payload['message'], "stupid")
 
 if __name__ == "__main__":
     unittest.main()
