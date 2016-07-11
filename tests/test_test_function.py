@@ -574,5 +574,94 @@ test_function("print")
     self.assertEqual(sct_payload['correct'], False)
     self.assertEqual(sct_payload['message'], "stupid")
 
+class TestArgsKeywords(unittest.TestCase):
+
+    def test_argsissue1(self):
+        self.data = {
+            "DC_PEC": '''
+# pec comes here
+            ''',
+            "DC_SOLUTION": '''
+# Open a file
+file = open('moby_dick.txt', 'r')
+            ''',
+            "DC_CODE": '''
+# Open a file
+file = open('moby_dick.txt', 'r')
+file.close()
+            ''',
+            "DC_SCT": '''
+test_function("open", incorrect_msg="incorrect")
+            '''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+
+    def test_argsissue2(self):
+        self.data = {
+            "DC_PEC": '''
+# pec comes here
+            ''',
+            "DC_SOLUTION": '''
+# Open a file
+file = open('moby_dick.txt', 'r')
+            ''',
+            "DC_CODE": '''
+# Open a file
+file = open('moby_dick.txt', mode='r')
+file.close()
+            ''',
+            "DC_SCT": '''
+test_function("open", incorrect_msg="incorrect")
+            '''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+
+    def test_argsissue3(self):
+        self.data = {
+            "DC_PEC": '''
+# pec comes here
+            ''',
+            "DC_SOLUTION": '''
+# Open a file
+file = open('moby_dick.txt', mode='r')
+            ''',
+            "DC_CODE": '''
+# Open a file
+file = open('moby_dick.txt', mode='r')
+file.close()
+            ''',
+            "DC_SCT": '''
+test_function("open", incorrect_msg="incorrect")
+            '''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_argsissue4(self):
+        self.data = {
+            "DC_PEC": '''
+# pec comes here
+            ''',
+            "DC_SOLUTION": '''
+# Open a file
+file = open('moby_dick.txt', mode='r')
+            ''',
+            "DC_CODE": '''
+# Open a file
+file = open('moby_dick.txt', 'r')
+file.close()
+            ''',
+            "DC_SCT": '''
+test_function("open", incorrect_msg="incorrect")
+            '''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+
 if __name__ == "__main__":
     unittest.main()
