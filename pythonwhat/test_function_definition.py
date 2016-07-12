@@ -2,7 +2,7 @@ import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import DefinedTest, EqualTest, Test
-
+from pythonwhat.feedback import Feedback
 from pythonwhat import utils
 
 from contextlib import contextmanager
@@ -163,8 +163,8 @@ def test_function_definition(name,
         body()
         child.to_parent_state()
         if expand_message and (failed_before is not rep.failed_test):
-            rep.feedback_msg = ("In your definition of `%s()`, " % name) + \
-                utils.first_lower(rep.feedback_msg)
+            rep.feedback = Feedback(("In your definition of `%s()`, " % name) + \
+                utils.first_lower(rep.feedback.message))
     if rep.failed_test:
         return
 

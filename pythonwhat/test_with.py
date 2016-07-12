@@ -1,8 +1,10 @@
 import ast
 from pythonwhat.State import State
+from pythonwhat.feedback import Feedback
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import DefinedTest, EqualTest, Test
 from pythonwhat import utils
+
 
 def test_with(index,
               context_vals=False,
@@ -83,8 +85,8 @@ def test_with(index,
             context_test()
             child.to_parent_state()
             if expand_message and (failed_before is not rep.failed_test):
-                rep.feedback_msg = ("Check the %s context in the %s `with` statement. " % (utils.get_ord(i+1), utils.get_ord(index + 1))) + \
-                    rep.feedback_msg
+                rep.feedback = Feedback(("Check the %s context in the %s `with` statement. " % (utils.get_ord(i+1), utils.get_ord(index + 1))) + \
+                    rep.feedback.message)
     if rep.failed_test:
         return
 
@@ -127,8 +129,8 @@ def test_with(index,
                     "not using the context manager correctly." % (utils.get_ord(index + 1))))
         child.to_parent_state()
         if expand_message and (failed_before is not rep.failed_test):
-            rep.feedback_msg = ("Check the body of the %s `with` statement. " % utils.get_ord(index + 1)) + \
-                rep.feedback_msg
+            rep.feedback = Feedback(("Check the body of the %s `with` statement. " % utils.get_ord(index + 1)) + \
+                rep.feedback.message)
 
 def context_env_update(context_list, env):
     env_update = {}

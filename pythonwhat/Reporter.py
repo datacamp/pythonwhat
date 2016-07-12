@@ -1,3 +1,7 @@
+from pythonwhat.feedback import Feedback
+import re
+import markdown2
+
 """
 This file holds the reporter class.
 """
@@ -12,7 +16,7 @@ class Reporter(object):
 
     def __init__(self):
         self.failed_test = False
-        self.feedback_msg = "Oh no, your solution is incorrect! Please, try again."
+        self.feedback = Feedback("Oh no, your solution is incorrect! Please, try again.")
         self.success_msg = "Great work!"
         self.allow_errors = False
         self.tags = {}
@@ -28,9 +32,9 @@ class Reporter(object):
 
     def fail(self, failure_msg):
         self.failed_test = True
-        self.feedback_msg = failure_msg
+        self.feedback = Feedback(failure_msg)
 
-    def do_test(self, test_object):
+    def do_test(self, testobj):
         """Do test.
 
         Execute a given test, unless some previous test has failed. If the test has failed,
@@ -39,25 +43,60 @@ class Reporter(object):
         if self.failed_test:
             return
 
-        test_object.test()
-        result = test_object.result
+        testobj.test()
+        result = testobj.result
         if (not result):
             self.failed_test = True
-            self.feedback_msg = test_object.feedback()
+            self.feedback = testobj.get_feedback()
 
-    def do_tests(self, test_objects):
+    def do_tests(self, testobjs):
         """Do multiple tests.
 
         Execute an array of tests.
         """
-        for test_object in test_objects:
+        for testobj in testobjs:
             if self.failed_test:
                 break
 
-            self.do_test(test_object)
+            self.do_test(testobj)
 
     def set_tag(self, key, value):
         self.tags[key] = value
 
-    def get_tags(self):
-        return(self.tags)
+    def build_payload(self, error):
+        if (error and not self.failed_test and not self.allow_errors):
+            feedback_msg = "Your code contains an error: `%s`" % str(error[1])
+            return({
+                "correct": False,
+                "message": Reporter.to_html(feedback_msg),
+                "tags": {"fun": "runtime_error"}})
+
+        if self.failed_test:
+            return({
+                "correct": False,
+                "message": Reporter.to_html(self.feedback.message),
+                "line_start": self.feedback.line_start,
+                "column_start": self.feedback.column_start + 1 if self.feedback.column_start else None,
+                "line_end": self.feedback.line_end,
+                "column_end": self.feedback.column_end,
+                "tags": self.tags})
+        else:
+            return({
+                "correct": True,
+                "message": Reporter.to_html(self.success_msg)
+                })
+
+    def build_syntax_error_payload(self, err_obj):
+        if (issubclass(type(err_obj), IndentationError)):
+            msg = "Your code can not be exceuted due to an error in the indentation: %s." % str(err_obj)
+        else:
+            msg = "Your code can not be executed due to a syntax error: %s." % str(err_obj)
+
+        return({
+            "correct": False,
+            "message": msg,
+            "tags": {"fun": "syntax_error"}})
+
+    @staticmethod
+    def to_html(msg):
+        return(re.sub("<p>(.*)</p>", "\\1", markdown2.markdown(msg)).strip())

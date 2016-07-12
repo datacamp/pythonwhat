@@ -63,7 +63,7 @@ success_msg("You aced selecting observations from DataFrames; over to selecting 
         '''
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], "For the first printout, use <code>cars.loc['JAP']</code> or <code>cars.iloc[2]</code> in order to select the correct elements.")
+        self.assertIn("For the first printout, use <code>cars.loc['JAP']</code> or <code>cars.iloc[2]</code> in order to select the correct elements.", sct_payload['message'])
 
 class TestExercise2(unittest.TestCase):
 

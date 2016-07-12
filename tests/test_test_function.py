@@ -161,7 +161,7 @@ success_msg("Good job!")
         '''
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], "Make sure to call <code>print()</code> the attribute <code>file.closed</code> twice, once before you closed the <code>file</code> and once after.")
+        self.assertIn("Make sure to call <code>print()</code> the attribute <code>file.closed</code> twice, once before you closed the <code>file</code> and once after.", sct_payload['message'])
 
 
 class TestTestFunctionInWith(unittest.TestCase):
@@ -564,21 +564,39 @@ test_function("print")
         self.data["DC_SCT"] = 'test_function("pandas.Series", incorrect_msg = "stupid")'
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], "stupid")
+        self.assertIn("stupid", sct_payload['message'])
 
         self.data["DC_SCT"] = 'test_function("len", incorrect_msg = "stupid")'
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], "stupid")
+        self.assertIn("stupid", sct_payload['message'])
 
 class TestLineNumbers(unittest.TestCase):
-    def test_line_numbers(self):
+    def test_line_numbers1(self):
         self.data = {"DC_PEC": '',
-                     "DC_SOLUTION": "4 + round(1.23456, ndigits = 1)",
-                     "DC_CODE": "4 + round(1.34567, ndigits = 1)",
+                     "DC_SOLUTION": "round(1.23456, ndigits = 1)",
+                     "DC_CODE": "round(1.34567, ndigits = 1)",
                      "DC_SCT": "test_function('round', index = 1)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "Did you call <code>round()</code> with the correct arguments? The first argument seems to be incorrect. Expected <code>1.23456</code>, but got <code>1.34567</code>.")
+        self.assertEqual(sct_payload['line_start'], 1)
+        self.assertEqual(sct_payload['line_end'], 1)
+        self.assertEqual(sct_payload['column_start'], 7)
+        self.assertEqual(sct_payload['column_end'], 13)
+
+    def test_line_numbers(self):
+        self.data = {"DC_PEC": '',
+                     "DC_SOLUTION": "round(1.23456, ndigits = 1)",
+                     "DC_CODE": "round(1.23456, ndigits = 3)",
+                     "DC_SCT": "test_function('round', index = 1)"}
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "Did you call <code>round()</code> with the correct arguments? Keyword <code>ndigits</code> seems to be incorrect. Expected <code>1</code>, but got <code>3</code>.")
+        self.assertEqual(sct_payload['line_start'], 1)
+        self.assertEqual(sct_payload['line_end'], 1)
+        self.assertEqual(sct_payload['column_start'], 26)
+        self.assertEqual(sct_payload['column_end'], 26)
 
 if __name__ == "__main__":
     unittest.main()

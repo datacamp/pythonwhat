@@ -3,14 +3,13 @@ import ast
 from pythonwhat.Test import Test, DefinedTest, EqualTest, EquivalentTest, BiggerTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.feedback import FeedbackMessage
+from pythonwhat.feedback import Feedback
 from pythonwhat.utils import get_ord
 
 def test_function(name,
                   index=1,
                   args=None,
                   keywords=None,
-                  context_vals=None,
                   eq_condition="equal",
                   do_eval=True,
                   not_called_msg=None,
@@ -114,13 +113,13 @@ def test_function(name,
     if keywords is None:
         keywords = list(keyw_solution.keys())
 
-    def build_test(arg_student, arg_solution, feedback):
+    def build_test(stud, sol, feedback_msg, add_more):
         got_error = False
         if do_eval:
             try:
                 eval_student = eval(
                     compile(
-                        ast.Expression(arg_student),
+                        ast.Expression(stud),
                         "<student>",
                         "eval"),
                     student_env)
@@ -129,7 +128,7 @@ def test_function(name,
 
             eval_solution = eval(
                 compile(
-                    ast.Expression(arg_solution),
+                    ast.Expression(sol),
                     "<solution>",
                     "eval"),
                 solution_env)
@@ -137,30 +136,30 @@ def test_function(name,
             # The (eval_student, ) part is important, because when eval_student is a tuple, we don't want
             # to expand them all over the %'s during formatting, we just want the tuple to be represented
             # in the place of the %r. Same for eval_solution.
-            if got_error:
-                feedback += " Expected `%r`, but got %s." % (eval_solution, "an error")
-            else:
-                feedback += " Expected `%r`, but got `%r`." % (eval_solution, eval_student)
+            if add_more:
+                if got_error:
+                    feedback_msg += " Expected `%r`, but got %s." % (eval_solution, "an error")
+                else:
+                    feedback_msg += " Expected `%r`, but got `%r`." % (eval_solution, eval_student)
         else:
             # We don't want the 'expected...' message here. It's a pain in the ass to deparse the ASTs to
             # give something meaningful.
-            eval_student = ast.dump(arg_student)
-            eval_solution = ast.dump(arg_solution)
+            eval_student = ast.dump(stud)
+            eval_solution = ast.dump(sol)
 
-        return(Test(feedback) if got_error else
-            eq_map[eq_condition](eval_student, eval_solution, feedback))
+        return(Test(Feedback(feedback_msg, stud)) if got_error else
+            eq_map[eq_condition](eval_student, eval_solution, Feedback(feedback_msg, stud)))
 
 
     if len(args) > 0 or len(keywords) > 0:
 
         success = None
-        incorrect_msg = (FeedbackMessage(incorrect_msg) if incorrect_msg else None)
 
         # Get all options (some function calls may be blacklisted)
         call_indices = state.get_options(name, list(range(len(student_calls[name]))), index)
 
-        for call in call_indices:
-            args_student, keyw_student = student_calls[name][call]
+        for call_ind in call_indices:
+            args_student, keyw_student = student_calls[name][call_ind]
             keyw_student = {keyword.arg: keyword.value for keyword in keyw_student}
 
             if len(args) > len(args_student):
@@ -170,19 +169,22 @@ def test_function(name,
                     keywords).issubset(set(keyw_student.keys())):
                 continue
 
-            feedback = "Did you call `%s()` with the correct arguments?" % stud_name
+            feedback_msg = "Did you call `%s()` with the correct arguments?" % stud_name
 
             success = True
             for arg in args:
                 arg_student = args_student[arg]
                 arg_solution = args_solution[arg]
-                arg_feedback = feedback + (" The %s argument seems to be incorrect." % get_ord(arg + 1))
-                test = build_test(arg_student, arg_solution, arg_feedback)
+                arg_feedback_msg = feedback_msg + (" The %s argument seems to be incorrect." % get_ord(arg + 1))
+                if incorrect_msg is None:
+                    test = build_test(arg_student, arg_solution, arg_feedback_msg, add_more = True)
+                else:
+                    test = build_test(arg_student, arg_solution, incorrect_msg, add_more = False)
+                
                 test.test()
 
                 if not test.result:
-                    if incorrect_msg is None:
-                        incorrect_msg = test.feedback()
+                    feedback = test.get_feedback()
                     success = False
                     break
 
@@ -190,21 +192,23 @@ def test_function(name,
                 for key in keywords:
                     key_student = keyw_student[key]
                     key_solution = keyw_solution[key]
-                    key_feedback = feedback + (" Keyword `%s` seems to be incorrect." % key)
-                    test = build_test(key_student, key_solution, key_feedback)
+                    key_feedback_msg = feedback_msg + (" Keyword `%s` seems to be incorrect." % key)
+                    if incorrect_msg is None:
+                        test = build_test(key_student, key_solution, key_feedback_msg, add_more = True)
+                    else:
+                        test = build_test(key_student, key_solution, incorrect_msg, add_more = False)
                     test.test()
 
                     if not test.result:
-                        if incorrect_msg is None:
-                            incorrect_msg = test.feedback()
+                        feedback = test.get_feedback()
                         success = False
                         break
 
             if success:
                 # we have a winner that passes all argument and keyword checks
-                state.set_used(name, call, index)
+                state.set_used(name, call_ind, index)
                 break
 
         if not success:
-            rep.do_test(Test(incorrect_msg))
+            rep.do_test(Test(feedback))
 

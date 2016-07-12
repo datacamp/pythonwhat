@@ -3,6 +3,7 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import Test
 from pythonwhat.utils import get_ord
+from pythonwhat.feedback import Feedback
 
 def test_while_loop(index=1,
                     test=None,
@@ -90,8 +91,8 @@ def test_while_loop(index=1,
             closure()
             child.to_parent_state()
             if expand_message and (failed_before is not rep.failed_test):
-                rep.feedback_msg = rep.feedback_msg + " in the " + incorrect_part + \
-                    " of the " + get_ord(index + 1) + " `while` loop."
+                rep.feedback = Feedback(rep.feedback.message + " in the " + incorrect_part + \
+                    " of the " + get_ord(index + 1) + " `while` loop.")
 
     sub_test(test, test_student, test_solution, "condition")
     sub_test(body, body_student, body_solution, "body")

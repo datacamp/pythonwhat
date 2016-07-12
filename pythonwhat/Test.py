@@ -1,5 +1,5 @@
 import re
-import pythonwhat.feedback as fb
+from pythonwhat.feedback import Feedback
 import numpy as np
 import pandas as pd
 
@@ -18,21 +18,27 @@ class Test(object):
     a failure message when they fail.
 
     Note:
-                    This test should not be used by itself, subclasses should be used.
+        This test should not be used by itself, subclasses should be used.
 
     Attributes:
-            failure_msg (str): A string containing the failure message in case the test fails.
-            result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+        feedback (str): A string containing the failure message in case the test fails.
+        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
 
-    def __init__(self, failure_msg):
+    def __init__(self, feedback):
         """
         Initialize the standard test.
 
         Args:
-                failure_msg (str): The failure message will be set to this.
+            feedback: string or Feedback object
         """
-        self.failure_msg = failure_msg
+        if (issubclass(type(feedback), Feedback)):
+            self.feedback = feedback
+        elif (issubclass(type(feedback), str)):
+            self.feedback = Feedback(feedback)
+        else:
+           raise TypeError("When creating a test, specify either a string or a Feedback object")
+
         self.result = None
 
     def test(self):
@@ -52,8 +58,8 @@ class Test(object):
         """
         self.result = False
 
-    def feedback(self):
-        return(self.failure_msg)
+    def get_feedback(self):
+        return(self.feedback)
 
 
 class DefinedTest(Test):
@@ -61,22 +67,22 @@ class DefinedTest(Test):
     Check if an object with a certain name is defined in a collection.
 
     Attributes:
-            failure_msg (str): A string containing the failure message in case the test fails.
-            obj (str): Contains the name of the object that is searched for.
-            coll (list/dict/set): Contains any object on which the 'in' operator can be performed.
-            result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+        feedback (str): A string containing the failure message in case the test fails.
+        obj (str): Contains the name of the object that is searched for.
+        coll (list/dict/set): Contains any object on which the 'in' operator can be performed.
+        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
 
-    def __init__(self, obj, coll, failure_msg):
+    def __init__(self, obj, coll, feedback):
         """
         Initialize the defined test.
 
         Args:
-                obj (str): Value to which obj will be set.
-                coll (list/dict/set): The coll will be set to this.
-                failure_msg (str): The failure message will be set to this.
+            obj (str): Value to which obj will be set.
+            coll (list/dict/set): The coll will be set to this.
+            feedback (str): The failure message will be set to this.
         """
-        super().__init__(failure_msg)
+        super().__init__(feedback)
         self.obj = obj
         self.coll = coll
 
@@ -94,25 +100,25 @@ class EnvironmentTest(Test):
     the student and the solution environment.
 
     Note:
-            This test should not be used by itself, subclasses should be used.
+        This test should not be used by itself, subclasses should be used.
 
     Attributes:
-            failure_msg (str): A string containing the failure message in case the test fails.
-            student_env (dict): Contains the student environment as a dictionary.
-            solution_env (dict): Contains the solution environment as a dictionary.
-            result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+        feedback (str): A string containing the failure message in case the test fails.
+        student_env (dict): Contains the student environment as a dictionary.
+        solution_env (dict): Contains the solution environment as a dictionary.
+        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
 
-    def __init__(self, obj, student_env, solution_env, failure_msg):
+    def __init__(self, obj, student_env, solution_env, feedback):
         """
         Initialize with a student and solution environment.
 
         Args:
-                student_env (dict): The student environment will be set to this.
-                solution_env (dict): The solution environment will be set to this.
-                failure_msg (str): The failure message will be set to this.
+            student_env (dict): The student environment will be set to this.
+            solution_env (dict): The solution environment will be set to this.
+            feedback (str): The failure message will be set to this.
         """
-        super().__init__(failure_msg)
+        super().__init__(feedback)
         self.student_env = student_env
         self.solution_env = solution_env
         self.obj = obj
@@ -127,22 +133,22 @@ class EquivalentTest(Test):
     This test should only be used with numeric variables (for now).
 
     Attributes:
-            failure_msg (str): A string containing the failure message in case the test fails.
-            obj1 (str): The first object that should be compared with.
-            obj2 (str): This object is compared to obj1.
-            result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+        feedback (str): A string containing the failure message in case the test fails.
+        obj1 (str): The first object that should be compared with.
+        obj2 (str): This object is compared to obj1.
+        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
 
-    def __init__(self, obj1, obj2, failure_msg):
+    def __init__(self, obj1, obj2, feedback):
         """
         Initialize with two objects.
 
         Args:
-                obj1 (str): The first object, obj1 will be set to this.
-                obj2 (str): The second object, obj2 will be set to this.
-                failure_msg (str): The failure message will be set to this.
+            obj1 (str): The first object, obj1 will be set to this.
+            obj2 (str): The second object, obj2 will be set to this.
+            feedback (str): The failure message will be set to this.
         """
-        super().__init__(failure_msg)
+        super().__init__(feedback)
         self.obj1 = obj1
         self.obj2 = obj2
 
@@ -160,22 +166,22 @@ class EqualTest(Test):
     This test should only be used with numeric variables (for now).
 
     Attributes:
-            failure_msg (str): A string containing the failure message in case the test fails.
-            obj1 (str): The first object that should be compared with.
-            obj2 (str): This object is compared to obj1.
-            result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+        feedback (str): A string containing the failure message in case the test fails.
+        obj1 (str): The first object that should be compared with.
+        obj2 (str): This object is compared to obj1.
+        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
 
-    def __init__(self, obj1, obj2, failure_msg):
+    def __init__(self, obj1, obj2, feedback):
         """
         Initialize with two objects.
 
         Args:
-                obj1 (str): The first object, obj1 will be set to this.
-                obj2 (str): The second object, obj2 will be set to this.
-                failure_msg (str): The failure message will be set to this.
+            obj1 (str): The first object, obj1 will be set to this.
+            obj2 (str): The second object, obj2 will be set to this.
+            feedback (str): The failure message will be set to this.
         """
-        super().__init__(failure_msg)
+        super().__init__(feedback)
         self.obj1 = obj1
         self.obj2 = obj2
 
@@ -219,24 +225,24 @@ class EquivalentEnvironmentTest(EquivalentTest):
     only be used with numeric variables (for now).
 
     Attributes:
-            failure_msg (str): A string containing the failure message in case the test fails.
-            obj (str): The name of the variable that will be tested in both environments.
-            student_env (dict): Contains the student environment as a dictionary.
-            solution_env (dict): Contains the solution environment as a dictionary.
-            result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+        feedback (str): A string containing the failure message in case the test fails.
+        obj (str): The name of the variable that will be tested in both environments.
+        student_env (dict): Contains the student environment as a dictionary.
+        solution_env (dict): Contains the solution environment as a dictionary.
+        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
 
-    def __init__(self, obj, student_env, solution_env, failure_msg):
+    def __init__(self, obj, student_env, solution_env, feedback):
         """
         Initialize with an object, student and solution environment.
 
         Args:
-                obj (str): The variable name, obj will be set to this.
-                student_env (dict): The student environment will be set to this.
-                solution_env (dict): The solution environment will be set to this.
-                failure_msg (str): The failure message will be set to this.
+            obj (str): The variable name, obj will be set to this.
+            student_env (dict): The student environment will be set to this.
+            solution_env (dict): The solution environment will be set to this.
+            feedback (str): The failure message will be set to this.
         """
-        super().__init__(student_env[obj], solution_env[obj], failure_msg)
+        super().__init__(student_env[obj], solution_env[obj], feedback)
 
 
 class EqualEnvironmentTest(EqualTest):
@@ -245,24 +251,24 @@ class EqualEnvironmentTest(EqualTest):
     environment. Equal means the objects are exactly the same.
 
     Attributes:
-            failure_msg (str): A string containing the failure message in case the test fails.
-            obj (str): The name of the variable that will be tested in both environments.
-            student_env (dict): Contains the student environment as a dictionary.
-            solution_env (dict): Contains the solution environment as a dictionary.
-            result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+        feedback (str): A string containing the failure message in case the test fails.
+        obj (str): The name of the variable that will be tested in both environments.
+        student_env (dict): Contains the student environment as a dictionary.
+        solution_env (dict): Contains the solution environment as a dictionary.
+        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
 
-    def __init__(self, obj, student_env, solution_env, failure_msg):
+    def __init__(self, obj, student_env, solution_env, feedback):
         """
         Initialize with an object, student and solution environment.
 
         Args:
-                obj (str): The variable name, obj will be set to this.
-                student_env (dict): The student environment will be set to this.
-                solution_env (dict): The solution environment will be set to this.
-                failure_msg (str): The failure message will be set to this.
+            obj (str): The variable name, obj will be set to this.
+            student_env (dict): The student environment will be set to this.
+            solution_env (dict): The solution environment will be set to this.
+            feedback (str): The failure message will be set to this.
         """
-        super().__init__(student_env[obj], solution_env[obj], failure_msg)
+        super().__init__(student_env[obj], solution_env[obj], feedback)
 
 
 # TODO (Vincent): Add support for equivalence of strings. Use hamming distance.
@@ -273,22 +279,22 @@ class BiggerTest(Test):
     Check if one object is greater than another. This test should only be used with numeric variables (for now).
 
     Attributes:
-            failure_msg (str): A string containing the failure message in case the test fails.
-            obj1 (str): The first object, that should be the greatest
-            obj2 (str): The second object, that should be smaller
-            result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+        feedback (str): A string containing the failure message in case the test fails.
+        obj1 (str): The first object, that should be the greatest
+        obj2 (str): The second object, that should be smaller
+        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
 
-    def __init__(self, obj1, obj2, failure_msg):
+    def __init__(self, obj1, obj2, feedback):
         """
         Initialize with two objects.
 
         Args:
-                obj1 (str): The first object, obj1 will be set to this.
-                obj2 (str): The second object, obj2 will be set to this.
-                failure_msg (str): The failure message will be set to this.
+            obj1 (str): The first object, obj1 will be set to this.
+            obj2 (str): The second object, obj2 will be set to this.
+            feedback (str): The failure message will be set to this.
         """
-        super().__init__(failure_msg)
+        super().__init__(feedback)
         self.obj1 = obj1
         self.obj2 = obj2
 
@@ -304,24 +310,24 @@ class StringContainsTest(Test):
     Check if a string is present in a text. Can use literal strings or a regex.
 
     Attributes:
-            failure_msg (str): A string containing the failure message in case the test fails.
-            string (regex/str):  String or regular expression which is searched for.
-            search_string (str): The text in which is searched.
-            pattern (bool): If set to True, string is matched with a regex. Literal otherwise.
-            result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+        feedback (str): A string containing the failure message in case the test fails.
+        string (regex/str):  String or regular expression which is searched for.
+        search_string (str): The text in which is searched.
+        pattern (bool): If set to True, string is matched with a regex. Literal otherwise.
+        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
 
-    def __init__(self, string, search_string, pattern, failure_msg):
+    def __init__(self, string, search_string, pattern, feedback):
         """
         Initialize with a string to look for, a string to search and whether or not to look for a pattern.
 
         Args:
-                string (regex/str):  The string to look for will be set to this.
-                search_string (str): The string to search in will be set to this.
-                pattern (bool): The pattern boolean will be set to this.
-                failure_msg (str): The failure message will be set to this.
+            string (regex/str):  The string to look for will be set to this.
+            search_string (str): The string to search in will be set to this.
+            pattern (bool): The pattern boolean will be set to this.
+            feedback (str): The failure message will be set to this.
         """
-        super().__init__(failure_msg)
+        super().__init__(feedback)
         self.string = string
         self.search_string = search_string
         self.pattern = pattern
@@ -341,11 +347,10 @@ class StringContainsTest(Test):
 
 # TODO (Vincent): Remove this -> same as DefinedTest - used in test_operator()
 
-
 class CollectionContainsTest(Test):
 
-    def __init__(self, obj, coll, failure_msg):
-        super().__init__(failure_msg)
+    def __init__(self, obj, coll, feedback):
+        super().__init__(feedback)
         self.obj = obj
         self.coll = coll
 

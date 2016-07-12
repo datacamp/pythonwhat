@@ -1,24 +1,24 @@
 import unittest
+from urllib.request import urlretrieve
+import os.path
+
+
+def download(fromfile, tofile):
+    if not os.path.isfile(tofile):
+        fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/' + fromfile
+        urlretrieve(fn, tofile)    
 
 if __name__ == "__main__":
-    from urllib.request import urlretrieve
-    fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt'
-    urlretrieve(fn, 'moby_dick.txt')
-    urlretrieve(fn, 'not_moby_dick.txt')
-    fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/sales.sas7bdat'
-    urlretrieve(fn, 'sales.sas7bdat')
-    fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/data.p'
-    urlretrieve(fn, 'data.p')
-    fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/ja_data2.mat'
-    urlretrieve(fn, 'albeck_gene_expression.mat')
-    fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx'
-    urlretrieve(fn, 'battledeath.xlsx')
-    fn1 = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/Chinook.sqlite'
-    urlretrieve(fn1, 'Chinook.sqlite')
-    fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/titanic_sub.csv'
-    urlretrieve(fn, 'titanic.csv')
-    fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/tweets3.txt'
-    urlretrieve(fn, 'tweets.txt')
+    
+    download('moby_opens.txt', 'moby_dick.txt')
+    download('moby_opens.txt', 'not_moby_dick.txt')
+    download('sales.sas7bdat', 'sales.sas7bdat')
+    download('data.p', 'data.p')
+    download('albeck_gene_expression.mat', 'albeck_gene_expression.mat')
+    download('battledeath.xlsx', 'battledeath.xlsx')
+    download('Chinook.sqlite', 'Chinook.sqlite')
+    download('titanic_sub.csv', 'titanic.csv')
+    download('tweets3.txt', 'tweets.txt')
     f = open('cars.csv', "w")
     f.write(""",cars_per_cap,country,drives_right
     US,809,United States,True
