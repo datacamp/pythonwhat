@@ -624,7 +624,7 @@ success_msg("Great! Time to use all of your new data science skills in the last 
         '''
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], "Test if <code>year &gt; 10</code> in the condition of the <code>if</code> statement on line 24.")
+        self.assertEqual(sct_payload['message'], "Test if <code>year &gt; 10</code> in the condition of the first <code>if</code> statement.")
 
 
 if __name__ == "__main__":

@@ -221,11 +221,11 @@ test_with(
 )
 
 # Test: print() statement
-test_function("print", index = 0)
+test_function("print", index = 1)
 
 # Test: print() statement and call to type()
 type_msg = "Print out the type of `d` as follows: `print(type(d))`."
-test_function("type", index = 0, incorrect_msg = type_msg)
+test_function("type", index = 1, incorrect_msg = type_msg)
 test_function("print", index = 1, incorrect_msg = type_msg)
 
 success_msg("Awesome!")
@@ -267,18 +267,18 @@ test_with(
 )
 
 # Test: print() statement
-test_function("print", index = 0)
+test_function("print", index = 1)
 
 # Test: print() statement and call to type()
 type_msg = "Print out the type of `d` as follows: `print(type(d))`."
-test_function("type", index = 0, incorrect_msg = type_msg)
+test_function("type", index = 1, incorrect_msg = type_msg)
 test_function("print", index = 1, incorrect_msg = type_msg)
 
 success_msg("Awesome!")
         '''
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], 'Check the body of the <code>with</code> statement on line 6. Did you call <code>pickle.load()</code> with the correct arguments? Call on line 7 has wrong arguments. The first argument seems to be incorrect.')
+        self.assertEqual(sct_payload['message'], 'Check the body of the first <code>with</code> statement. Did you call <code>pickle.load()</code> with the correct arguments? The first argument seems to be incorrect.')
 
 class TestTestFunctionAndTestCorrectInWith(unittest.TestCase):
     def setUp(self):
@@ -359,7 +359,7 @@ success_msg("Great job!")
         '''
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], 'Did you call <code>scipy.io.loadmat()</code> with the correct arguments? Call on line 6 has wrong arguments. The first argument seems to be incorrect.')
+        self.assertEqual(sct_payload['message'], 'Did you call <code>scipy.io.loadmat()</code> with the correct arguments? The first argument seems to be incorrect.')
 
 class TestTestFunctionAndTestCorrectWithoutWith(unittest.TestCase):
     def setUp(self):

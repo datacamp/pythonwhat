@@ -4,11 +4,7 @@ from pythonwhat.Test import Test, DefinedTest, EqualTest, EquivalentTest, Bigger
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.feedback import FeedbackMessage
-import pythonwhat.utils as pwut
-
-ordinal = lambda n: "%d%s" % (
-    n, "tsnrhtdd"[(n / 10 % 10 != 1) * (n % 10 < 4) * n % 10::4])
-
+from pythonwhat.utils import get_ord
 
 def test_function(name,
                   index=1,
@@ -95,7 +91,7 @@ def test_function(name,
             not_called_msg = "Have you called `%s()`?" % stud_name
         else:
             not_called_msg = ("The system wants to check the %s call of `%s()`, " +
-                "but hasn't found it; have another look at your code.") % (pwut.get_ord(index + 1), stud_name)
+                "but hasn't found it; have another look at your code.") % (get_ord(index + 1), stud_name)
     not_called_msg = FeedbackMessage(not_called_msg)
 
     if name not in solution_calls:
@@ -109,8 +105,9 @@ def test_function(name,
     if rep.failed_test:
         return
 
-    lineno_solution, args_solution, keyw_solution = solution_calls[name][index]
+    args_solution, keyw_solution = solution_calls[name][index]
     keyw_solution = {keyword.arg: keyword.value for keyword in keyw_solution}
+
 
     if args is None:
         args = list(range(len(args_solution)))
@@ -161,7 +158,7 @@ def test_function(name,
         call_indices = state.get_options(name, list(range(len(student_calls[name]))), index)
 
         for call in call_indices:
-            lineno_student, args_student, keyw_student = student_calls[name][call]
+            args_student, keyw_student = student_calls[name][call]
             keyw_student = {keyword.arg: keyword.value for keyword in keyw_student}
 
             if len(args) > len(args_student):
@@ -173,14 +170,13 @@ def test_function(name,
 
             feedback = construct_incorrect_msg()
             feedback.set_information("name", stud_name)
-            feedback.set_information("line", lineno_student)
 
             success = True
             for arg in args:
                 arg_student = args_student[arg]
                 arg_solution = args_solution[arg]
 
-                feedback.set_information("argument", pwut.get_ord(arg + 1))
+                feedback.set_information("argument", get_ord(arg + 1))
 
                 test = eval_arg(arg_student, arg_solution, feedback)
 
@@ -223,7 +219,6 @@ def test_function(name,
 
 def construct_incorrect_msg():
     feedback = FeedbackMessage("Did you call `${name}()` with the correct arguments?")
-    feedback.cond_append("line", "Call on line ${line} has wrong arguments.")
     feedback.cond_append(
         "argument",
         "The ${argument} argument seems to be incorrect.")

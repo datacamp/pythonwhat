@@ -107,9 +107,8 @@ class OperatorParser(Parser):
     def visit_Num(self, node):
         if not self.level:
             self.ops.append((  # A number can be seen as a operator on base level.
-                node.lineno,   # When student is asked to use operators but just puts in a number instead,
-                node,          # this will help creating a consistent feedback message,
-                self.used))
+                node,          # When student is asked to use operators but just puts in a number instead,
+                self.used))    # this will help creating a consistent feedback message.
 
     def visit_UnaryOp(self, node):
         self.visit(node.operand)  # Unary operations, like '-', should not be added, but they should be
@@ -126,8 +125,7 @@ class OperatorParser(Parser):
         self.level = self.level - 1  # we don't need all the explicit nodes.
 
         if not self.level:          # We should only add the binary operations of the base level,
-            self.ops.append((       # information about nested operations is included in the used
-                node.lineno,        # list.
+            self.ops.append((       # information about nested operations is included in the used list.
                 node,
                 self.used))
             self.used = []
@@ -196,8 +194,7 @@ class FunctionParser(Parser):
             if (self.current not in self.calls):
                 self.calls[self.current] = []
 
-            self.calls[self.current].append(
-                (node.lineno, node.args, node.keywords))
+            self.calls[self.current].append((node.args, node.keywords))
 
         self.current = ''
         for arg in node.args:
@@ -212,9 +209,7 @@ class FunctionParser(Parser):
         self.current += "." + node.attr  # Add the function name
 
     def visit_Name(self, node):
-        self.current = (
-            node.id if not node.id in self.mappings else self.mappings[
-                node.id])
+        self.current = (node.id if not node.id in self.mappings else self.mappings[node.id])
 
 class ObjectAccessParser(FunctionParser):
     """Find object accesses
@@ -270,7 +265,6 @@ class IfParser(Parser):
 
     def visit_If(self, node):
         self.ifs.append((
-            node.lineno,
             node.test,
             ast.Module(node.body),
             ast.Module(node.orelse)))
@@ -288,7 +282,6 @@ class WhileParser(Parser):
 
     def visit_While(self, node):
         self.whiles.append((
-            node.lineno,
             node.test,
             ast.Module(node.body),
             ast.Module(node.orelse)))
@@ -313,7 +306,6 @@ class ForParser(Parser):
             target_vars = []
 
         self.fors.append((
-            node.lineno,
             target_vars,
             node.iter,
             ast.Module(node.body),
@@ -335,7 +327,6 @@ class FunctionDefParser(Parser):
         self.defs[node.name] = {
             "args": [(arg, default) for arg, default in zip(args,defaults)],
             "body": ReturnTransformer().visit(ast.Module(node.body)),
-            "lineno": node.lineno
         }
 
     def get_node_literal_value(node):
@@ -358,7 +349,6 @@ class WithParser(Parser):
             "context": [{"context_expr" : ast.Expression(item.context_expr),
                 "optional_vars": item.optional_vars and WithParser.get_node_ids_in_list(item.optional_vars)} for item in items],
             "body": ast.Module(node.body),
-            "lineno": node.lineno
         })
 
     def get_node_ids_in_list(node):

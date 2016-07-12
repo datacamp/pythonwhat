@@ -6,6 +6,7 @@ from types import ModuleType
 import copy
 
 def get_ord(num):
+    assert num != 0, "use strictly positive numbers in get_ord()"
     nums = {1: "first", 2: "second", 3:"third", 4:"fourth",
             5: "fifth", 6: "sixth", 7:"seventh", 8:"eight",
             9: "nineth", 10: "tenth"}

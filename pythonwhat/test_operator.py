@@ -83,15 +83,15 @@ def test_operator(index=1,
     if (rep.failed_test):
         return
 
-    lineno_student, expr_student, used_student = student_ops[index]
+    expr_student, used_student = student_ops[index]
 
     # Throw error if solution code is invalid with SCT
     if index > len(solution_ops) + 1:
         raise IndexError("index not found in solution: %d" % index)
 
-    lineno_solution, expr_solution, used_solution = solution_ops[index]
+    expr_solution, used_solution = solution_ops[index]
 
-    build_incorrect_msg = "Your operation at line " + str(lineno_student)
+    build_incorrect_msg = "The highlighted operation"
 
     used_student = set(used_student)
     used_solution = set(used_solution)
