@@ -28,7 +28,6 @@ success_msg("Great! No arguments!")
         self.assertEqual(sct_payload['correct'], True)
         self.assertEqual(sct_payload['message'], "Great! No arguments!")
 
-        
 
 class TestTestOperatorSameOperationInFunction(unittest.TestCase):
 
@@ -119,7 +118,7 @@ success_msg("Well done! Both correct!")
         self.assertEqual(sct_payload['correct'], True)
         self.assertEqual(sct_payload['message'], "Well done! Both correct!")
 
-class TestTestOperatorTwoOperationsOneIncorrect(unittest.TestCase):
+class TestTestOperatorTwoOperationsOneIncorrect1(unittest.TestCase):
     def setUp(self):
         self.data = {
             "DC_PEC": '',
@@ -143,7 +142,11 @@ success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to 17, should be 13.")
+        self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to <code>17</code>, should be <code>13</code>.")
+        self.assertEqual(sct_payload['line_start'], 2)
+        self.assertEqual(sct_payload['line_end'], 2)
+        self.assertEqual(sct_payload['column_start'], 7)
+        self.assertEqual(sct_payload['column_end'], 12)
 
     def test_bothOperations(self):
         self.data["DC_SCT"] = '''
@@ -153,9 +156,13 @@ success_msg("Well done! Both correct!")
         '''
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to 17, should be 13.")
+        self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to <code>17</code>, should be <code>13</code>.")
+        self.assertEqual(sct_payload['line_start'], 2)
+        self.assertEqual(sct_payload['line_end'], 2)
+        self.assertEqual(sct_payload['column_start'], 7)
+        self.assertEqual(sct_payload['column_end'], 12)
 
-class TestTestOperatorTwoOperationsOneIncorrect(unittest.TestCase):
+class TestTestOperatorTwoOperationsOneIncorrect2(unittest.TestCase):
     def setUp(self):
         self.data = {
             "DC_PEC": '',
@@ -170,7 +177,11 @@ success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to 0.5, should be 0.625.")
+        self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to <code>0.5</code>, should be <code>0.625</code>.")
+        self.assertEqual(sct_payload['line_start'], 1)
+        self.assertEqual(sct_payload['line_end'], 1)
+        self.assertEqual(sct_payload['column_start'], 7)
+        self.assertEqual(sct_payload['column_end'], 11)
 
     def test_secondOperation(self):
         self.data["DC_SCT"] = '''
@@ -179,7 +190,11 @@ success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to 17, should be 13.")
+        self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to <code>17</code>, should be <code>13</code>.")
+        self.assertEqual(sct_payload['line_start'], 2)
+        self.assertEqual(sct_payload['line_end'], 2)
+        self.assertEqual(sct_payload['column_start'], 7)
+        self.assertEqual(sct_payload['column_end'], 12)
 
     def test_bothOperations(self):
         self.data["DC_SCT"] = '''
@@ -189,9 +204,13 @@ success_msg("Well done! Both correct!")
         '''
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to 0.5, should be 0.625.")
+        self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to <code>0.5</code>, should be <code>0.625</code>.")
+        self.assertEqual(sct_payload['line_start'], 1)
+        self.assertEqual(sct_payload['line_end'], 1)
+        self.assertEqual(sct_payload['column_start'], 7)
+        self.assertEqual(sct_payload['column_end'], 11)
 
-class TestTestOperatorTwoOperationsOneIncorrect(unittest.TestCase):
+class TestTestOperatorTwoOperationsOneIncorrect3(unittest.TestCase):
     def setUp(self):
         self.data = {
             "DC_PEC": '',
@@ -233,6 +252,10 @@ success_msg("Well done!")
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], "The highlighted operation is missing a <code>*</code> operation.")
+        self.assertEqual(sct_payload['line_start'], 1)
+        self.assertEqual(sct_payload['line_end'], 1)
+        self.assertEqual(sct_payload['column_start'], 7)
+        self.assertEqual(sct_payload['column_end'], 11)
 
     def test_allOperationsWithCustomFeedback(self):
         self.data["DC_SCT"] = '''
