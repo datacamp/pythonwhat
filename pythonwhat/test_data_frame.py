@@ -35,7 +35,7 @@ def test_data_frame(name,
         return
     student_df = student_env[name]
     rep.do_test(EqualTest(student_df.__class__, pd.DataFrame,
-        not_data_frame_msg or "The object you defined as `%s` is not pandas DataFrame." % name))
+        not_data_frame_msg or "The object you defined as `%s` is not a pandas DataFrame." % name))
     if rep.failed_test:
         return
 

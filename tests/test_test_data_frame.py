@@ -125,7 +125,7 @@ df = {
         '''
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], 'The object you defined as <code>df</code> is not pandas DataFrame.')
+        self.assertEqual(sct_payload['message'], 'The object you defined as <code>df</code> is not a pandas DataFrame.')
 
 
     def test_Fail6(self):

@@ -15,9 +15,8 @@ as well as some extra documentation:
 class Parser(ast.NodeVisitor):
     """Basic parser.
 
-    The basic Parser, should not be used on itself but should be used to inherit certain basic
-    features from. The Parser itself inherits from ast.Nodevisitor, which is a helper class to
-    go through the abstract syntax tree objects.
+    The basic Parser, should not be used directly, but to inherit from. The Parser itself inherits 
+    from ast.Nodevisitor, which is a helper class to go through the abstract syntax tree objects.
 
     In the basic version, each node in the Module body will be visited. Expression bodies will be
     visited as well. In this standard parser, all other nodes are ignored.
@@ -34,7 +33,7 @@ class Parser(ast.NodeVisitor):
             # We only want to visit the module nodes on a first level. Going deeper
             # should be handeled by the specific parsers and the test function, as
             # nesting requires the State to generate a subtree. The Parser object
-            # does not now about the State object.
+            # does not know about the State object.
             self.visit(line)
 
 
@@ -51,7 +50,7 @@ class Parser(ast.NodeVisitor):
         """
         This function is called when all other nodes are encountered when traversing the tree.
         When inheriting form this standard parser, this function will make the parser ignore
-        all nodes that are not relevant to build its data structures.
+        all nodes that are not relevant.
 
         Args:
             node (ast.Node): The node which is visited.
@@ -63,8 +62,7 @@ class Parser(ast.NodeVisitor):
 class OperatorParser(Parser):
     """Find operations.
 
-    A parser which inherits from the basic parser. It will walk through the syntax tree and put all
-    operators in a relevant data structure, which can later be used in the test.
+    A parser which inherits from the basic parser to find binary operators.
 
     Attributes:
         ops (list(tuple(num, ast.BinOp, list(str)))): A list of tuples containing the linenumber, node and list of used binary operations.
@@ -97,40 +95,16 @@ class OperatorParser(Parser):
         self.used = []
 
     def visit_Expr(self, node):
-        """
-        This function is called when a Expr node is encountered when traversing the tree.
-
-        Args:
-            node (ast.Expr): The node which is visited.
-        """
         self.visit(node.value)
 
     def visit_Call(self, node):
-        """
-        This function is called when a Call node is encountered when traversing the tree.
-
-        Args:
-            node (ast.Call): The node which is visited.
-        """
         for arg in node.args:
             self.visit(arg)
 
     def visit_Assign(self, node):
-        """
-        This function is called when a Assign node is encountered when traversing the tree.
-
-        Args:
-            node (ast.Assign): The node which is visited.
-        """
         self.visit(node.value)
 
     def visit_Num(self, node):
-        """
-        This function is called when a Num node is encountered when traversing the tree.
-
-        Args:
-            node (ast.Num): The node which is visited.
-        """
         if not self.level:
             self.ops.append((  # A number can be seen as a operator on base level.
                 node.lineno,   # When student is asked to use operators but just puts in a number instead,
@@ -138,24 +112,11 @@ class OperatorParser(Parser):
                 self.used))
 
     def visit_UnaryOp(self, node):
-        """
-        This function is called when a UnaryOp node is encountered when traversing the tree.
-
-        Args:
-            node (ast.UnaryOp): The node which is visited.
-        """
-        self.visit(
-            node.operand)  # Unary operations, like '-', should not be added, but they should be
+        self.visit(node.operand)  # Unary operations, like '-', should not be added, but they should be
         # looked into. They can contain more binary operations. This is important
         # during the nesting process.
 
     def visit_BinOp(self, node):
-        """
-        This function is called when a BinOp node is encountered when traversing the tree.
-
-        Args:
-            node (ast.BinOp): The node which is visited.
-        """
         self.used.append(OperatorParser.O_MAP[type(node.op).__name__])
         self.level = self.level + 1
         # Nest to other operations, but increase the level. We only
@@ -172,56 +133,20 @@ class OperatorParser(Parser):
             self.used = []
 
 
-class BoolParser(Parser):
-    """Find boolean operations.
-
-    A parser which inherits from the basic parser. It will walk through the syntax tree and put all
-    boolean operators in a relevant data structure, which can later be used in the test.
-
-    Attributes:
-        bools (list()): A list containing the correct data structure.
-    """
-
-    def __init__(self):
-        """
-        Initialize the parser and its attributes.
-        """
-        self.bools = []
-
-
 class ImportParser(Parser):
     """Find import statement.
 
-    A parser which inherits from the basic parser. It will walk through the syntax tree and put all
-    import statements in a relevant data structure, which can later be used in the test.
-
-    Attributes:
-        imports (dict()): A dict containing the correct data structure.
+    A parser which inherits from the basic parser to find package imports.
     """
 
     def __init__(self):
-        """
-        Initialize the parser and its attributes.
-        """
         self.imports = {}
 
     def visit_Import(self, node):
-        """
-        This function is called when an Import node is encountered when traversing the tree.
-
-        Args:
-            node (ast.Import): The node which is visited.
-        """
         for imp in node.names:
             self.imports[imp.name] = imp.asname
 
     def visit_ImportFrom(self, node):
-        """
-        This function is called when an ImportFrom node is encountered when traversing the tree.
-
-        Args:
-            node (ast.ImportFrom): The node which is visited.
-        """
         for imp in node.names:
             self.imports[node.module + "." + imp.name] = imp.asname
 
@@ -229,20 +154,11 @@ class ImportParser(Parser):
 class FunctionParser(Parser):
     """Find function calls.
 
-    A parser which inherits from the basic parser. It will walk through the syntax tree and put all
-    function calls in a relevant data structure, which can later be used in the test.
-
-    Attributes:
-        current (str): The function call which is being constructed, important for dotted function calls.
-        calls (dict(str: list(tuple(num, list(ast.Node), list(keyword))))):
-            A dictionary containing the function names as a key, and a list of structured tuples as value. The tuples
-            contain information about the line number, the arguments and the keywords of each call.
+    A parser which inherits from the basic parser to find function calls.
+    Function calls inside control structures are not found, nesting function calls are.
     """
 
     def __init__(self):
-        """
-        Initialize the parser and its attributes.
-        """
         self.current = ''
         self.mappings = {}
         self.calls = {}
@@ -271,22 +187,10 @@ class FunctionParser(Parser):
                 self.mappings[imp.asname] = node.module + "." + imp.name
 
     def visit_Expr(self, node):
-        """
-        This function is called when a Expr node is encountered when traversing the tree.
-
-        Args:
-            node (ast.Expr): The node which is visited.
-        """
         self.visit(node.value)
 
     def visit_Call(self, node):
-        """
-        This function is called when a Call node is encountered when traversing the tree.
-
-        Args:
-            node (ast.Call): The node which is visited.
-        """
-        self.visit(node.func)       # Need to visit func to start recording the current function name.
+        self.visit(node.func) # Need to visit func to start recording the current function name.
 
         if self.current:
             if (self.current not in self.calls):
@@ -304,23 +208,10 @@ class FunctionParser(Parser):
             self.visit(key.value)   # Same for keywords
 
     def visit_Attribute(self, node):
-        """
-        This function is called when a Attribute node is encountered when traversing the tree.
-
-        Args:
-            node (ast.Attribute): The node which is visited.
-        """
-        self.visit(
-            node.value)          # Go deeper for the package/module names!
-        self.current += "." + node.attr   # Add the function name
+        self.visit(node.value)  # Go deeper for the package/module names!
+        self.current += "." + node.attr  # Add the function name
 
     def visit_Name(self, node):
-        """
-        This function is called when a Name node is encountered when traversing the tree.
-
-        Args:
-            node (ast.Name): The node which is visited.
-        """
         self.current = (
             node.id if not node.id in self.mappings else self.mappings[
                 node.id])
@@ -328,8 +219,7 @@ class FunctionParser(Parser):
 class ObjectAccessParser(FunctionParser):
     """Find object accesses
 
-    A parser which inherits from the FunctionParser. It will walk through the syntax tree and put all
-    object accesses in a list, which can later be used in the test.
+    A parser which inherits from the FunctionParser to find object accesses.
     """
 
     def __init__(self):
@@ -371,29 +261,14 @@ class ObjectAccessParser(FunctionParser):
 class IfParser(Parser):
     """Find if structures.
 
-    A parser which inherits from the basic parser. It will walk through the syntax tree and put all
-    function calls in a relevant data structure, which can later be used in the test.
-
-    Attributes:
-        current (str): The function call which is being constructed, important for dotted function calls.
-        calls (dict(str: list(tuple(num, list(ast.Node), list(keyword))))):
-            A dictionary containing the function names as a key, and a list of structured tuples as value. The tuples
-            contain information about the line number, the arguments and the keywords of each call.
+    A parser which inherits from the basic parser to find if structures.
+    Only 'top-level' if structures will be found!
     """
 
     def __init__(self):
-        """
-        Initialize the parser and its attributes.
-        """
         self.ifs = []
 
     def visit_If(self, node):
-        """
-        This function is called when a If node is encountered when traversing the tree.
-
-        Args:
-            node (ast.If): The node which is visited.
-        """
         self.ifs.append((
             node.lineno,
             node.test,
@@ -402,6 +277,11 @@ class IfParser(Parser):
 
 
 class WhileParser(Parser):
+    """Find while structures.
+
+    A parser which inherits from the basic parser to find while structures.
+    Only 'top-level' while structures will be found!
+    """
 
     def __init__(self):
         self.whiles = []
@@ -417,29 +297,14 @@ class WhileParser(Parser):
 class ForParser(Parser):
     """Find for structures.
 
-    A parser which inherits from the basic parser. It will walk through the syntax tree and put all
-    for calls in a relevant data structure, which can later be used in the test.
-
-    Attributes:
-        current (str): The function call which is being constructed, important for dotted function calls.
-        calls (dict(str: list(tuple(num, list(ast.Node), list(keyword))))):
-            A dictionary containing the function names as a key, and a list of structured tuples as value. The tuples
-            contain information about the line number, the arguments and the keywords of each call.
+    A parser which inherits from the basic parser to find for structures.
+    Only 'top-level' for structures will be found!
     """
 
     def __init__(self):
-        """
-        Initialize the parser and its attributes.
-        """
         self.fors = []
 
     def visit_For(self, node):
-        """
-        This function is called when a For node is encountered when traversing the tree.
-
-        Args:
-            node (ast.For): The node which is visited.
-        """
         if isinstance(node.target, ast.Name):
             target_vars = [node.target.id]
         elif isinstance(node.target, ast.Tuple):
@@ -455,6 +320,11 @@ class ForParser(Parser):
             ast.Module(node.orelse)))
 
 class FunctionDefParser(Parser):
+    """Find function definitions
+
+    A parser which inherits from the basic parser to find function definitions.
+    Only 'top-level' for structures will be found!
+    """
     def __init__(self):
         self.defs = {}
 

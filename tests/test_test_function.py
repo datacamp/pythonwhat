@@ -571,5 +571,14 @@ test_function("print")
         self.assertEqual(sct_payload['correct'], False)
         self.assertEqual(sct_payload['message'], "stupid")
 
+class TestLineNumbers(unittest.TestCase):
+    def test_line_numbers(self):
+        self.data = {"DC_PEC": '',
+                     "DC_SOLUTION": "4 + round(1.23456, ndigits = 1)",
+                     "DC_CODE": "4 + round(1.34567, ndigits = 1)",
+                     "DC_SCT": "test_function('round', index = 1)"}
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
 if __name__ == "__main__":
     unittest.main()
