@@ -26,6 +26,7 @@ from pythonwhat.test_object_after_expression import test_object_after_expression
 
 import markdown2
 import re
+import pythonwhat.utils as pwut
 
 def test_exercise(sct,
                   student_code,
@@ -71,21 +72,19 @@ def test_exercise(sct,
                     "tags": {"fun": "syntax_error"}})
         except IndexError as e:
             # Something changed in the backend
-            raise IndexError(
-                "trying to find the error object but didn't find it")
+            raise IndexError("trying to find the error object but didn't find it")
 
     rep = Reporter()
     Reporter.active_reporter = rep
     state = State(
-        student_code,
-        solution_code,
-        pre_exercise_code,
-        student_environment,
-        solution_environment,
-        raw_student_output)
-    # Standardly parse code
-    state.parse_code()
-    State.active_state = state
+        student_code = pwut.check_str(student_code),
+        solution_code = pwut.check_str(solution_code),
+        pre_exercise_code = pwut.check_str(pre_exercise_code),
+        student_env = pwut.check_dict(student_environment),
+        solution_env = pwut.check_dict(solution_environment),
+        raw_student_output = pwut.check_str(raw_student_output))
+
+    State.set_active_state(state)
 
     if not rep.failed_test:
         exec(sct)

@@ -48,3 +48,11 @@ def copy_env(env, keep_objs=None):
 
 def first_lower(s):
     return (s[:1].lower() + s[1:] if s else '')
+
+def check_str(x):
+    assert isinstance(x, str), "object isn't string where string expected"
+    return(x)
+
+def check_dict(x):
+    assert isinstance(x, dict), "object isn't dict where dict expected"
+    return(x)
