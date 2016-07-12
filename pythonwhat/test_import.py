@@ -50,10 +50,8 @@ def test_import(name,
     if name not in solution_imports:
         raise NameError("%r not in solution imports " % name)
 
-    not_imported_msg = (FeedbackMessage(not_imported_msg) if not_imported_msg else FeedbackMessage(
-        "Did you import `${name}` in your code?"))
-
-    not_imported_msg.set_information("name", name)
+    if not_imported_msg is None:
+        not_imported_msg = "Did you import `%s` in your code?" % name
 
     rep.do_test(DefinedTest(name, student_imports, not_imported_msg))
 
@@ -61,10 +59,8 @@ def test_import(name,
         return
 
     if (same_as):
-        incorrect_as_msg = (FeedbackMessage(incorrect_as_msg) if incorrect_as_msg else FeedbackMessage(
-            "Did you set the correct alias for `${name}`?"))
-
-        incorrect_as_msg.set_information("name", name)
+        if incorrect_as_msg is None:
+            incorrect_as_msg = "Did you set the correct alias for `%s`" % name
 
         rep.do_test(
             EqualTest(

@@ -32,15 +32,7 @@ class Test(object):
         Args:
                 failure_msg (str): The failure message will be set to this.
         """
-        if (issubclass(type(failure_msg), fb.FeedbackMessage)):
-            self.failure_msg = failure_msg
-        elif (issubclass(type(failure_msg), str)):
-            self.failure_msg = fb.FeedbackMessage(failure_msg)
-        else:
-            raise TypeError(
-                "Not a valid type for failure_msg: %r" %
-                type(failure_msg))
-
+        self.failure_msg = failure_msg
         self.result = None
 
     def test(self):
@@ -61,11 +53,7 @@ class Test(object):
         self.result = False
 
     def feedback(self):
-        if (issubclass(type(self.failure_msg), fb.FeedbackMessage)):
-            return(self.failure_msg.generateString())
-        else:
-            # Shouldn't happen.
-            return(None)
+        return(self.failure_msg)
 
 
 class DefinedTest(Test):

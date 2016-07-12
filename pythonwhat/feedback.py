@@ -1,7 +1,23 @@
 import re
 from pythonwhat import utils
 
-# TODO (Vincent): refactor using .format()
+class Feedback(object):
+
+    def __init__(self, message, node = None):
+        self.message = message
+        if node is not None :
+            self.line_start = 0
+            self.column_start = 0
+            self.line_end = 0
+            self.column_end = 0
+        else :
+            self.line_start = None
+            self.column_start = None
+            self.line_end = 0
+            self.column_end = 0
+
+
+# TODO FILIP: No used for now, come back to this later.
 class FeedbackMessage(object):
     """Generate feedback.
 

@@ -86,13 +86,12 @@ def test_function(name,
         if front_part in student_mappings_rev.keys():
                 stud_name = student_mappings_rev[front_part] + "." + els[-1]
 
-    if not(not_called_msg):
+    if not_called_msg is None:
         if index == 0:
             not_called_msg = "Have you called `%s()`?" % stud_name
         else:
             not_called_msg = ("The system wants to check the %s call of `%s()`, " +
                 "but hasn't found it; have another look at your code.") % (get_ord(index + 1), stud_name)
-    not_called_msg = FeedbackMessage(not_called_msg)
 
     if name not in solution_calls:
         raise NameError("%r not in solution environment" % name)
@@ -115,7 +114,7 @@ def test_function(name,
     if keywords is None:
         keywords = list(keyw_solution.keys())
 
-    def eval_arg(arg_student, arg_solution, feedback):
+    def build_test(arg_student, arg_solution, feedback):
         got_error = False
         if do_eval:
             try:
@@ -134,11 +133,14 @@ def test_function(name,
                     "<solution>",
                     "eval"),
                 solution_env)
+
             # The (eval_student, ) part is important, because when eval_student is a tuple, we don't want
             # to expand them all over the %'s during formatting, we just want the tuple to be represented
             # in the place of the %r. Same for eval_solution.
-            feedback.set_information("result", ("an error" if got_error else ("`%r`" % (eval_student,))))
-            feedback.set_information("expected", ("%r" % (eval_solution,)))
+            if got_error:
+                feedback += " Expected `%r`, but got %s." % (eval_solution, "an error")
+            else:
+                feedback += " Expected `%r`, but got `%r`." % (eval_solution, eval_student)
         else:
             # We don't want the 'expected...' message here. It's a pain in the ass to deparse the ASTs to
             # give something meaningful.
@@ -168,64 +170,41 @@ def test_function(name,
                     keywords).issubset(set(keyw_student.keys())):
                 continue
 
-            feedback = construct_incorrect_msg()
-            feedback.set_information("name", stud_name)
+            feedback = "Did you call `%s()` with the correct arguments?" % stud_name
 
             success = True
             for arg in args:
                 arg_student = args_student[arg]
                 arg_solution = args_solution[arg]
-
-                feedback.set_information("argument", get_ord(arg + 1))
-
-                test = eval_arg(arg_student, arg_solution, feedback)
-
+                arg_feedback = feedback + (" The %s argument seems to be incorrect." % get_ord(arg + 1))
+                test = build_test(arg_student, arg_solution, arg_feedback)
                 test.test()
 
                 if not test.result:
+                    if incorrect_msg is None:
+                        incorrect_msg = test.feedback()
                     success = False
                     break
 
             if success:
-                feedback.remove_information("argument")
                 for key in keywords:
-
                     key_student = keyw_student[key]
                     key_solution = keyw_solution[key]
-
-                    feedback.set_information("keyword", key)
-
-                    test = eval_arg(key_student, key_solution, feedback)
-
+                    key_feedback = feedback + (" Keyword `%s` seems to be incorrect." % key)
+                    test = build_test(key_student, key_solution, key_feedback)
                     test.test()
 
                     if not test.result:
+                        if incorrect_msg is None:
+                            incorrect_msg = test.feedback()
                         success = False
                         break
 
             if success:
+                # we have a winner that passes all argument and keyword checks
                 state.set_used(name, call, index)
                 break
-            elif incorrect_msg is None:
-                incorrect_msg = feedback
 
         if not success:
-            if not incorrect_msg:
-                incorrect_msg = construct_incorrect_msg()
-                incorrect_msg.set_information("name", stud_name)
-
             rep.do_test(Test(incorrect_msg))
 
-
-def construct_incorrect_msg():
-    feedback = FeedbackMessage("Did you call `${name}()` with the correct arguments?")
-    feedback.cond_append(
-        "argument",
-        "The ${argument} argument seems to be incorrect.")
-    feedback.cond_append(
-        "keyword",
-        "Keyword `${keyword}` seems to be incorrect.")
-    feedback.cond_append(
-        "expected",
-        "Expected `${expected}`, but got ${result}.")
-    return(feedback)
