@@ -2,6 +2,7 @@ import ast
 import inspect
 from pythonwhat.parsing import FunctionParser, ObjectAccessParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, FindLastLineParser, WithParser
 from pythonwhat.Reporter import Reporter
+from pythonwhat.ast_utils import mark_text_ranges
 
 class State(object):
     """State of the SCT environment.
@@ -200,6 +201,7 @@ class State(object):
                       student_env = self.student_env, 
                       solution_env = self.solution_env,
                       raw_student_output = self.raw_student_output,
+                      pre_exercise_tree = self.pre_exercise_tree,
                       student_tree = student_subtree,
                       solution_tree = solution_subtree,
                       parent_state = self)
@@ -218,6 +220,8 @@ class State(object):
         res = None
         try:
             res = ast.parse(x)
+            # enrich tree with end lines and end columns
+            mark_text_ranges(res, x) 
         # Should never happen, SyntaxErrors are handled sooner.
         except IndentationError as e:
             rep.fail(
@@ -243,6 +247,7 @@ class State(object):
         res = None
         try:
             res = ast.parse(x)
+
         except SyntaxError as e:
             raise SyntaxError(str(e))
         except TypeError as e:
