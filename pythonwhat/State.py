@@ -1,10 +1,8 @@
 import ast
 import inspect
 from pythonwhat.parsing import FunctionParser, ObjectAccessParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, FindLastLineParser, WithParser
-
 from pythonwhat.Reporter import Reporter
 
-# TODO (Vincent): refactor using dict: e.g. parsed_solution['functions'] => FunctionParser()
 class State(object):
     """State of the SCT environment.
 
