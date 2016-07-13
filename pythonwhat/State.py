@@ -2,6 +2,7 @@ import ast
 import inspect
 from pythonwhat.parsing import FunctionParser, ObjectAccessParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, WithParser
 from pythonwhat.Reporter import Reporter
+from pythonwhat.feedback import Feedback
 from pythonwhat import utils_ast
 
 class State(object):
@@ -228,21 +229,15 @@ class State(object):
         except IndentationError as e:
             rep.set_tag("fun", "indentation_error")
             e.filename = "script.py"
-            rep.feedback.message = "Your code could not be parsed due to an error in the indentation:<br>`%s.`" % str(e)
-            rep.feedback.line_info['line_start'] = e.lineno
-            rep.feedback.line_info['line_end'] = e.lineno
-            rep.feedback.line_info['column_start'] = None
-            rep.feedback.line_info['column_end'] = None
+            # no line info for now
+            rep.feedback = Feedback("Your code could not be parsed due to an error in the indentation:<br>`%s.`" % str(e))
             rep.failed_test = True
 
         except SyntaxError as e:
             rep.set_tag("fun", "syntax_error")
             e.filename = "script.py"
-            rep.feedback.message = "Your code can not be executed due to a syntax error:<br>`%s.`" % str(e)
-            rep.feedback.line_info['line_start'] = e.lineno
-            rep.feedback.line_info['line_end'] = e.lineno
-            rep.feedback.line_info['column_start'] = None
-            rep.feedback.line_info['column_end'] = None
+            # no line info for now
+            rep.feedback = Feedback("Your code can not be executed due to a syntax error:<br>`%s.`" % str(e))
             rep.failed_test = True
 
         # Can happen, can't catch this earlier because we can't differentiate between
