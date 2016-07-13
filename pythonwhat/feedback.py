@@ -1,5 +1,6 @@
 import re
 from pythonwhat import utils
+from pythonwhat import utils_ast
 import _ast
 
 class Feedback(object):

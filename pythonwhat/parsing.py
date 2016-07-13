@@ -359,17 +359,3 @@ class WithParser(Parser):
         else:
             node_ids = []
         return node_ids
-
-class FindLastLineParser(ast.NodeVisitor):
-    """Find the last line.
-
-    Search the last line number of a code part.
-    """
-    def __init__(self):
-        self.last_line = 0
-
-    def generic_visit(self, node):
-        if hasattr(node, 'lineno') and node.lineno > self.last_line:
-            self.last_line = node.lineno
-
-        ast.NodeVisitor.generic_visit(self, node)

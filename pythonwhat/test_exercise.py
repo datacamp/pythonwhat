@@ -59,6 +59,8 @@ def test_exercise(sct,
     state = State(
         student_code = check_str(student_code),
         solution_code = check_str(solution_code),
+        full_student_code = check_str(student_code),
+        full_solution_code = check_str(solution_code),
         pre_exercise_code = check_str(pre_exercise_code),
         student_env = check_dict(student_environment),
         solution_env = check_dict(solution_environment),

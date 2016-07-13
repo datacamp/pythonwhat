@@ -108,7 +108,25 @@ def extract_text_range(source, text_range):
     lines[-1] = lines[-1][:text_range.end_col_offset]
     lines[0] = lines[0][text_range.col_offset:]
     return "".join(lines)
-    
+ 
+
+## ADDED BY FILIP
+def extract_text_from_node(dastring, astobj):
+    try:
+        if issubclass(type(astobj), _ast.Module):
+            rangeobj = TextRange(lineno=astobj.body[0].lineno,
+                                 col_offset=astobj.body[0].col_offset,
+                                 end_lineno=astobj.body[-1].end_lineno,
+                                 end_col_offset=astobj.body[-1].end_col_offset)
+        else:
+            rangeobj = TextRange(lineno=astobj.lineno,
+                                 col_offset=astobj.col_offset,
+                                 end_lineno=astobj.end_lineno,
+                                 end_col_offset=astobj.end_col_offset)
+        return(extract_text_range(dastring, rangeobj))
+    except:
+        return("")
+##
 
 def find_closest_containing_node(tree, text_range):
     # first look among children

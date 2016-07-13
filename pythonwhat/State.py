@@ -1,8 +1,8 @@
 import ast
 import inspect
-from pythonwhat.parsing import FunctionParser, ObjectAccessParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, FindLastLineParser, WithParser
+from pythonwhat.parsing import FunctionParser, ObjectAccessParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, WithParser
 from pythonwhat.Reporter import Reporter
-from pythonwhat.ast_utils import mark_text_ranges
+from pythonwhat import utils_ast
 
 class State(object):
     """State of the SCT environment.
@@ -195,8 +195,10 @@ class State(object):
         for loops for example.
         """
 
-        child = State(student_code = State.get_subcode(student_subtree, self.student_code),
-                      solution_code = State.get_subcode(solution_subtree, self.solution_code),
+        child = State(student_code = utils_ast.extract_text_from_node(self.full_student_code, student_subtree),
+                      solution_code = utils_ast.extract_text_from_node( self.full_solution_code, solution_subtree),
+                      full_student_code = self.full_student_code,
+                      full_solution_code = self.full_solution_code,
                       pre_exercise_code = self.pre_exercise_code,
                       student_env = self.student_env, 
                       solution_env = self.solution_env,
@@ -221,10 +223,7 @@ class State(object):
         try:
             res = ast.parse(x)
             # enrich tree with end lines and end columns
-            try:
-                mark_text_ranges(res, x)
-            except:
-                pass
+            utils_ast.mark_text_ranges(res, x + '\n')
 
         except IndentationError as e:
             rep.set_tag("fun", "indentation_error")
@@ -248,9 +247,9 @@ class State(object):
 
         # Can happen, can't catch this earlier because we can't differentiate between
         # TypeError in parsing or TypeError within code (at runtime).
-        except TypeError as e:
-            rep.set_tag("fun", "type_error")
-            rep.feedback.message = "Something went wrong while running your code."
+        except:
+            rep.set_tag("fun", "other_error")
+            rep.feedback.message = "Something went wrong while parsing your code."
             rep.failed_test = True
 
         finally:
@@ -274,25 +273,6 @@ class State(object):
                 res = False
 
         return(res)
-
-    @staticmethod
-    def get_subcode(subtree, full_code):
-        """Extract code subtree.
-
-        Extract all the code belonging to a subtree of the code.
-        """
-        try:
-            if isinstance(subtree, list):
-                subtree = ast.Module(body=subtree)
-
-            begin = subtree.body[0].lineno - 1
-            ll = FindLastLineParser()
-            ll.visit(subtree)
-            end = ll.last_line
-
-            return("\n".join(full_code.split("\n")[begin:end]))
-        except:
-            return ""
 
     @staticmethod
     def set_active_state(state):
