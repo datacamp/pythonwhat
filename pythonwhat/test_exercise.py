@@ -56,16 +56,6 @@ def test_exercise(sct,
     rep = Reporter()
     Reporter.active_reporter = rep
 
-    # Syntax errors will stop execution immediately. Nothing to be tested.
-    if (error):
-        try:
-            err_obj = error[1]
-            if (issubclass(type(err_obj), SyntaxError)):
-                return(rep.build_syntax_error_payload(err_obj))
-        except IndexError as e:
-            # Something changed in the backend
-            raise IndexError("trying to find the error object but didn't find it")
-
     state = State(
         student_code = check_str(student_code),
         solution_code = check_str(solution_code),
@@ -76,6 +66,7 @@ def test_exercise(sct,
 
     State.set_active_state(state)
 
+    # check if no fails yet (can be because of syntax and indentation errors)
     if not rep.failed_test:
         exec(sct)
 

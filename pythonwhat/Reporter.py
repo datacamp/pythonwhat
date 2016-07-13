@@ -82,7 +82,7 @@ class Reporter(object):
                     "correct": False,
                     "message": Reporter.to_html(self.feedback.message),
                     "line_start": self.feedback.line_info["line_start"],
-                    "column_start": self.feedback.line_info["column_start"] + 1,
+                    "column_start": self.feedback.line_info["column_start"] + 1 if self.feedback.line_info["column_start"] else None,
                     "line_end": self.feedback.line_info["line_end"],
                     "column_end": self.feedback.line_info["column_end"],
                     "tags": self.tags})
@@ -93,17 +93,6 @@ class Reporter(object):
                 "correct": True,
                 "message": Reporter.to_html(self.success_msg)
                 })
-
-    def build_syntax_error_payload(self, err_obj):
-        if (issubclass(type(err_obj), IndentationError)):
-            msg = "Your code can not be executed due to an error in the indentation: %s." % str(err_obj)
-        else:
-            msg = "Your code can not be executed due to a syntax error: %s." % str(err_obj)
-
-        return({
-            "correct": False,
-            "message": msg,
-            "tags": {"fun": "syntax_error"}})
 
     @staticmethod
     def to_html(msg):

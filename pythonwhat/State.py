@@ -221,21 +221,38 @@ class State(object):
         try:
             res = ast.parse(x)
             # enrich tree with end lines and end columns
-            mark_text_ranges(res, x) 
-        # Should never happen, SyntaxErrors are handled sooner.
+            try:
+                mark_text_ranges(res, x)
+            except:
+                pass
+
         except IndentationError as e:
-            rep.fail(
-                "Your code can not be executed due to an error in the indentation: %s." %
-                str(e))
+            rep.set_tag("fun", "indentation_error")
+            e.filename = "script.py"
+            rep.feedback.message = "Your code could not be parsed due to an error in the indentation:<br>`%s.`" % str(e)
+            rep.feedback.line_info['line_start'] = e.lineno
+            rep.feedback.line_info['line_end'] = e.lineno
+            rep.feedback.line_info['column_start'] = None
+            rep.feedback.line_info['column_end'] = None
+            rep.failed_test = True
+
         except SyntaxError as e:
-            rep.fail(
-                "Your code can not be executed due to a syntax error: %s." %
-                str(e))
+            rep.set_tag("fun", "syntax_error")
+            e.filename = "script.py"
+            rep.feedback.message = "Your code can not be executed due to a syntax error:<br>`%s.`" % str(e)
+            rep.feedback.line_info['line_start'] = e.lineno
+            rep.feedback.line_info['line_end'] = e.lineno
+            rep.feedback.line_info['column_start'] = None
+            rep.feedback.line_info['column_end'] = None
+            rep.failed_test = True
 
         # Can happen, can't catch this earlier because we can't differentiate between
         # TypeError in parsing or TypeError within code (at runtime).
         except TypeError as e:
-            rep.fail("Something went wrong while running your code.")
+            rep.set_tag("fun", "type_error")
+            rep.feedback.message = "Something went wrong while running your code."
+            rep.failed_test = True
+
         finally:
             if (res is None):
                 res = False
