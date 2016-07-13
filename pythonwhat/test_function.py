@@ -3,7 +3,7 @@ import ast
 from pythonwhat.Test import Test, DefinedTest, EqualTest, EquivalentTest, BiggerTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.feedback import Feedback
+from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord
 
 def test_function(name,

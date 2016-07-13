@@ -1,5 +1,5 @@
 import re
-from pythonwhat.feedback import Feedback
+from pythonwhat.Feedback import Feedback
 import numpy as np
 import pandas as pd
 

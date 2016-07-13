@@ -2,8 +2,6 @@ import ast
 from pythonwhat.Test import Test, DefinedTest, EqualTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.feedback import FeedbackMessage
-
 
 def test_import(name,
                 same_as=True,

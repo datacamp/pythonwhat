@@ -3,7 +3,7 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import EqualTest, EquivalentTest, CollectionContainsTest, BiggerTest
 from pythonwhat import utils
-from pythonwhat.feedback import Feedback
+from pythonwhat.Feedback import Feedback
 
 
 def test_operator(index=1,

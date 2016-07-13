@@ -2,7 +2,7 @@ import ast
 import inspect
 from pythonwhat.parsing import FunctionParser, ObjectAccessParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, WithParser
 from pythonwhat.Reporter import Reporter
-from pythonwhat.feedback import Feedback
+from pythonwhat.Feedback import Feedback
 from pythonwhat import utils_ast
 
 class State(object):
