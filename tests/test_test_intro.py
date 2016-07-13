@@ -618,13 +618,13 @@ test_function("numpy.corrcoef", 1, args = [], keywords = [], not_called_msg = "D
 test_object("corr", incorrect_msg = "To assign `corr`, use [`np.corrcoef()`](http://docs.scipy.org/doc/numpy-1.10.0/reference/generated/numpy.corrcoef.html). Make sure to pass it the correct columns of `np_baseball`. You have to pass it two columns.")
 test_function("print", 4, not_called_msg = msg, incorrect_msg = msg)
 
-test_if_else(1, lambda: test_expression_result({"year": 6}, incorrect_msg = "Test if `year > 10`"))
+test_if_else(1, lambda: test_expression_result({"year": 6}, incorrect_msg = "Test if `year > 10`."))
 
 success_msg("Great! Time to use all of your new data science skills in the last exercise!")
         '''
         sct_payload = helper.run(self.data)
         self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], "Test if <code>year &gt; 10</code> in the condition of the first <code>if</code> statement.")
+        self.assertEqual(sct_payload['message'], "Check your code in the condition of the first <code>if</code> statement. Test if <code>year &gt; 10</code>.")
 
 
 if __name__ == "__main__":
