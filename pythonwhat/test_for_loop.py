@@ -81,15 +81,19 @@ def test_for_loop(index=1,
 
     def sub_test(closure, subtree_student, subtree_solution, incorrect_part):
         if closure:
-            failed_before = rep.failed_test
+            if rep.failed_test:
+                return
             child = state.to_child_state(subtree_student, subtree_solution)
             child.context_student = target_student
             child.context_solution = target_solution
             closure()
             child.to_parent_state()
-            if expand_message and (failed_before is not rep.failed_test):
-                rep.feedback = Feedback(rep.feedback.message + " in the " + incorrect_part + \
-                    " of the " + get_ord(index + 1) + " `for` loop.")
+            if rep.failed_test:
+                if expand_message:
+                    rep.feedback.message = ("Check your code in the %s of the %s `for` loop. " % 
+                        (incorrect_part, get_ord(index + 1))) + rep.feedback.message
+                if not rep.feedback.line_info:
+                    rep.feedback = Feedback(rep.feedback.message, subtree_student)
 
     sub_test(for_iter, for_iter_student, for_iter_solution, "sequence part")
     sub_test(body, body_student, body_solution, "body")

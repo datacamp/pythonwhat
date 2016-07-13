@@ -87,7 +87,7 @@ else:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("you did something wrong in the body of the first", sct_payload['message'])
+        self.assertIn("Check your code in the body of the first <code>if</code> statement. you did something wrong", sct_payload['message'])
         self.assertEqual(sct_payload['line_start'], 7)
         self.assertEqual(sct_payload['line_end'], 7)
         self.assertEqual(sct_payload['column_start'], 5)
@@ -107,7 +107,7 @@ else:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("you did something wrong in the body of the first", sct_payload['message'])
+        self.assertIn("Check your code in the body of the first <code>if</code> statement. you did something wrong", sct_payload['message'])
         self.assertEqual(sct_payload['line_start'], 7)
         self.assertEqual(sct_payload['line_end'], 8)
         self.assertEqual(sct_payload['column_start'], 5)
