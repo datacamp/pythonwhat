@@ -72,14 +72,22 @@ class Reporter(object):
                 "tags": {"fun": "runtime_error"}})
 
         if self.failed_test:
-            return({
-                "correct": False,
-                "message": Reporter.to_html(self.feedback.message),
-                "line_start": self.feedback.line_start,
-                "column_start": self.feedback.column_start + 1 if self.feedback.column_start else None,
-                "line_end": self.feedback.line_end,
-                "column_end": self.feedback.column_end,
-                "tags": self.tags})
+            if not self.feedback.line_info:
+                return({
+                    "correct": False,
+                    "message": Reporter.to_html(self.feedback.message),
+                    "tags": self.tags})
+            else:
+                return({
+                    "correct": False,
+                    "message": Reporter.to_html(self.feedback.message),
+                    "line_start": self.feedback.line_info["line_start"],
+                    "column_start": self.feedback.line_info["column_start"] + 1,
+                    "line_end": self.feedback.line_info["line_end"],
+                    "column_end": self.feedback.line_info["column_end"],
+                    "tags": self.tags})
+                
+            
         else:
             return({
                 "correct": True,
@@ -88,7 +96,7 @@ class Reporter(object):
 
     def build_syntax_error_payload(self, err_obj):
         if (issubclass(type(err_obj), IndentationError)):
-            msg = "Your code can not be exceuted due to an error in the indentation: %s." % str(err_obj)
+            msg = "Your code can not be executed due to an error in the indentation: %s." % str(err_obj)
         else:
             msg = "Your code can not be executed due to a syntax error: %s." % str(err_obj)
 

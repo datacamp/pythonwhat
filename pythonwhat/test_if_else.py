@@ -78,20 +78,27 @@ def test_if_else(index=1,
     try:
         test_student, body_student, orelse_student = student_ifs[index]
     except:
-        rep.do_test(Test("Define more `if` statements."))
+        rep.do_test(Test("The system wants to check the %s if statement, but it hasn't found it. Have another look at your code." % get_ord(index + 1)))
         return
 
     test_solution, body_solution, orelse_solution = solution_ifs[index]
-
+    
     def sub_test(closure, subtree_student, subtree_solution, incorrect_part):
         if closure:
-            failed_before = rep.failed_test
+            if rep.failed_test:
+                return
             child = state.to_child_state(subtree_student, subtree_solution)
             closure()
             child.to_parent_state()
-            if expand_message and (failed_before is not rep.failed_test):
-                rep.feedback = Feedback(rep.feedback.message + " in the " + incorrect_part + \
-                    " of the " + get_ord(index + 1) + " `if` statement.")
+            if rep.failed_test:
+                if expand_message:
+                    rep.feedback.message = rep.feedback.message + " in the " + incorrect_part + \
+                        " of the " + get_ord(index + 1) + " `if` statement."
+                if not rep.feedback.line_info:
+                    rep.feedback = Feedback(rep.feedback.message, subtree_student)
+
+                
+
 
     sub_test(test, test_student, test_solution, "condition")
     sub_test(body, body_student, body_solution, "body")
