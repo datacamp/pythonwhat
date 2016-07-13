@@ -85,8 +85,8 @@ def test_with(index,
             context_test()
             child.to_parent_state()
             if expand_message and (failed_before is not rep.failed_test):
-                rep.feedback = Feedback(("Check the %s context in the %s `with` statement. " % (utils.get_ord(i+1), utils.get_ord(index + 1))) + \
-                    rep.feedback.message)
+                rep.feedback.message = ("Check the %s context in the %s `with` statement. " % (utils.get_ord(i+1), utils.get_ord(index + 1))) + \
+                    rep.feedback.message
     if rep.failed_test:
         return
 
@@ -129,8 +129,8 @@ def test_with(index,
                     "not using the context manager correctly." % (utils.get_ord(index + 1))))
         child.to_parent_state()
         if expand_message and (failed_before is not rep.failed_test):
-            rep.feedback = Feedback(("Check the body of the %s `with` statement. " % utils.get_ord(index + 1)) + \
-                rep.feedback.message)
+            rep.feedback.message = ("Check the body of the %s `with` statement. " % utils.get_ord(index + 1)) + \
+                rep.feedback.message
 
 def context_env_update(context_list, env):
     env_update = {}

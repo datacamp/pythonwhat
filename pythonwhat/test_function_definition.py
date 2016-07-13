@@ -163,8 +163,8 @@ def test_function_definition(name,
         body()
         child.to_parent_state()
         if expand_message and (failed_before is not rep.failed_test):
-            rep.feedback = Feedback(("In your definition of `%s()`, " % name) + \
-                utils.first_lower(rep.feedback.message))
+            rep.feedback.message = ("In your definition of `%s()`, " % name) + \
+                utils.first_lower(rep.feedback.message)
     if rep.failed_test:
         return
 
