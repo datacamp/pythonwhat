@@ -22,6 +22,13 @@ def get_times(num):
     else:
         return("%d times" % num)
 
+def get_num(num):
+    nums = {0:"no", 1:"one", 2:"two", 3:"three", 4:"four", 5:"five", 6:"six", 7:"seven", 8:"eight"}
+    if num in nums:
+        return(nums[num])
+    else:
+        return(str(num))    
+
 def copy_env(env, keep_objs=None):
     if keep_objs is None:
         keep_objs = []

@@ -4,7 +4,7 @@ from pythonwhat.Test import Test, DefinedTest, EqualTest, EquivalentTest, Bigger
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Fb import Feedback
-from pythonwhat.utils import get_ord
+from pythonwhat.utils import get_ord, get_num
 
 def test_function(name,
                   index=1,
@@ -13,6 +13,7 @@ def test_function(name,
                   eq_condition="equal",
                   do_eval=True,
                   not_called_msg=None,
+                  args_not_specified_msg=None,
                   incorrect_msg=None):
     """Test if function calls match.
 
@@ -30,9 +31,10 @@ def test_function(name,
         eq_condition (str): The condition which is checked on the eval of the group. Can be "equal" --
           meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
           can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
-        do_eval (bool): Boolean representing whether the group should be evaluated and compared or not.
-          Defaults to True.
+        do_eval (bool): True: arguments are evaluated and compared. False: arguments are not evaluated but
+            'string-matched'. None: arguments are not evaluated; it is only checked if they are specified.
         not_called_msg (str): feedback message if the function is not called.
+        args_not_specified_msg (str): feedback message if the function is called but not all required arguments are specified
         incorrect_msg (str): feedback message if the arguments of the function in the solution doesn't match
           the one of the student.
 
@@ -162,16 +164,35 @@ def test_function(name,
             args_student, keyw_student = student_calls[name][call_ind]
             keyw_student = {keyword.arg: keyword.value for keyword in keyw_student}
 
+            success = True
+            start = "Have you specified all required arguments inside `%s()` function?" % name
+
             if len(args) > len(args_student):
+                if not args_not_specified_msg:        
+                    n = len(arguments)
+                    if n == 1:
+                        args_not_specified_msg = start + " You should specify one argument without naming it."
+                    else:
+                        args_not_specified_msg = start + (" You should specify %s arguments without naming them." % get_num(n))
+                feedback = Feedback(args_not_specified_msg)
+                success = False
                 continue
 
-            if len(set(keywords)) > 0 and not set(
-                    keywords).issubset(set(keyw_student.keys())):
+            setdiff = list(set(keywords) - set(keyw_student.keys()))
+            if len(setdiff) > 0:
+                if not args_not_specified_msg:
+                    args_not_specified_msg = start + " You should specify the keyword `%s` explicitly by its name." % setdiff[0]
+
+                feedback = Feedback(args_not_specified_msg)
+                success = False
                 continue
+
+            if do_eval is None:
+                # don't have to go further: set used and break from the for loop
+                state.set_used(name, call_ind, index)
+                break
 
             feedback_msg = "Did you call `%s()` with the correct arguments?" % stud_name
-
-            success = True
             for arg in args:
                 arg_student = args_student[arg]
                 arg_solution = args_solution[arg]
@@ -212,3 +233,20 @@ def test_function(name,
         if not success:
             rep.do_test(Test(feedback))
 
+
+def build_args_not_specified_msg(name, arguments, keywords):
+    
+    n = len(arguments)
+    if n == 0:
+        pass
+    elif n == 1:
+        return(start + " You should specify one argument without naming it.")
+    else:
+        return(start + " You should specify %s arguments without naming them" % get_num(n))
+
+    m = len(keywords)
+    if m == 0:
+        return(start)
+    else:
+        return(start + " You should specify the keyword `%s` explicitly by its name" % keywords[0])
+        
