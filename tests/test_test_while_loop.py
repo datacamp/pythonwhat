@@ -41,11 +41,8 @@ while offset != 4 :
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check your code in the condition of the first <code>while</code> loop", sct_payload['message'])
-        self.assertIn("Unexpected expression", sct_payload['message'])        
-        self.assertEqual(sct_payload['line_start'], 3)
-        self.assertEqual(sct_payload['line_end'], 3)
-        self.assertEqual(sct_payload['column_start'], 7)
-        self.assertEqual(sct_payload['column_end'], 17)
+        self.assertIn("Unexpected expression", sct_payload['message'])
+        helper.test_lines(self, sct_payload, 3, 3, 7, 17)
 
     def test_Fail2(self):
         self.data["DC_CODE"] = '''
@@ -57,10 +54,7 @@ while offset != 0 :
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check your code in the body of the first <code>while</code> loop", sct_payload['message'])
         self.assertIn("Are you sure you assigned the correct value to <code>offset</code>", sct_payload['message'])        
-        self.assertEqual(sct_payload['line_start'], 4)
-        self.assertEqual(sct_payload['line_end'], 4)
-        self.assertEqual(sct_payload['column_start'], 5)
-        self.assertEqual(sct_payload['column_end'], 23)
+        helper.test_lines(self, sct_payload, 4, 4, 5, 23)
 
 if __name__ == "__main__":
     unittest.main()

@@ -38,7 +38,7 @@ class TestExercise1(unittest.TestCase):
         self.assertEqual(sct_payload['message'], 'Did you call <code>np.sum()</code> with the correct arguments? The first argument seems to be incorrect. Expected <code>[5, 2, 4, 9]</code>, but got <code>[5, 2, 3]</code>.')
 
     def test_Fail3(self):
-        self.data["DC_SCT"] = 'test_correct(lambda: test_object('test'), lambda: test_function('numpy.sum', args=[]))'
+        self.data["DC_SCT"] = "test_correct(lambda: test_object('test'), lambda: test_function('numpy.sum', args=[]))"
         self.data["DC_CODE"] = 'test = np.sum([5, 2, 3])'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])

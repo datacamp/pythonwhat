@@ -1,5 +1,6 @@
 import unittest
 from pythonbackend.Exercise import Exercise
+import helper
 
 class TestTestExerciseError(unittest.TestCase):
 
@@ -72,10 +73,7 @@ class TestTestExerciseError(unittest.TestCase):
 		output = self.exercise.runSubmit(self.data)
 		self.assertEqual(output[0]['type'], 'sct')
 		self.assertFalse(output[0]['payload']['correct'])
-		self.assertFalse('line_start' in output[0]['payload'])
-		self.assertFalse('line_end' in output[0]['payload'])
-		self.assertFalse('column_start' in output[0]['payload'])
-		self.assertFalse('column_end' in output[0]['payload'])
+		helper.test_absent_lines(self, output[0]['payload'])
 
 if __name__ == "__main__":
     unittest.main()

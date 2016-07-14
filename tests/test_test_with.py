@@ -49,10 +49,7 @@ success_msg("Nice work!")
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check the body of the first <code>with</code> statement.", sct_payload['message'])
         # line info should be specific to test_function
-        self.assertEqual(sct_payload['line_start'], 6)
-        self.assertEqual(sct_payload['line_end'], 6)
-        self.assertEqual(sct_payload['column_start'], 11)
-        self.assertEqual(sct_payload['column_end'], 16)
+        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
 
     def test_Fail2(self):
         self.data["DC_SCT"] = '''
@@ -63,10 +60,7 @@ success_msg("Nice work!")
         self.assertFalse(sct_payload['correct'])
         self.assertNotIn("Check the body of the first <code>with</code>.", sct_payload['message'])
         # line info should be specific to test_function
-        self.assertEqual(sct_payload['line_start'], 6)
-        self.assertEqual(sct_payload['line_end'], 6)
-        self.assertEqual(sct_payload['column_start'], 11)
-        self.assertEqual(sct_payload['column_end'], 16)
+        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
 
     def test_Pass1(self):
         self.data["DC_SCT"] = '''
@@ -123,10 +117,7 @@ success_msg("Nice work!")
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "In your first <code>with</code> statement, make sure to use the correct number of context variables. It seems you defined too many.")
-        self.assertEqual(sct_payload['line_start'], 3)
-        self.assertEqual(sct_payload['line_end'], 6)
-        self.assertEqual(sct_payload['column_start'], 1)
-        self.assertEqual(sct_payload['column_end'], 17)
+        helper.test_lines(self, sct_payload, 3, 6, 1, 17)
 
     def test_Fail2(self):
         self.data["DC_SCT"] = '''
@@ -136,10 +127,7 @@ success_msg("Nice work!")
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "In your second <code>with</code> statement, make sure to use the correct context variable names. Was expecting <code>file</code> but got <code>not_file</code>.")
-        self.assertEqual(sct_payload['line_start'], 12)
-        self.assertEqual(sct_payload['line_end'], 15)
-        self.assertEqual(sct_payload['column_start'], 1)
-        self.assertEqual(sct_payload['column_end'], 22)
+        helper.test_lines(self, sct_payload, 12, 15, 1, 22)
 
 class TestExercise3(unittest.TestCase):
 
@@ -197,10 +185,7 @@ success_msg("Nice work!")
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "In your first <code>with</code> statement, make sure to use the correct number of context variables. It seems you defined too little.")
-        self.assertEqual(sct_payload['line_start'], 3)
-        self.assertEqual(sct_payload['line_end'], 6)
-        self.assertEqual(sct_payload['column_start'], 1)
-        self.assertEqual(sct_payload['column_end'], 17)
+        helper.test_lines(self, sct_payload, 3, 6, 1, 17)
 
     def test_Fail2(self):
         self.data["DC_SCT"] = '''
@@ -212,10 +197,7 @@ success_msg("Nice work!")
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Check the second context in the second <code>with</code> statement. Did you call <code>open()</code> with the correct arguments? The first argument seems to be incorrect. Expected <code>'not_moby_dick.txt'</code>, but got <code>'moby_dick.txt'</code>.")
-        self.assertEqual(sct_payload['line_start'], 12)
-        self.assertEqual(sct_payload['line_end'], 12)
-        self.assertEqual(sct_payload['column_start'], 46)
-        self.assertEqual(sct_payload['column_end'], 60)
+        helper.test_lines(self, sct_payload, 12, 12, 46, 60)
 
 class TestExercise4(unittest.TestCase):
 

@@ -38,11 +38,8 @@ shout( 'help' )
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "In your definition of <code>shout()</code>, make sure to output the correct string.")
-        self.assertEqual(sct_payload['line_start'], 3)
-        self.assertEqual(sct_payload['line_end'], 4)
-        self.assertEqual(sct_payload['column_start'], 5)
-        self.assertEqual(sct_payload['column_end'], 30)
-
+        helper.test_lines(self, sct_payload, 3, 4, 5, 30)
+        
 class TestExercise2(unittest.TestCase):
 
     def setUp(self):
@@ -78,10 +75,7 @@ success_msg("Nice work!")
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "You should define <code>shout()</code> with 2 arguments, instead got 1.")
-        self.assertEqual(sct_payload['line_start'], 2)
-        self.assertEqual(sct_payload['line_end'], 4)
-        self.assertEqual(sct_payload['column_start'], 1)
-        self.assertEqual(sct_payload['column_end'], 23)
+        helper.test_lines(self, sct_payload, 2, 4, 1, 23)
 
 class TestExercise3(unittest.TestCase):
 
@@ -108,10 +102,7 @@ test_function_definition('shout')
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['line_start'], 2)
-        self.assertEqual(sct_payload['line_end'], 5)
-        self.assertEqual(sct_payload['column_start'], 1)
-        self.assertEqual(sct_payload['column_end'], 23)
+        helper.test_lines(self, sct_payload, 2, 5, 1, 23)
 
     def test_Pass1(self):
         self.data["DC_SCT"] = '''
@@ -221,10 +212,7 @@ success_msg("Nice work!")
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'You should define <code>shout()</code> with 3 arguments, instead got 2.')
-        self.assertEqual(sct_payload['line_start'], 2)
-        self.assertEqual(sct_payload['line_end'], 6)
-        self.assertEqual(sct_payload['column_start'], 1)
-        self.assertEqual(sct_payload['column_end'], 20)
+        helper.test_lines(self, sct_payload, 2, 6, 1, 20)
 
 class TestExercise6(unittest.TestCase):
     def setUp(self):
@@ -311,10 +299,7 @@ def to_decimal(number, base = 3):
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'In your definition of <code>to_decimal()</code>, the 2nd argument should have <code>2</code> as default, instead got <code>3</code>.')
-        self.assertEqual(sct_payload['line_start'], 2)
-        self.assertEqual(sct_payload['line_end'], 8)
-        self.assertEqual(sct_payload['column_start'], 1)
-        self.assertEqual(sct_payload['column_end'], 18)
+        helper.test_lines(self, sct_payload, 2, 8, 1, 18)
 
     def test_Fail2(self):
         self.data["DC_CODE"] = '''
@@ -353,7 +338,6 @@ test_function_definition(
         self.data["DC_CODE"] = '''
 def shout():
     shout_word = 'congratulations' + '!!!'
-    print(shout_word)
         '''
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
@@ -362,15 +346,12 @@ def shout():
         self.data["DC_CODE"] = '''
 def shout():
     shout_word = 'congratulations' + '!!'
-    print(shout_word)
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, are you sure you assigned the correct value to <code>shout_word</code>?')
-        self.assertEqual(sct_payload['line_start'], 3)
-        self.assertEqual(sct_payload['line_end'], 4)
-        self.assertEqual(sct_payload['column_start'], 5)
-        self.assertEqual(sct_payload['column_end'], 21)
+        # line info specific to test_object_after_expression!
+        helper.test_lines(self, sct_payload, 3, 3, 5, 41)
 
 class TestExercise9(unittest.TestCase):
 
@@ -401,13 +382,6 @@ test_function_definition("shout", arg_names = False, arg_defaults = False, # Alr
         body = lambda: [
             set_extra_env(extra_env={'shout_word': "congratulations"}),
             test_function("print", incorrect_msg = "You should use the `print()` function with the correct argument.")])
-
-test_function_definition("shout", arg_names = False, arg_defaults = False,
-    outputs = [('congratulations!!!')])
-
-test_function("shout")
-test_output_contains("congratulations!!!", pattern = False)
-success_msg("Great work!")
 '''
         }
 
@@ -422,27 +396,18 @@ shout('congratulations')
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, you should use the <code>print()</code> function with the correct argument.')
         # line info specific to test_function!
-        self.assertEqual(sct_payload['line_start'], 4)
-        self.assertEqual(sct_payload['line_end'], 4)
-        self.assertEqual(sct_payload['column_start'], 11)
-        self.assertEqual(sct_payload['column_end'], 26)     
+        helper.test_lines(self, sct_payload, 4, 4, 11, 26)
 
     def test_Fail2(self):
         self.data["DC_CODE"] = '''
 def shout(word):
     shout_word = 'congratulations' + '!!'
-    print(shout_word)
-
-shout()
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, are you sure you assigned the correct value to <code>shout_word</code>?')
-        self.assertEqual(sct_payload['line_start'], 3)
-        self.assertEqual(sct_payload['line_end'], 4)
-        self.assertEqual(sct_payload['column_start'], 5)
-        self.assertEqual(sct_payload['column_end'], 21)
-
+        # line info specific to test_object_after_expression!
+        helper.test_lines(self, sct_payload, 3, 3, 5, 41)
 
 if __name__ == "__main__":
     unittest.main()

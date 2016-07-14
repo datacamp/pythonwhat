@@ -580,10 +580,7 @@ class TestLineNumbers(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Did you call <code>round()</code> with the correct arguments? The first argument seems to be incorrect. Expected <code>1.23456</code>, but got <code>1.34567</code>.")
-        self.assertEqual(sct_payload['line_start'], 1)
-        self.assertEqual(sct_payload['line_end'], 1)
-        self.assertEqual(sct_payload['column_start'], 7)
-        self.assertEqual(sct_payload['column_end'], 13)
+        helper.test_lines(self, sct_payload, 1, 1, 7, 13)
 
     def test_line_numbers(self):
         self.data = {"DC_PEC": '',
@@ -593,10 +590,7 @@ class TestLineNumbers(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Did you call <code>round()</code> with the correct arguments? Keyword <code>ndigits</code> seems to be incorrect. Expected <code>1</code>, but got <code>3</code>.")
-        self.assertEqual(sct_payload['line_start'], 1)
-        self.assertEqual(sct_payload['line_end'], 1)
-        self.assertEqual(sct_payload['column_start'], 26)
-        self.assertEqual(sct_payload['column_end'], 26)
+        helper.test_lines(self, sct_payload, 1, 1, 26, 26)
 
 class TestFunctionNested(unittest.TestCase):
     def test_nested1(self):

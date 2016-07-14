@@ -345,21 +345,14 @@ class TestExercise6(unittest.TestCase):
             "DC_PEC": '''
 from sqlalchemy import create_engine
 import pandas as pd
-#
 engine = create_engine('sqlite:///Chinook.sqlite')
             ''',
             "DC_CODE": '''
-# Open engine in context manager
-# Perform query and save results to dataframe: df
 with engine.connect() as con:
         rs = con.execute("SELECT LastName, Title FROM Employee")
         df = pd.DataFrame(rs.fetchmany(size=3))
         df.columns = rs.keys()
-
-# Print the length of the dataframe df
 print(len(df))
-
-#Print the head of the dataframe df
 print(df.head())
             ''',
             "DC_SOLUTION": '''
@@ -369,11 +362,7 @@ with engine.connect() as con:
         rs = con.execute("SELECT LastName, Title FROM Employee")
         df = pd.DataFrame(rs.fetchmany(size=3))
         df.columns = rs.keys()
-
-# Print the length of the dataframe df
 print(len(df))
-
-#Print the head of the dataframe df
 print(df.head())
 '''
         }
@@ -411,7 +400,6 @@ test_with(
 predef_msg = "You don't have to change any of the predefined code."
 test_function("print", index = 1, incorrect_msg = predef_msg)
 test_function("print", index = 2, incorrect_msg = predef_msg)
-
 success_msg("Awesome!")
         '''
         sct_payload = helper.run(self.data)

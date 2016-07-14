@@ -262,13 +262,25 @@ class ObjectAssignmentParser(Parser):
 
     def __init__(self):
         self.assignments = {}
+        self.active_assignment = None
+
+    def visit_Name(self, node):
+        if node.id not in self.assignments:
+            self.assignments[node.id] = [self.active_assignment]
+        else:
+            self.assignments[node.id].append(self.active_assignment)
+        self.active_node = None
+
+    def visit_Attribute(self, node):
+        self.visit(node.value)
 
     def visit_Assign(self, node):
-        for target in node.targets:
-            self.add(target, node)
+        self.active_assignment = node
+        self.visit_each(node.targets)
 
     def visit_AugAssign(self, node):
-        self.add(node.target, node)
+        self.active_assignment = node
+        self.visit(node.target)
 
     def visit_If(self, node):
         self.visit_each(node.body)
@@ -292,12 +304,6 @@ class ObjectAssignmentParser(Parser):
     def visit_TryFinally(self, node):
         self.visit_each(node.body)
         self.visit_each(node.finalbody)
-
-    def add(self, target, node):
-        if target.id not in self.assignments:
-            self.assignments[target.id] = [node]
-        else:
-            self.assignments[target.id].append(node)
 
 class IfParser(Parser):
     """Find if structures.

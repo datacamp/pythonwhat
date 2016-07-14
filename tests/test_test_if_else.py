@@ -69,10 +69,7 @@ else:
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Unexpected expression", sct_payload['message'])
-        self.assertEqual(sct_payload['line_start'], 6)
-        self.assertEqual(sct_payload['line_end'], 6)
-        self.assertEqual(sct_payload['column_start'], 4)
-        self.assertEqual(sct_payload['column_end'], 14)
+        helper.test_lines(self, sct_payload, 6, 6, 4, 14)
 
     def test_Fail2(self):
         self.data["DC_CODE"] = '''
@@ -88,10 +85,7 @@ else:
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check your code in the body of the first <code>if</code> statement. you did something wrong", sct_payload['message'])
-        self.assertEqual(sct_payload['line_start'], 7)
-        self.assertEqual(sct_payload['line_end'], 7)
-        self.assertEqual(sct_payload['column_start'], 5)
-        self.assertEqual(sct_payload['column_end'], 9)
+        helper.test_lines(self, sct_payload, 7, 7, 5, 9)
 
     def test_Fail2a(self):
         self.data["DC_CODE"] = '''
@@ -108,10 +102,7 @@ else:
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check your code in the body of the first <code>if</code> statement. you did something wrong", sct_payload['message'])
-        self.assertEqual(sct_payload['line_start'], 7)
-        self.assertEqual(sct_payload['line_end'], 8)
-        self.assertEqual(sct_payload['column_start'], 5)
-        self.assertEqual(sct_payload['column_end'], 10)
+        helper.test_lines(self, sct_payload, 7, 8, 5, 10)
 
     def test_Fail3(self):
         self.data["DC_CODE"] = '''
@@ -127,10 +118,7 @@ else:
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Have you called <code>round()</code>", sct_payload["message"])
-        self.assertEqual(sct_payload['line_start'], 9)
-        self.assertEqual(sct_payload['line_end'], 9)
-        self.assertEqual(sct_payload['column_start'], 5)
-        self.assertEqual(sct_payload['column_end'], 9)
+        helper.test_lines(self, sct_payload, 9, 9, 5, 9)
 
     def test_Fail3b(self):
         self.data["DC_CODE"] = '''
@@ -146,10 +134,7 @@ else:
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         # should give line numbers of more detailed test_function test.
-        self.assertEqual(sct_payload['line_start'], 9)
-        self.assertEqual(sct_payload['line_end'], 9)
-        self.assertEqual(sct_payload['column_start'], 15)
-        self.assertEqual(sct_payload['column_end'], 23)
+        helper.test_lines(self, sct_payload, 9, 9, 15, 23)
 
 
 class TestIfElseEmbedded(unittest.TestCase):
@@ -226,10 +211,7 @@ else:
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Unexpected expression", sct_payload['message'])
-        self.assertEqual(sct_payload['line_start'], 3)
-        self.assertEqual(sct_payload['line_end'], 3)
-        self.assertEqual(sct_payload['column_start'], 4)
-        self.assertEqual(sct_payload['column_end'], 13)
+        helper.test_lines(self, sct_payload, 3, 3, 4, 13)
 
     def test_fail_if_body(self):
         self.data["DC_CODE"] = '''
@@ -244,10 +226,7 @@ else:
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "incorrect_if")
-        self.assertEqual(sct_payload['line_start'], 4)
-        self.assertEqual(sct_payload['line_end'], 4)
-        self.assertEqual(sct_payload['column_start'], 5)
-        self.assertEqual(sct_payload['column_end'], 9)
+        helper.test_lines(self, sct_payload, 4, 4, 5, 9)
 
     def test_fail_elif_cond(self):
         self.data["DC_CODE"] = '''
@@ -262,10 +241,7 @@ else:
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Unexpected expression", sct_payload['message'])
-        self.assertEqual(sct_payload['line_start'], 5)
-        self.assertEqual(sct_payload['line_end'], 5)
-        self.assertEqual(sct_payload['column_start'], 6)
-        self.assertEqual(sct_payload['column_end'], 15)
+        helper.test_lines(self, sct_payload, 5, 5, 6, 15)
 
     def test_fail_elif_body(self):
         self.data["DC_CODE"] = '''
@@ -280,10 +256,7 @@ else:
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "incorrect_elif")
-        self.assertEqual(sct_payload['line_start'], 6)
-        self.assertEqual(sct_payload['line_end'], 6)
-        self.assertEqual(sct_payload['column_start'], 5)
-        self.assertEqual(sct_payload['column_end'], 9)
+        helper.test_lines(self, sct_payload, 6, 6, 5, 9)
 
     def test_fail_else_body(self):
         self.data["DC_CODE"] = '''
@@ -299,10 +272,7 @@ else:
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>round()</code> with the correct arguments?", sct_payload['message'])
         # should be localized
-        self.assertEqual(sct_payload['line_start'], 8)
-        self.assertEqual(sct_payload['line_end'], 8)
-        self.assertEqual(sct_payload['column_start'], 15)
-        self.assertEqual(sct_payload['column_end'], 16)
+        helper.test_lines(self, sct_payload, 8, 8, 15, 16)
 
 if __name__ == "__main__":
     unittest.main()

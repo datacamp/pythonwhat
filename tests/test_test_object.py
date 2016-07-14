@@ -180,6 +180,40 @@ if True:
         self.assertEqual(sct_payload['message'], "The contents of <code>i</code> aren't correct.")
         helper.test_absent_lines(self, sct_payload)
 
+
+class TestTestObjectDifferentAssignments(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '',
+            "DC_CODE": '''
+import pandas as pd
+df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+df.columns = ["c", "d"]
+
+df2 = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+df2.columns = ["e", "f"]
+            ''',
+            "DC_SOLUTION": '''
+import pandas as pd
+df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+df.columns = ["c", "d"]
+
+df2 = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+df2.columns = ["c", "d"]
+            '''
+            }
+
+    def test_pass(self):
+        self.data["DC_SCT"] = 'test_object("df")'
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail(self):
+        self.data["DC_SCT"] = 'test_object("df2")'
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        helper.test_absent_lines(self, sct_payload)
+
 # class TestTestObjectAttribute1(unittest.TestCase):
 #     def setUp(self):
 #         self.data = {
@@ -199,10 +233,7 @@ if True:
 #         sct_payload = helper.run(self.data)
 #         self.assertFalse(sct_payload['correct'])
 #         self.assertEqual(sct_payload['message'], "The contents of <code>arr.shape</code> aren't correct.")
-#         self.assertFalse('line_start' in sct_payload)
-#         self.assertFalse('line_end' in sct_payload)
-#         self.assertFalse('column_start' in sct_payload)
-#         self.assertFalse('column_end' in sct_payload)
+#         helper.test_absent_lines(self, sct_payload)
 
 #     def test_pass(self):
 #         self.data["DC_SCT"] = 'test_object("np.dtype")'
@@ -240,20 +271,14 @@ if True:
 #         sct_payload = helper.run(self.data)
 #         self.assertFalse(sct_payload['correct'])
 #         self.assertEqual(sct_payload['message'], "Have you defined <code>tryobj.savings</code>?")
-#         self.assertFalse('line_start' in sct_payload)
-#         self.assertFalse('line_end' in sct_payload)
-#         self.assertFalse('column_start' in sct_payload)
-#         self.assertFalse('column_end' in sct_payload)
+#         helper.test_absent_lines(self, sct_payload)
 
 #     def test_fail_incorr(self):
 #         self.data["DC_SCT"] = 'test_object("tryobj.savings2")'
 #         sct_payload = helper.run(self.data)
 #         self.assertFalse(sct_payload['correct'])
 #         self.assertEqual(sct_payload['message'], "The contents of <code>tryobj.savings2</code> aren't correct.")
-#         self.assertFalse('line_start' in sct_payload)
-#         self.assertFalse('line_end' in sct_payload)
-#         self.assertFalse('column_start' in sct_payload)
-#         self.assertFalse('column_end' in sct_payload)
+#         helper.test_absent_lines(self, sct_payload)
 
 #     def test_pass(self):
 #         self.data["DC_SCT"] = 'test_object("tryobj.savings3")'

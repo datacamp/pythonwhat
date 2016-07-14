@@ -43,10 +43,7 @@ for i in range(20):
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check your code in the sequence part of the first <code>for</code> loop", sct_payload['message'])
         self.assertIn("Did you call <code>range()</code> with the correct arguments?", sct_payload['message'])
-        self.assertEqual(sct_payload['line_start'], 3)
-        self.assertEqual(sct_payload['line_end'], 3)
-        self.assertEqual(sct_payload['column_start'], 16)
-        self.assertEqual(sct_payload['column_end'], 17)
+        helper.test_lines(self, sct_payload, 3, 3, 16, 17)
 
     def test_Fail2(self):
         self.data["DC_CODE"] = '''
@@ -58,11 +55,9 @@ for i in range(10):
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check your code in the body of the first <code>for</code> loop", sct_payload['message'])
-        self.assertIn("Are you sure you assigned the correct value to <code>size</code>?", sct_payload['message']) 
-        self.assertEqual(sct_payload['line_start'], 4)
-        self.assertEqual(sct_payload['line_end'], 5)
-        self.assertEqual(sct_payload['column_start'], 5)
-        self.assertEqual(sct_payload['column_end'], 27)
+        self.assertIn("Are you sure you assigned the correct value to <code>size</code>?", sct_payload['message'])
+        # should be detailed
+        helper.test_lines(self, sct_payload, 4, 4, 5, 23)
 
 class TestForLoop2(unittest.TestCase):
 
@@ -104,10 +99,7 @@ for test in enumerate(areas) :
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check your code in the body of the first <code>for</code> loop", sct_payload['message'])
         self.assertIn("blabla", sct_payload['message']) 
-        self.assertEqual(sct_payload['line_start'], 4)
-        self.assertEqual(sct_payload['line_end'], 4)
-        self.assertEqual(sct_payload['column_start'], 5)
-        self.assertEqual(sct_payload['column_end'], 67)
+        helper.test_lines(self, sct_payload, 4, 4, 5, 67)
 
 if __name__ == "__main__":
     unittest.main()
