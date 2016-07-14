@@ -17,12 +17,25 @@ class TestTestObjectBasic(unittest.TestCase):
         self.assertEqual(sct_payload['message'], "Have you defined <code>savings</code>?")
         helper.test_absent_lines(self, sct_payload)
 
+    def test_fail_undef_custom(self):
+        self.data["DC_SCT"] = 'test_object("savings", undefined_msg = "blabla")'
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "blabla")
+        helper.test_absent_lines(self, sct_payload)
 
     def test_fail_incorr(self):
         self.data["DC_SCT"] = 'test_object("savings2")'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "The contents of <code>savings2</code> aren't correct.")
+        helper.test_lines(self, sct_payload, 1, 1, 1, 14)
+
+    def test_fail_incorr_custom(self):
+        self.data["DC_SCT"] = 'test_object("savings2", incorrect_msg = "blabla")'
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "blabla")
         helper.test_lines(self, sct_payload, 1, 1, 1, 14)
 
     def test_fail_incorr2(self):
