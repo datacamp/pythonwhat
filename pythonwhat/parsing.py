@@ -253,9 +253,50 @@ class ObjectAccessParser(FunctionParser):
         self.current = ''
 
 class ObjectAssignmentParser(Parser):
+    """Find object assignmnts
+
+    A parser which inherits from the basic parser to find object assignments.
+    All assignments at top-level, as well as in if, while, for and with statements are found.
+    """
 
     def __init__(self):
         self.assignments = {}
+
+    def visit_Assign(self, node):
+        for target in node.targets:
+            self.add(target, node)
+
+    def visit_AugAssign(self, node):
+        self.add(node.target, node)
+
+    def visit_If(self, node):
+        self.visit(ast.Module(node.body))
+        self.visit(ast.Module(node.orelse))
+
+    def visit_While(self, node):
+        self.visit(ast.Module(node.body))
+        self.visit(ast.Module(node.orelse))
+
+    def visit_For(self, node):
+        self.visit(ast.Module(node.body))
+        self.visit(ast.Module(node.orelse))
+
+    def visit_With(self, node):
+        self.visit(ast.Module(node.body))
+
+    def visit_Try(self, node):
+        self.visit(ast.Module(node.body))
+        self.visit(ast.Module(node.finalbody))
+
+    def visit_TryFinally(self, node):
+        self.visit(ast.Module(node.body))
+        self.visit(ast.Module(node.finalbody))
+
+    def add(self, target, node):
+        if target.id not in self.assignments:
+            self.assignments[target.id] = [node]
+        else:
+            self.assignments[target.id].append(node)
 
 class IfParser(Parser):
     """Find if structures.
