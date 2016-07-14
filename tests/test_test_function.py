@@ -680,6 +680,16 @@ class TestFunctionDoEval(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         print(sct_payload)
+        self.assertEqual("Have you specified all required arguments inside <code>round()</code> function? You should specify the keyword <code>ndigits</code> explicitly by its name.", sct_payload['message'])
+
+    def test_do_eval_none_fail2(self):
+        self.data = {"DC_PEC": '',
+             "DC_SOLUTION": "round(123.123)",
+             "DC_CODE": "round(number = 123.123)",
+             "DC_SCT": "test_function('round', do_eval = None)"}
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("Have you specified all required arguments inside <code>round()</code> function? You should specify one argument without naming it.", sct_payload['message'])
 
     def test_do_eval_none_fail2(self):
         self.data = {"DC_PEC": '',
@@ -688,7 +698,6 @@ class TestFunctionDoEval(unittest.TestCase):
              "DC_SCT": "test_function('round', do_eval = None)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        print(sct_payload)
-
+        self.assertEqual("You should specify two arguments without naming them.", sct_payload['message'])
 if __name__ == "__main__":
     unittest.main()

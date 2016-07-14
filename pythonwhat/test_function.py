@@ -169,7 +169,7 @@ def test_function(name,
 
             if len(args) > len(args_student):
                 if not args_not_specified_msg:        
-                    n = len(arguments)
+                    n = len(args)
                     if n == 1:
                         args_not_specified_msg = start + " You should specify one argument without naming it."
                     else:
