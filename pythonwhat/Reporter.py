@@ -1,4 +1,4 @@
-from pythonwhat.Feedback import Feedback
+from pythonwhat.Fb import Feedback
 import re
 import markdown2
 

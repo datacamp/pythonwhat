@@ -62,7 +62,7 @@ test = np.sum([5, 2, 3])
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'Are you sure you assigned the correct value to <code>test</code>?')
+        self.assertEqual(sct_payload['message'], 'The contents of <code>test</code> aren\'t correct.')
 
 if __name__ == "__main__":
     unittest.main()

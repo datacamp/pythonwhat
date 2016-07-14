@@ -78,6 +78,6 @@ def build_strings(undefined_msg, incorrect_msg, name):
         undefined_msg = "Have you defined `" + name + "`?"
 
     if not incorrect_msg:
-        incorrect_msg = "The contents of `" + name + "` are not as expected."
+        incorrect_msg = "The contents of `" + name + "` aren't correct."
 
     return(undefined_msg, incorrect_msg)

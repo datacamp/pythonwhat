@@ -3,7 +3,7 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import Test
 from pythonwhat.utils import get_ord
-from pythonwhat.Feedback import Feedback
+from pythonwhat.Fb import Feedback
 
 def test_while_loop(index=1,
                     test=None,
