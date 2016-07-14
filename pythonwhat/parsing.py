@@ -350,6 +350,7 @@ class WithParser(Parser):
             "context": [{"context_expr" : ast.Expression(item.context_expr),
                 "optional_vars": item.optional_vars and WithParser.get_node_ids_in_list(item.optional_vars)} for item in items],
             "body": ast.Module(node.body),
+            "node": node
         })
 
     def get_node_ids_in_list(node):

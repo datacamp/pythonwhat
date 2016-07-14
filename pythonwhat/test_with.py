@@ -52,7 +52,7 @@ def test_with(index,
             "In your %s `with` statement, make sure to use the correct number of context variables. It seems you defined %s."\
                 % (utils.get_ord(index + 1), enough_contexts_string)
 
-        rep.do_test(EqualTest(len_context_solution, len_context_student, c_context_vals_len_msg))
+        rep.do_test(EqualTest(len_context_solution, len_context_student, Feedback(c_context_vals_len_msg, student_with['node'])))
         if rep.failed_test:
             return
 
@@ -61,7 +61,7 @@ def test_with(index,
                 % (utils.get_ord(index + 1), names_as_string(context_solution['optional_vars']),
                     names_as_string(context_student['optional_vars']))
             rep.do_test(EqualTest(context_solution['optional_vars'], context_student['optional_vars'],
-                c_context_vals_msg))
+                Feedback(c_context_vals_msg, student_with['node'])))
             if rep.failed_test:
                 return
 
@@ -69,6 +69,8 @@ def test_with(index,
         if not isinstance(context_tests, list):
             context_tests = [context_tests]
         for i in range(len(context_tests)):
+            if rep.failed_test:
+                return
             context_test = context_tests[i]
             try:
                 solution_context = solution_with['context'][i]['context_expr']
@@ -77,23 +79,27 @@ def test_with(index,
             try:
                 student_context = student_with['context'][i]['context_expr']
             except:
-                rep.do_test(Test(context_vals_len_msg or "In your %s `with` statement, make sure to use the correct number of context variables. It seems you defined too little."\
-                        % (utils.get_ord(index + 1))))
+                rep.do_test(Test(Feedback(context_vals_len_msg or "In your %s `with` statement, make sure to use the correct number of context variables. It seems you defined too little."\
+                        % (utils.get_ord(index + 1)), student_with['node'])))
                 return
-            failed_before = rep.failed_test
+            if rep.failed_test:
+                return
             child = state.to_child_state(student_context, solution_context)
             context_test()
             child.to_parent_state()
-            if expand_message and (failed_before is not rep.failed_test):
-                rep.feedback.message = ("Check the %s context in the %s `with` statement. " % (utils.get_ord(i+1), utils.get_ord(index + 1))) + \
-                    rep.feedback.message
+            if rep.failed_test:
+                if expand_message:
+                    rep.feedback.message = ("Check the %s context in the %s `with` statement. " % (utils.get_ord(i+1), utils.get_ord(index + 1))) + \
+                        rep.feedback.message
+                if not rep.feedback.line_info:
+                    rep.feedback = Feedback(rep.feedback.message, student_context)
+
     if rep.failed_test:
         return
 
     if body is not None:
         subtree_solution = solution_with['body']
         subtree_student = student_with['body']
-        failed_before = rep.failed_test
         solution_env = {}
         solution_env.update(state.solution_env)
         try:
@@ -107,11 +113,13 @@ def test_with(index,
             student_context_env, student_context_objs = context_env_update(student_with['context'], student_env)
             student_env.update(student_context_env)
         except AttributeError:
-            rep.do_test(Test("In your %s `with` statement, you're not using a correct context manager." % (utils.get_ord(index + 1))))
+            rep.do_test(Test(Feedback("In your %s `with` statement, you're not using a correct context manager." % (utils.get_ord(index + 1)), student_with['node'])))
             return
         except (AssertionError, ValueError, TypeError):
-            rep.do_test(Test("In your %s `with` statement, the number of values in your context manager " + \
-                "doesn't correspond to the number of variables you're trying to assign it to." % (utils.get_ord(index + 1))))
+            rep.do_test(Test(Feedback("In your %s `with` statement, the number of values in your context manager " + \
+                "doesn't correspond to the number of variables you're trying to assign it to." % (utils.get_ord(index + 1)), student_with['node'])))
+            return
+        if rep.failed_test:
             return
         child = state.to_child_state(subtree_student, subtree_solution)
         child.solution_env = solution_env
@@ -125,12 +133,15 @@ def test_with(index,
                     (utils.get_ord(index + 1), close_solution_context))
 
             if context_objs_exit(student_context_objs):
-                rep.do_test(Test("Your %s `with` statement can not be closed off correctly, you're " + \
-                    "not using the context manager correctly." % (utils.get_ord(index + 1))))
+                rep.do_test(Test(Feedback("Your %s `with` statement can not be closed off correctly, you're " + \
+                    "not using the context manager correctly." % (utils.get_ord(index + 1)), student_width['node'])))
         child.to_parent_state()
-        if expand_message and (failed_before is not rep.failed_test):
-            rep.feedback.message = ("Check the body of the %s `with` statement. " % utils.get_ord(index + 1)) + \
-                rep.feedback.message
+        if rep.failed_test:
+            if expand_message and rep.failed_test:
+                rep.feedback.message = ("Check the body of the %s `with` statement. " % utils.get_ord(index + 1)) + \
+                    rep.feedback.message
+            if not rep.feedback.line_info and rep.failed_test:
+                rep.feedback = Feedback(rep.feedback.message, subtree_student)
 
 def context_env_update(context_list, env):
     env_update = {}

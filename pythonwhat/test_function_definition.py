@@ -166,11 +166,12 @@ def test_function_definition(name,
         child.context_student = [arg[0] for arg in args_student]
         body()
         child.to_parent_state()
-        if expand_message:
-            rep.feedback.message = ("In your definition of `%s()`, " % name) + \
-                utils.first_lower(rep.feedback.message)
-        if not rep.feedback.line_info:
-            rep.feedback = Feedback(rep.feedback.message, subtree_student)
+        if rep.failed_test:
+            if expand_message:
+                rep.feedback.message = ("In your definition of `%s()`, " % name) + \
+                    utils.first_lower(rep.feedback.message)
+            if not rep.feedback.line_info:
+                rep.feedback = Feedback(rep.feedback.message, subtree_student)
 
     if rep.failed_test:
         return
