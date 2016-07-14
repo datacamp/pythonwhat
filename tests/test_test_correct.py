@@ -20,28 +20,28 @@ test = np.sum([5, 2, 4, 9])
 test = np.sum([5, 2, 4, 9])
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
     def test_Pass2(self):
         self.data["DC_CODE"] = '''
 test = 20
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
     def test_Pass2(self):
         self.data["DC_CODE"] = '''
 test = np.sum([5, 2, 4, 4, 5])
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
     def test_Fail1(self):
         self.data["DC_CODE"] = '''
 test = 19
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Have you called <code>np.sum()</code>?")
 
 
@@ -50,7 +50,7 @@ test = 19
 test = np.sum([5, 2, 3])
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'Did you call <code>np.sum()</code> with the correct arguments? The first argument seems to be incorrect. Expected <code>[5, 2, 4, 9]</code>, but got <code>[5, 2, 3]</code>.')
 
     def test_Fail3(self):
@@ -61,7 +61,7 @@ test_correct(lambda: test_object('test'), lambda: test_function('numpy.sum', arg
 test = np.sum([5, 2, 3])
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'Are you sure you assigned the correct value to <code>test</code>?')
 
 if __name__ == "__main__":

@@ -62,7 +62,7 @@ test_function("print", index = 2, not_called_msg = msg2, incorrect_msg = msg2 + 
 success_msg("You aced selecting observations from DataFrames; over to selecting both rows and columns!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertIn("For the first printout, use <code>cars.loc['JAP']</code> or <code>cars.iloc[2]</code> in order to select the correct elements.", sct_payload['message'])
 
 class TestExercise2(unittest.TestCase):
@@ -119,7 +119,7 @@ test_if_else(index = 2, test = test)
 success_msg("Great! `big place!` wasn't printed, because `area > 15` is not `True`. Experiment with other values of `room` and `area` to see how the printouts change.")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 class TestExercise3(unittest.TestCase):
 
@@ -195,7 +195,7 @@ test_if_else(index = 2, test = test_second, body = body_second, orelse = else_se
 success_msg("Nice! Again, feel free to play around with different values of `room` and `area` some more. Then, head over to the next exercise, where you'll take this customization one step further!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 class TestExercise4(unittest.TestCase):
 
@@ -221,7 +221,7 @@ if True:
 test_if_else(1, body = lambda : test_expression_output())
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 class TestExercise4(unittest.TestCase):
 
@@ -247,7 +247,7 @@ if True:
 test_if_else(1, body = lambda : test_expression_output())
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 class TestExercise5(unittest.TestCase):
 
@@ -298,7 +298,7 @@ msg = "Don't forget to print out the random float you generated with `rand()`."
 success_msg("Great! Now let's simulate a dice.")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Great! Now let's simulate a dice.")
 
 
@@ -387,7 +387,7 @@ test_expression_output(incorrect_msg = msg)
 success_msg("Great!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Great!")
 
 
@@ -496,7 +496,7 @@ test_for_loop(1,
 success_msg("Great!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Great!")
 
 class TestExercise6(unittest.TestCase):
@@ -595,7 +595,7 @@ test_function("print", args=[], not_called_msg=msg, incorrect_msg=msg)
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Well done!")
 
 if __name__ == "__main__":

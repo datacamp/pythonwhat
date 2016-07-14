@@ -13,7 +13,7 @@ class TestMcRight(unittest.TestCase):
     def test_mcSuccess(self):
         self.data["DC_SCT"] = 'test_mc(2, ["This is wrong", "This is right"])'
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "This is right")
 
 
@@ -29,7 +29,7 @@ class TestMcWrong(unittest.TestCase):
     def test_mcFail(self):
         self.data["DC_SCT"] = 'test_mc(2, ["This is wrong", "This is right", "Oh no, not correct"])'
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Oh no, not correct")
 
 if __name__ == "__main__":

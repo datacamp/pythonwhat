@@ -62,7 +62,7 @@ test_function("print", index = 7)
 success_msg("Time for another video!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Time for another video!")
 
 
@@ -96,7 +96,7 @@ test_function("print")
 success_msg("Great! Let's try to do some calculations with this variable now!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Great! Let's try to do some calculations with this variable now!")
 
 class TestExercise3(unittest.TestCase):
@@ -147,7 +147,7 @@ test_function("print")
 success_msg("Awesome! If you now change the value of `savings` and submit your script again, `result` will change as well.")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Awesome! If you now change the value of <code>savings</code> and submit your script again, <code>result</code> will change as well.")
 
 
@@ -185,7 +185,7 @@ test_object("profitable")
 success_msg("Nice!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Nice!")
 
 class TestExercise5(unittest.TestCase):
@@ -255,7 +255,7 @@ test_function("print", 2)
 success_msg("Nice. Notice how `desc + desc` causes the strings to be pasted together.")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Nice. Notice how `desc + desc` causes the strings to be pasted together.")
 
 class TestExercise5(unittest.TestCase):
@@ -308,7 +308,7 @@ test_object("pi_float")
 success_msg("Great! You have a profit of around \$95, that's pretty awesome indeed!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Great! You have a profit of around \$95, that's pretty awesome indeed!")
 
 class TestExercise6(unittest.TestCase):
@@ -365,7 +365,7 @@ test_function("print")
 success_msg("Nice! A list is way better here, isn't it?")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Nice! A list is way better here, isn't it?")
 
 class TestExercise7(unittest.TestCase):
@@ -419,7 +419,7 @@ test_import("math")
 success_msg("Nice!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Nice!")
 
 class TestExercise8(unittest.TestCase):
@@ -469,7 +469,7 @@ test_function("areas.append")
 success_msg("Nice!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Nice!")
 
 class TestExercise9(unittest.TestCase):
@@ -531,7 +531,7 @@ test_function("print", 2, incorrect_msg = "Be sure to print out `double_desc`.")
 success_msg('Nice. Notice how `desc + desc` causes `"compound interest"` and `"compound interest"` to be pasted together.')
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Calculate <code>year1</code> using the <code>*</code> operator.")
 
 class TestExercise10(unittest.TestCase):
@@ -623,7 +623,7 @@ test_if_else(1, lambda: test_expression_result({"year": 6}, incorrect_msg = "Tes
 success_msg("Great! Time to use all of your new data science skills in the last exercise!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Check your code in the condition of the first <code>if</code> statement. Test if <code>year &gt; 10</code>.")
 
 

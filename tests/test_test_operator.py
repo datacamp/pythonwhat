@@ -16,7 +16,7 @@ test_operator(1)
 success_msg("Great!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Great!")
 
     def test_operatorNoArgument(self):
@@ -25,7 +25,7 @@ test_operator()
 success_msg("Great! No arguments!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Great! No arguments!")
 
 
@@ -44,7 +44,7 @@ test_operator(1)
 success_msg("Great!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Great!")
 
     def test_operatorNoArgument(self):
@@ -53,7 +53,7 @@ test_operator()
 success_msg("Great! No arguments!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Great! No arguments!")
 
 class TestTestOperatorLessOperations(unittest.TestCase):
@@ -70,7 +70,7 @@ test_operator(1)
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Well done!")
 
     def test_secondOperation(self):
@@ -79,7 +79,7 @@ test_operator(2)
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "You didn't define enough operations in your code.")
 
 class TestTestOperatorSameTwoOperations(unittest.TestCase):
@@ -96,7 +96,7 @@ test_operator(1)
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Well done!")
 
     def test_secondOperation(self):
@@ -105,7 +105,7 @@ test_operator(2)
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Well done!")
 
     def test_bothOperations(self):
@@ -115,7 +115,7 @@ test_operator(2)
 success_msg("Well done! Both correct!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Well done! Both correct!")
 
 class TestTestOperatorTwoOperationsOneIncorrect1(unittest.TestCase):
@@ -132,7 +132,7 @@ test_operator(1)
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Well done!")
 
     def test_secondOperation(self):
@@ -141,7 +141,7 @@ test_operator(2)
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to <code>17</code>, should be <code>13</code>.")
         self.assertEqual(sct_payload['line_start'], 2)
         self.assertEqual(sct_payload['line_end'], 2)
@@ -155,7 +155,7 @@ test_operator(2)
 success_msg("Well done! Both correct!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to <code>17</code>, should be <code>13</code>.")
         self.assertEqual(sct_payload['line_start'], 2)
         self.assertEqual(sct_payload['line_end'], 2)
@@ -176,7 +176,7 @@ test_operator(1)
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to <code>0.5</code>, should be <code>0.625</code>.")
         self.assertEqual(sct_payload['line_start'], 1)
         self.assertEqual(sct_payload['line_end'], 1)
@@ -189,7 +189,7 @@ test_operator(2)
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to <code>17</code>, should be <code>13</code>.")
         self.assertEqual(sct_payload['line_start'], 2)
         self.assertEqual(sct_payload['line_end'], 2)
@@ -203,7 +203,7 @@ test_operator(2)
 success_msg("Well done! Both correct!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "The highlighted operation evaluates to <code>0.5</code>, should be <code>0.625</code>.")
         self.assertEqual(sct_payload['line_start'], 1)
         self.assertEqual(sct_payload['line_end'], 1)
@@ -224,7 +224,7 @@ test_operator(3, not_found_msg = 'Not enough operations!')
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Not enough operations!")
 
     def test_secondOperation(self):
@@ -233,7 +233,7 @@ test_operator(2, incorrect_result_msg = 'Not quite right...')
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Not quite right...")
 
 class TestTestOperatorIncorrectOperation(unittest.TestCase):
@@ -250,7 +250,7 @@ test_operator(1)
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "The highlighted operation is missing a <code>*</code> operation.")
         self.assertEqual(sct_payload['line_start'], 1)
         self.assertEqual(sct_payload['line_end'], 1)
@@ -263,7 +263,7 @@ test_operator(1, incorrect_op_msg = "Nope")
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Nope")
     def test_ignoreOperations(self):
         self.data["DC_SCT"] = '''
@@ -271,7 +271,7 @@ test_operator(1, used=[])
 success_msg("You don't have to use the same operations.")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "You don't have to use the same operations.")
 
 if __name__ == "__main__":

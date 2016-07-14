@@ -52,7 +52,7 @@ test_function("file.close", not_called_msg = "Make sure to close the file, man!"
 success_msg("You aced selecting observations from DataFrames; over to selecting both rows and columns!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 
 class TestExercise2(unittest.TestCase):
@@ -90,7 +90,7 @@ test_function("create_engine")
 success_msg("Awesome!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 
 class TestExercise3(unittest.TestCase):
@@ -150,7 +150,7 @@ test_function("print", incorrect_msg = type_msg)
 success_msg("Good job!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 
 class TestExercise4(unittest.TestCase):
@@ -208,7 +208,7 @@ test_function("print", incorrect_msg = "Did you correctly pass `xl.sheet_names` 
 success_msg("Great job!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 class TestExercise4(unittest.TestCase):
 
@@ -293,7 +293,7 @@ test_function("con.close")
 success_msg("Good job!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 class TestExercise5(unittest.TestCase):
 
@@ -336,7 +336,7 @@ test_function("print", incorrect_msg = predef_msg)
 success_msg("Great work!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
 
 class TestExercise6(unittest.TestCase):
 
@@ -415,7 +415,7 @@ test_function("print", index = 2, incorrect_msg = predef_msg)
 success_msg("Awesome!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 
 class TestExercise7(unittest.TestCase):
@@ -490,7 +490,7 @@ test_function("print", index = 2, incorrect_msg = "error is in print2")
 success_msg("Good job!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 
 class TestExercise8(unittest.TestCase):
@@ -604,7 +604,7 @@ test_for_loop(
 success_msg("Awesome!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 
 class TestImportWhenTestFunction(unittest.TestCase):

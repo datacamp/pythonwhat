@@ -78,11 +78,17 @@ class Reporter(object):
                     "message": Reporter.to_html(self.feedback.message),
                     "tags": self.tags})
             else:
+                # Hack to make it work with campus app implementation
+                if self.feedback.line_info["column_start"] is None:
+                    col_start = None
+                else:
+                    col_start = self.feedback.line_info["column_start"] + 1
+
                 return({
                     "correct": False,
                     "message": Reporter.to_html(self.feedback.message),
                     "line_start": self.feedback.line_info["line_start"],
-                    "column_start": self.feedback.line_info["column_start"] + 1 if self.feedback.line_info["column_start"] else None,
+                    "column_start": col_start,
                     "line_end": self.feedback.line_info["line_end"],
                     "column_end": self.feedback.line_info["column_end"],
                     "tags": self.tags})

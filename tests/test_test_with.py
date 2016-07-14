@@ -46,7 +46,7 @@ test_with(1, body = lambda: [test_function('print', index = i + 1) for i in rang
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertIn("Check the body of the first <code>with</code> statement.", sct_payload['message'])
 
     def test_Fail2(self):
@@ -55,7 +55,7 @@ test_with(1, body = lambda: [test_function('print', index = i + 1) for i in rang
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertNotIn("Check the body of the first <code>with</code>.", sct_payload['message'])
 
     def test_Pass1(self):
@@ -64,7 +64,7 @@ test_with(2, body = lambda: test_for_loop(1, body = lambda: test_if_else(1, body
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 class TestExercise2(unittest.TestCase):
 
@@ -111,7 +111,7 @@ test_with(1, context_vals=True)
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "In your first <code>with</code> statement, make sure to use the correct number of context variables. It seems you defined too many.")
 
     def test_Fail2(self):
@@ -120,7 +120,7 @@ test_with(2, context_vals=True)
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "In your second <code>with</code> statement, make sure to use the correct context variable names. Was expecting <code>file</code> but got <code>not_file</code>.")
 
 class TestExercise3(unittest.TestCase):
@@ -168,7 +168,7 @@ test_with(1, context_tests=lambda: test_function('open'))
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
     def test_Fail1(self):
         self.data["DC_SCT"] = '''
@@ -178,7 +178,7 @@ test_with(1, context_tests=[
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "In your first <code>with</code> statement, make sure to use the correct number of context variables. It seems you defined too little.")
 
     def test_Fail2(self):
@@ -189,7 +189,7 @@ test_with(2, context_tests=[
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Check the 2nd context in the first <code>with</code> statement. Did you call <code>open()</code> with the correct arguments? The 1st argument seems to be incorrect. Expected <code>'not_moby_dick.txt'</code>, but got <code>'moby_dick.txt'</code>.")
 
 class TestExercise3(unittest.TestCase):
@@ -223,7 +223,7 @@ test_with(1,
 )
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 class TestExercise3(unittest.TestCase):
 
@@ -274,7 +274,7 @@ test_function('pandas.DataFrame.hist')
 success_msg("NICE WORK!!!!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 if __name__ == "__main__":
     unittest.main()

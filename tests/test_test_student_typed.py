@@ -16,7 +16,7 @@ test_student_typed("# (A|a)ddition works to(o?)\sprint\(7", not_typed_msg = "Mak
 success_msg("You typed the correct comment.")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "You typed the correct comment.")
 
 class TestStudentDidntTypeComment(unittest.TestCase):
@@ -34,7 +34,7 @@ test_student_typed("# (A|a)ddition works to(o?)\sprint\(7", not_typed_msg = "Mak
 success_msg("You typed the correct comment.")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Make sure to add the instructed comment before <code>print(7+10)</code>.")
 
 if __name__ == "__main__":

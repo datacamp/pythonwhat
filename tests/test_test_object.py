@@ -32,7 +32,7 @@ test_function("print")
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Well done!")  
 
     def test_standardTestFail(self):
@@ -41,7 +41,7 @@ test_object("savings2")
 success_msg("Well done!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Have you defined <code>savings2</code>?")  
 
 

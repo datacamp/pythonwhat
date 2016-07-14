@@ -41,7 +41,7 @@ test_function_definition("shout", arg_names = False,body = lambda: test_object_a
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, test')
 
     def test_Pass(self):
@@ -51,7 +51,7 @@ test_function_definition("shout", arg_names = False, body = lambda: test_object_
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, are you sure you assigned the correct value to <code>shout_word</code>?')
 
 if __name__ == "__main__":

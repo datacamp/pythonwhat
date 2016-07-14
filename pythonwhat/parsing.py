@@ -325,6 +325,7 @@ class FunctionDefParser(Parser):
         defaults = [FunctionDefParser.get_node_literal_value(lit) for lit in node.args.defaults]
         defaults = [None] * (len(args) - len(defaults)) + defaults
         self.defs[node.name] = {
+            "fundef": node,
             "args": [(arg, default) for arg, default in zip(args,defaults)],
             "body": ReturnTransformer().visit(ast.Module(node.body)),
         }
