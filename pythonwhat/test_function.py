@@ -233,20 +233,4 @@ def test_function(name,
         if not success:
             rep.do_test(Test(feedback))
 
-
-def build_args_not_specified_msg(name, arguments, keywords):
-    
-    n = len(arguments)
-    if n == 0:
-        pass
-    elif n == 1:
-        return(start + " You should specify one argument without naming it.")
-    else:
-        return(start + " You should specify %s arguments without naming them" % get_num(n))
-
-    m = len(keywords)
-    if m == 0:
-        return(start)
-    else:
-        return(start + " You should specify the keyword `%s` explicitly by its name" % keywords[0])
         

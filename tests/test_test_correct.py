@@ -6,7 +6,7 @@ class TestExercise1(unittest.TestCase):
         self.data = {
           "DC_PEC": 'import numpy as np',
           "DC_SCT": "test_correct(lambda: test_object('test'), lambda: test_function('numpy.sum'))",
-          "DC_SOLUTION": ''
+          "DC_SOLUTION": 'test = np.sum([5, 2, 4, 9])'
         }
 
     def test_Pass1(self):
@@ -19,7 +19,7 @@ class TestExercise1(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-    def test_Pass2(self):
+    def test_Pass3(self):
         self.data["DC_CODE"] = 'test = np.sum([5, 2, 4, 4, 5])'
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
@@ -29,7 +29,6 @@ class TestExercise1(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Have you called <code>np.sum()</code>?")
-
 
     def test_Fail2(self):
         self.data["DC_CODE"] = 'test = np.sum([5, 2, 3])'

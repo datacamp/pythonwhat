@@ -5,7 +5,7 @@ import os.path
 
 def download(fromfile, tofile):
     if not os.path.isfile(tofile):
-        fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/' + fromfile
+        fn = 'http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/' + fromfile
         urlretrieve(fn, tofile)    
 
 if __name__ == "__main__":
@@ -14,7 +14,7 @@ if __name__ == "__main__":
     download('moby_opens.txt', 'not_moby_dick.txt')
     download('sales.sas7bdat', 'sales.sas7bdat')
     download('data.p', 'data.p')
-    download('albeck_gene_expression.mat', 'albeck_gene_expression.mat')
+    download('ja_data2.mat', 'albeck_gene_expression.mat')
     download('battledeath.xlsx', 'battledeath.xlsx')
     download('Chinook.sqlite', 'Chinook.sqlite')
     download('titanic_sub.csv', 'titanic.csv')
