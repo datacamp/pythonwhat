@@ -43,6 +43,9 @@ def test_object(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object")
 
+    state.extract_object_assignments()
+    student_object_assignments = state.student_object_assignments
+
     undefined_msg, incorrect_msg = build_strings(
         undefined_msg, incorrect_msg, name)
     
@@ -75,6 +78,6 @@ def build_strings(undefined_msg, incorrect_msg, name):
         undefined_msg = "Have you defined `" + name + "`?"
 
     if not incorrect_msg:
-        incorrect_msg = "Are you sure you assigned the correct value to `" + name + "`?"
+        incorrect_msg = "The contents of `" + name + "` are not as expected."
 
     return(undefined_msg, incorrect_msg)

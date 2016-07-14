@@ -252,6 +252,10 @@ class ObjectAccessParser(FunctionParser):
         self.accesses.append(self.current)
         self.current = ''
 
+class ObjectAssignmentParser(Parser):
+
+    def __init__(self):
+        self.assignments = {}
 
 class IfParser(Parser):
     """Find if structures.

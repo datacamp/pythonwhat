@@ -1,6 +1,6 @@
 import ast
 import inspect
-from pythonwhat.parsing import FunctionParser, ObjectAccessParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, WithParser
+from pythonwhat.parsing import FunctionParser, ObjectAccessParser, ObjectAssignmentParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, WithParser
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils_ast
@@ -43,6 +43,7 @@ class State(object):
         self.fun_usage = None
 
         self.student_object_accesses = None
+        self.student_object_assignments = None
 
         self.student_imports = None
         self.solution_imports = None
@@ -121,6 +122,12 @@ class State(object):
             oap.visit(self.student_tree)
             self.student_object_accesses = oap.accesses
             self.student_mappings = oap.mappings
+
+    def extract_object_assignments(self):
+        if (self.student_object_assignments is None):
+            oap = ObjectAssignmentParser()
+            oap.visit(self.student_tree)
+            self.student_object_assignments = oap.assignments
 
     def extract_imports(self):
         if (self.student_imports is None):
