@@ -598,5 +598,23 @@ class TestLineNumbers(unittest.TestCase):
         self.assertEqual(sct_payload['column_start'], 26)
         self.assertEqual(sct_payload['column_end'], 26)
 
+class TestFunctionNested(unittest.TestCase):
+    def test_nested1(self):
+        self.data = {"DC_PEC": '',
+                     "DC_SOLUTION": "print(type([1, 2, 3]))",
+                     "DC_CODE": "print(type([1, 2, 3]))",
+                     "DC_SCT": "test_function('type')"}
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_nested1(self):
+        self.data = {"DC_PEC": '',
+                     "DC_SOLUTION": "print(type([1, 2, 3]))",
+                     "DC_CODE": "print(type([1, 2, 4]))",
+                     "DC_SCT": "test_function('type')"}
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        helper.test_lines(self, sct_payload, 1, 1, 12, 20)
+
 if __name__ == "__main__":
     unittest.main()

@@ -58,6 +58,9 @@ class Parser(ast.NodeVisitor):
         pass  # This ignore is necessary to keep the parser at base level, also look comment above in
               # the visit_Module function body.
 
+    def visit_each(self, lst):
+        for el in lst:
+            self.visit(el)
 
 class OperatorParser(Parser):
     """Find operations.
@@ -197,12 +200,10 @@ class FunctionParser(Parser):
             self.calls[self.current].append((node.args, node.keywords))
 
         self.current = ''
-        for arg in node.args:
-            # Need to visit all argument nodes for nested functions.
-            self.visit(arg)
 
-        for key in node.keywords:
-            self.visit(key.value)   # Same for keywords
+        # visit all arguments and keywords for nested functions
+        self.visit_each(node.args)
+        self.visit_each(node.keywords)
 
     def visit_Attribute(self, node):
         self.visit(node.value)  # Go deeper for the package/module names!
@@ -270,27 +271,27 @@ class ObjectAssignmentParser(Parser):
         self.add(node.target, node)
 
     def visit_If(self, node):
-        self.visit(ast.Module(node.body))
-        self.visit(ast.Module(node.orelse))
+        self.visit_each(node.body)
+        self.visit_each(node.orelse)
 
     def visit_While(self, node):
-        self.visit(ast.Module(node.body))
-        self.visit(ast.Module(node.orelse))
+        self.visit_each(node.body)
+        self.visit_each(node.orelse)
 
     def visit_For(self, node):
-        self.visit(ast.Module(node.body))
-        self.visit(ast.Module(node.orelse))
+        self.visit_each(node.body)
+        self.visit_each(node.orelse)
 
     def visit_With(self, node):
-        self.visit(ast.Module(node.body))
+        self.visit_each(node.body)
 
     def visit_Try(self, node):
-        self.visit(ast.Module(node.body))
-        self.visit(ast.Module(node.finalbody))
+        self.visit_each(node.body)
+        self.visit_each(node.finalbody)
 
     def visit_TryFinally(self, node):
-        self.visit(ast.Module(node.body))
-        self.visit(ast.Module(node.finalbody))
+        self.visit_each(node.body)
+        self.visit_each(node.finalbody)
 
     def add(self, target, node):
         if target.id not in self.assignments:
