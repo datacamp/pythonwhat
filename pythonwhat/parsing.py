@@ -202,8 +202,11 @@ class FunctionParser(Parser):
         self.current = ''
 
         # visit all arguments and keywords for nested functions
-        self.visit_each(node.args)
-        self.visit_each(node.keywords)
+        for arg in node.args:
+            self.visit(arg)
+
+        for key in node.keywords:
+            self.visit(key.value)
 
     def visit_Attribute(self, node):
         self.visit(node.value)  # Go deeper for the package/module names!
