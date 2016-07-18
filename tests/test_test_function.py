@@ -629,7 +629,7 @@ class TestFunctionNested(unittest.TestCase):
 
 class Test_ProblemsHugo(unittest.TestCase):
 
-   def test_problem_1(self):
+    def test_problem_1(self):
         self.data = {
              "DC_PEC": '''
 from urllib.request import urlretrieve
@@ -674,7 +674,6 @@ print(connection.execute(stmt).fetchall())
             "DC_SCT": "test_function('sqlalchemy.Table', do_eval = False)"
         }
         sct_payload = helper.run(self.data)
-        print(sct_payload)
         self.assertTrue(sct_payload['correct'])
 
     def test_problem_2(self):
