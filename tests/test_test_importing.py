@@ -85,7 +85,7 @@ test_import("sqlalchemy.create_engine", not_imported_msg = import_msg, incorrect
 
 # Test: call to create_engine() and 'engine' variable
 test_object("engine", do_eval = False)
-test_function("create_engine")
+test_function("sqlalchemy.create_engine")
 
 success_msg("Awesome!")
         '''
@@ -148,64 +148,6 @@ test_function("data.head", incorrect_msg = type_msg)
 test_function("print", incorrect_msg = type_msg)
 
 success_msg("Good job!")
-        '''
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-
-class TestExercise4(unittest.TestCase):
-
-    def setUp(self):
-        self.data = {
-            "DC_PEC": '''
-            ''',
-            "DC_CODE": '''
-# Import pandas
-import pandas as pd
-
-# Assign spreadsheet filename: file
-file = 'battledeath.xlsx'
-
-# Load spreadsheet: xl
-xl = pd.ExcelFile(file)
-
-# Print sheet names
-print(xl.sheet_names)
-            ''',
-            "DC_SOLUTION": '''
-# Import pandas
-import pandas as pd
-
-# Assign spreadsheet filename: file
-file = 'battledeath.xlsx'
-
-# Load spreadsheet: xl
-xl = pd.ExcelFile(file)
-
-# Print sheet names
-print(xl.sheet_names)
-'''
-        }
-
-    def test_Pass(self):
-        self.data["DC_SCT"] = '''
-# Test: Predefined code
-predef_msg = "You don't have to change any of the predefined code."
-test_import("pandas", same_as = True, not_imported_msg = predef_msg, incorrect_as_msg = predef_msg)
-
-# Test: assign filename to 'file' variable
-test_object("file")
-
-# Test: call to pd.ExcelFile() and 'xl' variable
-test_correct(
-        lambda: test_object("xl"),
-        lambda: test_function("pandas.ExcelFile", index = 1)
-)
-
-# Test: print() statement
-test_function("print", incorrect_msg = "Did you correctly pass `xl.sheet_names` to `print()`?")
-
-success_msg("Great job!")
         '''
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])

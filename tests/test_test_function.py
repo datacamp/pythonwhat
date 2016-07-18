@@ -627,5 +627,55 @@ class TestFunctionNested(unittest.TestCase):
         self.assertFalse(sct_payload['correct'])
         helper.test_lines(self, sct_payload, 1, 1, 29, 34)
 
+class Test_ProblemsHugo(unittest.TestCase):
+
+   def test_problem_1(self):
+        self.data = {
+             "DC_PEC": '''
+from urllib.request import urlretrieve
+from sqlalchemy import create_engine, MetaData, Table
+
+engine = create_engine('sqlite:///census.sqlite')
+metadata = MetaData()
+connection = engine.connect()
+             ''',
+            "DC_SOLUTION": '''
+# Import select
+from sqlalchemy import select
+
+# Reflect census table via engine: census
+census = Table('census', metadata, autoload=True, autoload_with=engine)
+
+# Build select statement for census table: stmt
+stmt = select([census])
+
+# Print the emitted statement to see the SQL emitted
+print(stmt)
+
+# Execute the statement and print the results
+print(connection.execute(stmt).fetchall())
+            ''',
+             "DC_CODE": '''
+# Import select
+from sqlalchemy import select
+
+# Reflect census table via engine: census
+census = Table('census', metadata, autoload=True, autoload_with=engine)
+
+# Build select statement for census table: stmt
+stmt = select([census])
+
+# Print the emitted statement to see the SQL emitted
+print(stmt)
+
+# Execute the statement and print the results
+print(connection.execute(stmt).fetchall())
+            ''',
+            "DC_SCT": "test_function('sqlalchemy.Table', do_eval = False)"
+        }
+        sct_payload = helper.run(self.data)
+        print(sct_payload)
+        self.assertTrue(sct_payload['correct'])
+
 if __name__ == "__main__":
     unittest.main()
