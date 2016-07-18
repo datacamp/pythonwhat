@@ -20,6 +20,7 @@ if __name__ == "__main__":
     download('course_998/datasets/titanic_sub.csv', 'titanic.csv')
     download('course_998/datasets/tweets3.txt', 'tweets.txt')
     download('course_1115/datasets/census.sqlite', 'census.sqlite')
+    download('course_998/datasets/mnist_kaggle_some_rows.csv', 'digits.csv')
 
     f = open('cars.csv', "w")
     f.write(""",cars_per_cap,country,drives_right

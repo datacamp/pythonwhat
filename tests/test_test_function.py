@@ -677,5 +677,71 @@ print(connection.execute(stmt).fetchall())
         print(sct_payload)
         self.assertTrue(sct_payload['correct'])
 
+    def test_problem_2(self):
+        self.data = {
+             "DC_PEC": '',
+            "DC_SOLUTION": '''
+# Open a file: file
+file = open('moby_dick.txt', mode='r')
+
+# Print it
+print(file.read())
+
+# Check whether file is closed
+print(file.closed)
+
+# Close file
+file.close()
+
+# Check whether file is closed
+print(file.closed)
+            ''',
+             "DC_CODE": '''
+# Open a file: file
+file = open('moby_dick.txt', mode='rw')
+
+# Print it
+print(file.read())
+
+# Check whether file is closed
+print(file.closed)
+
+# Close file
+file.close()
+
+# Check whether file is closed
+print(file.closed)
+            ''',
+            "DC_SCT": '''
+test_function("open", args = [0], keywords = [], index=1, incorrect_msg = "first arg wrong!")
+test_function("open", args = [], keywords = ['mode'], index=1, incorrect_msg = 'second arg wrong!')
+'''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "second arg wrong!")
+
+    def test_problem_3(self):
+        self.data = {
+             "DC_PEC": '',
+            "DC_SOLUTION": '''
+import numpy as np
+file = 'digits.csv'
+digits = np.loadtxt(file, delimiter=',')
+            ''',
+             "DC_CODE": '''
+import numpy as np
+file = 'digits.csv'
+digits = np.loadtxt(file, delimiter=';')
+            ''',
+            "DC_SCT": '''
+test_function("numpy.loadtxt", args = [0], keywords = [], index=1, incorrect_msg = 'first arg wrong!')
+test_function("numpy.loadtxt", args = [], keywords = ['delimiter'], index=1, incorrect_msg = 'second arg wrong!')
+'''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "second arg wrong!")
+
 if __name__ == "__main__":
     unittest.main()
