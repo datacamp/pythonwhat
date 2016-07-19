@@ -75,3 +75,9 @@ tests/battledeath.xlsx
 tests/Chinook.sqlite
 tests/titanic.csv
 tests/tweets.txt
+tests/census.sqlite
+tests/digits.csv
+
+# Mac stuff
+.DS_Store
+tests/.DS_Store

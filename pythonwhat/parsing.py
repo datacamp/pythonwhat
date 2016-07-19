@@ -181,11 +181,15 @@ class FunctionParser(Parser):
         for imp in node.names:
             if imp.asname is not None:
                 self.mappings[imp.asname] = imp.name
+            else:
+                pass # e.g. numpy import as numpy, so no action needed.
 
     def visit_ImportFrom(self, node):
         for imp in node.names:
             if imp.asname is not None:
                 self.mappings[imp.asname] = node.module + "." + imp.name
+            else:
+                self.mappings[imp.name] = node.module + "." + imp.name
 
     def visit_Expr(self, node):
         self.visit(node.value)

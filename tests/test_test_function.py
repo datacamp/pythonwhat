@@ -699,5 +699,120 @@ class TestFunctionDoEval(unittest.TestCase):
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Have you specified all required arguments inside <code>round()</code> function? You should specify two arguments without naming them.", sct_payload['message'])
 
+class Test_ProblemsHugo(unittest.TestCase):
+
+    def test_problem_1(self):
+        self.data = {
+             "DC_PEC": '''
+from urllib.request import urlretrieve
+from sqlalchemy import create_engine, MetaData, Table
+
+engine = create_engine('sqlite:///census.sqlite')
+metadata = MetaData()
+connection = engine.connect()
+             ''',
+            "DC_SOLUTION": '''
+# Import select
+from sqlalchemy import select
+
+# Reflect census table via engine: census
+census = Table('census', metadata, autoload=True, autoload_with=engine)
+
+# Build select statement for census table: stmt
+stmt = select([census])
+
+# Print the emitted statement to see the SQL emitted
+print(stmt)
+
+# Execute the statement and print the results
+print(connection.execute(stmt).fetchall())
+            ''',
+             "DC_CODE": '''
+# Import select
+from sqlalchemy import select
+
+# Reflect census table via engine: census
+census = Table('census', metadata, autoload=True, autoload_with=engine)
+
+# Build select statement for census table: stmt
+stmt = select([census])
+
+# Print the emitted statement to see the SQL emitted
+print(stmt)
+
+# Execute the statement and print the results
+print(connection.execute(stmt).fetchall())
+            ''',
+            "DC_SCT": "test_function('sqlalchemy.Table', do_eval = False)"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_problem_2(self):
+        self.data = {
+             "DC_PEC": '',
+            "DC_SOLUTION": '''
+# Open a file: file
+file = open('moby_dick.txt', mode='r')
+
+# Print it
+print(file.read())
+
+# Check whether file is closed
+print(file.closed)
+
+# Close file
+file.close()
+
+# Check whether file is closed
+print(file.closed)
+            ''',
+             "DC_CODE": '''
+# Open a file: file
+file = open('moby_dick.txt', mode='rw')
+
+# Print it
+print(file.read())
+
+# Check whether file is closed
+print(file.closed)
+
+# Close file
+file.close()
+
+# Check whether file is closed
+print(file.closed)
+            ''',
+            "DC_SCT": '''
+test_function("open", args = [0], keywords = [], index=1, incorrect_msg = "first arg wrong!")
+test_function("open", args = [], keywords = ['mode'], index=1, incorrect_msg = 'second arg wrong!')
+'''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "second arg wrong!")
+
+    def test_problem_3(self):
+        self.data = {
+             "DC_PEC": '',
+            "DC_SOLUTION": '''
+import numpy as np
+file = 'digits.csv'
+digits = np.loadtxt(file, delimiter=',')
+            ''',
+             "DC_CODE": '''
+import numpy as np
+file = 'digits.csv'
+digits = np.loadtxt(file, delimiter=';')
+            ''',
+            "DC_SCT": '''
+test_function("numpy.loadtxt", args = [0], keywords = [], index=1, incorrect_msg = 'first arg wrong!')
+test_function("numpy.loadtxt", args = [], keywords = ['delimiter'], index=1, incorrect_msg = 'second arg wrong!')
+'''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "second arg wrong!")
+
 if __name__ == "__main__":
     unittest.main()
