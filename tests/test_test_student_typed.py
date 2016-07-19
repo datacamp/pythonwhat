@@ -57,7 +57,6 @@ class TestWikiExample(unittest.TestCase):
             "DC_CODE": 's = sum(range(10))\nprint(s)'
         }
         sct_payload = helper.run(self.data)
-        print(sct_payload)
         self.assertTrue(sct_payload['correct'])
 
     def test_wikiexample1(self):
@@ -68,7 +67,6 @@ class TestWikiExample(unittest.TestCase):
             "DC_CODE": 's = sum(range(10))\nprint(s)'
         }
         sct_payload = helper.run(self.data)
-        print(sct_payload)
         self.assertFalse(sct_payload['correct'])
 
 if __name__ == "__main__":

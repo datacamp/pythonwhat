@@ -101,7 +101,7 @@ def test_function(name,
     if rep.failed_test:
         return
 
-    rep.do_test(BiggerTest(len(student_calls[name]), 0, not_called_msg))
+    rep.do_test(BiggerTest(len(student_calls[name]), index, not_called_msg))
     if rep.failed_test:
         return
 
@@ -160,12 +160,14 @@ def test_function(name,
         # Get all options (some function calls may be blacklisted)
         call_indices = state.get_options(name, list(range(len(student_calls[name]))), index)
 
+        feedback = None
+
         for call_ind in call_indices:
             args_student, keyw_student = student_calls[name][call_ind]
             keyw_student = {keyword.arg: keyword.value for keyword in keyw_student}
 
             success = True
-            start = "Have you specified all required arguments inside `%s()` function?" % name
+            start = "Have you specified all required arguments inside `%s()` function?" % stud_name
 
             if len(args) > len(args_student):
                 if not args_not_specified_msg:        
@@ -180,10 +182,10 @@ def test_function(name,
 
             setdiff = list(set(keywords) - set(keyw_student.keys()))
             if len(setdiff) > 0:
-                if not args_not_specified_msg:
-                    args_not_specified_msg = start + " You should specify the keyword `%s` explicitly by its name." % setdiff[0]
-
-                feedback = Feedback(args_not_specified_msg)
+                if feedback is None:
+                    if not args_not_specified_msg:
+                        args_not_specified_msg = start + " You should specify the keyword `%s` explicitly by its name." % setdiff[0]
+                    feedback = Feedback(args_not_specified_msg)
                 success = False
                 continue
 
@@ -205,7 +207,8 @@ def test_function(name,
                 test.test()
 
                 if not test.result:
-                    feedback = test.get_feedback()
+                    if feedback is None:
+                        feedback = test.get_feedback()
                     success = False
                     break
 
@@ -221,7 +224,8 @@ def test_function(name,
                     test.test()
 
                     if not test.result:
-                        feedback = test.get_feedback()
+                        if feedback is None:
+                            feedback = test.get_feedback()
                         success = False
                         break
 
@@ -231,6 +235,8 @@ def test_function(name,
                 break
 
         if not success:
+            if feedback is None:
+                feedback = Feedback("You haven't used enough appropriate calls of `%s()`" % stud_name)
             rep.do_test(Test(feedback))
 
         

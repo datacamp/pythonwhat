@@ -699,6 +699,60 @@ class TestFunctionDoEval(unittest.TestCase):
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Have you specified all required arguments inside <code>round()</code> function? You should specify two arguments without naming them.", sct_payload['message'])
 
+class Test_MultipleCalls(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+             "DC_PEC": '',
+            "DC_SOLUTION": '''
+print("abc")
+print(123)
+print([1, 2, 3])
+            ''',
+             "DC_SCT": '''
+test_function("print", index = 1)
+test_function("print", index = 2)
+test_function("print", index = 3)
+            '''
+        }
+    def test_multiple_1(self):
+        self.data["DC_CODE"] = 'print("abc")'
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "The system wants to check the second call of <code>print()</code>, but hasn't found it; have another look at your code.")
+
+    def test_multiple_2(self):
+        self.data["DC_CODE"] = 'print("abc")\nprint(123)'
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "The system wants to check the third call of <code>print()</code>, but hasn't found it; have another look at your code.")
+
+    def test_multiple_3(self):
+        self.data["DC_CODE"] = 'print("abc")\nprint(123)\nprint([1, 2, 3])'
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_multiple_4(self):
+        self.data["DC_CODE"] = 'print("acb")\nprint(1234)\nprint([1, 2, 3])'
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.", sct_payload['message'])
+        helper.test_lines(self, sct_payload, 1, 1, 7, 11)
+
+    def test_multiple_5(self):
+        self.data["DC_CODE"] = 'print("abc")\nprint(1234)\nprint([1, 2, 3])'
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.", sct_payload['message'])
+        helper.test_lines(self, sct_payload, 2, 2, 7, 10)
+        
+    def test_multiple_6(self):
+        self.data["DC_CODE"] = 'print("abc")\nprint(123)\nprint([1, 2, 3, 4])'
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.", sct_payload['message'])
+        helper.test_lines(self, sct_payload, 3, 3, 7, 18)
+
+
 class Test_ProblemsHugo(unittest.TestCase):
 
     def test_problem_1(self):
@@ -813,6 +867,7 @@ test_function("numpy.loadtxt", args = [], keywords = ['delimiter'], index=1, inc
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "second arg wrong!")
+
 
 if __name__ == "__main__":
     unittest.main()
