@@ -760,44 +760,44 @@ class Test_ProblemsHugo(unittest.TestCase):
              "DC_PEC": '''
 from urllib.request import urlretrieve
 from sqlalchemy import create_engine, MetaData, Table
-
 engine = create_engine('sqlite:///census.sqlite')
 metadata = MetaData()
 connection = engine.connect()
+from sqlalchemy import select
              ''',
             "DC_SOLUTION": '''
-# Import select
-from sqlalchemy import select
-
-# Reflect census table via engine: census
 census = Table('census', metadata, autoload=True, autoload_with=engine)
-
-# Build select statement for census table: stmt
-stmt = select([census])
-
-# Print the emitted statement to see the SQL emitted
-print(stmt)
-
-# Execute the statement and print the results
-print(connection.execute(stmt).fetchall())
             ''',
              "DC_CODE": '''
-# Import select
-from sqlalchemy import select
-
-# Reflect census table via engine: census
 census = Table('census', metadata, autoload=True, autoload_with=engine)
-
-# Build select statement for census table: stmt
-stmt = select([census])
-
-# Print the emitted statement to see the SQL emitted
-print(stmt)
-
-# Execute the statement and print the results
-print(connection.execute(stmt).fetchall())
             ''',
             "DC_SCT": "test_function('sqlalchemy.Table', do_eval = False)"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_problem_1b(self):
+        self.data = {
+             "DC_PEC": '''
+from urllib.request import urlretrieve
+from sqlalchemy import create_engine, MetaData, Table
+engine = create_engine('sqlite:///census.sqlite')
+metadata = MetaData()
+connection = engine.connect()
+from sqlalchemy import select
+census = Table('census', metadata, autoload=True, autoload_with=engine)
+stmt = select([census])
+             ''',
+            "DC_SOLUTION": '''
+x = connection.execute(stmt).fetchall()
+            ''',
+             "DC_CODE": '''
+x = connection.execute(stmt).fetchall()
+            ''',
+            "DC_SCT": '''
+test_function('connection.execute', args = [0], keywords = [], do_eval = False)
+test_function('connection.execute.fetchall', args = [], keywords = [])
+            '''
         }
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
@@ -867,7 +867,6 @@ test_function("numpy.loadtxt", args = [], keywords = ['delimiter'], index=1, inc
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "second arg wrong!")
-
 
 if __name__ == "__main__":
     unittest.main()

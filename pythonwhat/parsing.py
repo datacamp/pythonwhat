@@ -163,6 +163,7 @@ class FunctionParser(Parser):
         self.current = ''
         self.mappings = {}
         self.calls = {}
+        self.call_lookup_active = False
 
     def visit_BinOp(self, node):
         self.visit(node.left)
@@ -195,22 +196,30 @@ class FunctionParser(Parser):
         self.visit(node.value)
 
     def visit_Call(self, node):
-        self.visit(node.func) # Need to visit func to start recording the current function name.
+        if self.call_lookup_active:
+            self.visit(node.func)
+        else :
+            self.call_lookup_active = True
+            self.visit(node.func) # Need to visit func to start recording the current function name.
 
-        if self.current:
-            if (self.current not in self.calls):
-                self.calls[self.current] = []
+            if self.current:
+                if (self.current not in self.calls):
+                    self.calls[self.current] = []
 
-            self.calls[self.current].append((node.args, node.keywords))
+                self.calls[self.current].append((node.args, node.keywords))
 
-        self.current = ''
+            self.current = ''
+            self.call_lookup_active = False
 
-        # visit all arguments and keywords for nested functions
-        for arg in node.args:
-            self.visit(arg)
+            # dive deeper in func, args and keywords
+            self.visit(node.func)
 
-        for key in node.keywords:
-            self.visit(key.value)
+            for arg in node.args:
+                self.visit(arg)
+
+            for key in node.keywords:
+                self.visit(key.value)
+
 
     def visit_Attribute(self, node):
         self.visit(node.value)  # Go deeper for the package/module names!
