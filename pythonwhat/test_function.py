@@ -5,6 +5,7 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Fb import Feedback
 from pythonwhat.utils import get_ord, get_num
+import inspect
 
 def test_function(name,
                   index=1,
@@ -240,4 +241,16 @@ def test_function(name,
                 feedback = Feedback("You haven't used enough appropriate calls of `%s()`" % stud_name)
             rep.do_test(Test(feedback))
 
-        
+
+
+def get_function_signature(fun):
+
+    if (inspect.isclass(fun) or
+        inspect.ismethod(fun) or
+        inspect.isfunction(fun)):
+        arginfo = inspect.signature(fun)
+        import pdb; pdb.set_trace()
+        print(arginfo)
+    elif inspect.isbuiltin(fun):
+        print("Builtin!")
+
