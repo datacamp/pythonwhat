@@ -1,7 +1,29 @@
 import re
 from pythonwhat import utils
+from pythonwhat import utils_ast
+import _ast
 
-# TODO (Vincent): refactor using .format()
+class Feedback(object):
+
+    def __init__(self, message, astobj = None):
+        self.message = message
+        self.line_info = {}
+        try:
+            if astobj is not None:
+                if (issubclass(type(astobj), _ast.Module)):
+                    self.line_info["line_start"] = astobj.body[0].lineno
+                    self.line_info["column_start"] = astobj.body[0].col_offset
+                    self.line_info["line_end"] = astobj.body[-1].end_lineno
+                    self.line_info["column_end"] = astobj.body[-1].end_col_offset
+                else:
+                    self.line_info["line_start"] = astobj.lineno
+                    self.line_info["column_start"] = astobj.col_offset
+                    self.line_info["line_end"] = astobj.end_lineno
+                    self.line_info["column_end"] = astobj.end_col_offset
+        except:
+            pass
+
+# TODO FILIP: No used for now, come back to this later.
 class FeedbackMessage(object):
     """Generate feedback.
 

@@ -1,11 +1,4 @@
-import os
 import unittest
-
-from os.path import exists
-from unittest.mock import patch
-
-from pythonbackend.Exercise import Exercise
-
 import helper
 
 class TestExercise1(unittest.TestCase):
@@ -34,9 +27,8 @@ df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
     def test_Pass2(self):
         self.data["DC_SCT"] = "test_data_frame('df', columns=['b','c'])"
@@ -47,9 +39,8 @@ df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
     def test_Pass3(self):
         self.data["DC_SCT"] = "test_data_frame('df', columns=['a','c'])"
@@ -60,9 +51,8 @@ df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
     def test_Pass4(self):
         self.data["DC_SCT"] = "test_data_frame('df', columns=['a','b'])"
@@ -73,9 +63,8 @@ df = pd.DataFrame({
     'c': [True, True, True]
 })
         '''
-        self.exercise = Exercise(self.data)
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], True)
+        self.assertTrue(sct_payload['correct'])
 
 
     def test_Fail1(self):
@@ -86,9 +75,8 @@ df = pd.DataFrame({
     'c': [True, False, True]
 })
         '''
-        self.exercise = Exercise(self.data)
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'Column <code>a</code> of your pandas DataFrame, <code>df</code>, is not correct.')
 
     def test_Fail2(self):
@@ -100,7 +88,7 @@ df = pd.DataFrame({
 })
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'Column <code>b</code> of your pandas DataFrame, <code>df</code>, is not correct.')
 
     def test_Fail3(self):
@@ -112,7 +100,7 @@ df = pd.DataFrame({
 })
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'Column <code>c</code> of your pandas DataFrame, <code>df</code>, is not correct.')
 
     def test_Fail4(self):
@@ -124,7 +112,7 @@ not_df = pd.DataFrame({
 })
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'Are you sure you defined the pandas DataFrame: <code>df</code>?')
 
     def test_Fail5(self):
@@ -136,8 +124,8 @@ df = {
 }
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
-        self.assertEqual(sct_payload['message'], 'The object you defined as <code>df</code> is not pandas DataFrame.')
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], 'The object you defined as <code>df</code> is not a pandas DataFrame.')
 
 
     def test_Fail6(self):
@@ -150,7 +138,7 @@ df = pd.DataFrame({
 })
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'test 1')
 
     def test_Fail7(self):
@@ -163,7 +151,7 @@ not_df = pd.DataFrame({
 })
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'test 2')
 
     def test_Fail8(self):
@@ -176,7 +164,7 @@ df = {
 }
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'test 3')
 
     def test_Fail9(self):
@@ -197,7 +185,7 @@ df = pd.DataFrame({
 })
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'You did not define column <code>d</code> in the pandas DataFrame, <code>df</code>.')
 
     def test_Fail10(self):
@@ -218,7 +206,7 @@ df = pd.DataFrame({
 })
         '''
         sct_payload = helper.run(self.data)
-        self.assertEqual(sct_payload['correct'], False)
+        self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'test 4')
 
 if __name__ == "__main__":

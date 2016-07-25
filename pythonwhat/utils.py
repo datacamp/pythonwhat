@@ -6,6 +6,7 @@ from types import ModuleType
 import copy
 
 def get_ord(num):
+    assert num != 0, "use strictly positive numbers in get_ord()"
     nums = {1: "first", 2: "second", 3:"third", 4:"fourth",
             5: "fifth", 6: "sixth", 7:"seventh", 8:"eight",
             9: "nineth", 10: "tenth"}
@@ -20,6 +21,13 @@ def get_times(num):
         return(nums[num])
     else:
         return("%d times" % num)
+
+def get_num(num):
+    nums = {0:"no", 1:"one", 2:"two", 3:"three", 4:"four", 5:"five", 6:"six", 7:"seven", 8:"eight"}
+    if num in nums:
+        return(nums[num])
+    else:
+        return(str(num))    
 
 def copy_env(env, keep_objs=None):
     if keep_objs is None:
@@ -48,3 +56,11 @@ def copy_env(env, keep_objs=None):
 
 def first_lower(s):
     return (s[:1].lower() + s[1:] if s else '')
+
+def check_str(x):
+    assert isinstance(x, str), "object isn't string where string expected"
+    return(x)
+
+def check_dict(x):
+    assert isinstance(x, dict), "object isn't dict where dict expected"
+    return(x)

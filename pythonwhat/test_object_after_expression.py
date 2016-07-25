@@ -5,6 +5,8 @@ from pythonwhat.Test import DefinedTest, EqualEnvironmentTest, EquivalentEnviron
 
 from pythonwhat.set_extra_env import set_extra_env
 from pythonwhat.set_context_vals import set_context_vals
+from pythonwhat.test_object import get_assignment_node
+from pythonwhat.Fb import Feedback
 
 from pythonwhat import utils
 
@@ -79,8 +81,14 @@ def test_object_after_expression(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object_after_expression")
 
-    undefined_msg, incorrect_msg = build_strings(
-        undefined_msg, incorrect_msg, name)
+    state.extract_object_assignments()
+    student_obj_ass = state.student_object_assignments
+
+    if not undefined_msg:
+        undefined_msg = "Have you defined `%s`?" % name
+
+    if not incorrect_msg:
+        incorrect_msg = "Are you sure you assigned the correct value to `%s`?" % name
 
     eq_map = {"equal": EqualEnvironmentTest,
               "equivalent": EquivalentEnvironmentTest}
@@ -112,19 +120,10 @@ def test_object_after_expression(name,
     if (rep.failed_test):
         return
 
-    rep.do_test(
-        eq_map[eq_condition](
-            name,
-            student_env,
-            solution_env,
-            incorrect_msg))
+    ass_node = get_assignment_node(student_obj_ass, name)
 
+    rep.do_test(eq_map[eq_condition](name,
+                                     student_env,
+                                     solution_env,
+                                     Feedback(incorrect_msg, ass_node)))
 
-def build_strings(undefined_msg, incorrect_msg, name):
-    if not undefined_msg:
-        undefined_msg = "Have you defined `" + name + "`?"
-
-    if not incorrect_msg:
-        incorrect_msg = "Are you sure you assigned the correct value to `" + name + "`?"
-
-    return(undefined_msg, incorrect_msg)

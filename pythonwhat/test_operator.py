@@ -2,8 +2,8 @@ import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import EqualTest, EquivalentTest, CollectionContainsTest, BiggerTest
-
 from pythonwhat import utils
+from pythonwhat.Fb import Feedback
 
 
 def test_operator(index=1,
@@ -80,18 +80,18 @@ def test_operator(index=1,
             len(student_ops),
             index,
             (not_found_msg if not_found_msg else "You didn't define enough operations in your code.")))
-    if (rep.failed_test):
+    if rep.failed_test:
         return
 
-    lineno_student, expr_student, used_student = student_ops[index]
+    expr_student, used_student = student_ops[index]
 
     # Throw error if solution code is invalid with SCT
     if index > len(solution_ops) + 1:
         raise IndexError("index not found in solution: %d" % index)
 
-    lineno_solution, expr_solution, used_solution = solution_ops[index]
+    expr_solution, used_solution = solution_ops[index]
 
-    build_incorrect_msg = "Your operation at line " + str(lineno_student)
+    build_incorrect_msg = "The highlighted operation"
 
     used_student = set(used_student)
     used_solution = set(used_solution)
@@ -101,14 +101,14 @@ def test_operator(index=1,
         used = used_solution
 
     for op in used:
-        Reporter.active_reporter.do_test(
-            CollectionContainsTest(
-                op,
-                used_student,
-                (incorrect_op_msg if incorrect_op_msg else (
-                    build_incorrect_msg +
-                    " is missing a `%s` operation." %
-                    op))))
+        if incorrect_op_msg is None:
+            incorrect_op_msg = build_incorrect_msg + (" is missing a `%s` operation." % op)
+
+        rep.do_test(CollectionContainsTest(op, used_student,
+            Feedback(incorrect_op_msg, expr_student)))
+
+        if rep.failed_test:
+            return
 
     if (do_eval):
         try:
@@ -133,14 +133,9 @@ def test_operator(index=1,
                 solution_env))
 
         # Compare the evaluated operation groups
-        rep.do_test(
-            eq_map[eq_condition](
-                eval_student,
-                eval_solution,
-                (incorrect_result_msg if incorrect_result_msg else (
-                    build_incorrect_msg +
-                    " evaluates to `%s`, should be `%s`." %
-                    (utils.shorten_str(
-                        str(eval_student)),
-                        utils.shorten_str(
-                        str(eval_solution)))))))
+        if incorrect_result_msg is None:
+            incorrect_result_msg = build_incorrect_msg + " evaluates to `%s`, should be `%s`." % (utils.shorten_str(
+                str(eval_student)), utils.shorten_str(str(eval_solution)))
+
+        rep.do_test(eq_map[eq_condition](
+            eval_student, eval_solution, Feedback(incorrect_result_msg, expr_student)))

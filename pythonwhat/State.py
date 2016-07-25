@@ -1,10 +1,10 @@
 import ast
 import inspect
-from pythonwhat.parsing import FunctionParser, ObjectAccessParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, FindLastLineParser, WithParser
-
+from pythonwhat.parsing import FunctionParser, ObjectAccessParser, ObjectAssignmentParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, WithParser
 from pythonwhat.Reporter import Reporter
+from pythonwhat.Fb import Feedback
+from pythonwhat import utils_ast
 
-# TODO (Vincent): refactor using dict: e.g. parsed_solution['functions'] => FunctionParser()
 class State(object):
     """State of the SCT environment.
 
@@ -15,34 +15,35 @@ class State(object):
     """
     active_state = None
 
-    def __init__(
-            self,
-            student_code,
-            solution_code,
-            pre_exercise_code,
-            student_env,
-            solution_env,
-            raw_student_output):
-        self.add_student_code(student_code)
-        self.add_solution_code(solution_code)
-        self.add_pre_exercise_code(pre_exercise_code)
-        self.add_student_env(student_env)
-        self.add_solution_env(solution_env)
-        self.add_raw_student_output(raw_student_output)
+    def __init__(self, **kwargs):
 
-        self.student_tree = None
-        self.solution_tree = None
-        self.pre_exercise_tree = None
+        # Set basic fields from kwargs
+        self.__dict__.update(kwargs)
+
+        # parse code if didn't happen yet
+        if not hasattr(self, 'student_tree'):
+            self.student_tree = State.parse_ext(self.student_code)
+
+        if not hasattr(self, 'solution_tree'):
+            self.solution_tree = State.parse_int(self.solution_code)
+
+        if not hasattr(self, 'pre_exercise_tree'):
+            self.pre_exercise_tree = State.parse_int(self.pre_exercise_code)
+
+        if not hasattr(self, 'parent_state'):
+            self.parent_state = None
 
         self.student_operators = None
         self.solution_operators = None
 
-        self.pre_exercise_imports = None
+        self.pre_exercise_mappings = None
         self.student_function_calls = None
         self.solution_function_calls = None
+        self.student_mappings = None
         self.fun_usage = None
 
         self.student_object_accesses = None
+        self.student_object_assignments = None
 
         self.student_imports = None
         self.solution_imports = None
@@ -62,87 +63,8 @@ class State(object):
         self.student_withs = None
         self.solution_withs = None
 
-        self.parent_state = None
-
-    def add_student_code(self, student_code):
-        assert isinstance(
-            student_code, str), "student_code is not a string: %r" % student_code
-        self.student_code = student_code
-
-    def add_solution_code(self, solution_code):
-        assert isinstance(
-            solution_code, str), "solution_code is not a string: %r" % solution_code
-        self.solution_code = solution_code
-
-    def add_pre_exercise_code(self, pre_exercise_code):
-        assert isinstance(
-            pre_exercise_code, str), "pre_exercise_code is not a string: %r" % pre_exercise_code
-        self.pre_exercise_code = pre_exercise_code
-
-    def add_student_env(self, student_env):
-        assert isinstance(
-            student_env, dict), "student_env is not a dictionary: %r" % student_env
-        self.student_env = student_env
-
-    def add_solution_env(self, solution_env):
-        assert isinstance(
-            solution_env, dict), "solution_env is not a dictionary: %r" % solution_env
-        self.solution_env = solution_env
-
-    def add_raw_student_output(self, raw_student_output):
-        assert isinstance(
-            raw_student_output, str), "raw_student_output is not a string: %r" % raw_student_output
-        self.raw_student_output = raw_student_output
-
-    def parse_code(self):
-        if (self.student_tree is None):
-            rep = Reporter.active_reporter
-
-            try:
-                self.student_tree = ast.parse(self.student_code)
-            # Should never happen, SyntaxErrors are handled sooner.
-            except IndentationError as e:
-                rep.fail(
-                    "Your code can not be executed due to an error in the indentation: %s." %
-                    str(e))
-            except SyntaxError as e:
-                rep.fail(
-                    "Your code can not be executed due to a syntax error: %s." %
-                    str(e))
-
-            # Can happen, can't catch this earlier because we can't differentiate between
-            # TypeError in parsing or TypeError within code (at runtime).
-            except TypeError as e:
-                rep.fail("Something went wrong while running your code.")
-            finally:
-                if (self.student_tree is None):
-                    self.student_tree = False
-
-        if (self.solution_tree is None):
-            try:
-                self.solution_tree = ast.parse(self.solution_code)
-            except SyntaxError as e:
-                raise SyntaxError("In solution code: " + str(e))
-            except TypeError as e:
-                raise TypeError("In solution code: " + str(e))
-            finally:
-                if (self.solution_tree is None):
-                    self.solution_tree = False
-
-        if (self.pre_exercise_tree is None):
-            try:
-                self.pre_exercise_tree = ast.parse(self.pre_exercise_code)
-            except SyntaxError as e:
-                raise SyntaxError("In pre exercise code: " + str(e))
-            except TypeError as e:
-                raise TypeError("In pre exercise code: " + str(e))
-            finally:
-                if (self.pre_exercise_tree is None):
-                    self.pre_exercise_tree = False
 
     def extract_operators(self):
-        self.parse_code()
-
         if (self.student_operators is None):
             op = OperatorParser()
             op.visit(self.student_tree)
@@ -173,41 +95,41 @@ class State(object):
             return stud_indices
 
     def extract_function_calls(self):
-        self.parse_code()
-
         if (self.fun_usage is None):
             self.fun_usage = {}
 
-        if (self.pre_exercise_imports is None):
+        if (self.pre_exercise_mappings is None):
             fp = FunctionParser()
             fp.visit(self.pre_exercise_tree)
-            self.pre_exercise_imports = fp.imports
+            self.pre_exercise_mappings = fp.mappings
 
         if (self.student_function_calls is None):
             fp = FunctionParser()
-            fp.imports = self.pre_exercise_imports.copy()
+            fp.mappings = self.pre_exercise_mappings.copy()
             fp.visit(self.student_tree)
             self.student_function_calls = fp.calls
-            self.student_imports = fp.imports
+            self.student_mappings = fp.mappings
 
         if (self.solution_function_calls is None):
             fp = FunctionParser()
-            fp.imports = self.pre_exercise_imports.copy()
+            fp.mappings = self.pre_exercise_mappings.copy()
             fp.visit(self.solution_tree)
             self.solution_function_calls = fp.calls
 
     def extract_object_accesses(self):
-        self.parse_code()
-
         if (self.student_object_accesses is None):
             oap = ObjectAccessParser()
             oap.visit(self.student_tree)
             self.student_object_accesses = oap.accesses
-            self.student_imports = oap.imports
+            self.student_mappings = oap.mappings
+
+    def extract_object_assignments(self):
+        if (self.student_object_assignments is None):
+            oap = ObjectAssignmentParser()
+            oap.visit(self.student_tree)
+            self.student_object_assignments = oap.assignments
 
     def extract_imports(self):
-        self.parse_code()
-
         if (self.student_imports is None):
             ip = ImportParser()
             ip.visit(self.student_tree)
@@ -219,8 +141,6 @@ class State(object):
             self.solution_imports = ip.imports
 
     def extract_if_calls(self):
-        self.parse_code()
-
         if (self.student_if_calls is None):
             ip = IfParser()
             ip.visit(self.student_tree)
@@ -232,8 +152,6 @@ class State(object):
             self.solution_if_calls = ip.ifs
 
     def extract_while_calls(self):
-        self.parse_code()
-
         if (self.student_while_calls is None):
             ip = WhileParser()
             ip.visit(self.student_tree)
@@ -245,8 +163,6 @@ class State(object):
             self.solution_while_calls = ip.whiles
 
     def extract_for_calls(self):
-        self.parse_code()
-
         if (self.student_for_calls is None):
             fp = ForParser()
             fp.visit(self.student_tree)
@@ -258,8 +174,6 @@ class State(object):
             self.solution_for_calls = fp.fors
 
     def extract_function_defs(self):
-        self.parse_code()
-
         if (self.student_function_defs is None):
             fp = FunctionDefParser()
             fp.visit(self.student_tree)
@@ -271,8 +185,6 @@ class State(object):
             self.solution_function_defs = fp.defs
 
     def extract_withs(self):
-        self.parse_code()
-
         if (self.student_withs is None):
             wp = WithParser()
             wp.visit(self.student_tree)
@@ -291,40 +203,79 @@ class State(object):
         for loops for example.
         """
 
-        args = inspect.signature(self.__class__.__init__)
-        arg_values = [self.__dict__[arg] for arg in list(args.parameters.keys())[1:]]
-        child = State(*arg_values)
-        child.student_tree = student_subtree
-        child.solution_tree = solution_subtree
-        child.student_code = State.get_subcode(
-            student_subtree, self.student_code)
-        child.solution_code = State.get_subcode(
-            solution_subtree, self.solution_code)
-        child.parent_state = self
+        child = State(student_code = utils_ast.extract_text_from_node(self.full_student_code, student_subtree),
+                      solution_code = utils_ast.extract_text_from_node( self.full_solution_code, solution_subtree),
+                      full_student_code = self.full_student_code,
+                      full_solution_code = self.full_solution_code,
+                      pre_exercise_code = self.pre_exercise_code,
+                      student_env = self.student_env, 
+                      solution_env = self.solution_env,
+                      raw_student_output = self.raw_student_output,
+                      pre_exercise_tree = self.pre_exercise_tree,
+                      student_tree = student_subtree,
+                      solution_tree = solution_subtree,
+                      parent_state = self)
         State.set_active_state(child)
         return(child)
-
-    def get_subcode(subtree, full_code):
-        """Extract code subtree.
-
-        Extract all the code belonging to a subtree of the code.
-        """
-        try:
-            if isinstance(subtree, list):
-                subtree = ast.Module(body=subtree)
-
-            begin = subtree.body[0].lineno - 1
-            ll = FindLastLineParser()
-            ll.visit(subtree)
-            end = ll.last_line
-
-            return("\n".join(full_code.split("\n")[begin:end]))
-        except:
-            return ""
 
     def to_parent_state(self):
         if (self.parent_state):
             State.set_active_state(self.parent_state)
 
-    def set_active_state(to_state):
-        State.active_state = to_state
+
+    @staticmethod
+    def parse_ext(x):
+        rep = Reporter.active_reporter
+
+        res = None
+        try:
+            res = ast.parse(x)
+            # enrich tree with end lines and end columns
+            utils_ast.mark_text_ranges(res, x + '\n')
+
+        except IndentationError as e:
+            rep.set_tag("fun", "indentation_error")
+            e.filename = "script.py"
+            # no line info for now
+            rep.feedback = Feedback("Your code could not be parsed due to an error in the indentation:<br>`%s.`" % str(e))
+            rep.failed_test = True
+
+        except SyntaxError as e:
+            rep.set_tag("fun", "syntax_error")
+            e.filename = "script.py"
+            # no line info for now
+            rep.feedback = Feedback("Your code can not be executed due to a syntax error:<br>`%s.`" % str(e))
+            rep.failed_test = True
+
+        # Can happen, can't catch this earlier because we can't differentiate between
+        # TypeError in parsing or TypeError within code (at runtime).
+        except:
+            rep.set_tag("fun", "other_error")
+            rep.feedback.message = "Something went wrong while parsing your code."
+            rep.failed_test = True
+
+        finally:
+            if (res is None):
+                res = False
+
+        return(res)
+
+    @staticmethod
+    def parse_int(x):
+        res = None
+        try:
+            res = ast.parse(x)
+
+        except SyntaxError as e:
+            raise SyntaxError(str(e))
+        except TypeError as e:
+            raise TypeError(str(e))
+        finally:
+            if (res is None):
+                res = False
+
+        return(res)
+
+    @staticmethod
+    def set_active_state(state):
+        State.active_state = state

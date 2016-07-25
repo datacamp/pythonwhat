@@ -2,7 +2,7 @@ import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import DefinedTest, EqualTest, Test
-
+from pythonwhat.Fb import Feedback
 from pythonwhat import utils
 
 from contextlib import contextmanager
@@ -120,6 +120,8 @@ def test_function_definition(name,
 
     args_solution = solution_def['args']
     args_student = student_def['args']
+    fundef_student = student_def['fundef']
+
     if arg_names or arg_defaults:
 
         nb_args_solution = len(args_solution)
@@ -127,7 +129,8 @@ def test_function_definition(name,
         c_nb_args_msg = nb_args_msg or \
             ("You should define `%s()` with %d arguments, instead got %d." %
                 (name, nb_args_solution, nb_args_student))
-        rep.do_test(EqualTest(nb_args_solution, nb_args_student, c_nb_args_msg))
+        
+        rep.do_test(EqualTest(nb_args_solution, nb_args_student, Feedback(c_nb_args_msg, fundef_student)))
         if rep.failed_test:
             return
 
@@ -139,7 +142,7 @@ def test_function_definition(name,
                     ("In your definition of `%s()`, the %s argument should be called `%s`, instead got `%s`." %
                         (name, ordinal(i+1), arg_name_solution, arg_name_student))
                 rep.do_test(
-                    EqualTest(arg_name_solution, arg_name_student, c_arg_names_msg))
+                    EqualTest(arg_name_solution, arg_name_student, Feedback(c_arg_names_msg, fundef_student)))
                 if rep.failed_test:
                     return
             if arg_defaults:
@@ -147,7 +150,7 @@ def test_function_definition(name,
                     ("In your definition of `%s()`, the %s argument should have `%s` as default, instead got `%s`." %
                         (name, ordinal(i+1), arg_default_solution, arg_default_student))
                 rep.do_test(
-                    EqualTest(arg_default_solution, arg_default_student, c_arg_defaults_msg))
+                    EqualTest(arg_default_solution, arg_default_student, Feedback(c_arg_defaults_msg, fundef_student)))
                 if rep.failed_test:
                     return
     if rep.failed_test:
@@ -156,15 +159,20 @@ def test_function_definition(name,
     if body is not None:
         subtree_solution = solution_def['body']
         subtree_student = student_def['body']
-        failed_before = rep.failed_test
+        if rep.failed_test:
+            return
         child = state.to_child_state(subtree_student, subtree_solution)
         child.context_solution = [arg[0] for arg in args_solution]
         child.context_student = [arg[0] for arg in args_student]
         body()
         child.to_parent_state()
-        if expand_message and (failed_before is not rep.failed_test):
-            rep.feedback_msg = ("In your definition of `%s()`, " % name) + \
-                utils.first_lower(rep.feedback_msg)
+        if rep.failed_test:
+            if expand_message:
+                rep.feedback.message = ("In your definition of `%s()`, " % name) + \
+                    utils.first_lower(rep.feedback.message)
+            if not rep.feedback.line_info:
+                rep.feedback = Feedback(rep.feedback.message, subtree_student)
+
     if rep.failed_test:
         return
 

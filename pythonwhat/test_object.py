@@ -1,6 +1,7 @@
 from pythonwhat.Test import DefinedTest, EqualEnvironmentTest, EquivalentEnvironmentTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
+from pythonwhat.Fb import Feedback
 
 
 def test_object(name,
@@ -43,9 +44,15 @@ def test_object(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object")
 
-    undefined_msg, incorrect_msg = build_strings(
-        undefined_msg, incorrect_msg, name)
-    
+    state.extract_object_assignments()
+    student_obj_ass = state.student_object_assignments
+
+    if not undefined_msg:
+        undefined_msg = "Have you defined `%s`?" % name
+
+    if not incorrect_msg:
+        incorrect_msg = "The contents of `%s` aren't correct." % name
+
     eq_map = {"equal": EqualEnvironmentTest,
               "equivalent": EquivalentEnvironmentTest}
     student_env = state.student_env
@@ -57,24 +64,24 @@ def test_object(name,
     if name not in solution_env:
         raise NameError("%r not in solution environment " % name)
 
-    rep.do_test(DefinedTest(name, student_env, undefined_msg))
+    rep.do_test(DefinedTest(name, student_env, Feedback(undefined_msg)))
+
     if (rep.failed_test):
         return
 
     if do_eval:
-        rep.do_test(
-            eq_map[eq_condition](
-                name,
-                student_env,
-                solution_env,
-                incorrect_msg))
+        ass_node = get_assignment_node(student_obj_ass, name)
+        rep.do_test(eq_map[eq_condition](name,
+                                         student_env,
+                                         solution_env,
+                                         Feedback(incorrect_msg, ass_node)))
 
+def get_assignment_node(student_obj_ass, name):
+    if (name not in student_obj_ass):
+        return(None)
 
-def build_strings(undefined_msg, incorrect_msg, name):
-    if not undefined_msg:
-        undefined_msg = "Have you defined `" + name + "`?"
+    # For now, only pass along node if single assignment
+    if (len(student_obj_ass[name]) != 1):
+        return(None)
 
-    if not incorrect_msg:
-        incorrect_msg = "Are you sure you assigned the correct value to `" + name + "`?"
-
-    return(undefined_msg, incorrect_msg)
+    return(student_obj_ass[name][0])

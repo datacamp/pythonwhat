@@ -17,7 +17,7 @@ def test_or(*tests):
             success = True
             break
         else:
-            first_message = first_message or rep.feedback_msg
+            first_message = first_message or rep.feedback.message
             rep.failed_test = False
 
     if not success:

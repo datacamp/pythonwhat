@@ -22,22 +22,22 @@ def test_data_frame(name,
     student_env = state.student_env
 
     try:
-      solution_df = solution_env[name]
-      assert isinstance(solution_df, pd.DataFrame)
+        solution_df = solution_env[name]
+        assert isinstance(solution_df, pd.DataFrame)
     except KeyError:
-      raise NameError("%r not in solution environment" % name)
+        raise NameError("%r not in solution environment" % name)
     except AssertionError:
-      raise ValueError("%r is not a pandas.DataFrame in the solution environment" % name)
+        raise ValueError("%r is not a pandas.DataFrame in the solution environment" % name)
 
     rep.do_test(DefinedTest(name, student_env,
-      undefined_msg or "Are you sure you defined the pandas DataFrame: `%s`?" % name))
+        undefined_msg or "Are you sure you defined the pandas DataFrame: `%s`?" % name))
     if rep.failed_test:
         return
     student_df = student_env[name]
     rep.do_test(EqualTest(student_df.__class__, pd.DataFrame,
-      not_data_frame_msg or "The object you defined as `%s` is not pandas DataFrame." % name))
+        not_data_frame_msg or "The object you defined as `%s` is not a pandas DataFrame." % name))
     if rep.failed_test:
-      return
+        return
 
     columns = columns or list(solution_df.columns)
 
