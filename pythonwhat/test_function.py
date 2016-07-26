@@ -170,14 +170,14 @@ def test_function(name,
             success = True
             start = "Have you specified all required arguments inside `%s()` function?" % stud_name
 
-            if len(args) > len(args_student):
+            if len(args) > 0 and (max(args) >= len(args_student)):
                 if feedback is None:
                     if not args_not_specified_msg:
-                        n = len(args)
-                        if n == 1:
+                        n = max(args)
+                        if n == 0:
                             args_not_specified_msg = start + " You should specify one argument without naming it."
                         else:
-                            args_not_specified_msg = start + (" You should specify %s arguments without naming them." % get_num(n))
+                            args_not_specified_msg = start + (" You should specify %s arguments without naming them." % get_num(n + 1))
                     feedback = Feedback(args_not_specified_msg)
                 success = False
                 continue
