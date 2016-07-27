@@ -18,17 +18,17 @@ class Reporter(object):
         self.failed_test = False
         self.feedback = Feedback("Oh no, your solution is incorrect! Please, try again.")
         self.success_msg = "Great work!"
-        self.allow_errors = False
+        self.errors_allowed = False
         self.tags = {}
 
     def set_success_msg(self, success_msg):
         self.success_msg = success_msg
 
     def allow_errors(self):
-        self.allow_errors = True
+        self.errors_allowed = True
 
     def reject_errors(self):
-        self.allow_errors = False
+        self.errors_allowed = False
 
     def fail(self, failure_msg):
         self.failed_test = True
@@ -64,7 +64,7 @@ class Reporter(object):
         self.tags[key] = value
 
     def build_payload(self, error):
-        if (error and not self.failed_test and not self.allow_errors):
+        if (error and not self.failed_test and not self.errors_allowed):
             feedback_msg = "Your code contains an error: `%s`" % str(error[1])
             return({
                 "correct": False,

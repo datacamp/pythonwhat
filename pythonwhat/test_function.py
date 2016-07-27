@@ -98,8 +98,8 @@ def test_function(name,
             not_called_msg = ("The system wants to check the %s call of `%s()`, " +
                 "but hasn't found it; have another look at your code.") % (get_ord(index + 1), stud_name)
 
-    if name not in solution_calls:
-        raise NameError("%r not in solution environment" % name)
+    if name not in solution_calls or len(solution_calls[name]) <= index:
+        raise NameError("%r not in solution environment (often enough)" % name)
 
     rep.do_test(DefinedTest(name, student_calls, not_called_msg))
     if rep.failed_test:
@@ -223,6 +223,7 @@ def test_function_v2(name,
                      eq_condition="equal",
                      do_eval=True,
                      not_called_msg=None,
+                     params_not_matched_msg=None,
                      params_not_specified_msg=None,
                      incorrect_msg=None):
 
@@ -257,8 +258,8 @@ def test_function_v2(name,
             not_called_msg = ("The system wants to check the %s call of `%s()`, " +
                 "but hasn't found it; have another look at your code.") % (get_ord(index + 1), stud_name)
 
-    if name not in solution_calls:
-        raise NameError("%r not in solution environment" % name)
+    if name not in solution_calls or len(solution_calls[name]) <= index:
+        raise NameError("%r not in solution environment (often enough)" % name)
 
     rep.do_test(DefinedTest(name, student_calls, not_called_msg))
     if rep.failed_test:
@@ -271,13 +272,16 @@ def test_function_v2(name,
     if len(params) > 0:
 
         try:
-            _, solution_args = get_args(solution_calls, name, signature, sol_name, solution_env, index)
+            sol_call, arguments, keywords = solution_calls[name][index]
+            solution_args = get_args(args=arguments, keyws=keywords,
+                                     name=name, mapped_name=sol_name,
+                                     signature=signature, env=solution_env)
         except:
             raise ValueError(("Something went wrong in matching the %s call of %s to its signature." + \
-                " You might have to specify the function signature manually through the signature argument") % (get_ord(index + 1), sol_name))
+                " You might have to manually specify or correct the function signature.") % (get_ord(index + 1), sol_name))
 
         if len(list(set(params) - set(solution_args.keys()))) > 0:
-            raise ValueError("For test_function(%s), the solution call doesn't specify the listed parameters." % name)
+            raise ValueError("When testing %s(), the solution call doesn't specify the listed parameters." % name)
 
         success = None
 
@@ -288,21 +292,29 @@ def test_function_v2(name,
 
         for call_ind in call_indices:
 
-            try:
-                student_call, student_args = get_args(student_calls, name, signature, stud_name, student_env, call_ind)
-            except:
-                msg = "Something went wrong in figuring out how you specified the " + \
-                    "arguments for the highlighting function call; have another look at your code"
-                feedback = Feedback(msg, student_call)
-
+            # let's start with assuming all is good
             success = True
 
-            setdiff = list(set(params) - set(solution_args.keys()))
+            try:
+                student_call, arguments, keywords = student_calls[name][call_ind]
+                student_args = get_args(args=arguments, keyws=keywords,
+                         name=name, mapped_name=stud_name,
+                         signature=signature, env=student_env)
+            except:
+                if feedback is None:
+                    if not params_not_matched_msg:
+                        params_not_matched_msg = ("Something went wrong in figuring out how you specified the " + \
+                            "arguments for `%s()`; have another look at your code and its output.") % stud_name
+                    feedback = Feedback(params_not_matched_msg, student_call)
+                success = False
+                continue
+
+            setdiff = list(set(params) - set(student_args.keys()))
             if len(setdiff) > 0:
                 if feedback is None:
                     if not params_not_specified_msg:
                         params_not_specified_msg = ("Have you specified all required arguments inside `%s()`?" % stud_name) + \
-                            (" You should specify the keyword `%s` explicitly by its name." % setdiff[0])
+                            (" You didn't specify `%s`." % setdiff[0])
                     feedback = Feedback(params_not_specified_msg, student_call)
                 success = False
                 continue
@@ -335,8 +347,8 @@ def test_function_v2(name,
                     success = False
                     break
 
+            # If all is still good, we have a winner!
             if success:
-                # we have a winner that passes all argument and keyword checks
                 state.set_used(name, call_ind, index)
                 break
 
@@ -356,8 +368,7 @@ def get_mapped_name(name, mappings):
     return(mapped_name)
 
 
-def get_args(calls, name, signature, mapped_name, env, index):
-    call, args, keyws = calls[name][index]
+def get_args(args, keyws, name, mapped_name, signature, env):
     keyws = {keyword.arg: keyword.value for keyword in keyws}
     if signature is None:
         # establish function
@@ -382,18 +393,18 @@ def get_args(calls, name, signature, mapped_name, env, index):
                             els[0] = type(eval(els[0], env)).__name__
                             generic_name = ".".join(els[:])
                         except:
-                            raise ValueError('signature error')
+                            raise ValueError('signature error - cannot convert call')
                         if generic_name in builtins:
                             signature = inspect.Signature(builtins[generic_name])
                         else:
-                            raise ValueError('signature error')
+                            raise ValueError('signature error - %s not in builtins' % generic_name)
                     else:
-                        raise ValueError('signature error')
+                        raise ValueError('signature error - cannot determine signature')
             else:
-                raise ValueError('signature error')
+                raise ValueError('signature error - signature cannot be inferred and no builtin')
 
     bound_args = signature.bind(*args, **keyws)
-    return(call, bound_args.arguments)
+    return(bound_args.arguments)
 
 def build_test(stud, sol, student_env, solution_env, do_eval, eq_fun, feedback_msg, add_more):
     got_error = False
