@@ -14,6 +14,8 @@ from pythonwhat.test_if_else import test_if_else
 from pythonwhat.set_extra_env import set_extra_env
 from pythonwhat.test_for_loop import test_for_loop
 from pythonwhat.test_function import test_function
+from pythonwhat.test_function import test_function_v2, build_sig
+from inspect import Parameter as param
 from pythonwhat.test_operator import test_operator
 from pythonwhat.test_data_frame import test_data_frame
 from pythonwhat.test_while_loop import test_while_loop

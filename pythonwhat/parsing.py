@@ -206,7 +206,7 @@ class FunctionParser(Parser):
                 if (self.current not in self.calls):
                     self.calls[self.current] = []
 
-                self.calls[self.current].append((node.args, node.keywords))
+                self.calls[self.current].append((node, node.args, node.keywords))
 
             self.current = ''
             self.call_lookup_active = False

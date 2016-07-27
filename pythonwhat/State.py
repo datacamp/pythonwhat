@@ -40,6 +40,7 @@ class State(object):
         self.student_function_calls = None
         self.solution_function_calls = None
         self.student_mappings = None
+        self.solution_mappings = None
         self.fun_usage = None
 
         self.student_object_accesses = None
@@ -115,6 +116,7 @@ class State(object):
             fp.mappings = self.pre_exercise_mappings.copy()
             fp.visit(self.solution_tree)
             self.solution_function_calls = fp.calls
+            self.solution_mappings = fp.mappings
 
     def extract_object_accesses(self):
         if (self.student_object_accesses is None):

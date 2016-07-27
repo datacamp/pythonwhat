@@ -6,6 +6,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Fb import Feedback
 from pythonwhat.utils import get_ord, get_num
 import inspect
+from inspect import Parameter as param
 
 def test_function(name,
                   index=1,
@@ -68,11 +69,13 @@ def test_function(name,
     rep.set_tag("fun", "test_function")
 
     index = index - 1
-    eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}
-    student_env, solution_env = state.student_env, state.solution_env
 
+    eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
+    eq_fun = eq_map[eq_condition]
+
+    student_env, solution_env = state.student_env, state.solution_env
 
     state.extract_function_calls()
     solution_calls = state.solution_function_calls
@@ -106,7 +109,7 @@ def test_function(name,
     if rep.failed_test:
         return
 
-    args_solution, keyw_solution = solution_calls[name][index]
+    solution_call, args_solution, keyw_solution = solution_calls[name][index]
     keyw_solution = {keyword.arg: keyword.value for keyword in keyw_solution}
 
 
@@ -115,44 +118,6 @@ def test_function(name,
 
     if keywords is None:
         keywords = list(keyw_solution.keys())
-
-    def build_test(stud, sol, feedback_msg, add_more):
-        got_error = False
-        if do_eval:
-            try:
-                eval_student = eval(
-                    compile(
-                        ast.Expression(stud),
-                        "<student>",
-                        "eval"),
-                    student_env)
-            except:
-                got_error = True
-
-            eval_solution = eval(
-                compile(
-                    ast.Expression(sol),
-                    "<solution>",
-                    "eval"),
-                solution_env)
-
-            # The (eval_student, ) part is important, because when eval_student is a tuple, we don't want
-            # to expand them all over the %'s during formatting, we just want the tuple to be represented
-            # in the place of the %r. Same for eval_solution.
-            if add_more:
-                if got_error:
-                    feedback_msg += " Expected `%r`, but got %s." % (eval_solution, "an error")
-                else:
-                    feedback_msg += " Expected `%r`, but got `%r`." % (eval_solution, eval_student)
-        else:
-            # We don't want the 'expected...' message here. It's a pain in the ass to deparse the ASTs to
-            # give something meaningful.
-            eval_student = ast.dump(stud)
-            eval_solution = ast.dump(sol)
-
-        return(Test(Feedback(feedback_msg, stud)) if got_error else
-            eq_map[eq_condition](eval_student, eval_solution, Feedback(feedback_msg, stud)))
-
 
     if len(args) > 0 or len(keywords) > 0:
 
@@ -164,11 +129,11 @@ def test_function(name,
         feedback = None
 
         for call_ind in call_indices:
-            args_student, keyw_student = student_calls[name][call_ind]
+            student_call, args_student, keyw_student = student_calls[name][call_ind]
             keyw_student = {keyword.arg: keyword.value for keyword in keyw_student}
 
             success = True
-            start = "Have you specified all required arguments inside `%s()` function?" % stud_name
+            start = "Have you specified all required arguments inside `%s()`?" % stud_name
 
             if len(args) > 0 and (max(args) >= len(args_student)):
                 if feedback is None:
@@ -178,7 +143,7 @@ def test_function(name,
                             args_not_specified_msg = start + " You should specify one argument without naming it."
                         else:
                             args_not_specified_msg = start + (" You should specify %s arguments without naming them." % get_num(n + 1))
-                    feedback = Feedback(args_not_specified_msg)
+                    feedback = Feedback(args_not_specified_msg, student_call)
                 success = False
                 continue
 
@@ -187,7 +152,7 @@ def test_function(name,
                 if feedback is None:
                     if not args_not_specified_msg:
                         args_not_specified_msg = start + " You should specify the keyword `%s` explicitly by its name." % setdiff[0]
-                    feedback = Feedback(args_not_specified_msg)
+                    feedback = Feedback(args_not_specified_msg, student_call)
                 success = False
                 continue
 
@@ -200,12 +165,16 @@ def test_function(name,
             for arg in args:
                 arg_student = args_student[arg]
                 arg_solution = args_solution[arg]
-                arg_feedback_msg = feedback_msg + (" The %s argument seems to be incorrect." % get_ord(arg + 1))
                 if incorrect_msg is None:
-                    test = build_test(arg_student, arg_solution, arg_feedback_msg, add_more = True)
+                    msg = feedback_msg + (" The %s argument seems to be incorrect." % get_ord(arg + 1))
+                    add_more = True
                 else:
-                    test = build_test(arg_student, arg_solution, incorrect_msg, add_more = False)
-                
+                    msg = incorrect_msg
+                    add_more = False
+
+                test = build_test(arg_student, arg_solution,
+                                  student_env, solution_env,
+                                  do_eval, eq_fun, msg, add_more=add_more)
                 test.test()
 
                 if not test.result:
@@ -218,11 +187,16 @@ def test_function(name,
                 for key in keywords:
                     key_student = keyw_student[key]
                     key_solution = keyw_solution[key]
-                    key_feedback_msg = feedback_msg + (" Keyword `%s` seems to be incorrect." % key)
                     if incorrect_msg is None:
-                        test = build_test(key_student, key_solution, key_feedback_msg, add_more = True)
+                        msg = feedback_msg + (" Keyword `%s` seems to be incorrect." % key)
+                        add_more = True
                     else:
-                        test = build_test(key_student, key_solution, incorrect_msg, add_more = False)
+                        msg = incorrect_msg
+                        add_more = False
+
+                    test = build_test(key_student, key_solution,
+                                      student_env, solution_env,
+                                      do_eval, eq_fun, msg, add_more=add_more)
                     test.test()
 
                     if not test.result:
@@ -242,15 +216,247 @@ def test_function(name,
             rep.do_test(Test(feedback))
 
 
+def test_function_v2(name,
+                     index=1,
+                     params=[],
+                     signature=None,
+                     eq_condition="equal",
+                     do_eval=True,
+                     not_called_msg=None,
+                     params_not_specified_msg=None,
+                     incorrect_msg=None):
 
-def get_function_signature(fun):
+    state = State.active_state
+    rep = Reporter.active_reporter
+    rep.set_tag("fun", "test_function")
 
-    if (inspect.isclass(fun) or
-        inspect.ismethod(fun) or
-        inspect.isfunction(fun)):
-        arginfo = inspect.signature(fun)
-        import pdb; pdb.set_trace()
-        print(arginfo)
-    elif inspect.isbuiltin(fun):
-        print("Builtin!")
+    index = index - 1
+    eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}
+    if eq_condition not in eq_map:
+        raise NameError("%r not a valid equality condition " % eq_condition)
+    eq_fun = eq_map[eq_condition]
+
+    if not isinstance(params, list):
+        raise NameError("Inside test_function_v2, make sure to specify a LIST of params.")
+
+    student_env, solution_env = state.student_env, state.solution_env
+
+    state.extract_function_calls()
+    solution_calls = state.solution_function_calls
+    student_calls = state.student_function_calls
+    student_mappings = state.student_mappings
+    solution_mappings = state.solution_mappings
+
+    stud_name = get_mapped_name(name, student_mappings)
+    sol_name = get_mapped_name(name, solution_mappings)
+
+    if not_called_msg is None:
+        if index == 0:
+            not_called_msg = "Have you called `%s()`?" % stud_name
+        else:
+            not_called_msg = ("The system wants to check the %s call of `%s()`, " +
+                "but hasn't found it; have another look at your code.") % (get_ord(index + 1), stud_name)
+
+    if name not in solution_calls:
+        raise NameError("%r not in solution environment" % name)
+
+    rep.do_test(DefinedTest(name, student_calls, not_called_msg))
+    if rep.failed_test:
+        return
+
+    rep.do_test(BiggerTest(len(student_calls[name]), index, not_called_msg))
+    if rep.failed_test:
+        return
+
+    if len(params) > 0:
+
+        try:
+            _, solution_args = get_args(solution_calls, name, signature, sol_name, solution_env, index)
+        except:
+            raise ValueError(("Something went wrong in matching the %s call of %s to its signature." + \
+                " You might have to specify the function signature manually through the signature argument") % (get_ord(index + 1), sol_name))
+
+        if len(list(set(params) - set(solution_args.keys()))) > 0:
+            raise ValueError("For test_function(%s), the solution call doesn't specify the listed parameters." % name)
+
+        success = None
+
+        # Get all options (some function calls may be blacklisted)
+        call_indices = state.get_options(name, list(range(len(student_calls[name]))), index)
+
+        feedback = None
+
+        for call_ind in call_indices:
+
+            try:
+                student_call, student_args = get_args(student_calls, name, signature, stud_name, student_env, call_ind)
+            except:
+                msg = "Something went wrong in figuring out how you specified the " + \
+                    "arguments for the highlighting function call; have another look at your code"
+                feedback = Feedback(msg, student_call)
+
+            success = True
+
+            setdiff = list(set(params) - set(solution_args.keys()))
+            if len(setdiff) > 0:
+                if feedback is None:
+                    if not params_not_specified_msg:
+                        params_not_specified_msg = ("Have you specified all required arguments inside `%s()`?" % stud_name) + \
+                            (" You should specify the keyword `%s` explicitly by its name." % setdiff[0])
+                    feedback = Feedback(params_not_specified_msg, student_call)
+                success = False
+                continue
+
+            if do_eval is None:
+                # don't have to go further: set used and break from the for loop
+                state.set_used(name, call_ind, index)
+                break
+
+            feedback_msg = "Did you call `%s()` with the correct arguments?" % stud_name
+            for param in params:
+                arg_student = student_args[param]
+                arg_solution = solution_args[param]
+                if incorrect_msg is None:
+                    msg = ("Did you call `%s()` with the correct arguments?" % stud_name) + \
+                              (" The argument you specified for `%s` seems to be incorrect." % param)
+                    add_more = True
+                else:
+                    msg = incorrect_msg
+                    add_more = False
+
+                test = build_test(arg_student, arg_solution,
+                                  student_env, solution_env,
+                                  do_eval, eq_fun, msg, add_more)
+                test.test()
+
+                if not test.result:
+                    if feedback is None:
+                        feedback = test.get_feedback()
+                    success = False
+                    break
+
+            if success:
+                # we have a winner that passes all argument and keyword checks
+                state.set_used(name, call_ind, index)
+                break
+
+        if not success:
+            if feedback is None:
+                feedback = Feedback("You haven't used enough appropriate calls of `%s()`." % stud_name)
+            rep.do_test(Test(feedback))
+
+def get_mapped_name(name, mappings):
+    mapped_name = name
+    if "." in mapped_name:
+        mappings_rev = {v: k for k, v in mappings.items()}
+        els = name.split(".")
+        front_part = ".".join(els[0:-1])
+        if front_part in mappings_rev.keys():
+                mapped_name = mappings_rev[front_part] + "." + els[-1]
+    return(mapped_name)
+
+
+def get_args(calls, name, signature, mapped_name, env, index):
+    call, args, keyws = calls[name][index]
+    keyws = {keyword.arg: keyword.value for keyword in keyws}
+    if signature is None:
+        # establish function
+        try:
+            fun = eval(mapped_name, env)
+        except:
+            raise ValueError("%s() was not found." % mapped_name)
+
+        # try to get signature
+        try:
+            signature = inspect.signature(fun)
+        except:
+            if inspect.isbuiltin(fun):
+                builtins = get_builtins()
+                if name in builtins:
+                    signature = inspect.Signature(builtins[name])
+                else:
+                    # it might be a method, and we have to find the general method name
+                    if "." in mapped_name:
+                        els = name.split(".")
+                        try:
+                            els[0] = type(eval(els[0], env)).__name__
+                            generic_name = ".".join(els[:])
+                        except:
+                            raise ValueError('signature error')
+                        if generic_name in builtins:
+                            signature = inspect.Signature(builtins[generic_name])
+                        else:
+                            raise ValueError('signature error')
+                    else:
+                        raise ValueError('signature error')
+            else:
+                raise ValueError('signature error')
+
+    bound_args = signature.bind(*args, **keyws)
+    return(call, bound_args.arguments)
+
+def build_test(stud, sol, student_env, solution_env, do_eval, eq_fun, feedback_msg, add_more):
+    got_error = False
+    if do_eval:
+        try:
+            eval_student = eval(
+                compile(
+                    ast.Expression(stud),
+                    "<student>",
+                    "eval"),
+                student_env)
+        except:
+            got_error = True
+
+        eval_solution = eval(
+            compile(
+                ast.Expression(sol),
+                "<solution>",
+                "eval"),
+            solution_env)
+
+        # The (eval_student, ) part is important, because when eval_student is a tuple, we don't want
+        # to expand them all over the %'s during formatting, we just want the tuple to be represented
+        # in the place of the %r. Same for eval_solution.
+        if add_more:
+            if got_error:
+                feedback_msg += " Expected `%r`, but got %s." % (eval_solution, "an error")
+            else:
+                feedback_msg += " Expected `%r`, but got `%r`." % (eval_solution, eval_student)
+    else:
+        # We don't want the 'expected...' message here. It's a pain in the ass to deparse the ASTs to
+        # give something meaningful.
+        eval_student = ast.dump(stud)
+        eval_solution = ast.dump(sol)
+
+    return(Test(Feedback(feedback_msg, stud)) if got_error else
+        eq_fun(eval_student, eval_solution, Feedback(feedback_msg, stud)))
+
+
+def build_sig(*args):
+    return(inspect.Signature(list(args)))
+
+def get_builtins():
+    builtins = {
+        'round': [param('number', param.POSITIONAL_OR_KEYWORD),
+                  param('ndigits', param.POSITIONAL_OR_KEYWORD, default = 0)],
+        'str': [param('object', param.POSITIONAL_OR_KEYWORD)],
+        'int': [param('x', param.POSITIONAL_OR_KEYWORD),
+                param('base', param.POSITIONAL_OR_KEYWORD, default = 10)],
+        'print': [param('value', param.POSITIONAL_ONLY)],
+        'type': [param('object', param.POSITIONAL_ONLY)],
+        'numpy.array': [param('object', param.POSITIONAL_OR_KEYWORD),
+                        param('dtype', param.POSITIONAL_OR_KEYWORD, default = None),
+                        param('copy', param.POSITIONAL_OR_KEYWORD, default = True),
+                        param('order', param.POSITIONAL_OR_KEYWORD, default = None),
+                        param('subok', param.POSITIONAL_OR_KEYWORD, default = False),
+                        param('ndmin', param.POSITIONAL_OR_KEYWORD, default = 0)],
+        'list.append': [param('object', param.POSITIONAL_ONLY)]
+    }
+    return(builtins)
+
+
+
+
+
 
