@@ -385,10 +385,9 @@ def get_args(args, keyws, name, mapped_name, signature, env):
         except:
             raise ValueError("%s() was not found." % mapped_name)
 
+        # first go through manual sigs
         # try to get signature
         try:
-            signature = inspect.signature(fun)
-        except:
             manual_sigs = get_manual_sigs()
             if name in manual_sigs:
                 signature = inspect.Signature(manual_sigs[name])
@@ -406,7 +405,12 @@ def get_args(args, keyws, name, mapped_name, signature, env):
                     else:
                         raise ValueError('signature error - %s not in builtins' % generic_name)
                 else:
-                    raise ValueError('signature error - cannot determine signature')
+                    raise ValueError('manual signature not found')
+        except:
+            try:
+                signature = inspect.signature(fun)
+            except:
+                raise ValueError('signature error - cannot determine signature')
 
     bound_args = signature.bind(*args, **keyws)
     return(bound_args.arguments, signature.parameters)
@@ -509,6 +513,8 @@ def get_manual_sigs():
         'round': [param('number', param.POSITIONAL_OR_KEYWORD),
                   param('ndigits', param.POSITIONAL_OR_KEYWORD, default=0)],
         'set': [param('iterable', param.POSITIONAL_ONLY, default=None)],
+
+        # Difference v3.4 vs v3.5!!!
         'setattr': [param('object', param.POSITIONAL_ONLY),
                     param('name', param.POSITIONAL_ONLY),
                     param('value', param.POSITIONAL_ONLY)],

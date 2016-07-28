@@ -162,7 +162,7 @@ x = Test(123)
             ''',
             "DC_SOLUTION": "setattr(x,'a',4)",
             "DC_CODE": "setattr(x,'a',4)",
-            "DC_SCT": "test_function_v2('setattr', params=['obj','name','value'], do_eval=False)"}
+            "DC_SCT": "test_function_v2('setattr', params=['object','name','value'], do_eval=False)"}
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
