@@ -777,5 +777,37 @@ class TestDoEvalList(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+class TestTestPrintStepByStep(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "print(123)",
+            "DC_SCT": "test_print(1)"
+        }
+
+    def test_step1(self):
+        self.data["DC_CODE"] = ""
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn('Have you called <code>print()</code>?', sct_payload['message'])
+        helper.test_absent_lines(self, sct_payload)
+
+    def test_step2(self):
+        self.data["DC_CODE"] = "print(value = 1234)"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn('Have you correctly called <code>print()</code>', sct_payload['message'])
+
+    def test_step3(self):
+        self.data["DC_CODE"] = "print(1234)"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Have you printed out the correct object?", sct_payload['message'])
+
+    def test_step5(self):
+        self.data["DC_CODE"] = "print(123)"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 if __name__ == "__main__":
     unittest.main()

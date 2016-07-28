@@ -209,6 +209,27 @@ def test_function(name,
                 feedback = Feedback("You haven't used enough appropriate calls of `%s()`" % stud_name)
             rep.do_test(Test(feedback))
 
+def test_print(index = 1,
+               do_eval=True,
+               eq_condition="equal",
+               not_called_msg="Have you called `print()`?",
+               params_not_matched_msg="Have you correctly called `print()`?",
+               params_not_specified_msg="Have you correctly called `print()`?",
+               incorrect_msg="Have you printed out the correct object?"):
+    test_function_v2("print",
+                     index=index,
+                     params=["value"],
+                     signature=None,
+                     eq_condition=eq_condition,
+                     do_eval=do_eval,
+                     not_called_msg=not_called_msg,
+                     params_not_matched_msg=params_not_matched_msg,
+                     params_not_specified_msg=params_not_specified_msg,
+                     incorrect_msg=incorrect_msg)
+    """Test print() calls
+
+    Utility function to test the print() function. For arguments, check test_function_v2()
+    """
 
 def test_function_v2(name,
                      index=1,
