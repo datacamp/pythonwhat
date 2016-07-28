@@ -220,6 +220,30 @@ def test_function_v2(name,
                      params_not_matched_msg=None,
                      params_not_specified_msg=None,
                      incorrect_msg=None):
+    """Test if function calls match (v2).
+
+    This function compares a function call in the student's code with the corresponding one in the solution
+    code. It will cause the reporter to fail if the corresponding calls do not match. The fail message
+    that is returned will depend on the sort of fail.
+
+    Args:
+        name (str): the name of the function to be tested.
+        index (int): index of the function call to be checked. Defaults to 1.
+        params (list(str)): the parameter names of the function call that you want to check.
+        signature (Signature): Normally, test_function() can figure out what the function signature is,
+            but it might be necessary to use build_sig to manually build a signature and pass this along.
+        eq_condition (str): How objects should be compared ("equal" or "equivalent")
+        do_eval (list(bool)): Boolean or list of booleans (parameter-specific) that specify whether or
+            not arguments should be evaluated.
+            True: arguments are evaluated and compared.
+            False: arguments are not evaluated but 'string-matched'.
+            None: arguments are not evaluated; it is only checked if they are specified.
+        not_called_msg (str): custom feedback message if the function is not called.
+        params_not_matched_message (str): custom feedback message if the function parameters were not successfully matched.
+        params_not_specified_msg (str): custom feedback message if the function is called but not all parameters were specified
+        incorrect_msg (list(str)): string or list of strings (parameter-specific). Custom feedback messages if the arguments
+            don't correspond between student and solution code.
+    """
 
     state = State.active_state
     rep = Reporter.active_reporter
