@@ -44,7 +44,6 @@ class TestFunctionBase(unittest.TestCase):
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn('The argument you specified for <code>value</code> seems to be incorrect.', sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 7, 15)
 
     def test_custom_builtin_pass(self):
@@ -72,7 +71,6 @@ test_function_v2('max', params = ['iterable'], signature = sig)
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn('The argument you specified for <code>iterable</code> seems to be incorrect.', sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 5, 18)
 
     def test_package_fun_pass(self):
@@ -180,7 +178,6 @@ x = Test(123)
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn('The argument you specified for <code>value</code> seems to be incorrect.', sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 9, 12)
 
     def test_method_builtin_pass(self):
@@ -202,7 +199,6 @@ x = Test(123)
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn('The argument you specified for <code>object</code> seems to be incorrect.', sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 12, 15)
 
     def test_custom_method_builtin_pass(self):
@@ -230,10 +226,36 @@ test_function_v2('arr.count', params = ['value'], signature=sig)
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn('The argument you specified for <code>value</code> seems to be incorrect.', sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 17, 20)
 
 class TestIrregularities(unittest.TestCase):
+    def test_fun_incorrect_args_1(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "",
+            "DC_CODE": "",
+            "DC_SCT": "test_function_v2('round', params = 'number')"
+        }
+        self.assertRaises(NameError, helper.run, self.data)
+
+    def test_fun_incorrect_args_2(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "round(1.234, 2)",
+            "DC_CODE": "round(1.234, 2)",
+            "DC_SCT": "test_function_v2('round', params = ['number', 'ndigits'], do_eval = [False])"
+        }
+        self.assertRaises(NameError, helper.run, self.data)
+
+    def test_fun_incorrect_args_3(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "round(1.234, 2)",
+            "DC_CODE": "round(1.234, 2)",
+            "DC_SCT": "test_function_v2('round', params = ['number', 'ndigits'], incorrect_msg = ['test'])"
+        }
+        self.assertRaises(NameError, helper.run, self.data)
+
     def test_fun_insufficient_calls_solution(self):
         self.data = {
             "DC_PEC": "arr = [1, 2, 3, 4]",
@@ -255,9 +277,9 @@ class TestIrregularities(unittest.TestCase):
     def test_fun_wrong_call_solution(self):
         self.data = {
             "DC_PEC": "arr = [1, 2, 3, 4]",
-            "DC_SOLUTION": "arr.count(2)",
-            "DC_CODE": "arr.count(2)",
-            "DC_SCT": "test_function_v2('arr.count', params = ['value'])"
+            "DC_SOLUTION": "arr.pop(2)",
+            "DC_CODE": "arr.pop(2)",
+            "DC_SCT": "test_function_v2('arr.pop', params = ['value'])"
         }
         self.assertRaises(ValueError, helper.run, self.data)
 
@@ -485,21 +507,21 @@ test_function_v2("print", index = 3, params = ['value'])
         self.data["DC_CODE"] = 'print("acb")\nprint(1234)\nprint([1, 2, 3])'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Did you call <code>print()</code> with the correct arguments? The argument you specified for <code>value</code> seems to be incorrect.", sct_payload['message'])
+        self.assertIn("Did you call <code>print()</code> with the correct arguments?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 7, 11)
 
     def test_multiple_5(self):
         self.data["DC_CODE"] = 'print("abc")\nprint(1234)\nprint([1, 2, 3])'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Did you call <code>print()</code> with the correct arguments? The argument you specified for <code>value</code> seems to be incorrect.", sct_payload['message'])
+        self.assertIn("Did you call <code>print()</code> with the correct arguments?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 2, 2, 7, 10)
 
     def test_multiple_6(self):
         self.data["DC_CODE"] = 'print("abc")\nprint(123)\nprint([1, 2, 3, 4])'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Did you call <code>print()</code> with the correct arguments? The argument you specified for <code>value</code> seems to be incorrect.", sct_payload['message'])
+        self.assertIn("Did you call <code>print()</code> with the correct arguments?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 3, 3, 7, 18)
 
 
@@ -591,8 +613,80 @@ test_function_v2('pandas.DataFrame', params=['data', 'columns'],
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-class TestDoEval(unittest.TestCase):
+class TestStepByStepCustom2(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "import pandas as pd",
+            "DC_SOLUTION": "df = pd.DataFrame([1, 2, 3], columns=['a'])",
+            "DC_SCT": '''
+test_function_v2('pandas.DataFrame', params=['data', 'columns'],
+                 incorrect_msg=['dataincorrect', 'columnsincorrect'])
+            '''
+        }
 
+    def test_step4(self):
+        self.data["DC_CODE"] = "df = pd.DataFrame(data=[1, 2, 3, 4], columns=['a'])"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual('dataincorrect', sct_payload['message'])
+        helper.test_lines(self, sct_payload, 1, 1, 24, 35)
+
+    def test_step4b(self):
+        self.data["DC_CODE"] = "df = pd.DataFrame(data=[1, 2, 3], columns=['b'])"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual('columnsincorrect', sct_payload['message'])
+        helper.test_lines(self, sct_payload, 1, 1, 43, 47)
+
+    def test_step5(self):
+        self.data["DC_CODE"] = "df = pd.DataFrame(data=[1, 2, 3], columns=['a'])"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+class TestStepByStepPositional(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "x = 'test'",
+            "DC_SOLUTION": "x.center(50, 't')",
+            "DC_SCT": "test_function_v2('x.center', params=['width','fillchar'])"
+        }
+
+    def test_step1(self):
+        self.data["DC_CODE"] = ""
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn('Have you called <code>x.center()</code>?', sct_payload['message'])
+        helper.test_absent_lines(self, sct_payload)
+
+    def test_step2(self):
+        self.data["DC_CODE"] = "x.center(width = 50)"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn('Something went wrong in figuring out how you specified the arguments for <code>x.center()</code>', sct_payload['message'])
+        helper.test_lines(self, sct_payload, 1, 1, 1, 20)
+
+    def test_step3(self):
+        self.data["DC_CODE"] = "x.center(50)"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn('Have you specified all required arguments inside <code>x.center()</code>?', sct_payload['message'])
+        self.assertFalse('You didn\'t specify <code>fillchar</code>.' in sct_payload['message'])
+        helper.test_lines(self, sct_payload, 1, 1, 1, 12)
+
+    def test_step4(self):
+        self.data["DC_CODE"] = "x.center(50, 'c')"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn('Did you call <code>x.center()</code> with the correct arguments?', sct_payload['message'])
+        self.assertFalse('The argument you specified for <code>fillchar</code> seems to be incorrect.' in sct_payload['message'])
+        helper.test_lines(self, sct_payload, 1, 1, 14, 16)
+
+    def test_step5(self):
+        self.data["DC_CODE"] = "x.center(50, 't')"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+class TestDoEval(unittest.TestCase):
     def test_do_eval_true_pass(self):
         self.data = {"DC_PEC": '',
                      "DC_SOLUTION": "round(2.1234, ndigits = 4)",
@@ -656,6 +750,32 @@ class TestDoEval(unittest.TestCase):
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Have you specified all required arguments inside <code>round()</code>? You didn\'t specify <code>ndigits</code>.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 1, 14)
+
+class TestDoEvalList(unittest.TestCase):
+    def setUp(self):
+        self.data = {"DC_PEC": '',
+                     "DC_SOLUTION": "pow(3, 2, 4)",
+                     "DC_SCT": "test_function_v2('pow', params=['x','y','z'], do_eval = [True, False, None])"}
+
+    def test_do_eval_1(self):
+        self.data["DC_CODE"] = "pow(3, 2, 4)"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_do_eval_2(self):
+        self.data["DC_CODE"] = "pow(4, 2, 4)"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_do_eval_3(self):
+        self.data["DC_CODE"] = "x = 2; pow(3, x, 4)"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_do_eval_4(self):
+        self.data["DC_CODE"] = "pow(3, 2, 3)"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
 if __name__ == "__main__":
     unittest.main()

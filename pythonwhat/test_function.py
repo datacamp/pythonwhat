@@ -234,6 +234,18 @@ def test_function_v2(name,
     if not isinstance(params, list):
         raise NameError("Inside test_function_v2, make sure to specify a LIST of params.")
 
+    if isinstance(do_eval, bool) or do_eval is None:
+        do_eval = [do_eval] * len(params)
+
+    if len(params) != len(do_eval):
+        raise NameError("Inside test_function_v2, make sure that do_eval has the same length as params.")
+
+    if isinstance(incorrect_msg, str) or incorrect_msg is None:
+        incorrect_msg = [incorrect_msg] * len(params)
+
+    if len(params) != len(incorrect_msg):
+        raise NameError("Inside test_function_v2, make sure that incorrect_msg has the same length as params.")
+
     student_env, solution_env = state.student_env, state.solution_env
 
     state.extract_function_calls()
@@ -267,9 +279,9 @@ def test_function_v2(name,
 
         try:
             sol_call, arguments, keywords = solution_calls[name][index]
-            solution_args = get_args(args=arguments, keyws=keywords,
-                                     name=name, mapped_name=sol_name,
-                                     signature=signature, env=solution_env)
+            solution_args, _ = get_args(args=arguments, keyws=keywords,
+                                        name=name, mapped_name=sol_name,
+                                        signature=signature, env=solution_env)
         except:
             raise ValueError(("Something went wrong in matching the %s call of %s to its signature." + \
                 " You might have to manually specify or correct the function signature.") % (get_ord(index + 1), sol_name))
@@ -291,7 +303,7 @@ def test_function_v2(name,
 
             try:
                 student_call, arguments, keywords = student_calls[name][call_ind]
-                student_args = get_args(args=arguments, keyws=keywords,
+                student_args, student_params = get_args(args=arguments, keyws=keywords,
                          name=name, mapped_name=stud_name,
                          signature=signature, env=student_env)
             except:
@@ -307,32 +319,35 @@ def test_function_v2(name,
             if len(setdiff) > 0:
                 if feedback is None:
                     if not params_not_specified_msg:
-                        params_not_specified_msg = ("Have you specified all required arguments inside `%s()`?" % stud_name) + \
-                            (" You didn't specify `%s`." % setdiff[0])
+                        params_not_specified_msg = "Have you specified all required arguments inside `%s()`?" % stud_name
+                        # only if value can be supplied as keyword argument, give more info:
+                        first_missing = setdiff[0]
+                        if student_params[first_missing].kind in [1, 3, 4]:
+                            params_not_specified_msg += " You didn't specify `%s`." % first_missing
                     feedback = Feedback(params_not_specified_msg, student_call)
                 success = False
                 continue
 
-            if do_eval is None:
-                # don't have to go further: set used and break from the for loop
-                state.set_used(name, call_ind, index)
-                break
+            for ind, param in enumerate(params):
 
-            feedback_msg = "Did you call `%s()` with the correct arguments?" % stud_name
-            for param in params:
+                if do_eval[ind] is None:
+                    continue
+
                 arg_student = student_args[param]
                 arg_solution = solution_args[param]
-                if incorrect_msg is None:
-                    msg = ("Did you call `%s()` with the correct arguments?" % stud_name) + \
-                              (" The argument you specified for `%s` seems to be incorrect." % param)
+                if incorrect_msg[ind] is None:
+                    msg = "Did you call `%s()` with the correct arguments?" % stud_name
+                    # only if value can be supplied as keyword argument, give more info:
+                    if student_params[param].kind in [1, 3, 4]:
+                            msg += " The argument you specified for `%s` seems to be incorrect." % param
                     add_more = True
                 else:
-                    msg = incorrect_msg
+                    msg = incorrect_msg[ind]
                     add_more = False
 
                 test = build_test(arg_student, arg_solution,
                                   student_env, solution_env,
-                                  do_eval, eq_fun, msg, add_more)
+                                  do_eval[ind], eq_fun, msg, add_more)
                 test.test()
 
                 if not test.result:
@@ -394,7 +409,7 @@ def get_args(args, keyws, name, mapped_name, signature, env):
                     raise ValueError('signature error - cannot determine signature')
 
     bound_args = signature.bind(*args, **keyws)
-    return(bound_args.arguments)
+    return(bound_args.arguments, signature.parameters)
 
 def build_test(stud, sol, student_env, solution_env, do_eval, eq_fun, feedback_msg, add_more):
     got_error = False
