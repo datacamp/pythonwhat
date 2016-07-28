@@ -83,13 +83,7 @@ def test_function(name,
     student_mappings = state.student_mappings
 
     # for messaging purposes: replace with original alias or import again.
-    stud_name = name
-    if "." in stud_name:
-        student_mappings_rev = {v: k for k, v in student_mappings.items()}
-        els = name.split(".")
-        front_part = ".".join(els[0:-1])
-        if front_part in student_mappings_rev.keys():
-                stud_name = student_mappings_rev[front_part] + "." + els[-1]
+    stud_name = get_mapped_name(name, student_mappings)
 
     if not_called_msg is None:
         if index == 0:
@@ -362,9 +356,8 @@ def get_mapped_name(name, mappings):
     if "." in mapped_name:
         mappings_rev = {v: k for k, v in mappings.items()}
         els = name.split(".")
-        front_part = ".".join(els[0:-1])
-        if front_part in mappings_rev.keys():
-                mapped_name = mappings_rev[front_part] + "." + els[-1]
+        if els[0] in mappings_rev.keys():
+                mapped_name = ".".join([mappings_rev[els[0]]] + els[1:])
     return(mapped_name)
 
 
@@ -381,27 +374,24 @@ def get_args(args, keyws, name, mapped_name, signature, env):
         try:
             signature = inspect.signature(fun)
         except:
-            if inspect.isbuiltin(fun):
-                builtins = get_builtins()
-                if name in builtins:
-                    signature = inspect.Signature(builtins[name])
-                else:
-                    # it might be a method, and we have to find the general method name
-                    if "." in mapped_name:
-                        els = name.split(".")
-                        try:
-                            els[0] = type(eval(els[0], env)).__name__
-                            generic_name = ".".join(els[:])
-                        except:
-                            raise ValueError('signature error - cannot convert call')
-                        if generic_name in builtins:
-                            signature = inspect.Signature(builtins[generic_name])
-                        else:
-                            raise ValueError('signature error - %s not in builtins' % generic_name)
-                    else:
-                        raise ValueError('signature error - cannot determine signature')
+            manual_sigs = get_manual_sigs()
+            if name in manual_sigs:
+                signature = inspect.Signature(manual_sigs[name])
             else:
-                raise ValueError('signature error - signature cannot be inferred and no builtin')
+                # it might be a method, and we have to find the general method name
+                if "." in mapped_name:
+                    els = name.split(".")
+                    try:
+                        els[0] = type(eval(els[0], env)).__name__
+                        generic_name = ".".join(els[:])
+                    except:
+                        raise ValueError('signature error - cannot convert call')
+                    if generic_name in manual_sigs:
+                        signature = inspect.Signature(manual_sigs[generic_name])
+                    else:
+                        raise ValueError('signature error - %s not in builtins' % generic_name)
+                else:
+                    raise ValueError('signature error - cannot determine signature')
 
     bound_args = signature.bind(*args, **keyws)
     return(bound_args.arguments)
@@ -447,24 +437,69 @@ def build_test(stud, sol, student_env, solution_env, do_eval, eq_fun, feedback_m
 def build_sig(*args):
     return(inspect.Signature(list(args)))
 
-def get_builtins():
-    builtins = {
-        'round': [param('number', param.POSITIONAL_OR_KEYWORD),
-                  param('ndigits', param.POSITIONAL_OR_KEYWORD, default = 0)],
-        'str': [param('object', param.POSITIONAL_OR_KEYWORD)],
+def get_manual_sigs():
+    manual_sigs = {
+        # builtins
+        'bool': [param('x', param.POSITIONAL_OR_KEYWORD)],
+        'classmethod': [param('function', param.POSITIONAL_ONLY)],
+        'complex': [param('imag', param.POSITIONAL_OR_KEYWORD, default=0),
+                    param('real', param.POSITIONAL_OR_KEYWORD, default=0)],
+        'dir': [param('object', param.POSITIONAL_OR_KEYWORD, default=None)],
+        'enumerate': [param('iterable', param.POSITIONAL_ONLY),
+                     param('start', param.POSITIONAL_OR_KEYWORD, default=0)],
+        'float': [param('x', param.POSITIONAL_OR_KEYWORD)],
+        'getattr': [param('object', param.POSITIONAL_ONLY),
+                    param('name', param.POSITIONAL_ONLY),
+                    param('default', param.POSITIONAL_ONLY, default=None)],
         'int': [param('x', param.POSITIONAL_OR_KEYWORD),
-                param('base', param.POSITIONAL_OR_KEYWORD, default = 10)],
+                param('base', param.POSITIONAL_OR_KEYWORD, default=10)],
+        'list': [param('iterable', param.POSITIONAL_ONLY, default=None)],
         'print': [param('value', param.POSITIONAL_ONLY)],
+        'reversed': [param('sequence', param.POSITIONAL_ONLY)],
+        'round': [param('number', param.POSITIONAL_OR_KEYWORD),
+                  param('ndigits', param.POSITIONAL_OR_KEYWORD, default=0)],
+        'set': [param('iterable', param.POSITIONAL_ONLY, default=None)],
+        'str': [param('object', param.POSITIONAL_OR_KEYWORD)],
+        'tuple': [param('iterable', param.POSITIONAL_ONLY, default=None)],
         'type': [param('object', param.POSITIONAL_ONLY)],
+        'vars': [param('object', param.POSITIONAL_ONLY)],
+
+        # int
+
+        # str
+        'str.center': [param('width', param.POSITIONAL_ONLY),
+                       param('fillchar', param.POSITIONAL_ONLY, default=" ")],
+
+        # list
+        'list.append': [param('object', param.POSITIONAL_ONLY)],
+        'list.count': [param('value', param.POSITIONAL_ONLY)],
+
+        # dict
+
+        # numpy
         'numpy.array': [param('object', param.POSITIONAL_OR_KEYWORD),
-                        param('dtype', param.POSITIONAL_OR_KEYWORD, default = None),
-                        param('copy', param.POSITIONAL_OR_KEYWORD, default = True),
-                        param('order', param.POSITIONAL_OR_KEYWORD, default = None),
-                        param('subok', param.POSITIONAL_OR_KEYWORD, default = False),
-                        param('ndmin', param.POSITIONAL_OR_KEYWORD, default = 0)],
-        'list.append': [param('object', param.POSITIONAL_ONLY)]
+                        param('dtype', param.POSITIONAL_OR_KEYWORD, default=None),
+                        param('copy', param.POSITIONAL_OR_KEYWORD, default=True),
+                        param('order', param.POSITIONAL_OR_KEYWORD, default=None),
+                        param('subok', param.POSITIONAL_OR_KEYWORD, default=False),
+                        param('ndmin', param.POSITIONAL_OR_KEYWORD, default=0)],
+        'numpy.random.seed': [param('seed', param.POSITIONAL_OR_KEYWORD, default=None)],
+        'numpy.random.rand': [param('d0', param.POSITIONAL_ONLY, default=None),
+                              param('d1', param.POSITIONAL_ONLY, default=None),
+                              param('d2', param.POSITIONAL_ONLY, default=None),
+                              param('d3', param.POSITIONAL_ONLY, default=None),
+                              param('d4', param.POSITIONAL_ONLY, default=None),
+                              param('d5', param.POSITIONAL_ONLY, default=None),
+                              param('d6', param.POSITIONAL_ONLY, default=None)],
+        'numpy.random.randint': [param('low', param.POSITIONAL_OR_KEYWORD),
+                                 param('high', param.POSITIONAL_OR_KEYWORD, default=None),
+                                 param('size', param.POSITIONAL_OR_KEYWORD, default=None),
+                                 param('dtype', param.POSITIONAL_OR_KEYWORD, default='l')],
+
+        # others
+        'math.radians': [param('x', param.POSITIONAL_ONLY)]
     }
-    return(builtins)
+    return(manual_sigs)
 
 
 

@@ -25,3 +25,14 @@ def test_absent_lines(test, sct_payload):
     test.assertFalse('line_end' in sct_payload)
     test.assertFalse('column_start' in sct_payload)
     test.assertFalse('column_end' in sct_payload)
+
+def test_builtin(test, name, params, arguments):
+    # import pdb; pdb.set_trace()
+    test.data = {
+        "DC_PEC": "",
+        "DC_SOLUTION": "%s(%s)" % (name, arguments),
+        "DC_CODE": "%s(%s)" % (name, arguments),
+        "DC_SCT": "test_function_v2('%s', params=[%s])" % (name, params)
+    }
+    sct_payload = run(test.data)
+    test.assertTrue(sct_payload['correct'])

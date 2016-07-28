@@ -1,7 +1,5 @@
-from pythonbackend.Exercise import Exercise
 import unittest
 import helper
-
 
 class TestFunctionBase(unittest.TestCase):
 
@@ -658,14 +656,6 @@ class TestDoEval(unittest.TestCase):
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Have you specified all required arguments inside <code>round()</code>? You didn\'t specify <code>ndigits</code>.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 1, 14)
-
-class TestBuiltInSignatures(unittest.TestCase):
-
-    def test_print(self):
-        pass
-
-    def test_round(self):
-        pass
 
 if __name__ == "__main__":
     unittest.main()
