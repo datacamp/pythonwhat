@@ -1,7 +1,7 @@
 import unittest
 from urllib.request import urlretrieve
 import os.path
-
+import sys
 
 def download(fromfile, tofile):
     if not os.path.isfile(tofile):
@@ -10,6 +10,9 @@ def download(fromfile, tofile):
 
 if __name__ == "__main__":
     
+    # change path to tests
+    os.chdir(os.path.dirname(sys.argv[0]))
+
     download('course_998/datasets/moby_opens.txt', 'moby_dick.txt')
     download('course_998/datasets/moby_opens.txt', 'not_moby_dick.txt')
     download('course_998/datasets/sales.sas7bdat', 'sales.sas7bdat')
@@ -32,4 +35,5 @@ if __name__ == "__main__":
     MOR,70,Morocco,True
     EG,45,Egypt,True""")
     f.close()
+
     unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.discover("."))
