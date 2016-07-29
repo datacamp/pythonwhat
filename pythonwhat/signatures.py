@@ -1,12 +1,12 @@
 import inspect
 from inspect import Parameter as param
-from pythonwhat import State
+import pythonwhat
 
 def sig_from_params(*args):
     return(inspect.Signature(list(args)))
 
 def sig_from_obj(obj_char):
-    env = State.active_state.solution_env
+    env = pythonwhat.State.State.active_state.solution_env
     return(inspect.signature(eval(obj_char, env)))
 
 def get_manual_sigs():
