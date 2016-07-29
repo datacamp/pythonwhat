@@ -261,7 +261,8 @@ def test_function_v2(name,
             None: arguments are not evaluated; it is only checked if they are specified.
         not_called_msg (str): custom feedback message if the function is not called.
         params_not_matched_message (str): custom feedback message if the function parameters were not successfully matched.
-        params_not_specified_msg (str): custom feedback message if the function is called but not all parameters were specified
+        params_not_specified_msg (str): string or list of strings (parameter-specific). Custom feedback message if not all
+            parameters listed in params are specified by the student.
         incorrect_msg (list(str)): string or list of strings (parameter-specific). Custom feedback messages if the arguments
             don't correspond between student and solution code.
     """
@@ -285,6 +286,14 @@ def test_function_v2(name,
     if len(params) != len(do_eval):
         raise NameError("Inside test_function_v2, make sure that do_eval has the same length as params.")
 
+    # if params_not_specified_msg is a str or None, convert into list
+    if isinstance(params_not_specified_msg, str) or params_not_specified_msg is None:
+        params_not_specified_msg = [params_not_specified_msg] * len(params)
+
+    if len(params) != len(params_not_specified_msg):
+        raise NameError("Inside test_function_v2, make sure that params_not_specified_msg has the same length as params.")
+
+    # if incorrect_msg is a str or None, convert into list
     if isinstance(incorrect_msg, str) or incorrect_msg is None:
         incorrect_msg = [incorrect_msg] * len(params)
 
@@ -363,13 +372,16 @@ def test_function_v2(name,
             setdiff = list(set(params) - set(student_args.keys()))
             if len(setdiff) > 0:
                 if feedback is None:
-                    if not params_not_specified_msg:
-                        params_not_specified_msg = "Have you specified all required arguments inside `%s()`?" % stud_name
+                    first_missing = setdiff[0]
+                    param_ind = params.index(first_missing)
+                    if params_not_specified_msg[param_ind] is None:
+                        msg = "Have you specified all required arguments inside `%s()`?" % stud_name
                         # only if value can be supplied as keyword argument, give more info:
-                        first_missing = setdiff[0]
                         if student_params[first_missing].kind in [1, 3, 4]:
-                            params_not_specified_msg += " You didn't specify `%s`." % first_missing
-                    feedback = Feedback(params_not_specified_msg, student_call)
+                            msg += " You didn't specify `%s`." % first_missing
+                    else:
+                        msg = params_not_specified_msg[param_ind]
+                    feedback = Feedback(msg, student_call)
                 success = False
                 continue
 

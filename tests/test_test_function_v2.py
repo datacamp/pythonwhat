@@ -252,6 +252,15 @@ class TestIrregularities(unittest.TestCase):
             "DC_PEC": "",
             "DC_SOLUTION": "round(1.234, 2)",
             "DC_CODE": "round(1.234, 2)",
+            "DC_SCT": "test_function_v2('round', params = ['number', 'ndigits'], params_not_specified_msg = ['test'])"
+        }
+        self.assertRaises(NameError, helper.run, self.data)
+
+    def test_fun_incorrect_args_4(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "round(1.234, 2)",
+            "DC_CODE": "round(1.234, 2)",
             "DC_SCT": "test_function_v2('round', params = ['number', 'ndigits'], incorrect_msg = ['test'])"
         }
         self.assertRaises(NameError, helper.run, self.data)
@@ -637,6 +646,29 @@ test_function_v2('pandas.DataFrame', params=['data', 'columns'],
         self.assertFalse(sct_payload['correct'])
         self.assertEqual('columnsincorrect', sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 43, 47)
+
+    def test_step5(self):
+        self.data["DC_CODE"] = "df = pd.DataFrame(data=[1, 2, 3], columns=['a'])"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+class TestStepByStepCustom3(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "import pandas as pd",
+            "DC_SOLUTION": "df = pd.DataFrame([1, 2, 3], columns=['a'])",
+            "DC_SCT": '''
+test_function_v2('pandas.DataFrame', params=['data', 'columns'],
+                 params_not_specified_msg=['datanotspecified', 'columnsnotspecified'])
+            '''
+        }
+
+    def test_step4(self):
+        self.data["DC_CODE"] = "df = pd.DataFrame(data=[1, 2, 3, 4])"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual('columnsnotspecified', sct_payload['message'])
+        helper.test_lines(self, sct_payload, 1, 1, 6, 36)
 
     def test_step5(self):
         self.data["DC_CODE"] = "df = pd.DataFrame(data=[1, 2, 3], columns=['a'])"
