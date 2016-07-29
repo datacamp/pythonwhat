@@ -52,7 +52,7 @@ class TestFunctionBase(unittest.TestCase):
             "DC_SOLUTION": "max([1, 2, 3, 4])",
             "DC_CODE": "max([1, 2, 3, 4])",
             "DC_SCT": '''
-sig = build_sig(param('iterable', param.POSITIONAL_ONLY))
+sig = sig_from_params(param('iterable', param.POSITIONAL_ONLY))
 test_function_v2('max', params = ['iterable'], signature = sig)
             '''
         }
@@ -65,7 +65,7 @@ test_function_v2('max', params = ['iterable'], signature = sig)
             "DC_SOLUTION": "max([1, 2, 3, 4])",
             "DC_CODE": "max([1, 2, 3, 412])",
             "DC_SCT": '''
-sig = build_sig(param('iterable', param.POSITIONAL_ONLY))
+sig = sig_from_params(param('iterable', param.POSITIONAL_ONLY))
 test_function_v2('max', params = ['iterable'], signature = sig)
             '''
         }
@@ -123,7 +123,7 @@ test_function_v2('max', params = ['iterable'], signature = sig)
             "DC_SOLUTION": "com = np.complex(2, 4)",
             "DC_CODE": "com = np.complex(2, 4)",
             "DC_SCT": '''
-sig = build_sig(param('real', param.POSITIONAL_OR_KEYWORD), param('imag', param.POSITIONAL_OR_KEYWORD, default=0))
+sig = sig_from_params(param('real', param.POSITIONAL_OR_KEYWORD), param('imag', param.POSITIONAL_OR_KEYWORD, default=0))
 test_function_v2('numpy.complex', params = ['real', 'imag'], signature=sig)
             '''}
         sct_payload = helper.run(self.data)
@@ -135,7 +135,7 @@ test_function_v2('numpy.complex', params = ['real', 'imag'], signature=sig)
             "DC_SOLUTION": "com = np.complex(2, 4)",
             "DC_CODE": "com = np.complex(2, 5)",
             "DC_SCT": '''
-sig = build_sig(param('real', param.POSITIONAL_OR_KEYWORD), param('imag', param.POSITIONAL_OR_KEYWORD, default=0))
+sig = sig_from_params(param('real', param.POSITIONAL_OR_KEYWORD), param('imag', param.POSITIONAL_OR_KEYWORD, default=0))
 test_function_v2('numpy.complex', params = ['real', 'imag'], signature=sig)
             '''}
         sct_payload = helper.run(self.data)
@@ -207,7 +207,7 @@ x = Test(123)
             "DC_SOLUTION": "res = arr.count(2)",
             "DC_CODE": "res = arr.count(2)",
             "DC_SCT": '''
-sig = build_sig(param('value', param.POSITIONAL_ONLY))
+sig = sig_from_params(param('value', param.POSITIONAL_ONLY))
 test_function_v2('arr.count', params = ['value'], signature=sig)
             '''
         }
@@ -220,13 +220,77 @@ test_function_v2('arr.count', params = ['value'], signature=sig)
             "DC_SOLUTION": "res = arr.count(2)",
             "DC_CODE": "res = arr.count(2123)",
             "DC_SCT": '''
-sig = build_sig(param('value', param.POSITIONAL_ONLY))
+sig = sig_from_params(param('value', param.POSITIONAL_ONLY))
 test_function_v2('arr.count', params = ['value'], signature=sig)
             '''
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         helper.test_lines(self, sct_payload, 1, 1, 17, 20)
+
+    def test_chained_method_builtin_pass(self):
+        self.data = {
+            "DC_PEC": "x = 'test'",
+            "DC_SOLUTION": "x.upper().center(8)",
+            "DC_CODE": "x.upper().center(8)",
+            "DC_SCT": "test_function_v2('x.upper.center', params=['width'], signature='str.center')"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_chained_method_builtin_fail(self):
+        self.data = {
+            "DC_PEC": "x = 'test'",
+            "DC_SOLUTION": "x.upper().center(8)",
+            "DC_CODE": "x.upper().center(7)",
+            "DC_SCT": "test_function_v2('x.upper.center', params=['width'], signature='str.center')"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_chained_method_builtin_v2_pass(self):
+        self.data = {
+            "DC_PEC": '''
+class Test():
+    def __init__(self, a):
+        self.a = a
+
+    def set_a(self, value):
+        self.a = value
+        return(self)
+x = Test(123)
+            ''',
+            "DC_SOLUTION": "x.set_a(843).set_a(102)",
+            "DC_CODE": "x.set_a(843).set_a(102)",
+            "DC_SCT": '''
+sig = sig_from_obj('x.set_a')
+test_function_v2('x.set_a.set_a', params = ['value'], signature=sig)
+            '''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_chained_method_builtin_v2_fail(self):
+        self.data = {
+            "DC_PEC": '''
+class Test():
+    def __init__(self, a):
+        self.a = a
+
+    def set_a(self, value):
+        self.a = value
+        return(self)
+x = Test(123)
+            ''',
+            "DC_SOLUTION": "x.set_a(843).set_a(102)",
+            "DC_CODE": "x.set_a(843).set_a(103)",
+            "DC_SCT": '''
+sig = sig_from_obj('x.set_a')
+test_function_v2('x.set_a.set_a', params = ['value'], signature=sig)
+            '''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
 
 class TestIrregularities(unittest.TestCase):
     def test_fun_incorrect_args_1(self):
@@ -298,7 +362,7 @@ class TestIrregularities(unittest.TestCase):
             "DC_SOLUTION": "x = np.complex(1)",
             "DC_CODE": "np.complex(1, 2)",
             "DC_SCT": '''
-sig = build_sig(param('real', param.POSITIONAL_OR_KEYWORD), param('imag', param.POSITIONAL_OR_KEYWORD, default=0))
+sig = sig_from_params(param('real', param.POSITIONAL_OR_KEYWORD), param('imag', param.POSITIONAL_OR_KEYWORD, default=0))
 test_function_v2('numpy.complex', params = ['real', 'imag'], signature=sig)
             '''}
         self.assertRaises(ValueError, helper.run, self.data)

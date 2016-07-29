@@ -4,6 +4,7 @@ from pythonwhat.parsing import FunctionParser, ObjectAccessParser, ObjectAssignm
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Fb import Feedback
 from pythonwhat import utils_ast
+from pythonwhat import signatures
 
 class State(object):
     """State of the SCT environment.
@@ -42,6 +43,7 @@ class State(object):
         self.student_mappings = None
         self.solution_mappings = None
         self.fun_usage = None
+        self.manual_sigs = None
 
         self.student_object_accesses = None
         self.student_object_assignments = None
@@ -117,6 +119,12 @@ class State(object):
             fp.visit(self.solution_tree)
             self.solution_function_calls = fp.calls
             self.solution_mappings = fp.mappings
+
+    def get_manual_sigs(self):
+        if self.manual_sigs is None:
+            self.manual_sigs = signatures.get_manual_sigs()
+
+        return(self.manual_sigs)
 
     def extract_object_accesses(self):
         if (self.student_object_accesses is None):

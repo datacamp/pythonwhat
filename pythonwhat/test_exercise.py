@@ -16,8 +16,6 @@ from pythonwhat.test_for_loop import test_for_loop
 from pythonwhat.test_function import test_function
 from pythonwhat.test_function import test_print
 from pythonwhat.test_function import test_function_v2
-from pythonwhat.test_function import build_sig
-from inspect import Parameter as param
 from pythonwhat.test_operator import test_operator
 from pythonwhat.test_data_frame import test_data_frame
 from pythonwhat.test_while_loop import test_while_loop
@@ -29,6 +27,10 @@ from pythonwhat.test_expression_result import test_expression_result
 from pythonwhat.test_expression_output import test_expression_output
 from pythonwhat.test_function_definition import test_function_definition
 from pythonwhat.test_object_after_expression import test_object_after_expression
+
+# utilities for signatures
+from inspect import Parameter as param
+from pythonwhat.signatures import sig_from_params, sig_from_obj
 
 
 def test_exercise(sct,
