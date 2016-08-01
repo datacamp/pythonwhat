@@ -1,6 +1,6 @@
 import ast
 from pythonwhat.State import State
-from pythonwhat.Fb import Feedback
+from pythonwhat.Feedback import Feedback
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import DefinedTest, EqualTest, Test
 from pythonwhat import utils

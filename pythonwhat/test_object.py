@@ -1,7 +1,7 @@
 from pythonwhat.Test import DefinedTest, EqualEnvironmentTest, EquivalentEnvironmentTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Fb import Feedback
+from pythonwhat.Feedback import Feedback
 
 
 def test_object(name,

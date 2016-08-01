@@ -6,7 +6,7 @@ from pythonwhat.Test import DefinedTest, EqualEnvironmentTest, EquivalentEnviron
 from pythonwhat.set_extra_env import set_extra_env
 from pythonwhat.set_context_vals import set_context_vals
 from pythonwhat.test_object import get_assignment_node
-from pythonwhat.Fb import Feedback
+from pythonwhat.Feedback import Feedback
 
 from pythonwhat import utils
 

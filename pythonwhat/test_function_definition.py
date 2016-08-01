@@ -2,7 +2,7 @@ import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import DefinedTest, EqualTest, Test
-from pythonwhat.Fb import Feedback
+from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
 
 from contextlib import contextmanager
