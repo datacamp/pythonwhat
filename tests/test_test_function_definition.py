@@ -298,7 +298,7 @@ def to_decimal(number, base = 3):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'In your definition of <code>to_decimal()</code>, the 2nd argument should have <code>2</code> as default, instead got <code>3</code>.')
+        self.assertEqual(sct_payload['message'], 'In your definition of <code>to_decimal()</code>, the second argument should have <code>2</code> as default, instead got <code>3</code>.')
         helper.test_lines(self, sct_payload, 2, 8, 1, 18)
 
     def test_Fail2(self):
