@@ -24,6 +24,7 @@ from pythonwhat.set_context_vals import set_context_vals
 from pythonwhat.test_student_typed import test_student_typed
 from pythonwhat.test_object_accessed import test_object_accessed
 from pythonwhat.test_output_contains import test_output_contains
+from pythonwhat.test_lambda_function import test_lambda_function
 from pythonwhat.test_expression_result import test_expression_result
 from pythonwhat.test_expression_output import test_expression_output
 from pythonwhat.test_function_definition import test_function_definition

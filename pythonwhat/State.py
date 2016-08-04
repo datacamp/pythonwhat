@@ -1,6 +1,6 @@
 import ast
 import inspect
-from pythonwhat.parsing import FunctionParser, ObjectAccessParser, ObjectAssignmentParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, WithParser
+from pythonwhat.parsing import FunctionParser, ObjectAccessParser, ObjectAssignmentParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, LambdaFunctionParser, WithParser
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils_ast
@@ -62,6 +62,9 @@ class State(object):
 
         self.student_function_defs = None
         self.solution_function_defs = None
+
+        self.student_lambda_functions = None
+        self.solution_lambda_functions = None
 
         self.student_withs = None
         self.solution_withs = None
@@ -193,6 +196,17 @@ class State(object):
             fp = FunctionDefParser()
             fp.visit(self.solution_tree)
             self.solution_function_defs = fp.defs
+
+    def extract_lambda_functions(self):
+        if (self.student_lambda_functions is None):
+            lfp = LambdaFunctionParser()
+            lfp.visit(self.student_tree)
+            self.student_lambda_functions = lfp.funs
+
+        if (self.solution_lambda_functions is None):
+            lfp = LambdaFunctionParser()
+            lfp.visit(self.solution_tree)
+            self.solution_lambda_functions = lfp.funs
 
     def extract_withs(self):
         if (self.student_withs is None):

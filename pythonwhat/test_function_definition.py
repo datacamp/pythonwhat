@@ -4,7 +4,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import DefinedTest, EqualTest, Test, InstanceTest
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
-
+from pythonwhat.utils import get_ord
 from contextlib import contextmanager
 
 ordinal = lambda n: "%d%s" % (
@@ -126,60 +126,34 @@ def test_function_definition(name,
         return
     student_def = student_defs[name]
 
-    args_solution = solution_def['args']
-    args_student = student_def['args']
-    fundef_student = student_def['fundef']
+    args_student=student_def['args']
+    args_solution=solution_def['args']
+    fun_def = student_def['fundef']
+    fun_name = ("`%s()`" % name)
 
-    if arg_names or arg_defaults:
+    test_args(rep=rep,
+              arg_names=arg_names,
+              arg_defaults=arg_defaults,
+              args_student=args_student,
+              args_solution=args_solution,
+              fun_def=fun_def,
+              nb_args_msg=nb_args_msg,
+              arg_names_msg=arg_names_msg,
+              arg_defaults_msg=arg_defaults_msg,
+              name=fun_name)
 
-        nb_args_solution = len(args_solution)
-        nb_args_student = len(args_student)
-        c_nb_args_msg = nb_args_msg or \
-            ("You should define `%s()` with %d arguments, instead got %d." %
-                (name, nb_args_solution, nb_args_student))
-        
-        rep.do_test(EqualTest(nb_args_solution, nb_args_student, Feedback(c_nb_args_msg, fundef_student)))
-        if rep.failed_test:
-            return
-
-        for i in range(nb_args_solution):
-            arg_name_solution, arg_default_solution = args_solution[i]
-            arg_name_student, arg_default_student = args_student[i]
-            if arg_names:
-                c_arg_names_msg = arg_names_msg or \
-                    ("In your definition of `%s()`, the %s argument should be called `%s`, instead got `%s`." %
-                        (name, ordinal(i+1), arg_name_solution, arg_name_student))
-                rep.do_test(
-                    EqualTest(arg_name_solution, arg_name_student, Feedback(c_arg_names_msg, fundef_student)))
-                if rep.failed_test:
-                    return
-            if arg_defaults:
-                c_arg_defaults_msg = arg_defaults_msg or \
-                    ("In your definition of `%s()`, the %s argument should have `%s` as default, instead got `%s`." %
-                        (name, ordinal(i+1), arg_default_solution, arg_default_student))
-                rep.do_test(
-                    EqualTest(arg_default_solution, arg_default_student, Feedback(c_arg_defaults_msg, fundef_student)))
-                if rep.failed_test:
-                    return
     if rep.failed_test:
         return
 
-    if body is not None:
-        subtree_solution = solution_def['body']
-        subtree_student = student_def['body']
-        if rep.failed_test:
-            return
-        child = state.to_child_state(subtree_student, subtree_solution)
-        child.context_solution = [arg[0] for arg in args_solution]
-        child.context_student = [arg[0] for arg in args_student]
-        body()
-        child.to_parent_state()
-        if rep.failed_test:
-            if expand_message:
-                rep.feedback.message = ("In your definition of `%s()`, " % name) + \
-                    utils.first_lower(rep.feedback.message)
-            if not rep.feedback.line_info:
-                rep.feedback = Feedback(rep.feedback.message, subtree_student)
+    test_body(rep=rep,
+              state=state,
+              body=body,
+              subtree_student=student_def['body'],
+              subtree_solution=solution_def['body'],
+              args_student=args_student,
+              args_solution=args_solution,
+              name=fun_name,
+              expand_message=expand_message)
 
     if rep.failed_test:
         return
@@ -276,3 +250,55 @@ def arguments_as_string(args):
     else:
         return '('+str(args)+')'
 
+def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
+              fun_def, nb_args_msg, arg_names_msg, arg_defaults_msg, name):
+
+    if arg_names or arg_defaults:
+        nb_args_solution = len(args_solution)
+        nb_args_student = len(args_student)
+        c_nb_args_msg = nb_args_msg or \
+            ("You should define %s with %d arguments, instead got %d." %
+                (name, nb_args_solution, nb_args_student))
+
+        rep.do_test(EqualTest(nb_args_solution, nb_args_student, Feedback(c_nb_args_msg, fun_def)))
+        if rep.failed_test:
+            return
+
+        for i in range(nb_args_solution):
+            arg_name_solution, arg_default_solution = args_solution[i]
+            arg_name_student, arg_default_student = args_student[i]
+            if arg_names:
+                c_arg_names_msg = arg_names_msg or \
+                    ("In your definition of %s, the %s argument should be called `%s`, instead got `%s`." %
+                        (name, get_ord(i+1), arg_name_solution, arg_name_student))
+                rep.do_test(
+                    EqualTest(arg_name_solution, arg_name_student, Feedback(c_arg_names_msg, fun_def)))
+                if rep.failed_test:
+                    return
+            if arg_defaults:
+                c_arg_defaults_msg = arg_defaults_msg or \
+                    ("In your definition of %s, the %s argument should have `%s` as default, instead got `%s`." %
+                        (name, get_ord(i+1), arg_default_solution, arg_default_student))
+                rep.do_test(
+                    EqualTest(arg_default_solution, arg_default_student, Feedback(c_arg_defaults_msg, fun_def)))
+                if rep.failed_test:
+                    return
+
+def test_body(rep, state, body,
+              subtree_student, subtree_solution,
+              args_student, args_solution,
+              name, expand_message):
+    if body is not None:
+        if rep.failed_test:
+            return
+        child = state.to_child_state(subtree_student, subtree_solution)
+        child.context_solution = [arg[0] for arg in args_solution]
+        child.context_student = [arg[0] for arg in args_student]
+        body()
+        child.to_parent_state()
+        if rep.failed_test:
+            if expand_message:
+                rep.feedback.message = ("In your definition of %s, " % name) + \
+                    utils.first_lower(rep.feedback.message)
+            if not rep.feedback.line_info:
+                rep.feedback = Feedback(rep.feedback.message, subtree_student)

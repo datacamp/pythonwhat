@@ -404,6 +404,54 @@ class FunctionDefParser(Parser):
         if isinstance(node, ast.Str) or isinstance(node, ast.Bytes):
             return node.s
 
+class LambdaFunctionParser(Parser):
+    """Find lambda functions
+
+    A parser which inherits from the basic parser to find function definitions.
+    """
+
+    def __init__(self):
+        self.funs = []
+
+    def visit_Assign(self, node):
+        self.visit(node.value)
+
+    def visit_AugAssign(self, node):
+        self.visit(node.value)
+
+    def visit_If(self, node):
+        self.visit_each(node.body)
+        self.visit_each(node.orelse)
+
+    def visit_While(self, node):
+        self.visit_each(node.body)
+        self.visit_each(node.orelse)
+
+    def visit_For(self, node):
+        self.visit_each(node.body)
+        self.visit_each(node.orelse)
+
+    def visit_With(self, node):
+        self.visit_each(node.body)
+
+    def visit_Try(self, node):
+        self.visit_each(node.body)
+        self.visit_each(node.finalbody)
+
+    def visit_TryFinally(self, node):
+        self.visit_each(node.body)
+        self.visit_each(node.finalbody)
+
+    def visit_Lambda(self, node):
+        args = [arg.arg for arg in node.args.args]
+        defaults = [FunctionDefParser.get_node_literal_value(lit) for lit in node.args.defaults]
+        defaults = [None] * (len(args) - len(defaults)) + defaults
+        self.funs.append({
+                "fun": node,
+                "args": [(arg, default) for arg, default in zip(args,defaults)],
+                "body": node.body
+            })
+
 class ReturnTransformer(ast.NodeTransformer):
     def visit_Return(self, node):
         return ast.copy_location(ast.Pass(), node)

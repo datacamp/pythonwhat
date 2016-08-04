@@ -108,25 +108,6 @@ def extract_text_range(source, text_range):
     lines[-1] = lines[-1][:text_range.end_col_offset]
     lines[0] = lines[0][text_range.col_offset:]
     return "".join(lines)
- 
-
-## ADDED BY FILIP
-def extract_text_from_node(dastring, astobj):
-    try:
-        if issubclass(type(astobj), _ast.Module):
-            rangeobj = TextRange(lineno=astobj.body[0].lineno,
-                                 col_offset=astobj.body[0].col_offset,
-                                 end_lineno=astobj.body[-1].end_lineno,
-                                 end_col_offset=astobj.body[-1].end_col_offset)
-        else:
-            rangeobj = TextRange(lineno=astobj.lineno,
-                                 col_offset=astobj.col_offset,
-                                 end_lineno=astobj.end_lineno,
-                                 end_col_offset=astobj.end_col_offset)
-        return(extract_text_range(dastring, rangeobj))
-    except:
-        return("")
-##
 
 def find_closest_containing_node(tree, text_range):
     # first look among children
@@ -296,8 +277,8 @@ def mark_text_ranges(node, source):
             try:
                 tokens = _mark_end_and_return_child_tokens(node, tokens, prelim_end_lineno, prelim_end_col_offset)
             except:
-                traceback.print_exc() # TODO: log it somewhere
-                # fallback to incorrect marking instead of exception
+                # Fallback: something went wrong; assign wrong line numbers
+                traceback.print_exc()
                 node.end_lineno = node.lineno
                 node.end_col_offset = node.col_offset + 1
                 
@@ -370,7 +351,6 @@ def mark_text_ranges(node, source):
         
         # Function returns the list of tokens which cover all its children
         
-        
         if isinstance(node, _ast.stmt):
             # remove empty trailing lines
             while (tokens[-1].type in (tokenize.NL, tokenize.COMMENT, token.NEWLINE, token.INDENT)
@@ -378,7 +358,7 @@ def mark_text_ranges(node, source):
                 del tokens[-1]
                 
         else:
-            _strip_trailing_extra_closers(tokens, not isinstance(node, ast.Tuple))
+            _strip_trailing_extra_closers(tokens, not (isinstance(node, ast.Tuple) or isinstance(node, ast.Lambda)))
             _strip_trailing_junk_from_expressions(tokens)
             _strip_unclosed_brackets(tokens)
         
@@ -592,6 +572,24 @@ def _get_ordered_child_nodes(node):
 def _tokens_text(tokens):
     return "".join([t.string for t in tokens])
 
+
+
+## ADDED BY FILIP
+def extract_text_from_node(dastring, astobj):
+    try:
+        if issubclass(type(astobj), _ast.Module):
+            rangeobj = TextRange(lineno=astobj.body[0].lineno,
+                                 col_offset=astobj.body[0].col_offset,
+                                 end_lineno=astobj.body[-1].end_lineno,
+                                 end_col_offset=astobj.body[-1].end_col_offset)
+        else:
+            rangeobj = TextRange(lineno=astobj.lineno,
+                                 col_offset=astobj.col_offset,
+                                 end_lineno=astobj.end_lineno,
+                                 end_col_offset=astobj.end_col_offset)
+        return(extract_text_range(dastring, rangeobj))
+    except:
+        return("")
 
 
 ## PRETTY PRINT FROM GREEN TREE SNAKES
