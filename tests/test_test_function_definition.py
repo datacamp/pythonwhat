@@ -409,5 +409,101 @@ def shout(word):
         # line info specific to test_object_after_expression!
         helper.test_lines(self, sct_payload, 3, 3, 5, 41)
 
+class TestFunctionDefintionError1(unittest.TestCase):
+
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+def inc(num):
+    if num < 0:
+        raise ValueError('num is negative')
+    return(num + 1)
+            ''',
+            "DC_SCT": '''
+test_function_definition("inc",
+                         errors = [[-1]])
+            '''
+        }
+
+    def test_pass(self):
+        self.data["DC_CODE"] = '''
+def inc(num):
+    if num < 0:
+        raise ValueError('num is negative')
+    return(num + 1)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail_1(self):
+        self.data["DC_CODE"] = '''
+def inc(num):
+    return(num + 1)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("Calling <code>inc(-1)</code> doesn't result in an error, but it should!", sct_payload['message'])
+
+    def test_fail_2(self):
+        self.data["DC_CODE"] = '''
+def inc(num):
+    if num < 0:
+        raise NameError('num is negative')
+    return(num + 1)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("Calling <code>inc(-1)</code> should result in a <code>ValueError</code>, instead got a <code>NameError</code>.", sct_payload['message'])
+
+class TestFunctionDefintionError2(unittest.TestCase):
+
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+def inc(num):
+    if num < 0:
+        raise ValueError('num is negative')
+    return(num + 1)
+            ''',
+            "DC_SCT": '''
+test_function_definition("inc",
+                         errors = [[-1]],
+                         no_error_msg = 'noerror!',
+                         wrong_error_msg = 'wrongerror!')
+            '''
+        }
+
+    def test_pass(self):
+        self.data["DC_CODE"] = '''
+def inc(num):
+    if num < 0:
+        raise ValueError('num is negative')
+    return(num + 1)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail_1(self):
+        self.data["DC_CODE"] = '''
+def inc(num):
+    return(num + 1)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("noerror!", sct_payload['message'])
+
+    def test_fail_2(self):
+        self.data["DC_CODE"] = '''
+def inc(num):
+    if num < 0:
+        raise NameError('num is negative')
+    return(num + 1)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("wrongerror!", sct_payload['message'])
+
 if __name__ == "__main__":
     unittest.main()

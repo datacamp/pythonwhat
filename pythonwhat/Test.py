@@ -345,6 +345,16 @@ class StringContainsTest(Test):
         else:
             self.result = (self.string.find(self.search_string) is not -1)
 
+
+class InstanceTest(Test):
+    def __init__(self, obj, cls, feedback):
+        super().__init__(feedback)
+        self.obj = obj
+        self.cls = cls
+
+    def specific_test(self):
+        self.result = isinstance(self.obj, self.cls)
+
 # TODO (Vincent): Remove this -> same as DefinedTest - used in test_operator()
 
 class CollectionContainsTest(Test):

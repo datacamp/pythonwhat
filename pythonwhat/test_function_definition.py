@@ -1,7 +1,7 @@
 import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedTest, EqualTest, Test
+from pythonwhat.Test import DefinedTest, EqualTest, Test, InstanceTest
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
 
@@ -28,12 +28,15 @@ def test_function_definition(name,
                              body=None,
                              results=None,
                              outputs=None,
+                             errors=None,
                              not_called_msg=None,
                              nb_args_msg=None,
                              arg_names_msg=None,
                              arg_defaults_msg=None,
                              wrong_result_msg=None,
                              wrong_output_msg=None,
+                             no_error_msg=None,
+                             wrong_error_msg=None,
                              expand_message=True):
     """Test a function definition.
 
@@ -61,12 +64,17 @@ def test_function_definition(name,
         outputs (list(tuple)): a list of tuples representing arguments that should be passed to the defined
             function. These arguments are passed to the function in the student environment and the solution
             environment, the outpus are compared.
+        errors (list(tupe)): a list of tuples representing arguments that should be passed to the defined
+            function. These arguments are passed to the function in the student environment and the solution
+            environment, the errors they generate are compared.
         not_called_msg (str): message if the function is not defined.
         nb_args_msg (str): message if the number of arguments do not matched.
         arg_names_msg (str): message if the argument names do not match.
         arg_defaults_msg (str): message if the argument default values do not match.
-        wrong_result_msg (str): message if one of the tested function call's result did not match.
-        wrong_output_msg (str): message if one of the tested functions call's output did not match.
+        wrong_result_msg (str): message if one of the tested function calls' result did not match.
+        wrong_output_msg (str): message if one of the tested functions calls' output did not match.
+        no_error_msg (str): message if one of the tested function calls' result did not generate an error.
+        wrong_error_msg (str): message if the error that one of the tested function calls generated did not match.
         expand_message (bool): only relevant if there is a body test. If True, feedback messages defined in the
             body test will be preceded by 'In your definition of ___, '. If False, `test_function_definition()`
             will generate no extra feedback if the body test fails. Defaults to True.
@@ -228,10 +236,39 @@ def test_function_definition(name,
             if rep.failed_test:
                 return
 
+    if errors is not None:
+        solution_func = solution_env[name]
+        student_func = student_env[name]
+        for call in errors:
+            if isinstance(call, str):
+                call = (call,)
+            try:
+                solution_result = solution_func(*call)
+            except Exception as sol_exc:
+                solution_result = sol_exc
+            if not isinstance(solution_result, Exception):
+                raise ValueError("Calling %s%s did not generate an error in the solution environment." % (name, arguments_as_string(call)))
+
+            try:
+                student_result = student_func(*call)
+            except Exception as stud_exc:
+                student_result = stud_exc
+            feedback_msg = no_error_msg or ("Calling `%s%s` doesn't result in an error, but it should!" % (name, arguments_as_string(call)))
+            rep.do_test(InstanceTest(student_result, Exception, feedback_msg))
+            if rep.failed_test:
+                return
+            feedback_msg = wrong_error_msg or ("Calling `%s%s` should result in a `%s`, instead got a `%s`." % \
+                (name, arguments_as_string(call), solution_result.__class__.__name__, student_result.__class__.__name__))
+            rep.do_test(InstanceTest(student_result, solution_result.__class__, feedback_msg))
+            if rep.failed_test:
+                return
+
 
 def arguments_as_string(args):
     if len(args) == 0:
         return '()'
+    if isinstance(args, list):
+        return "(" + str(args)[1:-1] + ")"
     elif len(args) > 1:
         return str(args)
     elif isinstance(args[0], str):
