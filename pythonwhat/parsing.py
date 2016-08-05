@@ -36,14 +36,10 @@ class Parser(ast.NodeVisitor):
             # does not know about the State object.
             self.visit(line)
 
+    def visit_Expr(self, node):
+        self.visit(node.value)
 
     def visit_Expression(self, node):
-        """
-        This function is called when a Expression node is encountered when traversing the tree.
-
-        Args:
-            node (ast.Expression): The node which is visited.
-        """
         self.visit(node.body)
 
     def generic_visit(self, node):
@@ -418,6 +414,13 @@ class LambdaFunctionParser(Parser):
 
     def visit_AugAssign(self, node):
         self.visit(node.value)
+
+    def visit_Call(self, node):
+        self.visit(node.func)
+        for arg in node.args:
+            self.visit(arg)
+        for key in node.keywords:
+            self.visit(key.value)
 
     def visit_If(self, node):
         self.visit_each(node.body)

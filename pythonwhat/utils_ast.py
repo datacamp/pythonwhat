@@ -247,7 +247,7 @@ def get_last_child(node):
     
     
 
-def mark_text_ranges(node, source):
+def mark_text_ranges(node, source, debug = False):
     """
     Node is an AST, source is corresponding source as string.
     Function adds recursively attributes end_lineno and end_col_offset to each node
@@ -273,7 +273,16 @@ def mark_text_ranges(node, source):
 
         # set end markers to this node
         if "lineno" in node._attributes and "col_offset" in node._attributes:
+            if debug:
+                print("=======================")
+                print(node.__class__.__name__)
+                print(ast.dump(node))
+                print("before extraction")
+                print([tok.string for tok in tokens])
             tokens = _extract_tokens(tokens, node.lineno, node.col_offset, prelim_end_lineno, prelim_end_col_offset)
+            if debug:
+                print("before marking")
+                print([tok.string for tok in tokens])
             try:
                 tokens = _mark_end_and_return_child_tokens(node, tokens, prelim_end_lineno, prelim_end_col_offset)
             except:
@@ -310,13 +319,21 @@ def mark_text_ranges(node, source):
                                               'while', 'with', 'yield']):
             del tokens[-1]
     
-    def _strip_trailing_extra_closers(tokens, remove_naked_comma):
+    def _strip_trailing_extra_closers(tokens, remove_naked_comma, careful_leveling):
         level = 0
         for i in range(len(tokens)):
             if tokens[i].string in "({[":
                 level += 1
             elif tokens[i].string in ")}]":
-                level -= 1
+                # in some cases, you have test)(1, 2); you still want to include the args!!
+                if careful_leveling and \
+                   level == 0 and \
+                   tokens[i].string == ")" and \
+                   len(tokens) > i + 1 and \
+                   tokens[i + 1].string == "(":
+                    level = 0
+                else:
+                    level -= 1
             
             if level == 0 and tokens[i].string == "," and remove_naked_comma:
                 tokens[:] = tokens[0:i]
@@ -324,7 +341,7 @@ def mark_text_ranges(node, source):
              
             if level < 0:
                 tokens[:] = tokens[0:i]
-                return   
+                return  
     
     def _strip_unclosed_brackets(tokens):
         level = 0
@@ -358,9 +375,23 @@ def mark_text_ranges(node, source):
                 del tokens[-1]
                 
         else:
-            _strip_trailing_extra_closers(tokens, not (isinstance(node, ast.Tuple) or isinstance(node, ast.Lambda)))
+            if debug:
+                print("Before stripping")
+                print([tok.string for tok in tokens])
+            remove_naked_comma = not isinstance(node, (ast.Tuple, ast.Lambda, ast.Call))
+            careful_leveling = isinstance(node, ast.Call)
+            _strip_trailing_extra_closers(tokens, remove_naked_comma, careful_leveling)
+            if debug:
+                print("After trailing extra closers")
+                print([tok.string for tok in tokens])
             _strip_trailing_junk_from_expressions(tokens)
+            if debug:
+                print("After trailing junk")
+                print([tok.string for tok in tokens])
             _strip_unclosed_brackets(tokens)
+            if debug:
+                print("After unclosed brackets")
+                print([tok.string for tok in tokens])
         
         # set the end markers of this node
         node.end_lineno = tokens[-1].end[0]
@@ -392,6 +423,7 @@ def mark_text_ranges(node, source):
                 
         return tokens
     
+    debug = debug
     all_tokens = list(tokenize.tokenize(io.BytesIO(source.encode('utf-8')).readline))
     source_lines = source.splitlines(True) 
     fix_ast_problems(node, source_lines, all_tokens)
@@ -499,51 +531,6 @@ def compare_node_positions(n1, n2):
         return -1
     else:
         return 0
-
-
-def pretty(node, key="/", level=0):
-    """Used for testing and new test generation via AstView.
-    Don't change the format without updating tests"""
-    if isinstance(node, ast.AST):
-        fields = [(key, val) for key, val in ast.iter_fields(node)]
-        value_label = node.__class__.__name__
-        if isinstance(node, ast.Call):
-            # Try to make 3.4 AST-s more similar to 3.5
-            if sys.version_info[:2] == (3,4):
-                if ("kwargs", None) in fields:
-                    fields.remove(("kwargs", None))
-                if ("starargs", None) in fields:
-                    fields.remove(("starargs", None))
-            
-            # TODO: translate also non-None kwargs and starargs
-            
-    elif isinstance(node, list):
-        fields = list(enumerate(node))
-        if len(node) == 0:
-            value_label = "[]"
-        else:
-            value_label = "[...]"
-    else:
-        fields = []
-        value_label = repr(node)
-    
-    item_text = level * '    ' + str(key) + "=" + value_label
-
-    if hasattr(node, "lineno"):
-        item_text += " @ " + str(getattr(node, "lineno"))
-        if hasattr(node, "col_offset"):
-            item_text += "." + str(getattr(node, "col_offset"))
-        
-        if hasattr(node, "end_lineno"):
-            item_text += "  -  " + str(getattr(node, "end_lineno"))
-            if hasattr(node, "end_col_offset"):
-                item_text += "." + str(getattr(node, "end_col_offset"))
-        
-    lines = [item_text] + [pretty(field_value, field_key, level+1) 
-                           for field_key, field_value in fields] 
-    
-    return "\n".join(lines)
-
 
 def _get_ordered_child_nodes(node):
     if isinstance(node, ast.Dict):
