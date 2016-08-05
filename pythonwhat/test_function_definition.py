@@ -45,6 +45,7 @@ def test_function_definition(name,
         2) The body of the functions (does it output correctly, are the correct functions used)
         3) The return value with a certain input
         4) The output value with a certain input
+        5) Whether certain inputs generate an error and what type of error
     Custom feedback messages can be set for all these parts, default messages are generated
     automatically if none are set.
 

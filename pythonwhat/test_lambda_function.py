@@ -19,9 +19,44 @@ def test_lambda_function(index,
                          arg_defaults_msg=None,
                          wrong_result_msg=None,
                          no_error_msg=None,
-                         wrong_error_msg=None,
                          expand_message=True):
-    
+    """Test a lambda function definition.
+
+    This function helps you test a lambda function definition. Generally four things can be tested:
+        1) The argument names of the function (including if the correct defaults are used)
+        2) The body of the functions (does it output correctly, are the correct functions used)
+        3) The return value with a certain input
+        4) Whether certain inputs generate an error
+    Custom feedback messages can be set for all these parts, default messages are generated
+    automatically if none are set.
+
+    Args:
+        index (int): the number of the lambda function you want to test.
+        arg_names (bool): if True, the argument names will be tested, if False they won't be tested. Defaults
+            to True.
+        arg_defaults (bool): if True, the default values of the arguments will be tested, if False they won't
+            be tested. Defaults to True.
+        body: this arguments holds the part of the code that will be ran to check the body of the function
+            definition. It should be passed as a lambda expression or a function. The functions that are
+            ran should be other pythonwhat test functions, and they will be tested specifically on only the
+            body of the for loop. Defaults to None.
+        results (list(tuple)): a list of strings representing function calls to the lam function. The lam
+            function will be replaced by the actual lambda function from the student and solution code. The result
+            of calling the lambda function will be compared between student and solution.
+        errors (list(tupe)): a list of strings representing function calls to the lam function. The lam
+            function will be replaced by the actual lambda function from the student and solution code. It will be
+            checked if an error is generated appropriately for the specified inputs.
+        not_called_msg (str): message if the function is not defined.
+        nb_args_msg (str): message if the number of arguments do not matched.
+        arg_names_msg (str): message if the argument names do not match.
+        arg_defaults_msg (str): message if the argument default values do not match.
+        wrong_result_msg (str): message if one of the tested function calls' result did not match.
+        no_error_msg (str): message if one of the tested function calls' result did not generate an error.
+        expand_message (bool): only relevant if there is a body test. If True, feedback messages defined in the
+            body test will be preceded by 'In your definition of ___, '. If False, `test_function_definition()`
+            will generate no extra feedback if the body test fails. Defaults to True.
+    """
+
     state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_lambda_function")
@@ -102,13 +137,13 @@ def test_lambda_function(index,
             c_wrong_result_msg = wrong_result_msg or \
                 ("Calling the %s with arguments `%s` should result in `%s`, instead got an error." %
                     (fun_name, argstr, solution_result))
-            rep.do_test(Test(c_wrong_result_msg))
+            rep.do_test(Test(Feedback(c_wrong_result_msg, student_fun)))
             return
 
         c_wrong_result_msg = wrong_result_msg or \
             ("Calling %s with arguments `%s` should result in `%s`, instead got `%s`." %
                 (fun_name, argstr, solution_result, student_result))
-        rep.do_test(EqualTest(solution_result, student_result, c_wrong_result_msg))
+        rep.do_test(EqualTest(solution_result, student_result, Feedback(c_wrong_result_msg, student_fun)))
         if rep.failed_test:
             return
 
@@ -131,15 +166,7 @@ def test_lambda_function(index,
         except Exception as stud_exc:
             student_result = stud_exc
         feedback_msg = no_error_msg or ("Calling %s with the arguments `%s` doesn't result in an error, but it should!" % (fun_name, argstr))
-        rep.do_test(InstanceTest(student_result, Exception, feedback_msg))
-        if rep.failed_test:
-            return
-        feedback_msg = wrong_error_msg or ("Calling %s with the arguments `%s` should result in a `%s`, instead got a `%s`." % \
-            (fun_name, argstr, solution_result.__class__.__name__, student_result.__class__.__name__))
-        rep.do_test(InstanceTest(student_result, solution_result.__class__, feedback_msg))
-        if rep.failed_test:
-            return
-
+        rep.do_test(InstanceTest(student_result, Exception, Feedback(feedback_msg, student_fun)))
 
 
 def print_attrs(node):
