@@ -9,6 +9,10 @@ import inspect
 import copy
 from pythonwhat.utils_env import set_context_vals
 from contextlib import contextmanager
+import random, string
+
+def randomword(length):
+   return ''.join(random.choice(string.lowercase) for i in range(length))
 
 ### TASKS
 
@@ -148,6 +152,40 @@ class TaskRunTreeStoreEnv(object):
             shell.user_ns[self.tempname] = obj
             return str(obj)
 
+class TaskGetFunctionCallResult(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __call__(self, shell):
+        try:
+            shell.user_ns[self.name] = shell.user_ns[self.fun_name](*self.arguments)
+            return str(shell.user_ns[self.name])
+        except:
+            return None
+
+class TaskGetFunctionCallOutput(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __call__(self, shell):
+        try:
+            with capture_output() as out:
+                shell.user_ns[self.fun_name](*self.arguments)
+            return out[0].strip()
+        except:
+            return None
+
+class TaskGetFunctionCallError(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __call__(self, shell):
+        try:
+            shell.user_ns[self.fun_name](*self.arguments)
+        except Exception as e:
+            return e
+        else:
+            return None
 
 ### Wrapper functions
 
@@ -187,10 +225,10 @@ def getOutputInProcess(process, **kwargs):
     return process.executeTask(TaskGetOutput(**kwargs))
 
 def getResultInProcess(process, **kwargs):
-    kwargs['name'] = "_evaluation_object_"
+    kwargs['name'] = randomword(10)
     strrep = process.executeTask(TaskGetResult(**kwargs))
     if strrep is not None:
-        bytestream = getRepresentation("_evaluation_object_", process)
+        bytestream = getRepresentation(kwargs['name'], process)
     else:
         bytestream = None
     return (bytestream, strrep)
@@ -204,6 +242,24 @@ def getObjectAfterExpressionInProcess(process, **kwargs):
         bytestream = getRepresentation(tempname, process)
     return (bytestream, strrep)
 
+def getFunctionCallResultInProcess(process, **kwargs):
+    kwargs['name'] = "_evaluation_object_"
+    strrep = process.executeTask(TaskGetFunctionCallResult(**kwargs))
+    if strrep is not None:
+        bytestream = getRepresentation("_evaluation_object_", process)
+    else:
+        bytestream = None
+    return (bytestream, strrep)
+
+def getFunctionCallOutputInProcess(process, **kwargs):
+    return process.executeTask(TaskGetFunctionCallOutput(**kwargs))
+
+def getFunctionCallErrorInProcess(process, **kwargs):
+    return process.executeTask(TaskGetFunctionCallError(**kwargs))
+
+
+
+## HELPERS
 
 def get_signature(name, mapped_name, signature, manual_sigs, env):
 
