@@ -416,10 +416,12 @@ def _get_ordered_child_nodes(node):
 
     elif isinstance(node, ast.arguments):
         children = node.args + node.kwonlyargs + node.kw_defaults + node.defaults
+
         if node.vararg is not None:
             children.append(node.vararg)
         if node.kwarg is not None:
             children.append(node.kwarg)
+
         children.sort(key=lambda x: (x.lineno, x.col_offset))
         return children
 
