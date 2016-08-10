@@ -5,9 +5,8 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord, get_num
-import inspect
 from pythonwhat.utils_ast import extract_text_from_node
-from pythonwhat.tasks import evalInProcess
+from pythonwhat.tasks import evalInProcess, getSignatureInProcess
 
 def test_function(name,
                   index=1,
@@ -169,7 +168,6 @@ def test_function(name,
 
                 test = build_test(arg_student, arg_solution,
                                   student_process, solution_process,
-                                  state.full_student_code, state.full_solution_code,
                                   do_eval, eq_fun, msg, add_more=add_more)
                 test.test()
 
@@ -192,7 +190,6 @@ def test_function(name,
 
                     test = build_test(key_student, key_solution,
                                       student_process, solution_process,
-                                      state.full_student_code, state.full_solution_code,
                                       do_eval, eq_fun, msg, add_more=add_more)
                     test.test()
 
@@ -336,9 +333,11 @@ def test_function_v2(name,
 
         try:
             sol_call, arguments, keywords = solution_calls[name][index]
-            solution_args, _ = get_args(args=arguments, keyws=keywords,
-                                        name=name, mapped_name=sol_name,
-                                        signature=signature, env=solution_process)
+            sol_sig = getSignatureInProcess(name=name, mapped_name=sol_name,
+                                            signature=signature,
+                                            manual_sigs = State.active_state.get_manual_sigs(),
+                                            process=solution_process)
+            solution_args, _ = bind_args(signature = sol_sig, arguments=arguments, keyws=keywords)
         except:
             raise ValueError(("Something went wrong in matching the %s call of %s to its signature." + \
                 " You might have to manually specify or correct the function signature.") % (get_ord(index + 1), sol_name))
@@ -360,9 +359,11 @@ def test_function_v2(name,
 
             try:
                 student_call, arguments, keywords = student_calls[name][call_ind]
-                student_args, student_params = get_args(args=arguments, keyws=keywords,
-                         name=name, mapped_name=stud_name,
-                         signature=signature, env=student_process)
+                student_sig = getSignatureInProcess(name = name, mapped_name = stud_name,
+                                                    signature=signature,
+                                                    manual_sigs = State.active_state.get_manual_sigs(),
+                                                    process=student_process)
+                student_args, student_params = bind_args(signature = student_sig, arguments=arguments, keyws=keywords)
             except:
                 if feedback is None:
                     if not params_not_matched_msg:
@@ -435,66 +436,20 @@ def get_mapped_name(name, mappings):
                 mapped_name = ".".join([mappings_rev[els[0]]] + els[1:])
     return(mapped_name)
 
-
-def get_args(args, keyws, name, mapped_name, signature, env):
+def bind_args(signature, arguments, keyws):
     keyws = {keyword.arg: keyword.value for keyword in keyws}
-
-    # get manual signatures from the State
-    manual_sigs = State.active_state.get_manual_sigs()
-
-    if isinstance(signature, str):
-        if signature in manual_sigs:
-            signature = inspect.Signature(manual_sigs[signature])
-        else:
-            raise ValueError('signature error - specified signature not found')
-
-    if signature is None:
-        # establish function
-        try:
-            fun = eval(mapped_name, env)
-        except:
-            raise ValueError("%s() was not found." % mapped_name)
-
-        # first go through manual sigs
-        # try to get signature
-        try:
-            if name in manual_sigs:
-                signature = inspect.Signature(manual_sigs[name])
-            else:
-                # it might be a method, and we have to find the general method name
-                if "." in mapped_name:
-                    els = name.split(".")
-                    try:
-                        els[0] = type(eval(els[0], env)).__name__
-                        generic_name = ".".join(els[:])
-                    except:
-                        raise ValueError('signature error - cannot convert call')
-                    if generic_name in manual_sigs:
-                        signature = inspect.Signature(manual_sigs[generic_name])
-                    else:
-                        raise ValueError('signature error - %s not in builtins' % generic_name)
-                else:
-                    raise ValueError('manual signature not found')
-        except:
-            try:
-                signature = inspect.signature(fun)
-            except:
-                raise ValueError('signature error - cannot determine signature')
-
-    bound_args = signature.bind(*args, **keyws)
+    bound_args = signature.bind(*arguments, **keyws)
     return(bound_args.arguments, signature.parameters)
 
-def build_test(stud, sol, student_process, solution_process, student_code, solution_code, do_eval, eq_fun, feedback_msg, add_more):
+def build_test(stud, sol, student_process, solution_process, do_eval, eq_fun, feedback_msg, add_more):
     got_error = False
     if do_eval:
 
-        stud_str = extract_text_from_node(student_code, stud)
-        eval_student = evalInProcess(stud_str, student_process)
+        eval_student = evalInProcess(stud, student_process)
         if eval_student is None:
             got_error = True
 
-        solution_str = extract_text_from_node(solution_code, sol)
-        eval_solution = evalInProcess(solution_str, solution_process)
+        eval_solution = evalInProcess(sol, solution_process)
         if eval_solution is None:
             raise ValueError("Something went wrong in figuring out arguments")
 

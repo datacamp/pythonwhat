@@ -100,7 +100,7 @@ test_function_v2('max', params = ['iterable'], signature = sig)
             "DC_PEC": "import numpy as np",
             "DC_SOLUTION": "arr = np.array([1, 2, 3])",
             "DC_CODE": "arr = np.array([1, 2, 3])",
-            "DC_SCT": "test_function_v2('numpy.array', params = ['object'])" 
+            "DC_SCT": "test_function_v2('numpy.array', params = ['object'])"
         }
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
@@ -110,7 +110,7 @@ test_function_v2('max', params = ['iterable'], signature = sig)
             "DC_PEC": "import numpy as np",
             "DC_SOLUTION": "arr = np.array([1, 2, 3])",
             "DC_CODE": "arr = np.array([1, 2, 123])",
-            "DC_SCT": "test_function_v2('numpy.array', params = ['object'])" 
+            "DC_SCT": "test_function_v2('numpy.array', params = ['object'])"
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
