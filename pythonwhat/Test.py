@@ -2,6 +2,7 @@ import re
 from pythonwhat.Feedback import Feedback
 import numpy as np
 import pandas as pd
+from pythonwhat.tasks import *
 
 """
 This file contains all tests that can be done on specific objects. All tests are represented
@@ -73,25 +74,21 @@ class DefinedTest(Test):
         result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
 
-    def __init__(self, obj, coll, feedback):
+    def __init__(self, name, process, feedback):
         """
         Initialize the defined test.
 
         Args:
-            obj (str): Value to which obj will be set.
-            coll (list/dict/set): The coll will be set to this.
+            name (str): name of the object to look for
+            process (process): The process where to look for the obj
             feedback (str): The failure message will be set to this.
         """
         super().__init__(feedback)
-        self.obj = obj
-        self.coll = coll
+        self.name = name
+        self.process = process
 
     def specific_test(self):
-        """
-        Perform the actual test. Result is True if obj is in coll, False otherwise.
-
-        """
-        self.result = (self.obj in self.coll)
+        self.result = isDefined(self.name, self.process)
 
 
 class EnvironmentTest(Test):
@@ -196,26 +193,27 @@ class EqualTest(Test):
         """
         Perform the actual test. result is set to False if the objects differ, True otherwise.
         """
-        try:
-            if self.objs_are([np.ndarray, dict, list]):
-                np.testing.assert_equal(self.obj1, self.obj2)
-                self.result = True
-            elif self.objs_are([pd.DataFrame]):
-                pd.util.testing.assert_frame_equal(self.obj1, self.obj2)
-                self.result = True
-            elif self.objs_are([pd.Series]):
-                pd.util.testing.assert_series_equal(self.obj1, self.obj2)
-                self.result = True
-            elif self.objs_are([pd.io.excel.ExcelFile]):
-                data_obj1 = {sheet: self.obj1.parse(sheet) for sheet in self.obj1.sheet_names}
-                data_obj2 = {sheet: self.obj2.parse(sheet) for sheet in self.obj2.sheet_names}
-                for k in set(data_obj1.keys()).union(set(data_obj2.keys())):
-                    pd.util.testing.assert_frame_equal(data_obj1[k], data_obj2[k])
-                self.result = True
-            else:
-                self.result = (self.obj1 == self.obj2)
-        except Exception:
-            self.result = False
+        self.result = (self.obj1 == self.obj2)
+        # try:
+        #     if self.objs_are([np.ndarray, dict, list]):
+        #         np.testing.assert_equal(self.obj1, self.obj2)
+        #         self.result = True
+        #     elif self.objs_are([pd.DataFrame]):
+        #         pd.util.testing.assert_frame_equal(self.obj1, self.obj2)
+        #         self.result = True
+        #     elif self.objs_are([pd.Series]):
+        #         pd.util.testing.assert_series_equal(self.obj1, self.obj2)
+        #         self.result = True
+        #     elif self.objs_are([pd.io.excel.ExcelFile]):
+        #         data_obj1 = {sheet: self.obj1.parse(sheet) for sheet in self.obj1.sheet_names}
+        #         data_obj2 = {sheet: self.obj2.parse(sheet) for sheet in self.obj2.sheet_names}
+        #         for k in set(data_obj1.keys()).union(set(data_obj2.keys())):
+        #             pd.util.testing.assert_frame_equal(data_obj1[k], data_obj2[k])
+        #         self.result = True
+        #     else:
+
+        # except Exception:
+        #     self.result = False
 
 
 class EquivalentEnvironmentTest(EquivalentTest):
@@ -272,7 +270,6 @@ class EqualEnvironmentTest(EqualTest):
 
 
 # TODO (Vincent): Add support for equivalence of strings. Use hamming distance.
-
 
 class BiggerTest(Test):
     """
@@ -366,3 +363,21 @@ class CollectionContainsTest(Test):
 
     def specific_test(self):
         self.result = self.obj in self.coll
+
+
+class EqualProcessTest(Test):
+
+    def __init__(self, name, student_process, sol_obj, feedback):
+        super().__init__(feedback)
+        self.name = name
+        self.student_process = student_process
+        self.sol_obj = sol_obj
+
+    def specific_test(self):
+        stud_obj = getRepresentation(self.name, self.student_process)
+        if stud_obj is None:
+            self.result = False
+        else:
+            self.result = stud_obj == self.sol_obj
+
+

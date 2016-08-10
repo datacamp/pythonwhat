@@ -1,11 +1,12 @@
-from pythonwhat.Test import DefinedTest, EqualEnvironmentTest, EquivalentEnvironmentTest
+from pythonwhat.Test import DefinedTest, EqualProcessTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
-
+from pythonwhat.tasks import *
 
 def test_object(name,
                 eq_condition="equal",
+                eq_fun=None,
                 do_eval=True,
                 undefined_msg=None,
                 incorrect_msg=None):
@@ -53,27 +54,33 @@ def test_object(name,
     if not incorrect_msg:
         incorrect_msg = "The contents of `%s` aren't correct." % name
 
-    eq_map = {"equal": EqualEnvironmentTest,
-              "equivalent": EquivalentEnvironmentTest}
-    student_env = state.student_env
-    solution_env = state.solution_env
+    eq_map = {"equal": EqualProcessTest,
+              "equivalent": EqualProcessTest}
+    student_process = state.student_process
+    solution_process = state.solution_process
 
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
 
-    if name not in solution_env:
+    if not isDefined(name, solution_process):
         raise NameError("%r not in solution environment " % name)
 
-    rep.do_test(DefinedTest(name, student_env, Feedback(undefined_msg)))
+    rep.do_test(DefinedTest(name, student_process, Feedback(undefined_msg)))
 
     if (rep.failed_test):
         return
 
     if do_eval:
         ass_node = get_assignment_node(student_obj_ass, name)
+
+        sol_obj = getRepresentation(name, solution_process)
+        if sol_obj is None:
+            raise NameError("%r cannot be converted appropriately to compare" % name)
+
+
         rep.do_test(eq_map[eq_condition](name,
-                                         student_env,
-                                         solution_env,
+                                         student_process,
+                                         sol_obj,
                                          Feedback(incorrect_msg, ass_node)))
 
 def get_assignment_node(student_obj_ass, name):

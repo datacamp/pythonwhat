@@ -6,10 +6,10 @@ import sys
 def download(fromfile, tofile):
     if not os.path.isfile(tofile):
         fn = 'http://s3.amazonaws.com/assets.datacamp.com/production/' + fromfile
-        urlretrieve(fn, tofile)    
+        urlretrieve(fn, tofile)
 
 if __name__ == "__main__":
-    
+
     # change path to tests
     os.chdir(os.path.dirname(sys.argv[0]))
 
@@ -19,6 +19,7 @@ if __name__ == "__main__":
     download('course_998/datasets/data.p', 'data.p')
     download('course_998/datasets/ja_data2.mat', 'albeck_gene_expression.mat')
     download('course_998/datasets/battledeath.xlsx', 'battledeath.xlsx')
+    download('course_998/datasets/battledeath.xlsx', 'battledeath2.xlsx')
     download('course_998/datasets/Chinook.sqlite', 'Chinook.sqlite')
     download('course_998/datasets/titanic_sub.csv', 'titanic.csv')
     download('course_998/datasets/tweets3.txt', 'tweets.txt')
