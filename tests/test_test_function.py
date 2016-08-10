@@ -511,7 +511,7 @@ test_function("print")
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>print()</code> with the correct arguments?", sct_payload['message'])
 
-        
+
     def test_custom(self):
         self.data["DC_SCT"] = '''
 test_function("pandas.DataFrame")
@@ -548,7 +548,7 @@ class TestLineNumbers(unittest.TestCase):
                      "DC_SCT": "test_function('round', index = 1)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Did you call <code>round()</code> with the correct arguments? The first argument seems to be incorrect. Expected <code>1.23456</code>, but got <code>1.34567</code>.")
+        self.assertEqual(sct_payload['message'], "Did you call <code>round()</code> with the correct arguments? The first argument seems to be incorrect.")
         helper.test_lines(self, sct_payload, 1, 1, 7, 13)
 
     def test_line_numbers(self):
@@ -558,7 +558,7 @@ class TestLineNumbers(unittest.TestCase):
                      "DC_SCT": "test_function('round', index = 1)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Did you call <code>round()</code> with the correct arguments? Keyword <code>ndigits</code> seems to be incorrect. Expected <code>1</code>, but got <code>3</code>.")
+        self.assertEqual(sct_payload['message'], "Did you call <code>round()</code> with the correct arguments? Keyword <code>ndigits</code> seems to be incorrect.")
         helper.test_lines(self, sct_payload, 1, 1, 26, 26)
 
 
@@ -716,7 +716,7 @@ test_function("print", index = 3)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 2, 2, 7, 10)
-        
+
     def test_multiple_6(self):
         self.data["DC_CODE"] = 'print("abc")\nprint(123)\nprint([1, 2, 3, 4])'
         sct_payload = helper.run(self.data)

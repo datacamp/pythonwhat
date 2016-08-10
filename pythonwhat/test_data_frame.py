@@ -1,6 +1,6 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedTest, EqualTest, Test
+from pythonwhat.Test import DefinedProcessTest, EqualTest, Test
 
 import pandas as pd
 
@@ -29,7 +29,7 @@ def test_data_frame(name,
     except AssertionError:
         raise ValueError("%r is not a pandas.DataFrame in the solution environment" % name)
 
-    rep.do_test(DefinedTest(name, student_env,
+    rep.do_test(DefinedProcessTest(name, student_env,
         undefined_msg or "Are you sure you defined the pandas DataFrame: `%s`?" % name))
     if rep.failed_test:
         return
@@ -47,7 +47,7 @@ def test_data_frame(name,
         except KeyError:
             raise NameError("%r is not a column in the %r DataFrame in the solution environment" % (column, name))
 
-        rep.do_test(DefinedTest(column, student_df,
+        rep.do_test(DefinedProcessTest(column, student_df,
             undefined_cols_msg or "You did not define column `%s` in the pandas DataFrame, `%s`." % (column, name)))
         if rep.failed_test:
             return

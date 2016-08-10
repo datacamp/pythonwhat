@@ -1,7 +1,7 @@
 import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedTest, EqualEnvironmentTest, EquivalentEnvironmentTest
+from pythonwhat.Test import DefinedProcessTest, EqualEnvironmentTest, EquivalentEnvironmentTest
 
 from pythonwhat.set_extra_env import set_extra_env
 from pythonwhat.set_context_vals import set_context_vals

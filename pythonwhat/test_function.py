@@ -1,11 +1,13 @@
 import ast
 
-from pythonwhat.Test import Test, DefinedTest, EqualTest, EquivalentTest, BiggerTest
+from pythonwhat.Test import Test, DefinedCollTest, EqualTest, EquivalentTest, BiggerTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord, get_num
 import inspect
+from pythonwhat.utils_ast import extract_text_from_node
+from pythonwhat.tasks import evalInProcess
 
 def test_function(name,
                   index=1,
@@ -74,7 +76,7 @@ def test_function(name,
         raise NameError("%r not a valid equality condition " % eq_condition)
     eq_fun = eq_map[eq_condition]
 
-    student_env, solution_env = state.student_env, state.solution_env
+    student_process, solution_process = state.student_process, state.solution_process
 
     state.extract_function_calls()
     solution_calls = state.solution_function_calls
@@ -94,7 +96,7 @@ def test_function(name,
     if name not in solution_calls or len(solution_calls[name]) <= index:
         raise NameError("%r not in solution environment (often enough)" % name)
 
-    rep.do_test(DefinedTest(name, student_calls, not_called_msg))
+    rep.do_test(DefinedCollTest(name, student_calls, not_called_msg))
     if rep.failed_test:
         return
 
@@ -166,7 +168,8 @@ def test_function(name,
                     add_more = False
 
                 test = build_test(arg_student, arg_solution,
-                                  student_env, solution_env,
+                                  student_process, solution_process,
+                                  state.full_student_code, state.full_solution_code,
                                   do_eval, eq_fun, msg, add_more=add_more)
                 test.test()
 
@@ -188,7 +191,8 @@ def test_function(name,
                         add_more = False
 
                     test = build_test(key_student, key_solution,
-                                      student_env, solution_env,
+                                      student_process, solution_process,
+                                      state.full_student_code, state.full_solution_code,
                                       do_eval, eq_fun, msg, add_more=add_more)
                     test.test()
 
@@ -299,7 +303,7 @@ def test_function_v2(name,
     if len(params) != len(incorrect_msg):
         raise NameError("Inside test_function_v2, make sure that incorrect_msg has the same length as params.")
 
-    student_env, solution_env = state.student_env, state.solution_env
+    student_process, solution_process = state.student_process, state.solution_process
 
     state.extract_function_calls()
     solution_calls = state.solution_function_calls
@@ -320,7 +324,7 @@ def test_function_v2(name,
     if name not in solution_calls or len(solution_calls[name]) <= index:
         raise NameError("%r not in solution environment (often enough)" % name)
 
-    rep.do_test(DefinedTest(name, student_calls, not_called_msg))
+    rep.do_test(DefinedCollTest(name, student_calls, not_called_msg))
     if rep.failed_test:
         return
 
@@ -334,7 +338,7 @@ def test_function_v2(name,
             sol_call, arguments, keywords = solution_calls[name][index]
             solution_args, _ = get_args(args=arguments, keyws=keywords,
                                         name=name, mapped_name=sol_name,
-                                        signature=signature, env=solution_env)
+                                        signature=signature, env=solution_process)
         except:
             raise ValueError(("Something went wrong in matching the %s call of %s to its signature." + \
                 " You might have to manually specify or correct the function signature.") % (get_ord(index + 1), sol_name))
@@ -358,7 +362,7 @@ def test_function_v2(name,
                 student_call, arguments, keywords = student_calls[name][call_ind]
                 student_args, student_params = get_args(args=arguments, keyws=keywords,
                          name=name, mapped_name=stud_name,
-                         signature=signature, env=student_env)
+                         signature=signature, env=student_process)
             except:
                 if feedback is None:
                     if not params_not_matched_msg:
@@ -402,7 +406,7 @@ def test_function_v2(name,
                     add_more = False
 
                 test = build_test(arg_student, arg_solution,
-                                  student_env, solution_env,
+                                  student_process, solution_process,
                                   do_eval[ind], eq_fun, msg, add_more)
                 test.test()
 
@@ -480,34 +484,28 @@ def get_args(args, keyws, name, mapped_name, signature, env):
     bound_args = signature.bind(*args, **keyws)
     return(bound_args.arguments, signature.parameters)
 
-def build_test(stud, sol, student_env, solution_env, do_eval, eq_fun, feedback_msg, add_more):
+def build_test(stud, sol, student_process, solution_process, student_code, solution_code, do_eval, eq_fun, feedback_msg, add_more):
     got_error = False
     if do_eval:
-        try:
-            eval_student = eval(
-                compile(
-                    ast.Expression(stud),
-                    "<student>",
-                    "eval"),
-                student_env)
-        except:
+
+        stud_str = extract_text_from_node(student_code, stud)
+        eval_student = evalInProcess(stud_str, student_process)
+        if eval_student is None:
             got_error = True
 
-        eval_solution = eval(
-            compile(
-                ast.Expression(sol),
-                "<solution>",
-                "eval"),
-            solution_env)
+        solution_str = extract_text_from_node(solution_code, sol)
+        eval_solution = evalInProcess(solution_str, solution_process)
+        if eval_solution is None:
+            raise ValueError("Something went wrong in figuring out arguments")
 
         # The (eval_student, ) part is important, because when eval_student is a tuple, we don't want
         # to expand them all over the %'s during formatting, we just want the tuple to be represented
         # in the place of the %r. Same for eval_solution.
-        if add_more:
-            if got_error:
-                feedback_msg += " Expected `%r`, but got %s." % (eval_solution, "an error")
-            else:
-                feedback_msg += " Expected `%r`, but got `%r`." % (eval_solution, eval_student)
+        # if add_more:
+        #     if got_error:
+        #         feedback_msg += " Expected `%r`, but got %s." % (eval_solution, "an error")
+        #     else:
+        #         feedback_msg += " Expected `%r`, but got `%r`." % (eval_solution, eval_student)
     else:
         # We don't want the 'expected...' message here. It's a pain in the ass to deparse the ASTs to
         # give something meaningful.

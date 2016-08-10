@@ -1,7 +1,7 @@
 import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedTest, EqualTest, Test, InstanceTest
+from pythonwhat.Test import DefinedCollTest, EqualTest, Test, InstanceTest
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
 from pythonwhat.utils import get_ord

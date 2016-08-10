@@ -1,5 +1,5 @@
 import ast
-from pythonwhat.Test import Test, DefinedTest, EqualTest
+from pythonwhat.Test import Test, DefinedCollTest, EqualTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 

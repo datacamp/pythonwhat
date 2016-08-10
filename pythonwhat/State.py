@@ -297,6 +297,7 @@ class State(object):
         res = None
         try:
             res = ast.parse(x)
+            utils_ast.mark_text_ranges(res, x + '\n')
 
         except SyntaxError as e:
             raise SyntaxError(str(e))

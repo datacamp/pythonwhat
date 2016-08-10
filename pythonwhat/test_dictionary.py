@@ -1,6 +1,6 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedTest, EqualTest
+from pythonwhat.Test import DefinedProcessTest, EqualTest
 from pythonwhat.Feedback import Feedback
 
 def test_dictionary(name,

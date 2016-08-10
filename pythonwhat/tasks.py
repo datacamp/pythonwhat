@@ -43,13 +43,18 @@ class TaskConvert(object):
     def __call__(self, shell, original_ns_keys):
         return dill.loads(self.converter)(shell.user_ns[self.name])
 
-# class TaskEvalCode(object):
-#     def __init__(self, code):
-#         self.code = code
+class TaskEvalCodeClass(object):
+    def __init__(self, code, name):
+        self.code = name + " = " + code
 
-#     def __call__(self, shell, original_ns_keys):
-#         #code = "x = " + code
-#         #return dill.dumps(shell.user_ns['x'])
+    def __call__(self, shell, original_ns_keys):
+        try:
+            shell.run_cell(self.code)
+            return True
+        except:
+            return None
+        # task = TaskGetClass("theobject")
+        # return task(shell, original_ns_keys)
 
 def isDefined(name, process):
     return process.executeTask(TaskIsDefined(name))
@@ -70,6 +75,13 @@ def getRepresentation(name, process):
 
     return stream
 
-    # else:
-    #     return None
-    # state.get_converters()[obj_type]
+def evalInProcess(code, process):
+    res = process.executeTask(TaskEvalCodeClass(code, "_evaluation_object_"))
+    if not res:
+        return None
+    else:
+        return getRepresentation("_evaluation_object_", process)
+
+
+
+

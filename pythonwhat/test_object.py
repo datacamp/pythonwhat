@@ -1,4 +1,4 @@
-from pythonwhat.Test import DefinedTest, EqualProcessTest
+from pythonwhat.Test import DefinedProcessTest, EqualProcessTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
@@ -65,7 +65,7 @@ def test_object(name,
     if not isDefined(name, solution_process):
         raise NameError("%r not in solution environment " % name)
 
-    rep.do_test(DefinedTest(name, student_process, Feedback(undefined_msg)))
+    rep.do_test(DefinedProcessTest(name, student_process, Feedback(undefined_msg)))
 
     if (rep.failed_test):
         return

@@ -63,7 +63,26 @@ class Test(object):
         return(self.feedback)
 
 
-class DefinedTest(Test):
+class DefinedCollTest(Test):
+    """
+    Check if an object with a certain name is defined in a collection.
+
+    Attributes:
+        feedback (str): A string containing the failure message in case the test fails.
+        obj (str): Contains the name of the object that is searched for.
+        coll (list/dict/set): Contains any object on which the 'in' operator can be performed.
+        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+    """
+
+    def __init__(self, name, collection, feedback):
+        super().__init__(feedback)
+        self.name = name
+        self.collection = collection
+
+    def specific_test(self):
+        self.result = self.name in self.collection
+
+class DefinedProcessTest(Test):
     """
     Check if an object with a certain name is defined in a collection.
 

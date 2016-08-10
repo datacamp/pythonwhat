@@ -2,7 +2,7 @@ import ast
 from pythonwhat.State import State
 from pythonwhat.Feedback import Feedback
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedTest, EqualTest, Test
+from pythonwhat.Test import DefinedProcessTest, EqualTest, Test
 from pythonwhat import utils
 
 
