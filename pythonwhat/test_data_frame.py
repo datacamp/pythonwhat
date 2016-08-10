@@ -1,6 +1,6 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedProcessTest, EqualTest, Test
+from pythonwhat.Test import DefinedProcessTest, DefinedCollTest, EqualTest, Test
 
 import pandas as pd
 
@@ -11,8 +11,6 @@ def test_data_frame(name,
                     undefined_cols_msg=None,
                     incorrect_msg=None):
     """Test a pandas dataframe.
-
-
     """
     state = State.active_state
     rep = Reporter.active_reporter

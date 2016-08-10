@@ -2,13 +2,8 @@ import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import EqualTest, EquivalentTest
-
-from pythonwhat.set_extra_env import set_extra_env
-from pythonwhat.set_context_vals import set_context_vals
-
 from pythonwhat import utils
-
-import copy
+from pythonwhat.tasks import getResultInProcess
 
 
 def test_expression_result(extra_env=None,
@@ -83,41 +78,23 @@ def test_expression_result(extra_env=None,
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
 
-    student_expr = state.student_tree
-    solution_expr = state.solution_tree
+    eval_student, str_student = getResultInProcess(tree = state.student_tree,
+                                                   process = state.student_process,
+                                                   extra_env = extra_env,
+                                                   context = state.context_student,
+                                                   context_vals = context_vals,
+                                                   pre_code = pre_code,
+                                                   expr_code = expr_code,
+                                                   keep_objs_in_env = keep_objs_in_env)
 
-    student_env = utils.copy_env(state.student_env, keep_objs_in_env)
-    solution_env = utils.copy_env(state.solution_env, keep_objs_in_env)
-
-    set_extra_env(student_env, solution_env, extra_env)
-    set_context_vals(student_env, solution_env, context_vals)
-
-    try:
-        if pre_code is not None:
-            exec(pre_code, student_env)
-        if expr_code is None:
-            eval_student = eval(
-                compile(
-                    ast.Expression(student_expr),
-                    "<student>",
-                    "eval"),
-                student_env)
-        else:
-            eval_student = eval(expr_code, student_env)
-    except:
-        eval_student = None
-
-    if pre_code is not None:
-        exec(pre_code, student_env)
-    if expr_code is None:
-        eval_solution = eval(
-            compile(
-                ast.Expression(solution_expr),
-                "<solution>",
-                "eval"),
-            solution_env)
-    else:
-        eval_solution = eval(expr_code, solution_env)
+    eval_solution, str_solution = getResultInProcess(tree = state.solution_tree,
+                                                     process = state.solution_process,
+                                                     extra_env = extra_env,
+                                                     context = state.context_solution,
+                                                     context_vals = context_vals,
+                                                     pre_code = pre_code,
+                                                     expr_code = expr_code,
+                                                     keep_objs_in_env = keep_objs_in_env)
 
     if incorrect_msg is not None:
         feedback_msg = incorrect_msg
@@ -125,7 +102,7 @@ def test_expression_result(extra_env=None,
         feedback_msg = "Unexpected expression: expected `%s`, got `%s` with values" + \
             ((" " + str(extra_env)) if extra_env else ".")
         feedback_msg = feedback_msg % (utils.shorten_str(
-            str(eval_solution)), utils.shorten_str(str(eval_student)))
+            str_solution), utils.shorten_str(str_student))
 
     Reporter.active_reporter.do_test(
         eq_map[eq_condition](

@@ -70,8 +70,6 @@ def test_while_loop(index=1,
 
     index = index - 1
 
-    student_env, solution_env = state.student_env, state.solution_env
-
     state.extract_while_calls()
     student_whiles = state.student_while_calls
     solution_whiles = state.solution_while_calls
@@ -93,7 +91,7 @@ def test_while_loop(index=1,
             child.to_parent_state()
             if rep.failed_test:
                 if expand_message:
-                    rep.feedback.message = ("Check your code in the %s of the %s `while` loop. " % 
+                    rep.feedback.message = ("Check your code in the %s of the %s `while` loop. " %
                         (incorrect_part, get_ord(index + 1))) + rep.feedback.message
                 if not rep.feedback.line_info:
                     rep.feedback = Feedback(rep.feedback.message, subtree_student)

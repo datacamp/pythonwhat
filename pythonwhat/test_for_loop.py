@@ -65,8 +65,6 @@ def test_for_loop(index=1,
 
     index = index - 1
 
-    student_env, solution_env = state.student_env, state.solution_env
-
     state.extract_for_calls()
     student_fors = state.student_for_calls
     solution_fors = state.solution_for_calls
@@ -90,7 +88,7 @@ def test_for_loop(index=1,
             child.to_parent_state()
             if rep.failed_test:
                 if expand_message:
-                    rep.feedback.message = ("Check your code in the %s of the %s `for` loop. " % 
+                    rep.feedback.message = ("Check your code in the %s of the %s `for` loop. " %
                         (incorrect_part, get_ord(index + 1))) + rep.feedback.message
                 if not rep.feedback.line_info:
                     rep.feedback = Feedback(rep.feedback.message, subtree_student)

@@ -5,26 +5,7 @@ from pythonwhat.Test import EqualTest, EquivalentTest
 
 from pythonwhat import utils
 
-from pythonwhat.set_extra_env import set_extra_env
-from pythonwhat.set_context_vals import set_context_vals
-
-from contextlib import contextmanager
-
-import copy
-
-
-@contextmanager
-def capture_output():
-    import sys
-    from io import StringIO
-    oldout, olderr = sys.stdout, sys.stderr
-    out = [StringIO(), StringIO()]
-    sys.stdout, sys.stderr = out
-    yield out
-    sys.stdout, sys.stderr = oldout, olderr
-    out[0] = out[0].getvalue()
-    out[1] = out[1].getvalue()
-
+from pythonwhat.tasks import getOutputInProcess
 
 def test_expression_output(extra_env=None,
                            context_vals=None,
@@ -91,30 +72,21 @@ def test_expression_output(extra_env=None,
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
 
-    student_expr = state.student_tree
-    solution_expr = state.solution_tree
+    out_student = getOutputInProcess(tree = state.student_tree,
+                                     process = state.student_process,
+                                     extra_env = extra_env,
+                                     context = state.context_student,
+                                     context_vals = context_vals,
+                                     pre_code = pre_code,
+                                     keep_objs_in_env = keep_objs_in_env)
 
-    student_env = utils.copy_env(state.student_env, keep_objs_in_env)
-    solution_env = utils.copy_env(state.solution_env, keep_objs_in_env)
-
-    set_extra_env(student_env, solution_env, extra_env)
-    set_context_vals(student_env, solution_env, context_vals)
-
-    try:
-        with capture_output() as out:
-            if pre_code is not None:
-                exec(pre_code)
-            exec(compile(student_expr, "<student>", "exec"), student_env)
-        out_student = out[0].strip()
-    except:
-        out_student = None
-
-    with capture_output() as out:
-        if pre_code is not None:
-            exec(pre_code)
-        exec(compile(solution_expr, "<solution>", "exec"), solution_env)
-
-    out_solution = out[0].strip()
+    out_solution = getOutputInProcess(tree = state.solution_tree,
+                                      process = state.solution_process,
+                                      extra_env = extra_env,
+                                      context = state.context_solution,
+                                      context_vals = context_vals,
+                                      pre_code = pre_code,
+                                      keep_objs_in_env = keep_objs_in_env)
 
     if incorrect_msg is not None:
         feedback_msg = incorrect_msg

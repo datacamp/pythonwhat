@@ -6,19 +6,24 @@ import dill
 import pythonwhat
 import ast
 import inspect
+import copy
+from pythonwhat.utils_env import set_context_vals
+from contextlib import contextmanager
+
+### TASKS
 
 class TaskIsDefined(object):
     def __init__(self, name):
         self.name = name
 
-    def __call__(self, shell, original_ns_keys):
+    def __call__(self, shell):
         return self.name in shell.user_ns
 
 class TaskGetStream(object):
     def __init__(self, name):
         self.name = name
 
-    def __call__(self, shell, original_ns_keys):
+    def __call__(self, shell):
         try:
             return dill.dumps(shell.user_ns[self.name])
         except:
@@ -28,7 +33,7 @@ class TaskGetClass(object):
     def __init__(self, name):
         self.name = name
 
-    def __call__(self, shell, original_ns_keys):
+    def __call__(self, shell):
         obj = shell.user_ns[self.name]
 
         if hasattr(obj, '__module__'):
@@ -42,7 +47,7 @@ class TaskConvert(object):
         self.name = name
         self.converter = converter
 
-    def __call__(self, shell, original_ns_keys):
+    def __call__(self, shell):
         return dill.loads(self.converter)(shell.user_ns[self.name])
 
 class TaskEvalAst(object):
@@ -50,7 +55,7 @@ class TaskEvalAst(object):
         self.tree = tree
         self.name = name
 
-    def __call__(self, shell, original_ns_keys):
+    def __call__(self, shell):
         try:
             shell.user_ns[self.name] = eval(compile(ast.Expression(self.tree), "<script>", "eval"), shell.user_ns)
             return True
@@ -58,13 +63,10 @@ class TaskEvalAst(object):
             return None
 
 class TaskGetSignature(object):
-    def __init__(self, name, mapped_name, signature, manual_sigs):
-        self.name = name
-        self.mapped_name = mapped_name
-        self.signature = signature
-        self.manual_sigs = manual_sigs
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
-    def __call__(self, shell, original_ns_keys):
+    def __call__(self, shell):
         try:
             return get_signature(name = self.name,
                                  mapped_name = self.mapped_name,
@@ -78,14 +80,76 @@ class TaskGetSignatureFromObj(object):
     def __init__(self, obj_char):
         self.obj_char = obj_char
 
-    def __call__(self, shell, original_ns_keys):
+    def __call__(self, shell):
         try:
             return inspect.signature(eval(self.obj_char, shell.user_ns))
         except:
             return None
 
+class TaskGetOutput(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __call__(self, shell):
+        new_env = utils.copy_env(shell.user_ns, self.keep_objs_in_env)
+        if self.extra_env is not None:
+            new_env.update(copy.deepcopy(self.extra_env))
+        set_context_vals(new_env, self.context, self.context_vals)
+        try:
+            with capture_output() as out:
+                if self.pre_code is not None:
+                    exec(self.pre_code, new_env)
+                exec(compile(self.tree, "<script>", "exec"), new_env)
+            return out[0].strip()
+        except:
+            return None
+
+# TODO reduce duplication wrt to TaskGetOutput
+class TaskGetResult(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __call__(self, shell):
+        new_env = utils.copy_env(shell.user_ns, self.keep_objs_in_env)
+        if self.extra_env is not None:
+            new_env.update(copy.deepcopy(self.extra_env))
+        set_context_vals(new_env, self.context, self.context_vals)
+        try:
+            if self.pre_code is not None:
+                exec(self.pre_code, new_env)
+            if self.expr_code is not None:
+                shell.user_ns[self.name] = exec(self.expr_code, new_env)
+            else:
+                shell.user_ns[self.name] = eval(compile(ast.Expression(self.tree), "<script>", "eval"), new_env)
+            return str(shell.user_ns[self.name])
+        except:
+            return None
+
+class TaskRunTreeStoreEnv(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __call__(self, shell):
+        new_env = utils.copy_env(shell.user_ns, self.keep_objs_in_env)
+        if self.extra_env is not None:
+            new_env.update(copy.deepcopy(self.extra_env))
+        set_context_vals(new_env, self.context, self.context_vals)
+        try:
+            if self.pre_code is not None:
+                exec(self.pre_code, new_env)
+            exec(compile(self.tree, "<script>", "exec"), new_env)
+            # shell.user_ns[self.name] = new_env
+        except:
+            return None
+        if self.name not in new_env :
+            return "undefined"
+        else :
+            obj = new_env[self.name]
+            shell.user_ns[self.tempname] = obj
+            return str(obj)
 
 
+### Wrapper functions
 
 def isDefined(name, process):
     return process.executeTask(TaskIsDefined(name))
@@ -109,16 +173,36 @@ def getRepresentation(name, process):
 def evalInProcess(tree, process):
     # res = process.executeTask(TaskEvalCode(code, "_evaluation_object_"))
     res = process.executeTask(TaskEvalAst(tree, "_evaluation_object_"))
-    if not res:
-        return None
-    else:
-        return getRepresentation("_evaluation_object_", process)
+    if res:
+        res = getRepresentation("_evaluation_object_", process)
+    return res
 
-def getSignatureInProcess(name, mapped_name, signature, manual_sigs, process):
-    return process.executeTask(TaskGetSignature(name, mapped_name, signature, manual_sigs))
+def getSignatureInProcess(process, **kwargs):
+    return process.executeTask(TaskGetSignature(**kwargs))
 
 def getSignatureInProcessFromObj(obj_char, process):
     return process.executeTask(TaskGetSignatureFromObj(obj_char))
+
+def getOutputInProcess(process, **kwargs):
+    return process.executeTask(TaskGetOutput(**kwargs))
+
+def getResultInProcess(process, **kwargs):
+    kwargs['name'] = "_evaluation_object_"
+    strrep = process.executeTask(TaskGetResult(**kwargs))
+    if strrep is not None:
+        bytestream = getRepresentation("_evaluation_object_", process)
+    else:
+        bytestream = None
+    return (bytestream, strrep)
+
+def getObjectAfterExpressionInProcess(process, **kwargs):
+    tempname = "_evaluation_object_"
+    strrep = process.executeTask(TaskRunTreeStoreEnv(**kwargs, tempname = tempname))
+    if strrep is None or strrep is "undefined" :
+        bytestream = None
+    else :
+        bytestream = getRepresentation(tempname, process)
+    return (bytestream, strrep)
 
 
 def get_signature(name, mapped_name, signature, manual_sigs, env):
@@ -164,3 +248,15 @@ def get_signature(name, mapped_name, signature, manual_sigs, env):
 
     return signature
 
+
+@contextmanager
+def capture_output():
+    import sys
+    from io import StringIO
+    oldout, olderr = sys.stdout, sys.stderr
+    out = [StringIO(), StringIO()]
+    sys.stdout, sys.stderr = out
+    yield out
+    sys.stdout, sys.stderr = oldout, olderr
+    out[0] = out[0].getvalue()
+    out[1] = out[1].getvalue()

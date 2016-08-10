@@ -1,16 +1,13 @@
 import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedProcessTest, EqualEnvironmentTest, EquivalentEnvironmentTest
+from pythonwhat.Test import EqualTest, EquivalentTest
 
-from pythonwhat.set_extra_env import set_extra_env
-from pythonwhat.set_context_vals import set_context_vals
 from pythonwhat.test_object import get_assignment_node
 from pythonwhat.Feedback import Feedback
-
 from pythonwhat import utils
 
-import copy
+from pythonwhat.tasks import getObjectAfterExpressionInProcess
 
 
 def test_object_after_expression(name,
@@ -85,45 +82,45 @@ def test_object_after_expression(name,
     student_obj_ass = state.student_object_assignments
 
     if not undefined_msg:
-        undefined_msg = "Have you defined `%s`?" % name
+        undefined_msg = "Have you defined `%s` without errors?" % name
 
     if not incorrect_msg:
         incorrect_msg = "Are you sure you assigned the correct value to `%s`?" % name
 
-    eq_map = {"equal": EqualEnvironmentTest,
-              "equivalent": EquivalentEnvironmentTest}
+    eq_map = {"equal": EqualTest,
+              "equivalent": EquivalentTest}
 
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
 
-    student_expr = state.student_tree
-    solution_expr = state.solution_tree
 
-    student_env = utils.copy_env(state.student_env, keep_objs_in_env)
-    solution_env = utils.copy_env(state.solution_env, keep_objs_in_env)
+    eval_student, str_student = getObjectAfterExpressionInProcess(tree = state.student_tree,
+                                                                  name = name,
+                                                                  process = state.student_process,
+                                                                  extra_env = extra_env,
+                                                                  context = state.context_student,
+                                                                  context_vals = context_vals,
+                                                                  pre_code = pre_code,
+                                                                  keep_objs_in_env = keep_objs_in_env)
 
-    set_extra_env(student_env, solution_env, extra_env)
-    set_context_vals(student_env, solution_env, context_vals)
+    eval_solution, str_solution = getObjectAfterExpressionInProcess(tree = state.solution_tree,
+                                                                    name = name,
+                                                                    process = state.solution_process,
+                                                                    extra_env = extra_env,
+                                                                    context = state.context_solution,
+                                                                    context_vals = context_vals,
+                                                                    pre_code = pre_code,
+                                                                    keep_objs_in_env = keep_objs_in_env)
 
-    try:
-        if pre_code is not None:
-            exec(pre_code, student_env)
-        exec(compile(student_expr, "<student>", "exec"), student_env)
-    except:
-        pass
+    if str_solution is None:
+        raise ValueError("Running the expression in the solution environment caused an error.")
 
-    if pre_code is not None:
-        exec(pre_code, solution_env)
-    exec(compile(solution_expr, "<solution>", "exec"), solution_env)
-
-    rep.do_test(DefinedTest(name, student_env, undefined_msg))
-    if (rep.failed_test):
+    if str_student == "undefined" or str_student is None:
+        rep.do_test(Test(undefined_msg))
         return
 
     ass_node = get_assignment_node(student_obj_ass, name)
-
-    rep.do_test(eq_map[eq_condition](name,
-                                     student_env,
-                                     solution_env,
+    rep.do_test(eq_map[eq_condition](eval_student,
+                                     eval_solution,
                                      Feedback(incorrect_msg, ass_node)))
 
