@@ -31,6 +31,18 @@ def listElementsInProcess(process):
 
 ### TASKS
 
+# MC
+
+class TaskGetOption(object):
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self, shell):
+        return shell.user_ns[self.name]
+
+def getOptionFromProcess(process, name):
+    return process.executeTask(TaskGetOption(name))
+
 # WITH
 
 class TaskSetUpNewEnv(object):
