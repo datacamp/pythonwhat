@@ -1,54 +1,95 @@
 import unittest
 import helper
 
-class TestTestObjectBasic(unittest.TestCase):
+class TestObjectStepByStep(unittest.TestCase):
 
     def setUp(self):
         self.data = {
-            "DC_PEC": '',
-            "DC_CODE": 'savings2 = 110\nsavings2b = 110\nsavings2b+=110\nsavings3 = 140',
-            "DC_SOLUTION": 'savings = 100\nsavings2 = 120\nsavings2b = 120\nsavings3 = 140'
-            }
+            "DC_PEC": "",
+            "DC_SOLUTION": "x = 100",
+            "DC_SCT": "test_object('x')"
+        }
 
-    def test_fail_undef(self):
-        self.data["DC_SCT"] = 'test_object("savings")'
+    def test_step_1(self):
+        self.data["DC_CODE"] = ""
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Have you defined <code>savings</code>?")
-        helper.test_absent_lines(self, sct_payload)
+        self.assertEqual(sct_payload['message'], "Have you defined <code>x</code>?")
 
-    def test_fail_undef_custom(self):
-        self.data["DC_SCT"] = 'test_object("savings", undefined_msg = "blabla")'
+    def test_step_2(self):
+        self.data["DC_CODE"] = "x = 500"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "blabla")
-        helper.test_absent_lines(self, sct_payload)
-
-    def test_fail_incorr(self):
-        self.data["DC_SCT"] = 'test_object("savings2")'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "The contents of <code>savings2</code> aren't correct.")
-        helper.test_lines(self, sct_payload, 1, 1, 1, 14)
-
-    def test_fail_incorr_custom(self):
-        self.data["DC_SCT"] = 'test_object("savings2", incorrect_msg = "blabla")'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "blabla")
-        helper.test_lines(self, sct_payload, 1, 1, 1, 14)
-
-    def test_fail_incorr2(self):
-        self.data["DC_SCT"] = 'test_object("savings2b")'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "The contents of <code>savings2b</code> aren't correct.")
-        helper.test_absent_lines(self, sct_payload)
+        self.assertEqual(sct_payload['message'], "The contents of <code>x</code> aren't correct.")
+        helper.test_lines(self, sct_payload, 1, 1, 1, 7)
 
     def test_pass(self):
-        self.data["DC_SCT"] = 'test_object("savings3")'
+        self.data["DC_CODE"] = "x = 100"
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
+class TestObjectStepByStepCustom(unittest.TestCase):
+
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "x = 100",
+            "DC_SCT": "test_object('x', undefined_msg = 'undefined', incorrect_msg = 'incorrect')"
+        }
+
+    def test_step_1(self):
+        self.data["DC_CODE"] = ""
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "undefined")
+
+    def test_step_2(self):
+        self.data["DC_CODE"] = "x = 500"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "incorrect")
+        helper.test_lines(self, sct_payload, 1, 1, 1, 7)
+
+    def test_pass(self):
+        self.data["DC_CODE"] = "x = 100"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+
+class TestTestObjectNonDillable(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "import pandas as pd",
+            "DC_SOLUTION": "xl = pd.ExcelFile('battledeath.xlsx')",
+            "DC_SCT": "test_object('xl')"
+        }
+
+    def test_step_1(self):
+        self.data["DC_CODE"] = "xl = pd.ExcelFile('battledeath.xlsx')"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+class TestTestObjectManualConverter(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "import pandas as pd",
+            "DC_SOLUTION": "xl = pd.ExcelFile('battledeath.xlsx')",
+            "DC_SCT": '''
+def my_converter(x):
+    return(x.sheet_names)
+set_converter(key = "pandas.io.excel.ExcelFile", fundef = my_converter)
+test_object('xl')
+'''
+        }
+
+    def test_step_1(self):
+        self.data["DC_CODE"] = "xl = pd.ExcelFile('battledeath2.xlsx')"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+if __name__ == "__main__":
+    unittest.main()
+
 
 class TestTestObjectDeep(unittest.TestCase):
     def setUp(self):
@@ -213,6 +254,10 @@ df2.columns = ["c", "d"]
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         helper.test_absent_lines(self, sct_payload)
+
+
+
+# This is for some day
 
 # class TestTestObjectAttribute1(unittest.TestCase):
 #     def setUp(self):
