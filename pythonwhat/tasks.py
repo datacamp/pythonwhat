@@ -23,6 +23,45 @@ class TaskIsDefined(object):
     def __call__(self, shell):
         return self.name in shell.user_ns
 
+class TaskIsInstance(object):
+    def __init__(self, name, klass):
+        self.name = name
+        self.klass = klass
+
+    def __call__(self, shell):
+        return isinstance(shell.user_ns[self.name], self.klass)
+
+class TaskGetKeys(object):
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self, shell):
+        try:
+            return list(shell.user_ns[self.name].keys())
+        except:
+            return None
+
+class TaskHasKey(object):
+    def __init__(self, name, key):
+        self.name = name
+        self.key = key
+
+    def __call__(self, shell):
+        return self.key in shell.user_ns[self.name]
+
+class TaskGetValue(object):
+    def __init__(self, name, key, tempname):
+        self.name = name
+        self.key = key
+        self.tempname = tempname
+
+    def __call__(self, shell):
+        try:
+            shell.user_ns[self.tempname] = shell.user_ns[self.name][self.key]
+            return True
+        except:
+            return None
+
 class TaskGetStream(object):
     def __init__(self, name):
         self.name = name
@@ -108,7 +147,6 @@ class TaskGetOutput(object):
         except:
             return None
 
-# TODO reduce duplication wrt to TaskGetOutput
 class TaskGetResult(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
@@ -187,10 +225,28 @@ class TaskGetFunctionCallError(object):
         else:
             return None
 
+
+
 ### Wrapper functions
 
-def isDefined(name, process):
+def isDefinedInProcess(name, process):
     return process.executeTask(TaskIsDefined(name))
+
+def isInstanceInProcess(name, klass, process):
+    return process.executeTask(TaskIsInstance(name, klass))
+
+def getKeysInProcess(name, process):
+    return process.executeTask(TaskGetKeys(name))
+
+def hasKeyInProcess(name, key, process):
+    return process.executeTask(TaskHasKey(name, key))
+
+def getValueInProcess(name, key, process):
+    tempname = "_evaluation_object_"
+    res = process.executeTask(TaskGetValue(name, key, tempname))
+    if res:
+        res = getRepresentation(tempname, process)
+    return res
 
 def getStream(name, process):
     return process.executeTask(TaskGetStream(name))
@@ -256,7 +312,6 @@ def getFunctionCallOutputInProcess(process, **kwargs):
 
 def getFunctionCallErrorInProcess(process, **kwargs):
     return process.executeTask(TaskGetFunctionCallError(**kwargs))
-
 
 
 ## HELPERS

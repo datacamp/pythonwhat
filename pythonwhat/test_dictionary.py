@@ -1,7 +1,8 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedProcessTest, EqualTest
+from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, HasKeyProcessTest, EqualValueProcessTest
 from pythonwhat.Feedback import Feedback
+from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getKeysInProcess, getValueInProcess
 
 def test_dictionary(name,
                     keys=None,
@@ -16,58 +17,60 @@ def test_dictionary(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_dictionary")
 
-    solution_env = state.solution_env
-    student_env = state.student_env
+    solution_process = state.solution_process
+    student_process = state.student_process
 
-    try:
-        solution_dict = solution_env[name]
-        assert isinstance(solution_dict, dict)
-    except KeyError:
+    if not isDefinedInProcess(name, solution_process):
         raise NameError("%r not in solution environment" % name)
-    except AssertionError:
+
+    if  not isInstanceInProcess(name, dict, solution_process):
         raise ValueError("%r is not a dictionary in the solution environment" % name)
 
     # Check if defined
     if not undefined_msg:
         undefined_msg = "Are you sure you defined the dictionary `%s`?" % name
-    rep.do_test(DefinedTest(name, student_env, Feedback(undefined_msg)))
+    rep.do_test(DefinedProcessTest(name, student_process, Feedback(undefined_msg)))
     if rep.failed_test:
         return
 
-    student_dict = student_env[name]
-
-    # Check if it's a dictionary
     if not not_dictionary_msg:
         not_dictionary_msg = "`%s` is not a dictionary." % name
-    rep.do_test(EqualTest(student_dict.__class__, dict, Feedback(not_dictionary_msg)))
+    rep.do_test(InstanceProcessTest(name, dict, student_process, Feedback(not_dictionary_msg)))
     if rep.failed_test:
         return
 
-    keys = keys or list(solution_dict.keys())
+    sol_keys = getKeysInProcess(name, solution_process)
+    if sol_keys is None:
+        raise ValueError("Something went wrong in figuring out the keys for %s in the solution process" % name)
 
+    # set keys or check if manual keys are valid
+    if keys is None:
+        keys = sol_keys
+    elif set(keys) > set(sol_keys):
+        raise NameError("Not all keys you specified are actually keys in %s in the solution process" % name)
 
     # Check if keys and values ok
     for key in keys:
-
-        try:
-            solution_value = solution_dict[key]
-        except KeyError:
-            raise NameError("%r is not a key of the %r dictionary in the solution environment" % (str(key), name))
 
         # check if key available
         if not key_missing_msg:
             msg = "Have you specified a key `%s` inside `%s`?" % (str(key), name)
         else:
             msg = key_missing_msg
-        rep.do_test(DefinedTest(key, student_dict, Feedback(msg)))
+        rep.do_test(HasKeyProcessTest(name, key, student_process, Feedback(msg)))
         if rep.failed_test:
             return
+
+
+        sol_value = getValueInProcess(name, key, solution_process)
+        if sol_value is None:
+            raise NameError("%r cannot be converted appropriately to compare" % name)
 
         # check if value ok
         if not incorrect_value_msg:
             msg = "Have you specified the correct value for the key `%s` inside `%s`?" % (str(key), name)
         else:
             msg = incorrect_value_msg
-        rep.do_test(EqualTest(student_dict[key], solution_value, Feedback(msg)))
+        rep.do_test(EqualValueProcessTest(name, key, student_process, sol_value, Feedback(msg)))
         if rep.failed_test:
             return

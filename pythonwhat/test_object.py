@@ -62,7 +62,7 @@ def test_object(name,
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
 
-    if not isDefined(name, solution_process):
+    if not isDefinedInProcess(name, solution_process):
         raise NameError("%r not in solution environment " % name)
 
     rep.do_test(DefinedProcessTest(name, student_process, Feedback(undefined_msg)))

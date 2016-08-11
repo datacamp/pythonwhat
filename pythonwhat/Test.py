@@ -83,32 +83,33 @@ class DefinedCollTest(Test):
         self.result = self.name in self.collection
 
 class DefinedProcessTest(Test):
-    """
-    Check if an object with a certain name is defined in a collection.
-
-    Attributes:
-        feedback (str): A string containing the failure message in case the test fails.
-        obj (str): Contains the name of the object that is searched for.
-        coll (list/dict/set): Contains any object on which the 'in' operator can be performed.
-        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
-    """
-
     def __init__(self, name, process, feedback):
-        """
-        Initialize the defined test.
-
-        Args:
-            name (str): name of the object to look for
-            process (process): The process where to look for the obj
-            feedback (str): The failure message will be set to this.
-        """
         super().__init__(feedback)
         self.name = name
         self.process = process
 
     def specific_test(self):
-        self.result = isDefined(self.name, self.process)
+        self.result = isDefinedInProcess(self.name, self.process)
 
+class InstanceProcessTest(Test):
+    def __init__(self, name, klass, process, feedback):
+        super().__init__(feedback)
+        self.name = name
+        self.klass = klass
+        self.process = process
+
+    def specific_test(self):
+        self.result = isInstanceInProcess(self.name, self.klass, self.process)
+
+class HasKeyProcessTest(Test):
+    def __init__(self, name, key, process, feedback):
+        super().__init__(feedback)
+        self.name = name
+        self.key = key
+        self.process = process
+
+    def specific_test(self):
+        self.result = hasKeyInProcess(self.name, self.key, self.process)
 
 class EnvironmentTest(Test):
     """
@@ -399,4 +400,18 @@ class EqualProcessTest(Test):
         else:
             self.result = stud_obj == self.sol_obj
 
+class EqualValueProcessTest(Test):
+    def __init__(self, name, key, student_process, sol_value, feedback):
+        super().__init__(feedback)
+        self.name = name
+        self.key = key
+        self.student_process = student_process
+        self.sol_value = sol_value
+
+    def specific_test(self):
+        stud_value = getValueInProcess(self.name, self.key, self.student_process)
+        if stud_value is None:
+            self.result = False
+        else:
+            self.result = stud_value == self.sol_value
 

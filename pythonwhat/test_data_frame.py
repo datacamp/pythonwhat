@@ -1,6 +1,7 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import DefinedProcessTest, DefinedCollTest, EqualTest, Test
+from pythonwhat.tasks import isDefinedInProcess
 
 import pandas as pd
 
@@ -16,8 +17,14 @@ def test_data_frame(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_data_frame")
 
-    solution_env = state.solution_env
-    student_env = state.student_env
+    solution_env = state.solution_process
+    student_env = state.student_process
+
+    if not isDefinedInProcess(name, solution_process):
+        raise NameError("%r not in solution environment " % name)
+
+    if not isInstanceInProcess(name, pd.DataFrame):
+        pass
 
     try:
         solution_df = solution_env[name]
