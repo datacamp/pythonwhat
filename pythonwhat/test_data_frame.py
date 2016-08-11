@@ -1,7 +1,8 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedProcessTest, DefinedCollTest, EqualTest, Test
-from pythonwhat.tasks import isDefinedInProcess
+from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, HasKeyProcessTest, EqualValueProcessTest
+from pythonwhat.Feedback import Feedback
+from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getColumnsInProcess, getValueInProcess
 
 import pandas as pd
 
@@ -17,50 +18,61 @@ def test_data_frame(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_data_frame")
 
-    solution_env = state.solution_process
-    student_env = state.student_process
+    solution_process = state.solution_process
+    student_process = state.student_process
 
     if not isDefinedInProcess(name, solution_process):
-        raise NameError("%r not in solution environment " % name)
-
-    if not isInstanceInProcess(name, pd.DataFrame):
-        pass
-
-    try:
-        solution_df = solution_env[name]
-        assert isinstance(solution_df, pd.DataFrame)
-    except KeyError:
         raise NameError("%r not in solution environment" % name)
-    except AssertionError:
+
+    if  not isInstanceInProcess(name, pd.DataFrame, solution_process):
         raise ValueError("%r is not a pandas.DataFrame in the solution environment" % name)
 
-    rep.do_test(DefinedProcessTest(name, student_env,
-        undefined_msg or "Are you sure you defined the pandas DataFrame: `%s`?" % name))
-    if rep.failed_test:
-        return
-    student_df = student_env[name]
-    rep.do_test(EqualTest(student_df.__class__, pd.DataFrame,
-        not_data_frame_msg or "The object you defined as `%s` is not a pandas DataFrame." % name))
+
+    # Check if defined
+    if not undefined_msg:
+        undefined_msg = "Are you sure you defined the pandas DataFrame: `%s`?" % name
+    rep.do_test(DefinedProcessTest(name, student_process, Feedback(undefined_msg)))
     if rep.failed_test:
         return
 
-    columns = columns or list(solution_df.columns)
+    if not not_data_frame_msg:
+        not_data_frame_msg = "`%s` is not a pandas DataFrame." % name
+    rep.do_test(InstanceProcessTest(name, pd.DataFrame, student_process, Feedback(not_data_frame_msg)))
+    if rep.failed_test:
+        return
+
+    sol_columns = getColumnsInProcess(name, solution_process)
+    if sol_columns is None:
+        raise ValueError("Something went wrong in figuring out the columns for %s in the solution process" % name)
+
+    # set columns or check if manual columns are valid
+    if columns is None:
+        columns = sol_columns
+    elif set(columns) > set(sol_columns):
+        raise NameError("Not all columns you specified are actually columns in %s in the solution process" % name)
 
     for column in columns:
-        try:
-            solution_column = solution_df[column]
-        except KeyError:
-            raise NameError("%r is not a column in the %r DataFrame in the solution environment" % (column, name))
 
-        rep.do_test(DefinedProcessTest(column, student_df,
-            undefined_cols_msg or "You did not define column `%s` in the pandas DataFrame, `%s`." % (column, name)))
+        # check if column available
+        if not undefined_cols_msg:
+            msg = "There is no column `%s` inside `%s`." % (column, name)
+        else:
+            msg = undefined_cols_msg
+        rep.do_test(HasKeyProcessTest(name, column, student_process, Feedback(msg)))
         if rep.failed_test:
             return
 
-        student_column = student_df[column]
+        sol_value = getValueInProcess(name, column, solution_process)
+        if sol_value is None:
+            raise NameError("%r cannot be converted appropriately to compare" % name)
 
-        rep.do_test(EqualTest(solution_column, student_column,
-            incorrect_msg or "Column `%s` of your pandas DataFrame, `%s`, is not correct." % (column, name)))
+        # check if actual column ok
+        if not incorrect_msg:
+            msg = "Column `%s` of your pandas DataFrame, `%s`, is not correct." % (column, name)
+        else:
+            msg = incorrect_msg
+        rep.do_test(EqualValueProcessTest(name, column, student_process, sol_value, Feedback(msg)))
         if rep.failed_test:
             return
+
 

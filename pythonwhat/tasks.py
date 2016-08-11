@@ -41,6 +41,16 @@ class TaskGetKeys(object):
         except:
             return None
 
+class TaskGetColumns(object):
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self, shell):
+        try:
+            return list(shell.user_ns[self.name].columns)
+        except:
+            return None
+
 class TaskHasKey(object):
     def __init__(self, name, key):
         self.name = name
@@ -48,6 +58,7 @@ class TaskHasKey(object):
 
     def __call__(self, shell):
         return self.key in shell.user_ns[self.name]
+
 
 class TaskGetValue(object):
     def __init__(self, name, key, tempname):
@@ -238,6 +249,10 @@ def isInstanceInProcess(name, klass, process):
 def getKeysInProcess(name, process):
     return process.executeTask(TaskGetKeys(name))
 
+def getColumnsInProcess(name, process):
+    return process.executeTask(TaskGetColumns(name))
+
+
 def hasKeyInProcess(name, key, process):
     return process.executeTask(TaskHasKey(name, key))
 
@@ -247,6 +262,7 @@ def getValueInProcess(name, key, process):
     if res:
         res = getRepresentation(tempname, process)
     return res
+
 
 def getStream(name, process):
     return process.executeTask(TaskGetStream(name))
