@@ -11,8 +11,6 @@ from pythonwhat.utils_env import set_context_vals
 from contextlib import contextmanager
 import random, string
 
-def randomword(length):
-   return ''.join(random.choice(string.lowercase) for i in range(length))
 
 ### TASKS
 
@@ -212,6 +210,17 @@ class TaskGetFunctionCallResult(object):
         except:
             return None
 
+class TaskGetFunctionTreeResult(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __call__(self, shell):
+        try:
+            shell.user_ns[self.name] = eval(compile(ast.Expression(self.tree), "<script>", "eval"), shell.user_ns)
+            return str(shell.user_ns[self.name])
+        except:
+            return None
+
 class TaskGetFunctionCallOutput(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
@@ -236,7 +245,17 @@ class TaskGetFunctionCallError(object):
         else:
             return None
 
+class TaskGetFunctionTreeError(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
+    def __call__(self, shell):
+        try:
+            eval(compile(ast.Expression(self.tree), "<script>", "eval"), shell.user_ns)
+        except Exception as e:
+            return e
+        else:
+            return None
 
 ### Wrapper functions
 
@@ -297,7 +316,7 @@ def getOutputInProcess(process, **kwargs):
     return process.executeTask(TaskGetOutput(**kwargs))
 
 def getResultInProcess(process, **kwargs):
-    kwargs['name'] = randomword(10)
+    kwargs['name'] = "_evaluation_object_"
     strrep = process.executeTask(TaskGetResult(**kwargs))
     if strrep is not None:
         bytestream = getRepresentation(kwargs['name'], process)
@@ -323,12 +342,23 @@ def getFunctionCallResultInProcess(process, **kwargs):
         bytestream = None
     return (bytestream, strrep)
 
+def getFunctionTreeResultInProcess(process, **kwargs):
+    kwargs['name'] = "_evaluation_object_"
+    strrep = process.executeTask(TaskGetFunctionTreeResult(**kwargs))
+    if strrep is not None:
+        bytestream = getRepresentation("_evaluation_object_", process)
+    else:
+        bytestream = None
+    return (bytestream, strrep)
+
 def getFunctionCallOutputInProcess(process, **kwargs):
     return process.executeTask(TaskGetFunctionCallOutput(**kwargs))
 
 def getFunctionCallErrorInProcess(process, **kwargs):
     return process.executeTask(TaskGetFunctionCallError(**kwargs))
 
+def getFunctionTreeErrorInProcess(process, **kwargs):
+    return process.executeTask(TaskGetFunctionTreeError(**kwargs))
 
 ## HELPERS
 

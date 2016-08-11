@@ -77,7 +77,6 @@ def test_object(name,
         if sol_obj is None:
             raise NameError("%r cannot be converted appropriately to compare" % name)
 
-
         rep.do_test(eq_map[eq_condition](name,
                                          student_process,
                                          sol_obj,
