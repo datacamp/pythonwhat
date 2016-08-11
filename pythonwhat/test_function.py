@@ -450,6 +450,7 @@ def build_test(stud, sol, student_process, solution_process, do_eval, eq_fun, fe
             got_error = True
 
         eval_solution = evalInProcess(sol, solution_process)
+        # import pdb; pdb.set_trace()
         if eval_solution is None:
             raise ValueError("Something went wrong in figuring out arguments")
 

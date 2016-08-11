@@ -1,6 +1,4 @@
-#import dill
-#from .output import NoOutput, CaptureExecOutput, OutputManager
-from . import utils
+from pythonwhat import utils
 import os
 import dill
 import pythonwhat
@@ -9,17 +7,66 @@ import inspect
 import copy
 from pythonwhat.utils_env import set_context_vals
 from contextlib import contextmanager
-import random, string
 
+
+def get_env(ns):
+    if '__env__' in ns:
+        return ns['__env__']
+    else:
+        return ns
+
+## DEBUGGING
+
+class TaskListElements(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __call__(self, shell):
+        return list(get_env(shell.user_ns).keys())
+
+def listElementsInProcess(process):
+    return process.executeTask(TaskListElements())
+
+# import pythonwhat; pythonwhat.tasks.listElementsInProcess(state.student_process)
 
 ### TASKS
+
+# WITH
+
+class TaskSetUpNewEnv(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __call__(self, shell):
+        shell.user_ns['__env__'] = utils.copy_env(shell.user_ns)
+        try:
+            context_env, context_objs = context_env_update(self.context, shell.user_ns['__env__'])
+            shell.user_ns['__env__'].update(context_env)
+            shell.user_ns['__context_obj__'] = context_objs
+            return True
+        except Exception as e:
+            return e
+
+class TaskBreakDownNewEnv(object):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __call__(self, shell):
+        try:
+            res = context_objs_exit(shell.user_ns['__context_obj__'])
+            del shell.user_ns['__context_obj__']
+            del shell.user_ns['__env__']
+            return res
+        except:
+            return False
+
 
 class TaskIsDefined(object):
     def __init__(self, name):
         self.name = name
 
     def __call__(self, shell):
-        return self.name in shell.user_ns
+        return self.name in get_env(shell.user_ns)
 
 class TaskIsInstance(object):
     def __init__(self, name, klass):
@@ -27,7 +74,7 @@ class TaskIsInstance(object):
         self.klass = klass
 
     def __call__(self, shell):
-        return isinstance(shell.user_ns[self.name], self.klass)
+        return isinstance(get_env(shell.user_ns)[self.name], self.klass)
 
 class TaskGetKeys(object):
     def __init__(self, name):
@@ -35,7 +82,7 @@ class TaskGetKeys(object):
 
     def __call__(self, shell):
         try:
-            return list(shell.user_ns[self.name].keys())
+            return list(get_env(shell.user_ns)[self.name].keys())
         except:
             return None
 
@@ -45,7 +92,7 @@ class TaskGetColumns(object):
 
     def __call__(self, shell):
         try:
-            return list(shell.user_ns[self.name].columns)
+            return list(get_env(shell.user_ns)[self.name].columns)
         except:
             return None
 
@@ -55,7 +102,7 @@ class TaskHasKey(object):
         self.key = key
 
     def __call__(self, shell):
-        return self.key in shell.user_ns[self.name]
+        return self.key in get_env(shell.user_ns)[self.name]
 
 
 class TaskGetValue(object):
@@ -66,7 +113,7 @@ class TaskGetValue(object):
 
     def __call__(self, shell):
         try:
-            shell.user_ns[self.tempname] = shell.user_ns[self.name][self.key]
+            get_env(shell.user_ns)[self.tempname] = get_env(shell.user_ns)[self.name][self.key]
             return True
         except:
             return None
@@ -77,7 +124,7 @@ class TaskGetStream(object):
 
     def __call__(self, shell):
         try:
-            return dill.dumps(shell.user_ns[self.name])
+            return dill.dumps(get_env(shell.user_ns)[self.name])
         except:
             return None
 
@@ -86,7 +133,7 @@ class TaskGetClass(object):
         self.name = name
 
     def __call__(self, shell):
-        obj = shell.user_ns[self.name]
+        obj = get_env(shell.user_ns)[self.name]
 
         if hasattr(obj, '__module__'):
             typestr = obj.__module__ + "."
@@ -100,7 +147,7 @@ class TaskConvert(object):
         self.converter = converter
 
     def __call__(self, shell):
-        return dill.loads(self.converter)(shell.user_ns[self.name])
+        return dill.loads(self.converter)(get_env(shell.user_ns)[self.name])
 
 class TaskEvalAst(object):
     def __init__(self, tree, name):
@@ -109,7 +156,7 @@ class TaskEvalAst(object):
 
     def __call__(self, shell):
         try:
-            shell.user_ns[self.name] = eval(compile(ast.Expression(self.tree), "<script>", "eval"), shell.user_ns)
+            get_env(shell.user_ns)[self.name] = eval(compile(ast.Expression(self.tree), "<script>", "eval"), get_env(shell.user_ns))
             return True
         except:
             return None
@@ -124,7 +171,7 @@ class TaskGetSignature(object):
                                  mapped_name = self.mapped_name,
                                  signature = self.signature,
                                  manual_sigs = self.manual_sigs,
-                                 env = shell.user_ns)
+                                 env = get_env(shell.user_ns))
         except:
             return None
 
@@ -134,7 +181,7 @@ class TaskGetSignatureFromObj(object):
 
     def __call__(self, shell):
         try:
-            return inspect.signature(eval(self.obj_char, shell.user_ns))
+            return inspect.signature(eval(self.obj_char, get_env(shell.user_ns)))
         except:
             return None
 
@@ -143,7 +190,7 @@ class TaskGetOutput(object):
         self.__dict__.update(kwargs)
 
     def __call__(self, shell):
-        new_env = utils.copy_env(shell.user_ns, self.keep_objs_in_env)
+        new_env = utils.copy_env(get_env(shell.user_ns), self.keep_objs_in_env)
         if self.extra_env is not None:
             new_env.update(copy.deepcopy(self.extra_env))
         set_context_vals(new_env, self.context, self.context_vals)
@@ -161,7 +208,7 @@ class TaskGetResult(object):
         self.__dict__.update(kwargs)
 
     def __call__(self, shell):
-        new_env = utils.copy_env(shell.user_ns, self.keep_objs_in_env)
+        new_env = utils.copy_env(get_env(shell.user_ns), self.keep_objs_in_env)
         if self.extra_env is not None:
             new_env.update(copy.deepcopy(self.extra_env))
         set_context_vals(new_env, self.context, self.context_vals)
@@ -169,10 +216,10 @@ class TaskGetResult(object):
             if self.pre_code is not None:
                 exec(self.pre_code, new_env)
             if self.expr_code is not None:
-                shell.user_ns[self.name] = exec(self.expr_code, new_env)
+                get_env(shell.user_ns)[self.name] = exec(self.expr_code, new_env)
             else:
-                shell.user_ns[self.name] = eval(compile(ast.Expression(self.tree), "<script>", "eval"), new_env)
-            return str(shell.user_ns[self.name])
+                get_env(shell.user_ns)[self.name] = eval(compile(ast.Expression(self.tree), "<script>", "eval"), new_env)
+            return str(get_env(shell.user_ns)[self.name])
         except:
             return None
 
@@ -181,7 +228,7 @@ class TaskRunTreeStoreEnv(object):
         self.__dict__.update(kwargs)
 
     def __call__(self, shell):
-        new_env = utils.copy_env(shell.user_ns, self.keep_objs_in_env)
+        new_env = utils.copy_env(get_env(shell.user_ns), self.keep_objs_in_env)
         if self.extra_env is not None:
             new_env.update(copy.deepcopy(self.extra_env))
         set_context_vals(new_env, self.context, self.context_vals)
@@ -189,14 +236,14 @@ class TaskRunTreeStoreEnv(object):
             if self.pre_code is not None:
                 exec(self.pre_code, new_env)
             exec(compile(self.tree, "<script>", "exec"), new_env)
-            # shell.user_ns[self.name] = new_env
+            # get_env(shell.user_ns)[self.name] = new_env
         except:
             return None
         if self.name not in new_env :
             return "undefined"
         else :
             obj = new_env[self.name]
-            shell.user_ns[self.tempname] = obj
+            get_env(shell.user_ns)[self.tempname] = obj
             return str(obj)
 
 class TaskGetFunctionCallResult(object):
@@ -205,8 +252,8 @@ class TaskGetFunctionCallResult(object):
 
     def __call__(self, shell):
         try:
-            shell.user_ns[self.name] = shell.user_ns[self.fun_name](*self.arguments)
-            return str(shell.user_ns[self.name])
+            get_env(shell.user_ns)[self.name] = get_env(shell.user_ns)[self.fun_name](*self.arguments)
+            return str(get_env(shell.user_ns)[self.name])
         except:
             return None
 
@@ -216,8 +263,8 @@ class TaskGetFunctionTreeResult(object):
 
     def __call__(self, shell):
         try:
-            shell.user_ns[self.name] = eval(compile(ast.Expression(self.tree), "<script>", "eval"), shell.user_ns)
-            return str(shell.user_ns[self.name])
+            get_env(shell.user_ns)[self.name] = eval(compile(ast.Expression(self.tree), "<script>", "eval"), get_env(shell.user_ns))
+            return str(get_env(shell.user_ns)[self.name])
         except:
             return None
 
@@ -228,7 +275,7 @@ class TaskGetFunctionCallOutput(object):
     def __call__(self, shell):
         try:
             with capture_output() as out:
-                shell.user_ns[self.fun_name](*self.arguments)
+                get_env(shell.user_ns)[self.fun_name](*self.arguments)
             return out[0].strip()
         except:
             return None
@@ -239,7 +286,7 @@ class TaskGetFunctionCallError(object):
 
     def __call__(self, shell):
         try:
-            shell.user_ns[self.fun_name](*self.arguments)
+            get_env(shell.user_ns)[self.fun_name](*self.arguments)
         except Exception as e:
             return e
         else:
@@ -251,7 +298,7 @@ class TaskGetFunctionTreeError(object):
 
     def __call__(self, shell):
         try:
-            eval(compile(ast.Expression(self.tree), "<script>", "eval"), shell.user_ns)
+            eval(compile(ast.Expression(self.tree), "<script>", "eval"), get_env(shell.user_ns))
         except Exception as e:
             return e
         else:
@@ -360,6 +407,14 @@ def getFunctionCallErrorInProcess(process, **kwargs):
 def getFunctionTreeErrorInProcess(process, **kwargs):
     return process.executeTask(TaskGetFunctionTreeError(**kwargs))
 
+
+def setUpNewEnvInProcess(process, **kwargs):
+    return process.executeTask(TaskSetUpNewEnv(**kwargs))
+
+def breakDownNewEnvInProcess(process, **kwargs):
+    return process.executeTask(TaskBreakDownNewEnv(**kwargs))
+
+
 ## HELPERS
 
 def get_signature(name, mapped_name, signature, manual_sigs, env):
@@ -405,6 +460,35 @@ def get_signature(name, mapped_name, signature, manual_sigs, env):
 
     return signature
 
+def context_env_update(context_list, env):
+    env_update = {}
+    context_objs = []
+    for context in context_list:
+        context_obj = eval(
+            compile(context['context_expr'], '<context_eval>', 'eval'),
+            env)
+        context_objs.append(context_obj)
+        context_obj_init = context_obj.__enter__()
+        context_keys = context['optional_vars']
+        if context_keys is None:
+            continue
+        elif len(context_keys) == 1:
+            env_update[context_keys[0]] = context_obj_init
+        else:
+            assert len(context_keys) == len(context_obj_init)
+            for (context_key, current_obj) in zip(context_keys, context_obj_init):
+                env_update[context_key] = current_obj
+    return (env_update, context_objs)
+
+def context_objs_exit(context_objs):
+    got_error = False
+    for context_obj in context_objs:
+        try:
+            context_obj.__exit__(*([None]*3))
+        except Exception as e:
+            got_error = e
+
+    return got_error
 
 @contextmanager
 def capture_output():

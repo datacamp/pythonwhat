@@ -196,7 +196,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check the second context in the second <code>with</code> statement. Did you call <code>open()</code> with the correct arguments? The first argument seems to be incorrect. Expected <code>'not_moby_dick.txt'</code>, but got <code>'moby_dick.txt'</code>.")
+        self.assertEqual(sct_payload['message'], "Check the second context in the second <code>with</code> statement. Did you call <code>open()</code> with the correct arguments? The first argument seems to be incorrect.")
         helper.test_lines(self, sct_payload, 12, 12, 46, 60)
 
 class TestExercise4(unittest.TestCase):

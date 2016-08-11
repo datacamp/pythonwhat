@@ -1,7 +1,7 @@
 import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import EqualTest, EquivalentTest
+from pythonwhat.Test import EqualTest, EquivalentTest, Test
 
 from pythonwhat.test_object import get_assignment_node
 from pythonwhat.Feedback import Feedback
