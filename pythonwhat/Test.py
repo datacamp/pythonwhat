@@ -63,24 +63,7 @@ class Test(object):
         return(self.feedback)
 
 
-class DefinedCollTest(Test):
-    """
-    Check if an object with a certain name is defined in a collection.
-
-    Attributes:
-        feedback (str): A string containing the failure message in case the test fails.
-        obj (str): Contains the name of the object that is searched for.
-        coll (list/dict/set): Contains any object on which the 'in' operator can be performed.
-        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
-    """
-
-    def __init__(self, name, collection, feedback):
-        super().__init__(feedback)
-        self.name = name
-        self.collection = collection
-
-    def specific_test(self):
-        self.result = self.name in self.collection
+## Testing definition
 
 class DefinedProcessTest(Test):
     def __init__(self, name, process, feedback):
@@ -91,15 +74,24 @@ class DefinedProcessTest(Test):
     def specific_test(self):
         self.result = isDefinedInProcess(self.name, self.process)
 
-class InstanceProcessTest(Test):
-    def __init__(self, name, klass, process, feedback):
+
+class DefinedCollTest(Test):
+    """
+    Check if an object with a certain name is defined in a collection.
+
+    Attributes:
+        feedback (str): A string containing the failure message in case the test fails.
+        name (str): Contains the name of the object that is searched for.
+        collection (list/dict/set): Contains any object on which the 'in' operator can be performed.
+        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+    """
+    def __init__(self, name, collection, feedback):
         super().__init__(feedback)
         self.name = name
-        self.klass = klass
-        self.process = process
+        self.collection = collection
 
     def specific_test(self):
-        self.result = isInstanceInProcess(self.name, self.klass, self.process)
+        self.result = self.name in self.collection
 
 class HasKeyProcessTest(Test):
     def __init__(self, name, key, process, feedback):
@@ -111,71 +103,32 @@ class HasKeyProcessTest(Test):
     def specific_test(self):
         self.result = hasKeyInProcess(self.name, self.key, self.process)
 
-class EnvironmentTest(Test):
-    """
-    This class should be subclassed. Subclasses of this test will be performed within
-    the student and the solution environment.
 
-    Note:
-        This test should not be used by itself, subclasses should be used.
+## Testing class
 
-    Attributes:
-        feedback (str): A string containing the failure message in case the test fails.
-        student_env (dict): Contains the student environment as a dictionary.
-        solution_env (dict): Contains the solution environment as a dictionary.
-        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
-    """
-
-    def __init__(self, obj, student_env, solution_env, feedback):
-        """
-        Initialize with a student and solution environment.
-
-        Args:
-            student_env (dict): The student environment will be set to this.
-            solution_env (dict): The solution environment will be set to this.
-            feedback (str): The failure message will be set to this.
-        """
+class InstanceTest(Test):
+    def __init__(self, obj, cls, feedback):
         super().__init__(feedback)
-        self.student_env = student_env
-        self.solution_env = solution_env
         self.obj = obj
-
-
-# TODO (Vincent): Add support for equivalence of strings. Use hamming distance.
-
-
-class EquivalentTest(Test):
-    """
-    Check if two objects are equivalent. Equivalence means the objects are almost the same.
-    This test should only be used with numeric variables (for now).
-
-    Attributes:
-        feedback (str): A string containing the failure message in case the test fails.
-        obj1 (str): The first object that should be compared with.
-        obj2 (str): This object is compared to obj1.
-        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
-    """
-
-    def __init__(self, obj1, obj2, feedback):
-        """
-        Initialize with two objects.
-
-        Args:
-            obj1 (str): The first object, obj1 will be set to this.
-            obj2 (str): The second object, obj2 will be set to this.
-            feedback (str): The failure message will be set to this.
-        """
-        super().__init__(feedback)
-        self.obj1 = obj1
-        self.obj2 = obj2
+        self.cls = cls
 
     def specific_test(self):
-        """
-        Perform the actual test. result is set to False if the difference between the objects is
-        more than 0.5e-8, True otherwise.
-        """
-        self.result = (abs(self.obj1 - self.obj2) < 0.5e-8)
+        self.result = isinstance(self.obj, self.cls)
 
+class InstanceProcessTest(Test):
+    def __init__(self, name, klass, process, feedback):
+        super().__init__(feedback)
+        self.name = name
+        self.klass = klass
+        self.process = process
+
+    def specific_test(self):
+        self.result = isInstanceInProcess(self.name, self.klass, self.process)
+
+
+
+
+## Testing equality
 
 class EqualTest(Test):
     """
@@ -190,14 +143,6 @@ class EqualTest(Test):
     """
 
     def __init__(self, obj1, obj2, feedback):
-        """
-        Initialize with two objects.
-
-        Args:
-            obj1 (str): The first object, obj1 will be set to this.
-            obj2 (str): The second object, obj2 will be set to this.
-            feedback (str): The failure message will be set to this.
-        """
         super().__init__(feedback)
         self.obj1 = obj1
         self.obj2 = obj2
@@ -236,60 +181,38 @@ class EqualTest(Test):
         #     self.result = False
 
 
-class EquivalentEnvironmentTest(EquivalentTest):
-    """
-    Check if an variable with a certain name is equivalent in both student and solution
-    environment. Equivalence means the objects are almost the same. This test should
-    only be used with numeric variables (for now).
+class EqualProcessTest(Test):
 
-    Attributes:
-        feedback (str): A string containing the failure message in case the test fails.
-        obj (str): The name of the variable that will be tested in both environments.
-        student_env (dict): Contains the student environment as a dictionary.
-        solution_env (dict): Contains the solution environment as a dictionary.
-        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
-    """
+    def __init__(self, name, student_process, sol_obj, feedback):
+        super().__init__(feedback)
+        self.name = name
+        self.student_process = student_process
+        self.sol_obj = sol_obj
 
-    def __init__(self, obj, student_env, solution_env, feedback):
-        """
-        Initialize with an object, student and solution environment.
+    def specific_test(self):
+        stud_obj = getRepresentation(self.name, self.student_process)
+        if stud_obj is None:
+            self.result = False
+        else:
+            self.result = stud_obj == self.sol_obj
 
-        Args:
-            obj (str): The variable name, obj will be set to this.
-            student_env (dict): The student environment will be set to this.
-            solution_env (dict): The solution environment will be set to this.
-            feedback (str): The failure message will be set to this.
-        """
-        super().__init__(student_env[obj], solution_env[obj], feedback)
+class EqualValueProcessTest(Test):
+    def __init__(self, name, key, student_process, sol_value, feedback):
+        super().__init__(feedback)
+        self.name = name
+        self.key = key
+        self.student_process = student_process
+        self.sol_value = sol_value
 
-
-class EqualEnvironmentTest(EqualTest):
-    """
-    Check if an variable with a certain name is equal in both student and solution
-    environment. Equal means the objects are exactly the same.
-
-    Attributes:
-        feedback (str): A string containing the failure message in case the test fails.
-        obj (str): The name of the variable that will be tested in both environments.
-        student_env (dict): Contains the student environment as a dictionary.
-        solution_env (dict): Contains the solution environment as a dictionary.
-        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
-    """
-
-    def __init__(self, obj, student_env, solution_env, feedback):
-        """
-        Initialize with an object, student and solution environment.
-
-        Args:
-            obj (str): The variable name, obj will be set to this.
-            student_env (dict): The student environment will be set to this.
-            solution_env (dict): The solution environment will be set to this.
-            feedback (str): The failure message will be set to this.
-        """
-        super().__init__(student_env[obj], solution_env[obj], feedback)
+    def specific_test(self):
+        stud_value = getValueInProcess(self.name, self.key, self.student_process)
+        if stud_value is None:
+            self.result = False
+        else:
+            self.result = stud_value == self.sol_value
 
 
-# TODO (Vincent): Add support for equivalence of strings. Use hamming distance.
+## Others
 
 class BiggerTest(Test):
     """
@@ -362,56 +285,4 @@ class StringContainsTest(Test):
         else:
             self.result = (self.string.find(self.search_string) is not -1)
 
-
-class InstanceTest(Test):
-    def __init__(self, obj, cls, feedback):
-        super().__init__(feedback)
-        self.obj = obj
-        self.cls = cls
-
-    def specific_test(self):
-        self.result = isinstance(self.obj, self.cls)
-
-# TODO (Vincent): Remove this -> same as DefinedTest - used in test_operator()
-
-class CollectionContainsTest(Test):
-
-    def __init__(self, obj, coll, feedback):
-        super().__init__(feedback)
-        self.obj = obj
-        self.coll = coll
-
-    def specific_test(self):
-        self.result = self.obj in self.coll
-
-
-class EqualProcessTest(Test):
-
-    def __init__(self, name, student_process, sol_obj, feedback):
-        super().__init__(feedback)
-        self.name = name
-        self.student_process = student_process
-        self.sol_obj = sol_obj
-
-    def specific_test(self):
-        stud_obj = getRepresentation(self.name, self.student_process)
-        if stud_obj is None:
-            self.result = False
-        else:
-            self.result = stud_obj == self.sol_obj
-
-class EqualValueProcessTest(Test):
-    def __init__(self, name, key, student_process, sol_value, feedback):
-        super().__init__(feedback)
-        self.name = name
-        self.key = key
-        self.student_process = student_process
-        self.sol_value = sol_value
-
-    def specific_test(self):
-        stud_value = getValueInProcess(self.name, self.key, self.student_process)
-        if stud_value is None:
-            self.result = False
-        else:
-            self.result = stud_value == self.sol_value
 

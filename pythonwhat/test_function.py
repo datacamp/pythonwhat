@@ -1,6 +1,6 @@
 import ast
 
-from pythonwhat.Test import Test, DefinedCollTest, EqualTest, EquivalentTest, BiggerTest
+from pythonwhat.Test import Test, DefinedCollTest, EqualTest, BiggerTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
@@ -30,19 +30,14 @@ def test_function(name,
           None, all positional arguments which are in the solution will be checked.
         keywords (list(str)): the indices of the keyword arguments that have to be checked. If it is set to
           None, all keyword arguments which are in the solution will be checked.
-        eq_condition (str): The condition which is checked on the eval of the group. Can be "equal" --
-          meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
-          can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
+        eq_condition (str): how arguments/keywords are compared. Currently, only "equal" is supported,
+          meaning that the result in student and solution process should have exactly the same value.
         do_eval (bool): True: arguments are evaluated and compared. False: arguments are not evaluated but
             'string-matched'. None: arguments are not evaluated; it is only checked if they are specified.
         not_called_msg (str): feedback message if the function is not called.
         args_not_specified_msg (str): feedback message if the function is called but not all required arguments are specified
         incorrect_msg (str): feedback message if the arguments of the function in the solution doesn't match
           the one of the student.
-
-    Raises:
-        NameError: the eq_condition you passed is not "equal" or "equivalent".
-        NameError: function is not called in the solution
 
     Examples:
         Student code
@@ -70,7 +65,7 @@ def test_function(name,
 
     index = index - 1
 
-    eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}
+    eq_map = {"equal": EqualTest}
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
     eq_fun = eq_map[eq_condition]
@@ -253,7 +248,8 @@ def test_function_v2(name,
         params (list(str)): the parameter names of the function call that you want to check.
         signature (Signature): Normally, test_function() can figure out what the function signature is,
             but it might be necessary to use build_sig to manually build a signature and pass this along.
-        eq_condition (str): How objects should be compared ("equal" or "equivalent")
+        eq_condition (str): how parameters are compared. Currently, only "equal" is supported,
+            meaning that the arguments in student and solution process should have exactly the same value.
         do_eval (list(bool)): Boolean or list of booleans (parameter-specific) that specify whether or
             not arguments should be evaluated.
             True: arguments are evaluated and compared.
@@ -272,7 +268,7 @@ def test_function_v2(name,
     rep.set_tag("fun", "test_function")
 
     index = index - 1
-    eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}
+    eq_map = {"equal": EqualTest}
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
     eq_fun = eq_map[eq_condition]

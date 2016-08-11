@@ -257,7 +257,7 @@ class TaskGetFunctionCallResult(object):
         except:
             return None
 
-class TaskGetFunctionTreeResult(object):
+class TaskGetTreeResult(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
@@ -292,7 +292,7 @@ class TaskGetFunctionCallError(object):
         else:
             return None
 
-class TaskGetFunctionTreeError(object):
+class TaskGetTreeError(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
@@ -389,9 +389,9 @@ def getFunctionCallResultInProcess(process, **kwargs):
         bytestream = None
     return (bytestream, strrep)
 
-def getFunctionTreeResultInProcess(process, **kwargs):
+def getTreeResultInProcess(process, **kwargs):
     kwargs['name'] = "_evaluation_object_"
-    strrep = process.executeTask(TaskGetFunctionTreeResult(**kwargs))
+    strrep = process.executeTask(TaskGetTreeResult(**kwargs))
     if strrep is not None:
         bytestream = getRepresentation("_evaluation_object_", process)
     else:
@@ -404,8 +404,8 @@ def getFunctionCallOutputInProcess(process, **kwargs):
 def getFunctionCallErrorInProcess(process, **kwargs):
     return process.executeTask(TaskGetFunctionCallError(**kwargs))
 
-def getFunctionTreeErrorInProcess(process, **kwargs):
-    return process.executeTask(TaskGetFunctionTreeError(**kwargs))
+def getTreeErrorInProcess(process, **kwargs):
+    return process.executeTask(TaskGetTreeError(**kwargs))
 
 
 def setUpNewEnvInProcess(process, **kwargs):

@@ -1,7 +1,7 @@
 import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import EqualTest, EquivalentTest, Test
+from pythonwhat.Test import EqualTest, Test
 
 from pythonwhat.test_object import get_assignment_node
 from pythonwhat.Feedback import Feedback
@@ -39,9 +39,8 @@ def test_object_after_expression(name,
         incorrect_msg (str): feedback message if the value of the object in the solution environment doesn't match
           the one in the student environment. This feedback message will be expanded if it is used in the context of
           another test function, like test_for_loop.
-        eq_condition (str): the condition which is checked on the eval of the object. Can be "equal" --
-          meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
-          can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
+        eq_condition (str): how objects are compared. Currently, only "equal" is supported,
+            meaning that the resulting objects in student and solution process should have exactly the same value.
         expr_code (str): if this variable is not None, the expression in the studeont/solution code will not
           be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
           and the result will be compared.
@@ -87,8 +86,7 @@ def test_object_after_expression(name,
     if not incorrect_msg:
         incorrect_msg = "Are you sure you assigned the correct value to `%s`?" % name
 
-    eq_map = {"equal": EqualTest,
-              "equivalent": EquivalentTest}
+    eq_map = {"equal": EqualTest}
 
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)

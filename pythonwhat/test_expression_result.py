@@ -1,7 +1,7 @@
 import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import EqualTest, EquivalentTest
+from pythonwhat.Test import EqualTest
 from pythonwhat import utils
 from pythonwhat.tasks import getResultInProcess
 
@@ -32,9 +32,8 @@ def test_expression_result(extra_env=None,
         incorrect_msg (str): feedback message if the result of the expression in the solution doesn't match
           the one of the student. This feedback message will be expanded if it is used in the context of
           another test function, like test_if_else.
-        eq_condition (str): the condition which is checked on the eval of the group. Can be "equal" --
-          meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
-          can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
+        eq_condition (str): how results are compared. Currently, only "equal" is supported,
+          meaning that the result in student and solution process should have exactly the same value.
         expr_code (str): if this variable is not None, the expression in the studeont/solution code will not
           be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
           and the result will be compared.
@@ -73,7 +72,7 @@ def test_expression_result(extra_env=None,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_expression_result")
 
-    eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}
+    eq_map = {"equal": EqualTest}
 
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)

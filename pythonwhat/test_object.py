@@ -17,9 +17,8 @@ def test_object(name,
 
     Args:
         name (str): the name of the object which value has to be checked.
-        eq_condition (str): the condition which is checked on the eval of the object. Can be "equal" --
-          meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
-          can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
+        eq_condition (str): how objects are compared. Currently, only "equal" is supported,
+          meaning that the object in student and solution process should have exactly the same value.
         do_eval (bool): if False, the object will only be checked for existence. Defaults to True.
         undefined_msg (str): feedback message when the object is not defined
         incorrect_msg (str): feedback message if the value of the object in the solution environment doesn't match
@@ -54,8 +53,7 @@ def test_object(name,
     if not incorrect_msg:
         incorrect_msg = "The contents of `%s` aren't correct." % name
 
-    eq_map = {"equal": EqualProcessTest,
-              "equivalent": EqualProcessTest}
+    eq_map = {"equal": EqualProcessTest}
     student_process = state.student_process
     solution_process = state.solution_process
 

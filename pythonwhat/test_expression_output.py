@@ -1,7 +1,7 @@
 import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import EqualTest, EquivalentTest
+from pythonwhat.Test import EqualTest
 
 from pythonwhat import utils
 
@@ -32,9 +32,8 @@ def test_expression_output(extra_env=None,
         incorrect_msg (str): feedback message if the output of the expression in the solution doesn't match
           the one of the student. This feedback message will be expanded if it is used in the context of
           another test function, like test_if_else.
-        eq_condition (str): the condition which is checked on the eval of the group. Can be "equal" --
-          meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
-          can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
+        eq_condition (str): how objects are compared. Currently, only "equal" is supported,
+          meaning that the result in student and solution process should have exactly the same value.
         pre_code (str): the code in string form that should be executed before the expression is executed.
           This is the ideal place to set a random seed, for example.
         keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
@@ -67,7 +66,7 @@ def test_expression_output(extra_env=None,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_expression_output")
 
-    eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}
+    eq_map = {"equal": EqualTest}
 
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)

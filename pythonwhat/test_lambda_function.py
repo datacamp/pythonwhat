@@ -6,7 +6,7 @@ from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
 from pythonwhat import utils
 from pythonwhat.utils import get_ord, get_num
 from pythonwhat.test_function_definition import test_args, test_body
-from pythonwhat.tasks import getFunctionTreeResultInProcess, getFunctionTreeErrorInProcess
+from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess
 
 def test_lambda_function(index,
                          arg_names=True,
@@ -121,13 +121,13 @@ def test_lambda_function(index,
         argstr = el.replace('lam', '')
 
         parsed.func = solution_fun
-        eval_solution, str_solution = getFunctionTreeResultInProcess(process = state.solution_process, tree = parsed)
+        eval_solution, str_solution = getTreeResultInProcess(process = state.solution_process, tree = parsed)
         if eval_solution is None:
             raise ValueError("Something went wrong in testing the result of %s for arguments %s" % (fun_name, argstr))
 
 
         parsed.func = student_fun
-        eval_student, str_student = getFunctionTreeResultInProcess(process = state.student_process, tree = parsed)
+        eval_student, str_student = getTreeResultInProcess(process = state.student_process, tree = parsed)
 
         if eval_student is None:
             c_wrong_result_msg = wrong_result_msg or \
@@ -148,12 +148,12 @@ def test_lambda_function(index,
         argstr = el.replace('lam', '')
 
         parsed.func = solution_fun
-        error_solution = getFunctionTreeErrorInProcess(process = state.solution_process, tree = parsed)
+        error_solution = getTreeErrorInProcess(process = state.solution_process, tree = parsed)
         if error_solution is None:
             raise ValueError("Calling %s with arguments %s did not generate an error in the solution environment." % (fun_name, argstr))
 
         parsed.func = student_fun
-        error_student = getFunctionTreeErrorInProcess(process = state.student_process, tree = parsed)
+        error_student = getTreeErrorInProcess(process = state.student_process, tree = parsed)
 
         if error_student is None:
             feedback_msg = no_error_msg or ("Calling %s with the arguments `%s` doesn't result in an error, but it should!" % (fun_name, argstr))

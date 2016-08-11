@@ -1,10 +1,10 @@
 import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import EqualTest, EquivalentTest, CollectionContainsTest, BiggerTest
+from pythonwhat.Test import EqualTest, DefinedCollTest, BiggerTest
 from pythonwhat import utils
 from pythonwhat.Feedback import Feedback
-
+from pythonwhat.tasks import getTreeResultInProcess
 
 def test_operator(index=1,
                   eq_condition="equal",
@@ -22,9 +22,8 @@ def test_operator(index=1,
 
     Args:
         index (int): Index of the operator group to be checked. Defaults to 1.
-        eq_condition (str): The condition which is checked on the eval of the group. Can be "equal" --
-          meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
-          can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
+        eq_condition (str): how results of operators are compared. Currently, only "equal" is supported,
+            meaning that the result in student and solution process should have exactly the same value.
         used(List[str]): A list of operators that have to be in the group. Valid operators are: "+", "-",
           "*", "/", "%", "**", "<<", ">>", "|", "^", "&" and "//". If the list is None, operators that are
           in the group in the solution have to be in the student code. Defaults to None.
@@ -34,10 +33,6 @@ def test_operator(index=1,
         incorrect_op_msg (str): Feedback message if the wrong operators are used in the student's code.
         incorrect_result_msg (str): Feedback message if the operator group evaluates to the wrong result in
           the student's code.
-
-    Raises:
-        NameError: the eq_condition you passed is not "equal" or "equivalent".
-        IndexError: not enough operation groups in the solution environment.
 
     Examples:
         Student code
@@ -63,8 +58,7 @@ def test_operator(index=1,
 
     # Indexing starts at 1 for the pythonwhat user.
     index = index - 1
-    eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}
-    student_env, solution_env = state.student_env, state.solution_env
+    eq_map = {"equal": EqualTest}
 
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
@@ -104,38 +98,24 @@ def test_operator(index=1,
         if incorrect_op_msg is None:
             incorrect_op_msg = build_incorrect_msg + (" is missing a `%s` operation." % op)
 
-        rep.do_test(CollectionContainsTest(op, used_student,
+        rep.do_test(DefinedCollTest(op, used_student,
             Feedback(incorrect_op_msg, expr_student)))
 
         if rep.failed_test:
             return
 
     if (do_eval):
-        try:
-            eval_student = str(
-                eval(
-                    compile(
-                        ast.Expression(expr_student),
-                        "<student>",
-                        "eval"),
-                    student_env))
-        except:
-            # Don't throw an error if student code fails, just set eval to None
-            eval_student = None
 
-        # Solution code should run, otherwise error is thrown up
-        eval_solution = str(
-            eval(
-                compile(
-                    ast.Expression(expr_solution),
-                    "<solution>",
-                    "eval"),
-                solution_env))
+        eval_student, str_student = getTreeResultInProcess(process = state.student_process, tree = expr_student)
+        eval_solution, str_solution = getTreeResultInProcess(process = state.solution_process, tree = expr_solution)
+
+        if eval_solution is None:
+            raise ValueError("Testing the result of the operator generated an error")
 
         # Compare the evaluated operation groups
         if incorrect_result_msg is None:
             incorrect_result_msg = build_incorrect_msg + " evaluates to `%s`, should be `%s`." % (utils.shorten_str(
-                str(eval_student)), utils.shorten_str(str(eval_solution)))
+                str_student), utils.shorten_str(str_solution))
 
         rep.do_test(eq_map[eq_condition](
             eval_student, eval_solution, Feedback(incorrect_result_msg, expr_student)))
