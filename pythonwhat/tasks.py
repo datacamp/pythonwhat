@@ -385,7 +385,8 @@ def getResultInProcess(process, **kwargs):
 
 def getObjectAfterExpressionInProcess(process, **kwargs):
     tempname = "_evaluation_object_"
-    strrep = process.executeTask(TaskRunTreeStoreEnv(**kwargs, tempname = tempname))
+    kwargs['tempname'] = tempname
+    strrep = process.executeTask(TaskRunTreeStoreEnv(**kwargs))
     if strrep is None or strrep is "undefined" :
         bytestream = None
     else :
