@@ -18,7 +18,6 @@ from pythonwhat.test_operator import test_operator
 from pythonwhat.test_data_frame import test_data_frame
 from pythonwhat.test_dictionary import test_dictionary
 from pythonwhat.test_while_loop import test_while_loop
-from pythonwhat.set_context_vals import set_context_vals
 from pythonwhat.test_student_typed import test_student_typed
 from pythonwhat.test_object_accessed import test_object_accessed
 from pythonwhat.test_output_contains import test_output_contains
