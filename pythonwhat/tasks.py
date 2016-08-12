@@ -210,7 +210,10 @@ class TaskGetOutput(object):
             with capture_output() as out:
                 if self.pre_code is not None:
                     exec(self.pre_code, new_env)
-                exec(compile(self.tree, "<script>", "exec"), new_env)
+                if self.expr_code is not None:
+                    exec(self.expr_code, new_env)
+                else:
+                    exec(compile(self.tree, "<script>", "exec"), new_env)
             return out[0].strip()
         except:
             return None

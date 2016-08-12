@@ -1,30 +1,65 @@
 import unittest
 import helper
 
-# class TestExpressionResultBasic(unittest.TestCase):
+class TestExpressionOutputBasic(unittest.TestCase):
 
-#     def test_fun_pass(self):
-#         self.data = {
-#             "DC_PEC": "",
-#             "DC_SOLUTION": "x = {'a': 1, 'b':2, 'c':3}",
-#             "DC_CODE": "my_fun(1)",
-#             "DC_SCT": "test_function_v2('my_fun', params = ['a'])"
-#         }
-#         sct_payload = helper.run(self.data)
-#         self.assertTrue(sct_payload['correct'])
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "x = {'a': 1, 'b':2, 'c':3}",
+            "DC_SCT": "test_expression_output(expr_code = \"print(x['a'])\")"
+        }
 
-#     def test_fun_fail(self):
-#         self.data = {
-#             "DC_PEC": "def my_fun(a):\n    pass",
-#             "DC_SOLUTION": "my_fun(2)",
-#             "DC_CODE": "my_fun(1)",
-#             "DC_SCT": "test_function_v2('my_fun', params = ['a'])"
-#         }
-#         sct_payload = helper.run(self.data)
-#         self.assertFalse(sct_payload['correct'])
-#         self.assertIn('The argument you specified for <code>a</code> seems to be incorrect.', sct_payload['message'])
-#         helper.test_lines(self, sct_payload, 1, 1, 8, 8)
+    def test_fun_step1(self):
+        self.data["DC_CODE"] = ""
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
 
+    def test_fun_step2(self):
+        self.data["DC_CODE"] = "x = {'a': 2}"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_fun_step3(self):
+        self.data["DC_CODE"] = "x = {'a': 1}"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+class TestExpressionOutputInsideFor(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "for i in range(10):\n    print(i)",
+            "DC_SCT": "test_for_loop(body = lambda: test_expression_output())"
+        }
+
+    def test_fun_step1(self):
+        self.data["DC_CODE"] = "for i in range(10):\n    print(i + 1)"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_fun_step2(self):
+        self.data["DC_CODE"] = "for i in range(10):\n    print(i)"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+class TestExpressionOutputInsideFor2(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "for i in range(10):\n    print(i)",
+            "DC_SCT": "test_for_loop(body = lambda: test_expression_output(context_vals = [1]))"
+        }
+
+    def test_fun_step1(self):
+        self.data["DC_CODE"] = "for i in range(10):\n    print(i + 1)"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_fun_step2(self):
+        self.data["DC_CODE"] = "for i in range(10):\n    print(i)"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
 if __name__ == "__main__":
     unittest.main()

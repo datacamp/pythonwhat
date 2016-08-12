@@ -11,6 +11,7 @@ def test_expression_output(extra_env=None,
                            context_vals=None,
                            incorrect_msg=None,
                            eq_condition="equal",
+                           expr_code=None,
                            pre_code=None,
                            keep_objs_in_env=None):
     """Test output of expression.
@@ -34,6 +35,9 @@ def test_expression_output(extra_env=None,
           another test function, like test_if_else.
         eq_condition (str): how objects are compared. Currently, only "equal" is supported,
           meaning that the result in student and solution process should have exactly the same value.
+        expr_code (str): if this variable is not None, the expression in the student/solution code will not
+          be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
+          and the result will be compared.
         pre_code (str): the code in string form that should be executed before the expression is executed.
           This is the ideal place to set a random seed, for example.
         keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
@@ -77,6 +81,7 @@ def test_expression_output(extra_env=None,
                                      context = state.context_student,
                                      context_vals = context_vals,
                                      pre_code = pre_code,
+                                     expr_code = expr_code,
                                      keep_objs_in_env = keep_objs_in_env)
 
     out_solution = getOutputInProcess(tree = state.solution_tree,
@@ -85,15 +90,27 @@ def test_expression_output(extra_env=None,
                                       context = state.context_solution,
                                       context_vals = context_vals,
                                       pre_code = pre_code,
+                                      expr_code = expr_code,
                                       keep_objs_in_env = keep_objs_in_env)
+
+    if out_solution is None:
+        raise ValueError("test_expression_output raised error in solutoin process")
+
+    out_student = out_student or "Error"
 
     if incorrect_msg is not None:
         feedback_msg = incorrect_msg
     else:
-        feedback_msg = "Unexpected expression output: expected `%s`, got `%s` with values" + \
-            ((" " + str(extra_env)) if extra_env else ".")
-        feedback_msg = feedback_msg % (utils.shorten_str(
-            str(out_solution)), utils.shorten_str(str(out_student)))
+        if expr_code is not None:
+            prestring = "When running %s e" % expr_code
+        else:
+            prestring = "E"
+        feedback_msg = "%sxpected output `%s`, instead got `%s`" % \
+            (prestring, utils.shorten_str(str(out_solution)), utils.shorten_str(str(out_student)))
+        if extra_env:
+            feedback_msg += "for values %s." % str(extra_env)
+        else:
+            feedback_msg += "."
 
     Reporter.active_reporter.do_test(
         eq_map[eq_condition](
