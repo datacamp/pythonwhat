@@ -1,13 +1,13 @@
 import inspect
 from inspect import Parameter as param
 import pythonwhat
-from pythonwhat.tasks import getSignatureInProcessFromObj
+from pythonwhat.tasks import getSignatureFromObjInProcess
 
 def sig_from_params(*args):
     return(inspect.Signature(list(args)))
 
 def sig_from_obj(obj_char):
-  return getSignatureInProcessFromObj(obj_char,
+  return getSignatureFromObjInProcess(obj_char,
     pythonwhat.State.State.active_state.solution_process)
 
 def get_manual_sigs():

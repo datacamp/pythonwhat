@@ -93,7 +93,7 @@ class DefinedCollTest(Test):
     def specific_test(self):
         self.result = self.name in self.collection
 
-class HasKeyProcessTest(Test):
+class DefinedCollProcessTest(Test):
     def __init__(self, name, key, process, feedback):
         super().__init__(feedback)
         self.name = name
@@ -101,7 +101,7 @@ class HasKeyProcessTest(Test):
         self.process = process
 
     def specific_test(self):
-        self.result = hasKeyInProcess(self.name, self.key, self.process)
+        self.result = isDefinedCollInProcess(self.name, self.key, self.process)
 
 
 ## Testing class

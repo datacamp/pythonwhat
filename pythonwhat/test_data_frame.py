@@ -1,6 +1,6 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, HasKeyProcessTest, EqualValueProcessTest
+from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, DefinedCollProcessTest, EqualValueProcessTest
 from pythonwhat.Feedback import Feedback
 from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getColumnsInProcess, getValueInProcess
 
@@ -58,7 +58,7 @@ def test_data_frame(name,
             msg = "There is no column `%s` inside `%s`." % (column, name)
         else:
             msg = undefined_cols_msg
-        rep.do_test(HasKeyProcessTest(name, column, student_process, Feedback(msg)))
+        rep.do_test(DefinedCollProcessTest(name, column, student_process, Feedback(msg)))
         if rep.failed_test:
             return
 

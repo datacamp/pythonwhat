@@ -1,6 +1,6 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, HasKeyProcessTest, EqualValueProcessTest
+from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, DefinedCollProcessTest, EqualValueProcessTest
 from pythonwhat.Feedback import Feedback
 from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getKeysInProcess, getValueInProcess
 
@@ -57,7 +57,7 @@ def test_dictionary(name,
             msg = "Have you specified a key `%s` inside `%s`?" % (str(key), name)
         else:
             msg = key_missing_msg
-        rep.do_test(HasKeyProcessTest(name, key, student_process, Feedback(msg)))
+        rep.do_test(DefinedCollProcessTest(name, key, student_process, Feedback(msg)))
         if rep.failed_test:
             return
 

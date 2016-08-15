@@ -16,7 +16,8 @@ def test_function(name,
                   do_eval=True,
                   not_called_msg=None,
                   args_not_specified_msg=None,
-                  incorrect_msg=None):
+                  incorrect_msg=None,
+                  add_more=False):
     """Test if function calls match.
 
     This function compares a function call in the student's code with the corresponding one in the solution
@@ -156,10 +157,8 @@ def test_function(name,
                 arg_solution = args_solution[arg]
                 if incorrect_msg is None:
                     msg = feedback_msg + (" The %s argument seems to be incorrect." % get_ord(arg + 1))
-                    add_more = True
                 else:
                     msg = incorrect_msg
-                    add_more = False
 
                 test = build_test(arg_student, arg_solution,
                                   student_process, solution_process,
@@ -235,7 +234,8 @@ def test_function_v2(name,
                      not_called_msg=None,
                      params_not_matched_msg=None,
                      params_not_specified_msg=None,
-                     incorrect_msg=None):
+                     incorrect_msg=None,
+                     add_more=False):
     """Test if function calls match (v2).
 
     This function compares a function call in the student's code with the corresponding one in the solution
@@ -397,14 +397,12 @@ def test_function_v2(name,
                     # only if value can be supplied as keyword argument, give more info:
                     if student_params[param].kind in [1, 3, 4]:
                             msg += " The argument you specified for `%s` seems to be incorrect." % param
-                    add_more = True
                 else:
                     msg = incorrect_msg[ind]
-                    add_more = False
 
                 test = build_test(arg_student, arg_solution,
                                   student_process, solution_process,
-                                  do_eval[ind], eq_fun, msg, add_more)
+                                  do_eval[ind], eq_fun, msg, add_more = add_more)
                 test.test()
 
                 if not test.result:
