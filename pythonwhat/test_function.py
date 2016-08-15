@@ -6,7 +6,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord, get_num
 from pythonwhat.utils_ast import extract_text_from_node
-from pythonwhat.tasks import evalInProcess, getSignatureInProcess
+from pythonwhat.tasks import getTreeResultInProcess, getSignatureInProcess
 
 def test_function(name,
                   index=1,
@@ -441,11 +441,11 @@ def build_test(stud, sol, student_process, solution_process, do_eval, eq_fun, fe
     got_error = False
     if do_eval:
 
-        eval_student = evalInProcess(stud, student_process)
+        eval_student, str_student = getTreeResultInProcess(tree = stud, process = student_process)
         if eval_student is None:
             got_error = True
 
-        eval_solution = evalInProcess(sol, solution_process)
+        eval_solution, str_solution = getTreeResultInProcess(tree = sol, process = solution_process)
         # import pdb; pdb.set_trace()
         if eval_solution is None:
             raise ValueError("Something went wrong in figuring out arguments")
@@ -453,11 +453,11 @@ def build_test(stud, sol, student_process, solution_process, do_eval, eq_fun, fe
         # The (eval_student, ) part is important, because when eval_student is a tuple, we don't want
         # to expand them all over the %'s during formatting, we just want the tuple to be represented
         # in the place of the %r. Same for eval_solution.
-        # if add_more:
-        #     if got_error:
-        #         feedback_msg += " Expected `%r`, but got %s." % (eval_solution, "an error")
-        #     else:
-        #         feedback_msg += " Expected `%r`, but got `%r`." % (eval_solution, eval_student)
+        if add_more:
+            if got_error:
+                feedback_msg += " Expected `%s`, but got %s." % (str_solution, "an error")
+            else:
+                feedback_msg += " Expected `%s`, but got `%s`." % (str_solution, str_student)
     else:
         # We don't want the 'expected...' message here. It's a pain in the ass to deparse the ASTs to
         # give something meaningful.

@@ -161,18 +161,6 @@ class TaskConvert(object):
     def __call__(self, shell):
         return dill.loads(self.converter)(get_env(shell.user_ns)[self.name])
 
-class TaskEvalAst(object):
-    def __init__(self, tree, name):
-        self.tree = tree
-        self.name = name
-
-    def __call__(self, shell):
-        try:
-            get_env(shell.user_ns)[self.name] = eval(compile(ast.Expression(self.tree), "<script>", "eval"), get_env(shell.user_ns))
-            return True
-        except:
-            return None
-
 class TaskGetSignature(object):
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
@@ -360,13 +348,6 @@ def getRepresentation(name, process):
         stream = getStream(name, process)
 
     return stream
-
-def evalInProcess(tree, process):
-    # res = process.executeTask(TaskEvalCode(code, "_evaluation_object_"))
-    res = process.executeTask(TaskEvalAst(tree, "_evaluation_object_"))
-    if res:
-        res = getRepresentation("_evaluation_object_", process)
-    return res
 
 def getSignatureInProcess(process, **kwargs):
     return process.executeTask(TaskGetSignature(**kwargs))
