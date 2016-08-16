@@ -103,7 +103,7 @@ def test_expression_result(extra_env=None,
         feedback_msg = feedback_msg % (utils.shorten_str(
             str_solution), utils.shorten_str(str_student))
 
-    Reporter.active_reporter.do_test(
+    rep.do_test(
         eq_map[eq_condition](
             eval_solution,
             eval_student,
