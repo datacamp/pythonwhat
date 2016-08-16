@@ -69,12 +69,12 @@ def get_manual_sigs():
         'set': [param('iterable', param.POSITIONAL_ONLY, default=None)],
 
         # Difference v3.4 vs v3.5!!!
-        'setattr': [param('object', param.POSITIONAL_ONLY),
+        'setattr': [param('obj', param.POSITIONAL_ONLY),
                     param('name', param.POSITIONAL_ONLY),
                     param('value', param.POSITIONAL_ONLY)],
         'sorted': [param('iterable', param.POSITIONAL_ONLY),
                    param('key', param.POSITIONAL_OR_KEYWORD, default=None),
-                   param('reverse', param.POSITIONAL_OR_KEYWORD, default=None)],
+                   param('reverse', param.POSITIONAL_OR_KEYWORD, default=False)],
         'str': [param('object', param.POSITIONAL_OR_KEYWORD)],
         'sum': [param('iterable', param.POSITIONAL_ONLY),
                 param('start', param.POSITIONAL_ONLY, default=0)],

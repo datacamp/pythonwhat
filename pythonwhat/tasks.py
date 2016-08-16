@@ -42,9 +42,7 @@ def listElementsInProcess(process):
     return process.executeTask(TaskListElements())
 
 
-
 # MC
-
 class TaskGetOption(object):
     def __init__(self, name):
         self.name = name

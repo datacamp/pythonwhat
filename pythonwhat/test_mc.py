@@ -25,7 +25,7 @@ def test_mc(correct, msgs):
     rep.set_tag("fun", "test_mc")
     student_process = State.active_state.student_process
     if not isDefinedInProcess(MC_VAR_NAME, student_process):
-        raise NameError("%r not set in the student environment" % MC_VAR_NAME)
+        raise NameError("Option not available in the student process")
     else:
         selected_option = getOptionFromProcess(student_process, MC_VAR_NAME)
         if not issubclass(type(selected_option), int):
