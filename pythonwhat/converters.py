@@ -9,7 +9,7 @@ def get_manual_converters():
         'bs4.BeautifulSoup': lambda x: str(x),
         'bs4.element.Tag': lambda x: str(x),
         'bs4.element.NavigableString': lambda x: str(x),
-        'bs4.element.ResultSet': lambda x: str(x)
+        'bs4.element.ResultSet': lambda x: [str(res) for res in x]
     }
 
     return(converters)
