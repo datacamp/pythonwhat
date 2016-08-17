@@ -23,7 +23,15 @@ class TestBuiltInConverters(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-
+    def test_beautiful_soup(self):
+        self.data = {
+            "DC_PEC": "import requests; from bs4 import BeautifulSoup",
+            "DC_SOLUTION": "soup = BeautifulSoup(requests.get('https://www.python.org/~guido/').text); print(soup.title)",
+            "DC_CODE": "soup = BeautifulSoup(requests.get('https://www.python.org/~guido/').text); print(soup.title)",
+            "DC_SCT": "test_object('soup'); test_function_v2('print', params = ['value'])"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
 if __name__ == "__main__":
     unittest.main()

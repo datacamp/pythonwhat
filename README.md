@@ -21,8 +21,9 @@ pip3 install git+https://github.com/datacamp/pythonwhat
 ## Run tests
 
 ```
-# install python backend (private)
+# install python backend (private) + required packages
 sudo pip3 install boto3
+sudo pip3 bs4
 cd path/to/pythonbackend
 python3 setup.py install
 
