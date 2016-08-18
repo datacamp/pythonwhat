@@ -72,11 +72,13 @@ tests/sales.sas7bdat
 tests/albeck_gene_expression.mat
 tests/data.p
 tests/battledeath.xlsx
+tests/battledeath2.xlsx
 tests/Chinook.sqlite
 tests/titanic.csv
 tests/tweets.txt
 tests/census.sqlite
 tests/digits.csv
+tests/LIGO_data.hdf5
 
 # Mac stuff
 .DS_Store
