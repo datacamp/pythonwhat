@@ -11,7 +11,10 @@ def get_sct_payload(output):
 
 def run(data):
     exercise = Exercise(data)
-    exercise.runInit()
+    output = exercise.runInit()
+    if 'backend-error' in str(output):
+        print(output)
+        raise(ValueError("Backend error"))
     output = exercise.runSubmit(data)
     return(get_sct_payload(output))
 
