@@ -147,38 +147,11 @@ class EqualTest(Test):
         self.obj1 = obj1
         self.obj2 = obj2
 
-    def objs_are(self, list_of_classes):
-        return (
-            any([isinstance(self.obj1, x) for x in list_of_classes]) &
-            any([isinstance(self.obj2, x) for x in list_of_classes])
-        )
-
-
     def specific_test(self):
         """
         Perform the actual test. result is set to False if the objects differ, True otherwise.
         """
-        self.result = (self.obj1 == self.obj2)
-        # try:
-        #     if self.objs_are([np.ndarray, dict, list]):
-        #         np.testing.assert_equal(self.obj1, self.obj2)
-        #         self.result = True
-        #     elif self.objs_are([pd.DataFrame]):
-        #         pd.util.testing.assert_frame_equal(self.obj1, self.obj2)
-        #         self.result = True
-        #     elif self.objs_are([pd.Series]):
-        #         pd.util.testing.assert_series_equal(self.obj1, self.obj2)
-        #         self.result = True
-        #     elif self.objs_are([pd.io.excel.ExcelFile]):
-        #         data_obj1 = {sheet: self.obj1.parse(sheet) for sheet in self.obj1.sheet_names}
-        #         data_obj2 = {sheet: self.obj2.parse(sheet) for sheet in self.obj2.sheet_names}
-        #         for k in set(data_obj1.keys()).union(set(data_obj2.keys())):
-        #             pd.util.testing.assert_frame_equal(data_obj1[k], data_obj2[k])
-        #         self.result = True
-        #     else:
-
-        # except Exception:
-        #     self.result = False
+        self.result = is_equal(self.obj1, self.obj2)
 
 
 class EqualProcessTest(Test):
@@ -191,10 +164,10 @@ class EqualProcessTest(Test):
 
     def specific_test(self):
         stud_obj = getRepresentation(self.name, self.student_process)
-        if stud_obj is None:
+        if isinstance(stud_obj, ReprFail):
             self.result = False
         else:
-            self.result = stud_obj == self.sol_obj
+            self.result = is_equal(stud_obj, self.sol_obj)
 
 class EqualValueProcessTest(Test):
     def __init__(self, name, key, student_process, sol_value, feedback):
@@ -206,10 +179,36 @@ class EqualValueProcessTest(Test):
 
     def specific_test(self):
         stud_value = getValueInProcess(self.name, self.key, self.student_process)
-        if stud_value is None:
+        if isinstance(stud_value, ReprFail):
             self.result = False
         else:
-            self.result = stud_value == self.sol_value
+            self.result = is_equal(stud_value, self.sol_value)
+
+## Helpers for testing equality
+
+def objs_are(x, y, list_of_classes):
+    return (
+        any([isinstance(x, klass) for klass in list_of_classes]) &
+        any([isinstance(y, klass) for klass in list_of_classes])
+    )
+
+def is_equal(x, y):
+        try:
+            if objs_are(x, y, [np.ndarray, dict, list]):
+                np.testing.assert_equal(x, y)
+                return True
+            elif objs_are(x, y, [pd.DataFrame]):
+                pd.util.testing.assert_frame_equal(x, y)
+                return True
+            elif objs_are(x, y, [pd.Series]):
+                pd.util.testing.assert_series_equal(x, y)
+                return True
+            else:
+                return x == y
+        except Exception:
+            self.result = False
+
+
 
 
 ## Others
@@ -284,5 +283,6 @@ class StringContainsTest(Test):
                     self.string) is not None)
         else:
             self.result = (self.string.find(self.search_string) is not -1)
+
 
 

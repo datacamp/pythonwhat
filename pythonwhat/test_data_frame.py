@@ -2,7 +2,7 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, DefinedCollProcessTest, EqualValueProcessTest
 from pythonwhat.Feedback import Feedback
-from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getColumnsInProcess, getValueInProcess
+from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getColumnsInProcess, getValueInProcess, ReprFail
 
 import pandas as pd
 
@@ -63,8 +63,8 @@ def test_data_frame(name,
             return
 
         sol_value = getValueInProcess(name, column, solution_process)
-        if sol_value is None:
-            raise NameError("%r cannot be converted appropriately to compare" % name)
+        if isinstance(sol_value, ReprFail):
+            raise NameError("Value from %r can't be fetched from the solution process: %s" % c(name, sol_value.info))
 
         # check if actual column ok
         if not incorrect_msg:

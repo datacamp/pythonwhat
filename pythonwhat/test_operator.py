@@ -4,7 +4,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import EqualTest, DefinedCollTest, BiggerTest
 from pythonwhat import utils
 from pythonwhat.Feedback import Feedback
-from pythonwhat.tasks import getTreeResultInProcess
+from pythonwhat.tasks import getTreeResultInProcess, ReprFail
 
 def test_operator(index=1,
                   eq_condition="equal",
@@ -106,16 +106,24 @@ def test_operator(index=1,
 
     if (do_eval):
 
-        eval_student, str_student = getTreeResultInProcess(process = state.student_process, tree = expr_student)
+
         eval_solution, str_solution = getTreeResultInProcess(process = state.solution_process, tree = expr_solution)
 
-        if eval_solution is None:
-            raise ValueError("Testing the result of the operator generated an error")
+        if str_solution is None:
+            raise ValueError("Running the operation in the solution environment raised an error")
+        if isinstance(eval_solution, ReprFail):
+            raise ValueError("Couldn't find the result of the operation in the solution process: " + eval_solution.info)
+
+        eval_student, str_student = getTreeResultInProcess(process = state.student_process, tree = expr_student)
 
         # Compare the evaluated operation groups
         if incorrect_result_msg is None:
-            incorrect_result_msg = build_incorrect_msg + " evaluates to `%s`, should be `%s`." % (utils.shorten_str(
-                str_student), utils.shorten_str(str_solution))
+            if str_student is None:
+                stud_patt = "an error"
+            else:
+                stud_patt = "`%s`" % utils.shorten_str(str_student)
+
+            incorrect_result_msg = build_incorrect_msg + (" evaluates to %s, should be `%s`." % (stud_patt, utils.shorten_str(str_solution)))
 
         rep.do_test(eq_map[eq_condition](
             eval_student, eval_solution, Feedback(incorrect_result_msg, expr_student)))

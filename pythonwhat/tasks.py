@@ -176,18 +176,30 @@ class TaskGetStream(object):
         except:
             return None
 
+
+class ReprFail(object):
+    def __init__(self, info):
+        self.info = info
+
+# NOTE: If status is 'pass': you get an object (not a bytstream)
 def getRepresentation(name, process):
     obj_class = process.executeTask(TaskGetClass(name))
     state = pythonwhat.State.State.active_state
     converters = state.get_converters()
     if obj_class in converters:
-        stream = process.executeTask(TaskConvert(name, dill.dumps(converters[obj_class])))
-        if isinstance(stream, list) and 'backend-error' in str(stream):
-            stream = None
+        repres = process.executeTask(TaskConvert(name, dill.dumps(converters[obj_class])))
+        if isinstance(repres, list) and 'backend-error' in str(repres):
+            repres = ReprFail("manual conversion failed")
     else:
         stream = process.executeTask(TaskGetStream(name))
-
-    return stream
+        if stream is None:
+            repres = ReprFail("dilling inside process failed - write manual converter")
+        else :
+            try:
+                repres = dill.loads(stream)
+            except:
+                repres = ReprFail("undilling of bytestream failed - write manual converter")
+    return repres
 
 
 

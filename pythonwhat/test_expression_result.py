@@ -3,7 +3,7 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import EqualTest
 from pythonwhat import utils
-from pythonwhat.tasks import getResultInProcess
+from pythonwhat.tasks import getResultInProcess, ReprFail
 
 
 def test_expression_result(extra_env=None,
@@ -77,6 +77,20 @@ def test_expression_result(extra_env=None,
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
 
+    eval_solution, str_solution = getResultInProcess(tree = state.solution_tree,
+                                                     process = state.solution_process,
+                                                     extra_env = extra_env,
+                                                     context = state.context_solution,
+                                                     context_vals = context_vals,
+                                                     pre_code = pre_code,
+                                                     expr_code = expr_code,
+                                                     keep_objs_in_env = keep_objs_in_env)
+
+    if str_solution is None:
+      raise ValueError("Running the expression in the solution process caused an error.")
+    if isinstance(eval_solution, ReprFail):
+      raise ValueError("The result of running the expression in the solution process couldn't be figured out: " + eval_solution.info)
+
     eval_student, str_student = getResultInProcess(tree = state.student_tree,
                                                    process = state.student_process,
                                                    extra_env = extra_env,
@@ -86,14 +100,6 @@ def test_expression_result(extra_env=None,
                                                    expr_code = expr_code,
                                                    keep_objs_in_env = keep_objs_in_env)
 
-    eval_solution, str_solution = getResultInProcess(tree = state.solution_tree,
-                                                     process = state.solution_process,
-                                                     extra_env = extra_env,
-                                                     context = state.context_solution,
-                                                     context_vals = context_vals,
-                                                     pre_code = pre_code,
-                                                     expr_code = expr_code,
-                                                     keep_objs_in_env = keep_objs_in_env)
 
     if incorrect_msg is not None:
         feedback_msg = incorrect_msg

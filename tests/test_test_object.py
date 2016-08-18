@@ -87,8 +87,47 @@ test_object('xl')
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-if __name__ == "__main__":
-    unittest.main()
+
+class TestTestObjectEqualityChallenges(unittest.TestCase):
+    def test_pass1(self):
+        self.data = {
+            "DC_PEC": "import numpy as np",
+            "DC_SOLUTION": "x = np.mean([1, 2, 3])",
+            "DC_CODE": "x = 2",
+            "DC_SCT": "test_object('x')"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_pass2(self):
+        self.data = {
+            "DC_PEC": "import numpy as np",
+            "DC_SOLUTION": "x = 2.0",
+            "DC_CODE": "x = 2",
+            "DC_SCT": "test_object('x')"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_pass3(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "x = None",
+            "DC_CODE": "x = None",
+            "DC_SCT": "test_object('x')"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_pass4(self):
+        self.data = {
+            "DC_PEC": "import scipy.io",
+            "DC_SOLUTION": "mat = scipy.io.loadmat('albeck_gene_expression.mat')\nprint(type(mat))",
+            "DC_CODE": "mat = scipy.io.loadmat('albeck_gene_expression.mat')\nprint(type(mat))",
+            "DC_SCT": "test_object('mat')"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
 
 class TestTestObjectDeep(unittest.TestCase):

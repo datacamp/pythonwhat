@@ -2,7 +2,7 @@ from pythonwhat.Test import DefinedProcessTest, EqualProcessTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
-from pythonwhat.tasks import *
+from pythonwhat.tasks import isDefinedInProcess, getRepresentation, ReprFail
 
 def test_object(name,
                 eq_condition="equal",
@@ -72,8 +72,8 @@ def test_object(name,
         ass_node = get_assignment_node(student_obj_ass, name)
 
         sol_obj = getRepresentation(name, solution_process)
-        if sol_obj is None:
-            raise NameError("%r cannot be converted appropriately to compare" % name)
+        if isinstance(sol_obj, ReprFail):
+            raise NameError(sol_obj.info)
 
         rep.do_test(eq_map[eq_condition](name,
                                          student_process,

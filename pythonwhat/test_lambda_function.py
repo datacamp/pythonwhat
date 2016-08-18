@@ -6,7 +6,7 @@ from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
 from pythonwhat import utils
 from pythonwhat.utils import get_ord, get_num
 from pythonwhat.test_function_definition import test_args, test_body
-from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess
+from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess, ReprFail
 
 def test_lambda_function(index,
                          arg_names=True,
@@ -122,14 +122,15 @@ def test_lambda_function(index,
 
         parsed.func = solution_fun
         eval_solution, str_solution = getTreeResultInProcess(process = state.solution_process, tree = parsed)
-        if eval_solution is None:
-            raise ValueError("Something went wrong in testing the result of %s for arguments %s" % (fun_name, argstr))
-
+        if str_solution is None:
+            raise ValueError("Calling %s for arguments %s in the solution process resulted in an error" % (fun_name, argstr))
+        if isinstance(eval_solution, ReprFail):
+            raise ValueError("Can't get the result of calling %s for arguments %s: %s" % (fun_name, arg_str, eval_solution.info))
 
         parsed.func = student_fun
         eval_student, str_student = getTreeResultInProcess(process = state.student_process, tree = parsed)
 
-        if eval_student is None:
+        if str_student is None:
             c_wrong_result_msg = wrong_result_msg or \
                 ("Calling the %s with arguments `%s` should result in `%s`, instead got an error." %
                     (fun_name, argstr, str_solution))
@@ -159,20 +160,3 @@ def test_lambda_function(index,
             feedback_msg = no_error_msg or ("Calling %s with the arguments `%s` doesn't result in an error, but it should!" % (fun_name, argstr))
             rep.do_test(Test(Feedback(feedback_msg, student_fun)))
 
-
-def print_attrs(node):
-    def _print(node):
-        print("============")
-        print(node.__class__.__name__)
-        if hasattr(node, 'lineno'):
-            print('lineno:' + str(node.lineno))
-        else:
-            print("NO LINENO")
-        if hasattr(node, 'col_offset'):
-            print('col_offset:' + str(node.col_offset))
-        else:
-            print("NO COL_OFFSET")
-
-        for child in ast.iter_child_nodes(node):
-            _print(child)
-    _print(node)

@@ -5,7 +5,7 @@ from pythonwhat.Test import DefinedCollTest, EqualTest, Test, InstanceTest
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
 from pythonwhat.utils import get_ord
-from pythonwhat.tasks import getFunctionCallResultInProcess, getFunctionCallOutputInProcess, getFunctionCallErrorInProcess
+from pythonwhat.tasks import getFunctionCallResultInProcess, getFunctionCallOutputInProcess, getFunctionCallErrorInProcess, ReprFail
 
 
 def test_function_definition(name,
@@ -151,14 +151,16 @@ def test_function_definition(name,
             eval_solution, str_solution = getFunctionCallResultInProcess(process = state.solution_process,
                                                                          fun_name = name,
                                                                          arguments = el)
-            if eval_solution is None:
-                raise ValueError("Calling `%s` in the solution process resulted in an error" % call_str)
+            if str_solution is None:
+                raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
+            if isinstance(eval_solution, ReprFail):
+                raise ValueError("Something went wrong in figuring out the result of " + call_str + ": " + eval_solution.info)
 
             eval_student, str_student = getFunctionCallResultInProcess(process = state.student_process,
                                                                        fun_name = name,
                                                                        arguments = el)
 
-            if eval_student is None:
+            if str_student is None:
                 c_wrong_result_msg = wrong_result_msg or \
                     ("Calling `%s` should result in `%s`, instead got an error." %
                         (call_str, str_solution))
