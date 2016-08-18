@@ -25,6 +25,7 @@ if __name__ == "__main__":
     download('course_998/datasets/tweets3.txt', 'tweets.txt')
     download('course_1115/datasets/census.sqlite', 'census.sqlite')
     download('course_998/datasets/mnist_kaggle_some_rows.csv', 'digits.csv')
+    download('course_998/datasets/L-L1_LOSC_4_V1-1126259446-32.hdf5', 'LIGO_data.hdf5')
 
     f = open('cars.csv', "w")
     f.write(""",cars_per_cap,country,drives_right

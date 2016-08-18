@@ -6,6 +6,7 @@ def get_sct_payload(output):
     if (len(output) > 0):
         return(output[0]['payload'])
     else:
+        print(output)
         return(None)
 
 def run(data):

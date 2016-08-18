@@ -94,7 +94,7 @@ def test_expression_output(extra_env=None,
                                       keep_objs_in_env = keep_objs_in_env)
 
     if out_solution is None:
-        raise ValueError("test_expression_output raised error in solutoin process")
+        raise ValueError("test_expression_output raised error in solution process")
 
     out_student = out_student or "Error"
 

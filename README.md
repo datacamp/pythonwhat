@@ -23,7 +23,8 @@ pip3 install git+https://github.com/datacamp/pythonwhat
 ```
 # install python backend (private) + required packages
 sudo pip3 install boto3
-sudo pip3 bs4
+sudo pip3 install bs4
+sudo pip3 install h5py
 cd path/to/pythonbackend
 python3 setup.py install
 

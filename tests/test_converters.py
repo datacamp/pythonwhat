@@ -17,8 +17,18 @@ class TestBuiltInConverters(unittest.TestCase):
         self.data = {
             "DC_PEC": "",
             "DC_SOLUTION": "x = {'a': 1, 'b': 2}; print(x.keys())",
-            "DC_CODE": "x = {'a': 1, 'b':2}; print(x.keys())",
+            "DC_CODE": "x = {'b':2, 'a': 1}; print(x.keys())",
             "DC_SCT": "test_function_v2('print', params = ['value'])"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_dictitems(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "x = {'france':'paris', 'spain':'madrid'}.items()",
+            "DC_CODE": "x = {'spain':'madrid', 'france':'paris'}.items()",
+            "DC_SCT": "test_object('x')"
         }
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
@@ -32,6 +42,18 @@ class TestBuiltInConverters(unittest.TestCase):
         }
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
+    def test_hdf5(self):
+        self.data = {
+            "DC_PEC": "import numpy as np; import h5py; file = 'LIGO_data.hdf5'",
+            "DC_SOLUTION": "data = h5py.File(file, 'r'); group = data['strain']",
+            "DC_CODE": "data = h5py.File(file, 'r'); group = data['strain']",
+            "DC_SCT": "test_object('file'); test_object('data'); test_object('group')"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+
 
 if __name__ == "__main__":
     unittest.main()
