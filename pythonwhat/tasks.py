@@ -150,13 +150,13 @@ class TaskGetClass(object):
         self.name = name
 
     def __call__(self, shell):
-        obj = get_env(shell.user_ns)[self.name]
+        try:
+            obj = get_env(shell.user_ns)[self.name]
+            obj_type = type(obj)
+            return obj_type.__module__ + "." + obj_type.__name__
+        except:
+            return None
 
-        if hasattr(obj, '__module__'):
-            typestr = obj.__module__ + "."
-        else:
-            typestr = ""
-        return typestr + obj.__class__.__name__
 
 class TaskConvert(object):
     def __init__(self, name, converter):
@@ -181,7 +181,6 @@ class ReprFail(object):
     def __init__(self, info):
         self.info = info
 
-# NOTE: If status is 'pass': you get an object (not a bytstream)
 def getRepresentation(name, process):
     obj_class = process.executeTask(TaskGetClass(name))
     state = pythonwhat.State.State.active_state

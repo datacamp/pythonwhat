@@ -70,10 +70,11 @@ class TestTestObjectNonDillable(unittest.TestCase):
         self.assertTrue(sct_payload['correct'])
 
 class TestTestObjectManualConverter(unittest.TestCase):
-    def setUp(self):
+    def test_pass_1(self):
         self.data = {
             "DC_PEC": "import pandas as pd",
             "DC_SOLUTION": "xl = pd.ExcelFile('battledeath.xlsx')",
+            "DC_CODE": "xl = pd.ExcelFile('battledeath2.xlsx')",
             "DC_SCT": '''
 def my_converter(x):
     return(x.sheet_names)
@@ -81,9 +82,17 @@ set_converter(key = "pandas.io.excel.ExcelFile", fundef = my_converter)
 test_object('xl')
 '''
         }
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
-    def test_step_1(self):
-        self.data["DC_CODE"] = "xl = pd.ExcelFile('battledeath2.xlsx')"
+class TestTestObjectManualConverter2(unittest.TestCase):
+    def test_pass_1(self):
+        self.data = {
+            "DC_PEC": "import numpy as np",
+            "DC_SOLUTION": "my_array = np.array([[1,2], [3,4], [5,6]])",
+            "DC_CODE": "my_array = np.array([[0,0], [0,0], [0,0]])",
+            "DC_SCT": "set_converter(key = 'numpy.ndarray', fundef = lambda x: x.shape); test_object('my_array')"
+        }
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
