@@ -1,0 +1,48 @@
+submission: 
+feedback: "The system wants to check the first dictionary comprehension you defined but hasn't found it."
+
+submission: { a:a for a in lst[1:2] }
+feedback: "Check your code in the iterable part of the first dictionary comprehension. Unexpected expression: expected <code>['this', 'is', 'a', 'list']</code>, got <code>['is']</code> with values."
+
+submission: { a:a for a in lst }
+feedback: "Have you used the correct iterator variables in the first dictionary comprehension? Make sure you use the correct names!"
+
+submission: { el + 'a':str(el) for el in lst }
+feedback: "Check your code in the key part of the first dictionary comprehension. Unexpected expression: expected <code>a</code>, got <code>aa</code> with values."
+
+submission: { el:str(el) for el in lst }
+feedback: "Check your code in the value part of the first dictionary comprehension. Unexpected expression: expected <code>1</code>, got <code>a</code> with values."
+
+submission: { el:len(el) for el in lst }
+feedback: "Have you used 1 ifs inside the first dictionary comprehension?"
+
+submission: { el:len(el) for el in lst if isinstance('a', str)}
+feedback: "Check your code in the first if of the first dictionary comprehension. Did you call <code>isinstance()</code> with the correct arguments?"
+
+submission: { el:len(el) for el in lst if isinstance(el, str)}
+feedback: "Great work!"
+
+submission: 
+feedback: "The system wants to check the first dictionary comprehension you defined but hasn't found it."
+
+submission: { a:a for a in lst[1:2] }
+feedback: "Check your code in the iterable part of the first dictionary comprehension. Unexpected expression: expected <code>['this', 'is', 'a', 'list']</code>, got <code>['is']</code> with values."
+
+submission: { a:a for a in lst }
+feedback: "Have you used the correct iterator variables in the first dictionary comprehension? Make sure you use the correct names!"
+
+submission: { el + 'a':str(el) for el in lst }
+feedback: "Check your code in the key part of the first dictionary comprehension. Unexpected expression: expected <code>a</code>, got <code>aa</code> with values."
+
+submission: { el:str(el) for el in lst }
+feedback: "Check your code in the value part of the first dictionary comprehension. Unexpected expression: expected <code>1</code>, got <code>a</code> with values."
+
+submission: { el:len(el) for el in lst }
+feedback: "Have you used 1 ifs inside the first dictionary comprehension?"
+
+submission: { el:len(el) for el in lst if isinstance('a', str)}
+feedback: "Check your code in the first if of the first dictionary comprehension. Did you call <code>isinstance()</code> with the correct arguments?"
+
+submission: { el:len(el) for el in lst if isinstance(el, str)}
+feedback: "Great work!"
+

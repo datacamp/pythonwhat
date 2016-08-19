@@ -15,7 +15,7 @@ as well as some extra documentation:
 class Parser(ast.NodeVisitor):
     """Basic parser.
 
-    The basic Parser, should not be used directly, but to inherit from. The Parser itself inherits 
+    The basic Parser, should not be used directly, but to inherit from. The Parser itself inherits
     from ast.Nodevisitor, which is a helper class to go through the abstract syntax tree objects.
 
     In the basic version, each node in the Module body will be visited. Expression bodies will be
@@ -362,18 +362,12 @@ class ForParser(Parser):
         self.fors = []
 
     def visit_For(self, node):
-        if isinstance(node.target, ast.Name):
-            target_vars = [node.target.id]
-        elif isinstance(node.target, ast.Tuple):
-            target_vars = [name.id for name in node.target.elts]
-        else:
-            target_vars = []
-
         self.fors.append((
-            target_vars,
+            get_target_vars(node.target),
             node.iter,
             ast.Module(node.body),
             ast.Module(node.orelse)))
+
 
 class FunctionDefParser(Parser):
     """Find function definitions
@@ -403,7 +397,7 @@ class FunctionDefParser(Parser):
 class LambdaFunctionParser(Parser):
     """Find lambda functions
 
-    A parser which inherits from the basic parser to find function definitions.
+    A parser which inherits from the basic parser to find lambda functions.
     """
 
     def __init__(self):
@@ -454,6 +448,86 @@ class LambdaFunctionParser(Parser):
                 "args": [(arg, default) for arg, default in zip(args,defaults)],
                 "body": node.body
             })
+
+
+class CompParser(Parser):
+    def __init__(self):
+        self.comps = []
+
+    def visit_Assign(self, node):
+        self.visit(node.value)
+
+    def visit_AugAssign(self, node):
+        self.visit(node.value)
+
+    def visit_Try(self, node):
+        self.visit_each(node.body)
+        self.visit_each(node.finalbody)
+
+    def visit_TryFinally(self, node):
+        self.visit_each(node.body)
+        self.visit_each(node.finalbody)
+
+class ListCompParser(CompParser):
+    """Find list comprehensions
+
+    A parser which inherits from the CompParser to find list comprehensions.
+    """
+    def visit_ListComp(self, node):
+        # ONLY single generators supported for now
+        target = node.generators[0].target
+        self.comps.append({
+                "list_comp": node,
+                "body": node.elt,
+                "target": target,
+                "target_vars": get_target_vars(target),
+                "iter": node.generators[0].iter,
+                "ifs": node.generators[0].ifs
+            })
+
+class DictCompParser(CompParser):
+    """Find dictionary comprehensions
+
+    A parser which inherits from the CompParser to find dict comprehensions.
+    """
+    def visit_DictComp(self, node):
+        # ONLY single generators supported for now
+        target = node.generators[0].target
+        self.comps.append({
+                "list_comp": node,
+                "key": node.key,
+                "value": node.value,
+                "target": target,
+                "target_vars": get_target_vars(target),
+                "iter": node.generators[0].iter,
+                "ifs": node.generators[0].ifs
+            })
+
+class GeneratorExpParser(CompParser):
+    """Find generator expressions
+
+    A parser which inherits from the CompParser to find generator expressions.
+    """
+
+    def visit_GeneratorExp(self, node):
+        # ONLY single generators supported for now
+        target = node.generators[0].target
+        self.comps.append({
+                "list_comp": node,
+                "body": node.elt,
+                "target": target,
+                "target_vars": get_target_vars(target),
+                "iter": node.generators[0].iter,
+                "ifs": node.generators[0].ifs
+            })
+
+def get_target_vars(target):
+    if isinstance(target, ast.Name):
+        return [target.id]
+    elif isinstance(target, ast.Tuple):
+        return [name.id for name in target.elts]
+    else:
+        return []
 
 class ReturnTransformer(ast.NodeTransformer):
     def visit_Return(self, node):

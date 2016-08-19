@@ -1,7 +1,7 @@
 import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import EqualTest
+from pythonwhat.Test import EqualTest, Test
 from pythonwhat import utils
 from pythonwhat.tasks import getResultInProcess, ReprFail
 
@@ -100,6 +100,10 @@ def test_expression_result(extra_env=None,
                                                    expr_code = expr_code,
                                                    keep_objs_in_env = keep_objs_in_env)
 
+
+    if str_student is None:
+        rep.do_test(Test("Running an expression in the student process caused an error"))
+        return
 
     if incorrect_msg is not None:
         feedback_msg = incorrect_msg
