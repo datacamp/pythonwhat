@@ -1,6 +1,6 @@
 import ast
 import inspect
-from pythonwhat.parsing import FunctionParser, ObjectAccessParser, ObjectAssignmentParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, LambdaFunctionParser, WithParser
+from pythonwhat.parsing import FunctionParser, ObjectAccessParser, ObjectAssignmentParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, LambdaFunctionParser, ListCompParser, DictCompParser, GeneratorExpParser, WithParser
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils_ast
@@ -65,6 +65,15 @@ class State(object):
 
         self.student_lambda_functions = None
         self.solution_lambda_functions = None
+
+        self.student_list_comps = None
+        self.solution_list_comps = None
+
+        self.student_dict_comps = None
+        self.solution_dict_comps = None
+
+        self.student_generator_exps = None
+        self.solution_generator_exps = None
 
         self.student_withs = None
         self.solution_withs = None
@@ -207,6 +216,39 @@ class State(object):
             lfp = LambdaFunctionParser()
             lfp.visit(self.solution_tree)
             self.solution_lambda_functions = lfp.funs
+
+    def extract_list_comps(self):
+        if self.student_list_comps is None:
+            lcp = ListCompParser()
+            lcp.visit(self.student_tree)
+            self.student_list_comps = lcp.comps
+
+        if self.solution_list_comps is None:
+            lcp = ListCompParser()
+            lcp.visit(self.solution_tree)
+            self.solution_list_comps = lcp.comps
+
+    def extract_dict_comps(self):
+        if self.student_dict_comps is None:
+            dcp = DictCompParser()
+            dcp.visit(self.student_tree)
+            self.student_dict_comps = dcp.comps
+
+        if self.solution_dict_comps is None:
+            dcp = DictCompParser()
+            dcp.visit(self.solution_tree)
+            self.solution_dict_comps = dcp.comps
+
+    def extract_generator_exps(self):
+        if self.student_generator_exps is None:
+            gep = GeneratorExpParser()
+            gep.visit(self.student_tree)
+            self.student_generator_exps = gep.comps
+
+        if self.solution_dict_comps is None:
+            gep = GeneratorExpParser()
+            gep.visit(self.solution_tree)
+            self.solution_generator_exps = gep.comps
 
     def extract_withs(self):
         if (self.student_withs is None):

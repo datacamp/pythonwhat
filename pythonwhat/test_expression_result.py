@@ -5,7 +5,6 @@ from pythonwhat.Test import EqualTest, EquivalentTest
 
 from pythonwhat.set_extra_env import set_extra_env
 from pythonwhat.set_context_vals import set_context_vals
-
 from pythonwhat import utils
 
 import copy
@@ -118,6 +117,10 @@ def test_expression_result(extra_env=None,
             solution_env)
     else:
         eval_solution = eval(expr_code, solution_env)
+
+    if str_student is None:
+        rep.do_test(Test("Running an expression in the student process caused an error"))
+        return
 
     if incorrect_msg is not None:
         feedback_msg = incorrect_msg

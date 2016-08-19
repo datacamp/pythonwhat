@@ -7,6 +7,9 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.test_mc import test_mc
 from pythonwhat.test_or import test_or
 from pythonwhat.test_with import test_with
+from pythonwhat.test_comp import test_list_comp
+from pythonwhat.test_comp import test_dict_comp
+from pythonwhat.test_comp import test_generator_exp
 from pythonwhat.test_import import test_import
 from pythonwhat.test_object import test_object
 from pythonwhat.test_correct import test_correct
