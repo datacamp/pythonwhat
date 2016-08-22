@@ -218,10 +218,6 @@ test_dict_comp(index=1,
             '''
         }
 
-    def tearDown(self):
-        self.file.write("\n\n")
-        self.file.close()
-
     def test_fail_1(self):
         self.data["DC_CODE"] = ""
         sct_payload = helper.run(self.data)
