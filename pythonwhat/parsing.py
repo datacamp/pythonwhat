@@ -58,6 +58,15 @@ class Parser(ast.NodeVisitor):
         for el in lst:
             self.visit(el)
 
+    @staticmethod
+    def get_target_vars(target):
+        if isinstance(target, ast.Name):
+            return [target.id]
+        elif isinstance(target, ast.Tuple):
+            return [name.id for name in target.elts]
+        else:
+            return []
+
 class OperatorParser(Parser):
     """Find operations.
 
@@ -363,7 +372,7 @@ class ForParser(Parser):
 
     def visit_For(self, node):
         self.fors.append((
-            get_target_vars(node.target),
+            Parser.get_target_vars(node.target),
             node.iter,
             ast.Module(node.body),
             ast.Module(node.orelse)))
@@ -468,40 +477,25 @@ class CompParser(Parser):
         self.visit_each(node.body)
         self.visit_each(node.finalbody)
 
+    def build_comp(self, node):
+        target = node.generators[0].target
+        self.comps.append({
+                "list_comp": node,
+                "body": node.elt,
+                "target": target,
+                "target_vars": Parser.get_target_vars(target),
+                "iter": node.generators[0].iter,
+                "ifs": node.generators[0].ifs
+            })
+
 class ListCompParser(CompParser):
     """Find list comprehensions
 
     A parser which inherits from the CompParser to find list comprehensions.
     """
     def visit_ListComp(self, node):
-        # ONLY single generators supported for now
-        target = node.generators[0].target
-        self.comps.append({
-                "list_comp": node,
-                "body": node.elt,
-                "target": target,
-                "target_vars": get_target_vars(target),
-                "iter": node.generators[0].iter,
-                "ifs": node.generators[0].ifs
-            })
+        self.build_comp(node)
 
-class DictCompParser(CompParser):
-    """Find dictionary comprehensions
-
-    A parser which inherits from the CompParser to find dict comprehensions.
-    """
-    def visit_DictComp(self, node):
-        # ONLY single generators supported for now
-        target = node.generators[0].target
-        self.comps.append({
-                "list_comp": node,
-                "key": node.key,
-                "value": node.value,
-                "target": target,
-                "target_vars": get_target_vars(target),
-                "iter": node.generators[0].iter,
-                "ifs": node.generators[0].ifs
-            })
 
 class GeneratorExpParser(CompParser):
     """Find generator expressions
@@ -510,24 +504,28 @@ class GeneratorExpParser(CompParser):
     """
 
     def visit_GeneratorExp(self, node):
-        # ONLY single generators supported for now
+        self.build_comp(node)
+
+class DictCompParser(CompParser):
+    """Find dictionary comprehensions
+
+    A parser which inherits from the CompParser to find dict comprehensions.
+    """
+    def visit_DictComp(self, node):
         target = node.generators[0].target
         self.comps.append({
                 "list_comp": node,
-                "body": node.elt,
+                "key": node.key,
+                "value": node.value,
                 "target": target,
-                "target_vars": get_target_vars(target),
+                "target_vars": Parser.get_target_vars(target),
                 "iter": node.generators[0].iter,
                 "ifs": node.generators[0].ifs
             })
 
-def get_target_vars(target):
-    if isinstance(target, ast.Name):
-        return [target.id]
-    elif isinstance(target, ast.Tuple):
-        return [name.id for name in target.elts]
-    else:
-        return []
+
+
+
 
 class ReturnTransformer(ast.NodeTransformer):
     def visit_Return(self, node):
