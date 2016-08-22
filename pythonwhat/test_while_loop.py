@@ -91,7 +91,7 @@ def test_while_loop(index=1,
             child.to_parent_state()
             if rep.failed_test:
                 if expand_message:
-                    rep.feedback.message = ("Check your code in the %s of the %s `while` loop. " %
+                    rep.feedback.message = ("Check your code in the %s of the %s while loop. " %
                         (incorrect_part, get_ord(index + 1))) + rep.feedback.message
                 if not rep.feedback.line_info:
                     rep.feedback = Feedback(rep.feedback.message, subtree_student)
