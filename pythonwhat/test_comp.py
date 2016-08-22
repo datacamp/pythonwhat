@@ -25,23 +25,9 @@ def test_list_comp(index=1,
     rep.set_tag("fun", "test_list_comp")
 
     state.extract_list_comps()
-    student_list_comps = state.student_list_comps
-    solution_list_comps = state.solution_list_comps
-
-    test_comp(index=index,
-              not_called_msg=not_called_msg,
-              comp_iter=comp_iter,
-              iter_vars_names=iter_vars_names,
-              incorrect_iter_vars_msg=incorrect_iter_vars_msg,
-              body=body,
-              ifs=ifs,
-              insufficient_ifs_msg=insufficient_ifs_msg,
-              expand_message=expand_message,
-              student_comp_list=student_list_comps,
-              solution_comp_list=solution_list_comps,
-              state=state,
-              rep=rep,
-              comp_type="list")
+    student_comp_list = state.student_list_comps
+    solution_comp_list = state.solution_list_comps
+    test_comp(comp_type = "list", **(locals()))
 
 def test_generator_exp(index=1,
                        not_called_msg=None,
@@ -56,26 +42,12 @@ def test_generator_exp(index=1,
     """
     state = State.active_state
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_dict_comp")
+    rep.set_tag("fun", "test_generator_exp")
 
     state.extract_generator_exps()
-    student_generator_exps = state.student_generator_exps
-    solution_generator_exps = state.solution_generator_exps
-
-    test_comp(index=index,
-              not_called_msg=not_called_msg,
-              comp_iter=comp_iter,
-              iter_vars_names=iter_vars_names,
-              incorrect_iter_vars_msg=incorrect_iter_vars_msg,
-              body=body,
-              ifs=ifs,
-              insufficient_ifs_msg=insufficient_ifs_msg,
-              expand_message=expand_message,
-              student_comp_list=student_generator_exps,
-              solution_comp_list=solution_generator_exps,
-              state=state,
-              rep=rep,
-              comp_type="gen")
+    student_comp_list = state.student_generator_exps
+    solution_comp_list = state.solution_generator_exps
+    test_comp(comp_type = "gen", **(locals()))
 
 
 def test_dict_comp(index=1,
@@ -95,24 +67,10 @@ def test_dict_comp(index=1,
     rep.set_tag("fun", "test_dict_comp")
 
     state.extract_dict_comps()
-    student_dict_comps = state.student_dict_comps
-    solution_dict_comps = state.solution_dict_comps
+    student_comp_list = state.student_dict_comps
+    solution_comp_list = state.solution_dict_comps
 
-    test_comp(index=index,
-              not_called_msg=not_called_msg,
-              comp_iter=comp_iter,
-              iter_vars_names=iter_vars_names,
-              incorrect_iter_vars_msg=incorrect_iter_vars_msg,
-              key=key,
-              value=value,
-              ifs=ifs,
-              insufficient_ifs_msg=insufficient_ifs_msg,
-              expand_message=expand_message,
-              student_comp_list=student_dict_comps,
-              solution_comp_list=solution_dict_comps,
-              state=state,
-              rep=rep,
-              comp_type="dict")
+    test_comp(comp_type = "dict", **(locals()))
 
 
 def test_comp(comp_type, **kwargs):

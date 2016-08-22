@@ -217,7 +217,6 @@ test_dict_comp(index=1,
                expand_message=True)
             '''
         }
-        self.file = open('output.txt', 'a')
 
     def tearDown(self):
         self.file.write("\n\n")
@@ -228,7 +227,6 @@ test_dict_comp(index=1,
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("The system wants to check the first dictionary comprehension you defined but hasn't found it.", sct_payload['message'])
-        self.file.write("submission: %s\nfeedback: \"%s\"" % (self.data["DC_CODE"], sct_payload["message"]))
 
     def test_fail_2(self):
         self.data["DC_CODE"] = "{ a:a for a in lst[1:2] }"
@@ -236,7 +234,6 @@ test_dict_comp(index=1,
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check your code in the iterable part of the first dictionary comprehension", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 16, 23)
-        self.file.write("submission: %s\nfeedback: \"%s\"" % (self.data["DC_CODE"], sct_payload["message"]))
 
     def test_fail_3(self):
         self.data["DC_CODE"] = "{ a:a for a in lst }"
@@ -244,7 +241,6 @@ test_dict_comp(index=1,
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Have you used the correct iterator variables in the first dictionary comprehension? Make sure you use the correct names!", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 11, 11)
-        self.file.write("submission: %s\nfeedback: \"%s\"" % (self.data["DC_CODE"], sct_payload["message"]))
 
     def test_fail_4(self):
         self.data["DC_CODE"] = "{ el + 'a':str(el) for el in lst }"
@@ -252,7 +248,6 @@ test_dict_comp(index=1,
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check your code in the key part of the first dictionary comprehension.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 3, 10)
-        self.file.write("submission: %s\nfeedback: \"%s\"" % (self.data["DC_CODE"], sct_payload["message"]))
 
     def test_fail_5(self):
         self.data["DC_CODE"] = "{ el:str(el) for el in lst }"
@@ -260,7 +255,6 @@ test_dict_comp(index=1,
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check your code in the value part of the first dictionary comprehension.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 6, 12)
-        self.file.write("submission: %s\nfeedback: \"%s\"" % (self.data["DC_CODE"], sct_payload["message"]))
 
     def test_fail_6(self):
         self.data["DC_CODE"] = "{ el:len(el) for el in lst }"
@@ -268,7 +262,6 @@ test_dict_comp(index=1,
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Have you used 1 ifs inside the first dictionary comprehension?", sct_payload['message'])
         # helper.test_lines(self, sct_payload, 1, 1, 6, 12) - small hiccup
-        self.file.write("submission: %s\nfeedback: \"%s\"" % (self.data["DC_CODE"], sct_payload["message"]))
 
     def test_fail_7(self):
         self.data["DC_CODE"] = "{ el:len(el) for el in lst if isinstance('a', str)}"
@@ -276,13 +269,11 @@ test_dict_comp(index=1,
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Check your code in the first if of the first dictionary comprehension. Did you call <code>isinstance()</code> with the correct arguments?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 42, 44)
-        self.file.write("submission: %s\nfeedback: \"%s\"" % (self.data["DC_CODE"], sct_payload["message"]))
 
     def test_pass(self):
         self.data["DC_CODE"] = "{ el:len(el) for el in lst if isinstance(el, str)}"
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
-        self.file.write("submission: %s\nfeedback: \"%s\"" % (self.data["DC_CODE"], sct_payload["message"]))
 
 
 class TestGeneratorFunctionStepByStep(unittest.TestCase):
