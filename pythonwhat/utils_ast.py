@@ -160,8 +160,7 @@ def mark_text_ranges(node, source, debug = False):
                 if debug:
                     print("BROKEN")
                 else:
-                    # Fallback: something went wrong; assign wrong line numbers
-                    traceback.print_exc()
+                    pass
                 node.end_lineno = node.lineno
                 node.end_col_offset = node.col_offset + 1
 
