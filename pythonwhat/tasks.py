@@ -121,7 +121,7 @@ def isDefinedCollInProcess(name, key, process):
     return process.executeTask(TaskDefinedColl(name, key))
 
 
-# Get the value linked to a key of a colelction in the process
+# Get the value linked to a key of a collection in the process
 class TaskGetValue(object):
     def __init__(self, name, key, tempname):
         self.name = name
@@ -166,6 +166,13 @@ class TaskConvert(object):
     def __call__(self, shell):
         return dill.loads(self.converter)(get_env(shell.user_ns)[self.name])
 
+class TaskGetObject(object):
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self, shell):
+        return get_env(shell.user_ns)[self.name]
+
 class TaskGetStream(object):
     def __init__(self, name):
         self.name = name
@@ -190,14 +197,24 @@ def getRepresentation(name, process):
         if isinstance(repres, list) and 'backend-error' in str(repres):
             repres = ReprFail("manual conversion failed")
     else:
-        stream = process.executeTask(TaskGetStream(name))
-        if stream is None:
-            repres = ReprFail("dilling inside process failed - write manual converter")
-        else :
-            try:
-                repres = dill.loads(stream)
-            except:
-                repres = ReprFail("undilling of bytestream failed - write manual converter")
+        try:
+            repres = process.executeTask(TaskGetObject(name))
+            if isinstance(repres, list) and 'backend-error' in str(repres):
+                fail = True
+            else:
+                fail = False
+        except:
+            fail = True
+        if fail:
+            print("I'll have to try and dill this one!")
+            stream = process.executeTask(TaskGetStream(name))
+            if stream is None:
+                repres = ReprFail("dilling inside process failed - write manual converter")
+            else :
+                try:
+                    repres = dill.loads(stream)
+                except:
+                    repres = ReprFail("undilling of bytestream failed - write manual converter")
     return repres
 
 
