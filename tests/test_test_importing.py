@@ -6,37 +6,20 @@ class TestExercise1(unittest.TestCase):
     def setUp(self):
         self.data = {
             "DC_PEC": '''
+from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'moby_dick.txt')
             ''',
             "DC_CODE": '''
-# Open a file
 file = open('moby_dick.txt' , 'r') # 'r' is to read only.
-
-# Print it
 print(file.read())
-
-# Check whether file is closed
 print(file.closed)
-
-# Close file
 file.close()
-
-# Check whether file is closed
 print(file.closed)
             ''',
             "DC_SOLUTION": '''
-# Open a file
 file = open('moby_dick.txt' , 'r') # 'r' is to read only.
-
-# Print it
 print(file.read())
-
-# Check whether file is closed
 print(file.closed)
-
-# Close file
 file.close()
-
-# Check whether file is closed
 print(file.closed)
 '''
         }
@@ -44,7 +27,6 @@ print(file.closed)
     def test_Pass(self):
         self.data["DC_SCT"] = '''
 test_function("open", incorrect_msg = "Pass the correct arguments to `open()`" )
-
 msg = "Make sure to print out the contents of the file like this: `print(file.read())`."
 test_function("file.read", incorrect_msg = msg)
 test_function("print", 1, args=[], incorrect_msg = msg)
@@ -60,6 +42,7 @@ class TestExercise2(unittest.TestCase):
     def setUp(self):
         self.data = {
             "DC_PEC": '''
+from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/Chinook.sqlite', 'Chinook.sqlite')
             ''',
             "DC_CODE": '''
 # Import necessary module
@@ -98,6 +81,16 @@ class TestExercise3(unittest.TestCase):
     def setUp(self):
         self.data = {
             "DC_PEC": '''
+f = open('cars.csv', "w")
+f.write(""",cars_per_cap,country,drives_right
+US,809,United States,True
+AUS,731,Australia,False
+JAP,588,Japan,False
+IN,18,India,False
+RU,200,Russia,True
+MOR,70,Morocco,True
+EG,45,Egypt,True""")
+f.close()
             ''',
             "DC_CODE": '''
 # Import pandas
@@ -157,6 +150,7 @@ class TestExercise4(unittest.TestCase):
     def setUp(self):
         self.data = {
             "DC_PEC": '''
+from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/Chinook.sqlite', 'Chinook.sqlite')
             ''',
             "DC_CODE": '''
 # Import packages
@@ -244,6 +238,7 @@ class TestExercise5(unittest.TestCase):
             "DC_PEC": '''
 import pandas as pd
 from sqlalchemy import create_engine
+from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/Chinook.sqlite', 'Chinook.sqlite')
 engine = create_engine('sqlite:///Chinook.sqlite')
             ''',
             "DC_CODE": '''
@@ -287,6 +282,7 @@ class TestExercise6(unittest.TestCase):
             "DC_PEC": '''
 from sqlalchemy import create_engine
 import pandas as pd
+from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/Chinook.sqlite', 'Chinook.sqlite')
 engine = create_engine('sqlite:///Chinook.sqlite')
             ''',
             "DC_CODE": '''
@@ -354,6 +350,7 @@ class TestExercise7(unittest.TestCase):
         self.data = {
             "DC_PEC": '''
 import numpy as np
+from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/titanic_sub.csv', 'titanic.csv')
             ''',
             "DC_CODE": '''
 file = 'titanic.csv'
@@ -441,6 +438,7 @@ def word_in_text(word, text):
 import json
 
 # String of path to file
+from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/tweets3.txt', 'tweets.txt')
 tweets_data_path = 'tweets.txt'
 
 # Initialize empty list to store tweets
@@ -572,7 +570,7 @@ test_import("matplotlib.pyplot")
                 }
                 sct_payload = helper.run(self.data)
                 self.assertTrue(sct_payload['correct'])
-                
+
 
 if __name__ == "__main__":
     unittest.main()

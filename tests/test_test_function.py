@@ -109,7 +109,7 @@ class TestFunctionImporting(unittest.TestCase):
 
     def setUp(self):
         self.data = {
-            "DC_PEC": '',
+            "DC_PEC": "from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'moby_dick.txt')",
             "DC_CODE": '''
 file = open('moby_dick.txt' , 'r') # 'r' is to read only.
 print(file.read())
@@ -149,13 +149,10 @@ class TestTestFunctionInWith(unittest.TestCase):
     def setUp(self):
         self.data = {
             "DC_PEC": '''
-# pec comes here
+from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/data.p', 'data.p')
             ''',
             "DC_CODE": '''
-# Import pickle package
 import pickle
-
-# Open pickle file and load data
 with open('data.p','rb') as file:
         d = pickle.load(file)
 print(d)
@@ -172,31 +169,21 @@ print(type(d))
 
     def test_Pass(self):
         self.data["DC_SCT"] = '''
-# Test: import pickle package
 import_msg = "Did you import `pickle` correctly?"
 test_import("pickle", same_as = True, not_imported_msg = import_msg, incorrect_as_msg = import_msg)
-
-# For testing statements inside with statement
 def test_with_body():
         test_object("d")
         test_function("pickle.load", do_eval = False)
-
-# Test: Context manager
 test_with(
         1,
         context_vals = True,
         context_tests = lambda: test_function("open"),
         body = test_with_body
 )
-
-# Test: print() statement
 test_function("print", index = 1)
-
-# Test: print() statement and call to type()
 type_msg = "Print out the type of `d` as follows: `print(type(d))`."
 test_function("type", index = 1, incorrect_msg = type_msg)
 test_function("print", index = 1, incorrect_msg = type_msg)
-
 success_msg("Awesome!")
         '''
         sct_payload = helper.run(self.data)
@@ -204,46 +191,28 @@ success_msg("Awesome!")
 
     def test_Fail(self):
         self.data["DC_CODE"] = '''
-# Import pickle package
 import pickle
-
-# Open pickle file and load data
 with open('data.p','rb') as file:
         d = pickle.load('something_else')
-
-# Print data
 print(d)
-
-# Print datatype
 print(type(d))
             '''
         self.data["DC_SCT"] = '''
-# Test: import pickle package
 import_msg = "Did you import `pickle` correctly?"
 test_import("pickle", same_as = True, not_imported_msg = import_msg, incorrect_as_msg = import_msg)
-
-# For testing statements inside with statement
 def test_with_body():
         test_function("pickle.load", do_eval = False)
         test_object("d")
-
-# Test: Context manager
 test_with(
         1,
         context_vals = True,
         context_tests = lambda: test_function("open"),
         body = test_with_body
 )
-
-# Test: print() statement
 test_function("print", index = 1)
-
-# Test: print() statement and call to type()
 type_msg = "Print out the type of `d` as follows: `print(type(d))`."
 test_function("type", index = 1, incorrect_msg = type_msg)
 test_function("print", index = 1, incorrect_msg = type_msg)
-
-success_msg("Awesome!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
@@ -252,34 +221,22 @@ success_msg("Awesome!")
 class TestTestFunctionAndTestCorrectWithoutWith(unittest.TestCase):
     def setUp(self):
         self.data = {
-            "DC_PEC": '''
-# pec comes here
-            ''',
+            "DC_PEC": "",
             "DC_CODE": '''
-# Import package
 import tweepy
-
-# Store OAuth authentication credentials in relevant variables
 access_token = "1092294848-aHN7DcRP9B4VMTQIhwqOYiB14YkW92fFO8k8EPy"
 access_token_secret = "X4dHmhPfaksHcQ7SCbmZa2oYBBVSD2g8uIHXsp5CTaksx"
 consumer_key = "nZ6EA0FxZ293SxGNg8g8aP0HM"
 consumer_secret = "fJGEodwe3KiKUnsYJC3VRndj7jevVvXbK2D5EiJ2nehafRgA6i"
-
-# Pass OAuth details to tweepy's OAuth handler
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
             ''',
             "DC_SOLUTION": '''
-# Import package
 import tweepy
-
-# Store OAuth authentication credentials in relevant variables
 access_token = "1092294848-aHN7DcRP9B4VMTQIhwqOYiB14YkW92fFO8k8EPy"
 access_token_secret = "X4dHmhPfaksHcQ7SCbmZa2oYBBVSD2g8uIHXsp5CTaksx"
 consumer_key = "nZ6EA0FxZ293SxGNg8g8aP0HM"
 consumer_secret = "fJGEodwe3KiKUnsYJC3VRndj7jevVvXbK2D5EiJ2nehafRgA6i"
-
-# Pass OAuth details to tweepy's OAuth handler
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 '''

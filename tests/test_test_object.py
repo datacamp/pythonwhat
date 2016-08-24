@@ -59,7 +59,7 @@ class TestObjectStepByStepCustom(unittest.TestCase):
 class TestTestObjectNonDillable(unittest.TestCase):
     def setUp(self):
         self.data = {
-            "DC_PEC": "import pandas as pd",
+            "DC_PEC": "import pandas as pd; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath.xlsx')",
             "DC_SOLUTION": "xl = pd.ExcelFile('battledeath.xlsx')",
             "DC_SCT": "test_object('xl')"
         }
@@ -72,7 +72,7 @@ class TestTestObjectNonDillable(unittest.TestCase):
 class TestTestObjectManualConverter(unittest.TestCase):
     def test_pass_1(self):
         self.data = {
-            "DC_PEC": "import pandas as pd",
+            "DC_PEC": "import pandas as pd; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath.xlsx'); from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath2.xlsx')",
             "DC_SOLUTION": "xl = pd.ExcelFile('battledeath.xlsx')",
             "DC_CODE": "xl = pd.ExcelFile('battledeath2.xlsx')",
             "DC_SCT": '''
@@ -130,7 +130,7 @@ class TestTestObjectEqualityChallenges(unittest.TestCase):
 
     def test_pass4(self):
         self.data = {
-            "DC_PEC": "import scipy.io",
+            "DC_PEC": "import scipy.io; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/ja_data2.mat', 'albeck_gene_expression.mat')",
             "DC_SOLUTION": "mat = scipy.io.loadmat('albeck_gene_expression.mat')\nprint(type(mat))",
             "DC_CODE": "mat = scipy.io.loadmat('albeck_gene_expression.mat')\nprint(type(mat))",
             "DC_SCT": "test_object('mat')"

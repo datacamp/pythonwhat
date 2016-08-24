@@ -206,7 +206,6 @@ def getRepresentation(name, process):
         except:
             fail = True
         if fail:
-            print("I'll have to try and dill this one!")
             stream = process.executeTask(TaskGetStream(name))
             if stream is None:
                 repres = ReprFail("dilling inside process failed - write manual converter")

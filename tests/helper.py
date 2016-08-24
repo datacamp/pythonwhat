@@ -40,3 +40,5 @@ def test_builtin(test, name, params, arguments):
     }
     sct_payload = run(test.data)
     test.assertTrue(sct_payload['correct'])
+
+

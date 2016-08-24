@@ -5,7 +5,9 @@ class TestExercise1(unittest.TestCase):
 
     def setUp(self):
         self.data = {
-            "DC_PEC": '''''',
+            "DC_PEC": '''
+from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'moby_dick.txt')
+            ''',
             "DC_CODE": '''
 # # Read & print the first 3 lines
 with open('moby_dick.txt') as file:
@@ -74,7 +76,9 @@ class TestExercise2(unittest.TestCase):
 
     def setUp(self):
         self.data = {
-            "DC_PEC": '''''',
+            "DC_PEC": '''
+from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'moby_dick.txt')
+''',
             "DC_CODE": '''
 # # Read & print the first 3 lines
 with open('moby_dick.txt') as file, open('moby_dick.txt'):
@@ -133,7 +137,10 @@ class TestExercise3(unittest.TestCase):
 
     def setUp(self):
         self.data = {
-            "DC_PEC": '''''',
+            "DC_PEC": '''
+from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'moby_dick.txt')
+from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'not_moby_dick.txt')
+            ''',
             "DC_CODE": '''
 # # Read & print the first 3 lines
 with open('moby_dick.txt') as file:
@@ -203,7 +210,19 @@ class TestExercise4(unittest.TestCase):
 
     def setUp(self):
         self.data = {
-            "DC_PEC": '''''',
+            "DC_PEC": '''
+from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'moby_dick.txt')
+f = open('cars.csv', "w")
+f.write(""",cars_per_cap,country,drives_right
+US,809,United States,True
+AUS,731,Australia,False
+JAP,588,Japan,False
+IN,18,India,False
+RU,200,Russia,True
+MOR,70,Morocco,True
+EG,45,Egypt,True""")
+f.close()
+            ''',
             "DC_CODE": '''
 with open('moby_dick.txt') as moby, open('cars.csv') as lotr:
     print("First line of Moby Dick: %r." % moby.readline())
@@ -239,6 +258,7 @@ class TestExercise5(unittest.TestCase):
             "DC_PEC": '''
 import pandas as pd
 import matplotlib.pyplot as plt
+from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/sales.sas7bdat', 'sales.sas7bdat')
             ''',
             "DC_CODE": '''
 # Import sas7bdat package

@@ -5,7 +5,7 @@ class TestBuiltInConverters(unittest.TestCase):
 
     def test_excel(self):
         self.data = {
-            "DC_PEC": "import pandas as pd",
+            "DC_PEC": "import pandas as pd; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath.xlsx')",
             "DC_SOLUTION": "xl = pd.ExcelFile('battledeath.xlsx')",
             "DC_SCT": "test_object('xl')",
             "DC_CODE": "xl = pd.ExcelFile('battledeath.xlsx')"
@@ -45,7 +45,7 @@ class TestBuiltInConverters(unittest.TestCase):
 
     def test_hdf5(self):
         self.data = {
-            "DC_PEC": "import numpy as np; import h5py; file = 'LIGO_data.hdf5'",
+            "DC_PEC": "import numpy as np; import h5py; file = 'LIGO_data.hdf5'; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/L-L1_LOSC_4_V1-1126259446-32.hdf5', 'LIGO_data.hdf5')",
             "DC_SOLUTION": "data = h5py.File(file, 'r'); group = data['strain']",
             "DC_CODE": "data = h5py.File(file, 'r'); group = data['strain']",
             "DC_SCT": "test_object('file'); test_object('data'); test_object('group')"
