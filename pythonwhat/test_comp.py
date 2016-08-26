@@ -1,12 +1,9 @@
-import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
-from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
 from pythonwhat import utils
 from pythonwhat.utils import get_ord, get_num
-from pythonwhat.test_function_definition import test_args, test_body
-from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess, ReprFail
+from pythonwhat.Test import BiggerTest, EqualTest
 
 def test_list_comp(index=1,
                    not_called_msg=None,

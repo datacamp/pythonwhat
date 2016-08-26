@@ -118,7 +118,7 @@ def test_expression_result(extra_env=None,
     else:
         eval_solution = eval(expr_code, solution_env)
 
-    if str_student is None:
+    if eval_student is None:
         rep.do_test(Test("Running an expression in the student process caused an error"))
         return
 
