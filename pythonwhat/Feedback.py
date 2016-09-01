@@ -11,15 +11,19 @@ class Feedback(object):
         try:
             if astobj is not None:
                 if (issubclass(type(astobj), _ast.Module)):
-                    self.line_info["line_start"] = astobj.body[0].lineno
-                    self.line_info["column_start"] = astobj.body[0].col_offset
-                    self.line_info["line_end"] = astobj.body[-1].end_lineno
-                    self.line_info["column_end"] = astobj.body[-1].end_col_offset
+                    start = astobj.body[0]
+                    end = astobj.body[-1]
                 else:
-                    self.line_info["line_start"] = astobj.lineno
-                    self.line_info["column_start"] = astobj.col_offset
-                    self.line_info["line_end"] = astobj.end_lineno
-                    self.line_info["column_end"] = astobj.end_col_offset
+                    start = astobj
+                    end = astobj
+                if  hasattr(start, "lineno") and \
+                    hasattr(start, "col_offset") and \
+                    hasattr(end, "end_lineno") and \
+                    hasattr(end, "end_col_offset"):
+                    self.line_info["line_start"] = start.lineno
+                    self.line_info["column_start"] = start.col_offset
+                    self.line_info["line_end"] = end.end_lineno
+                    self.line_info["column_end"] = end.end_col_offset
         except:
             pass
 

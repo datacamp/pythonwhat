@@ -39,7 +39,7 @@ shout( 'help' )
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "In your definition of <code>shout()</code>, make sure to output the correct string.")
         helper.test_lines(self, sct_payload, 3, 4, 5, 30)
-        
+
 class TestExercise2(unittest.TestCase):
 
     def setUp(self):
@@ -203,7 +203,7 @@ def shout (word1, word2, word3 = "nothing"):
     return new_shout
     '''
             }
-        
+
     def test_Fail1(self):
         self.data["DC_SCT"] = '''
 test_function_definition("shout")
@@ -504,6 +504,32 @@ def inc(num):
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("wrongerror!", sct_payload['message'])
+
+class TestFunctionDefinitionOnlyReturn(unittest.TestCase):
+    def test_pass(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SCT": '''
+def inner_test():
+    test_object_after_expression("shout_word",
+    context_vals = ["congratulations"])
+test_function_definition("shout",  body = inner_test, results = [("congratulations")])
+            ''',
+            "DC_SOLUTION": '''
+def shout(word):
+    shout_word = word + '!!!'
+    return shout_word
+            ''',
+            "DC_CODE": '''
+def shout(word):
+    # shout_word = word + '!!!'
+    return shout_word
+            '''
+        }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("In your definition of <code>shout()</code>, have you defined <code>shout_word</code>?", sct_payload['message'])
+
 
 if __name__ == "__main__":
     unittest.main()

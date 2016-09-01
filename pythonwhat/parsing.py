@@ -15,7 +15,7 @@ as well as some extra documentation:
 class Parser(ast.NodeVisitor):
     """Basic parser.
 
-    The basic Parser, should not be used directly, but to inherit from. The Parser itself inherits 
+    The basic Parser, should not be used directly, but to inherit from. The Parser itself inherits
     from ast.Nodevisitor, which is a helper class to go through the abstract syntax tree objects.
 
     In the basic version, each node in the Module body will be visited. Expression bodies will be
@@ -170,6 +170,9 @@ class FunctionParser(Parser):
 
     def visit_AugAssign(self, node):
         self.visit(node.value)
+
+    def visit_Compare(self, node):
+        self.visit_each(node.comparators)
 
     def visit_UnaryOp(self, node):
         self.visit(node.operand)
@@ -456,6 +459,7 @@ class LambdaFunctionParser(Parser):
             })
 
 class ReturnTransformer(ast.NodeTransformer):
+    # TODO this does not automatically contain line_end information!
     def visit_Return(self, node):
         return ast.copy_location(ast.Pass(), node)
 

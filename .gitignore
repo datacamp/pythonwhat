@@ -77,6 +77,7 @@ tests/titanic.csv
 tests/tweets.txt
 tests/census.sqlite
 tests/digits.csv
+tests/tweets.csv
 
 # Mac stuff
 .DS_Store

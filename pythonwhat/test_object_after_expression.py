@@ -37,8 +37,8 @@ def test_object_after_expression(name,
           state is ran. This argument should contain a dictionary with the keys the names of
           the variables you want to set, and the values are the values of these variables.
         context_vals (list): set variables which are bound in a for loop to certain values. This argument is
-          only useful if you use the function in a test_for_loop. It contains a list with the values
-          of the bound variables.
+          only useful if you use the function in a test_for_loop or test_function_definition.
+          It contains a list with the values of the bound variables.
         incorrect_msg (str): feedback message if the value of the object in the solution environment doesn't match
           the one in the student environment. This feedback message will be expanded if it is used in the context of
           another test function, like test_for_loop.

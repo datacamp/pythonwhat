@@ -57,7 +57,7 @@ def test_object_accessed(name,
 
         add = " at least %s" % pythonwhat.utils.get_times(times) if times > 1 else ""
         not_accessed_msg = "Have you accessed `%s`%s?" % (stud_name, add)
-        
+
 
     # name should be contained inside the student_object_accesses.
     # hack: add a dot and do a match on the name with the dot,

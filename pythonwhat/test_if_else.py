@@ -82,7 +82,7 @@ def test_if_else(index=1,
         return
 
     test_solution, body_solution, orelse_solution = solution_ifs[index]
-    
+
     def sub_test(closure, subtree_student, subtree_solution, incorrect_part):
         if closure:
             if rep.failed_test:
@@ -92,13 +92,10 @@ def test_if_else(index=1,
             child.to_parent_state()
             if rep.failed_test:
                 if expand_message:
-                    rep.feedback.message = ("Check your code in the %s of the %s `if` statement. " % 
+                    rep.feedback.message = ("Check your code in the %s of the %s `if` statement. " %
                         (incorrect_part, get_ord(index + 1))) + rep.feedback.message
                 if not rep.feedback.line_info:
                     rep.feedback = Feedback(rep.feedback.message, subtree_student)
-
-                
-
 
     sub_test(test, test_student, test_solution, "condition")
     sub_test(body, body_student, body_solution, "body")

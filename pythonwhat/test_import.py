@@ -58,7 +58,7 @@ def test_import(name,
 
     if (same_as):
         if incorrect_as_msg is None:
-            incorrect_as_msg = "Did you set the correct alias for `%s`" % name
+            incorrect_as_msg = "Did you set the correct alias for `%s`?" % name
 
         rep.do_test(
             EqualTest(
