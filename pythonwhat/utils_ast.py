@@ -378,7 +378,7 @@ def mark_text_ranges(node, source, debug = False):
             if debug:
                 print("Before stripping")
                 print([tok.string for tok in tokens])
-            remove_naked_comma = not isinstance(node, (ast.Tuple, ast.Lambda, ast.Call))
+            remove_naked_comma = not isinstance(node, (ast.Tuple, ast.Lambda, ast.Call, ast.ListComp, ast.DictComp, ast.GeneratorExp))
             careful_leveling = isinstance(node, ast.Call)
             _strip_trailing_extra_closers(tokens, remove_naked_comma, careful_leveling)
             if debug:
