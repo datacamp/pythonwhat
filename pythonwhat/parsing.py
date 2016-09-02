@@ -397,7 +397,7 @@ class FunctionDefParser(Parser):
         self.defs[node.name] = {
             "fundef": node,
             "args": [(arg, default) for arg, default in zip(args,defaults)],
-            "body": ReturnTransformer().visit(ast.Module(node.body)),
+            "body": FunctionBodyTransformer().visit(ast.Module(node.body)),
         }
 
     def get_node_literal_value(node):
@@ -528,12 +528,24 @@ class DictCompParser(CompParser):
 
 
 
-
-
-class ReturnTransformer(ast.NodeTransformer):
+class FunctionBodyTransformer(ast.NodeTransformer):
     # TODO this does not automatically contain line_end information!
+    def visit_Nonlocal(self, node):
+        new_node = ast.copy_location(Global(names = node.names), node)
+        return FunctionBodyTransformer.decorate(new_node, node)
+
     def visit_Return(self, node):
-        return ast.copy_location(ast.Pass(), node)
+        new_node = ast.copy_location(ast.Pass(), node)
+        return FunctionBodyTransformer.decorate(new_node, node)
+
+    def decorate(new_node, node):
+        try:
+            # only possible on the student side!
+            new_node.end_lineno = node.end_lineno
+            new_node.end_col_offset = node.end_col_offset
+        except:
+            pass
+        return new_node
 
 class WithParser(Parser):
     def __init__(self):

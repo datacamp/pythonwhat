@@ -117,7 +117,7 @@ def test_function_definition(name,
     try:
         solution_def = solution_defs[name]
     except KeyError:
-        raise NameError("%s not in solution environment" % name)
+        raise NameError("%s not in solution code" % name)
 
     c_not_called_msg = not_called_msg or \
         ("You didn't define the following function: `%s()`." %

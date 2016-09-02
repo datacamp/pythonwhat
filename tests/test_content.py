@@ -117,5 +117,66 @@ success_msg("Great work!")
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+
+class TestToolbox3(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+def three_shouts(word1, word2, word3):
+    def inner(word):
+        return word + '!!!'
+    return (inner(word1), inner(word2), inner(word3))
+            ''',
+            "DC_SCT": '''
+
+def inner_test():
+    def inner_body_test():
+        test_student_typed("word\s*\+\s*['\\"]!!!['\\"]", not_typed_msg = "Have you correctly coded `inner()`?")
+    test_function_definition("inner", body = inner_body_test)
+
+test_function_definition("three_shouts",
+                         body= inner_test,
+                         results = [("hi", "there", "pretty")])
+            '''}
+
+    def test_pass(self):
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        print(sct_payload['message'])
+        self.assertTrue(sct_payload['correct'])
+
+class TestToolbox4(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+def echo_shout(word):
+    echo_word = word*2
+    print(echo_word)
+    def shout():
+        global echo_word
+        echo_word = echo_word + '!!!'
+    shout()
+    print(echo_word)
+            ''',
+            "DC_SCT": '''
+
+def inner_test():
+    test_object_after_expression("echo_word", context_vals=["hello"])
+    test_function_definition("shout")
+    test_function("shout")
+    test_function("print", args=[], index=1)
+    test_function("print", args=[], index=2)
+
+test_function_definition("echo_shout", body=inner_test)
+            '''}
+
+    def test_pass(self):
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        print(sct_payload['message'])
+        self.assertTrue(sct_payload['correct'])
+
 if __name__ == "__main__":
     unittest.main()
