@@ -166,12 +166,16 @@ class TaskConvert(object):
     def __call__(self, shell):
         return dill.loads(self.converter)(get_env(shell.user_ns)[self.name])
 
-class TaskGetObject(object):
-    def __init__(self, name):
-        self.name = name
+# class TaskGetObject(object):
+#     def __init__(self, name):
+#         self.name = name
 
-    def __call__(self, shell):
-        return get_env(shell.user_ns)[self.name]
+#     def __call__(self, shell):
+#         obj = get_env(shell.user_ns)[self.name]
+#         #if dill.pickles(obj):
+#         return obj
+#        else:
+#            return None
 
 class TaskGetStream(object):
     def __init__(self, name):
@@ -194,28 +198,33 @@ def getRepresentation(name, process):
     converters = state.get_converters()
     if obj_class in converters:
         repres = process.executeTask(TaskConvert(name, dill.dumps(converters[obj_class])))
-        if isinstance(repres, list) and 'backend-error' in str(repres):
+        if (errored(repres)):
             repres = ReprFail("manual conversion failed")
     else:
+        # try:
+        #     repres = process.executeTask(TaskGetObject(name))
+        #     fail = errored(repres) or repres is None
+        # except:
+        #     fail = True
+        # if fail:
         try:
-            repres = process.executeTask(TaskGetObject(name))
-            if isinstance(repres, list) and 'backend-error' in str(repres):
-                fail = True
-            else:
-                fail = False
-        except:
-            fail = True
-        if fail:
             stream = process.executeTask(TaskGetStream(name))
-            if stream is None:
-                repres = ReprFail("dilling inside process failed - write manual converter")
-            else :
-                try:
-                    repres = dill.loads(stream)
-                except:
-                    repres = ReprFail("undilling of bytestream failed - write manual converter")
+            fail2 = errored(stream) or stream is None
+        except:
+            fail2 = True
+
+        if fail2:
+            repres = ReprFail("dilling inside process failed for %s - write manual converter" % obj_class)
+        else :
+            try:
+                repres = dill.loads(stream)
+            except:
+                repres = ReprFail("undilling of bytestream failed - write manual converter")
+
     return repres
 
+def errored(el):
+    return(isinstance(el, list) and 'backend-error' in str(el))
 
 
 # Get the signature of a function inside the process

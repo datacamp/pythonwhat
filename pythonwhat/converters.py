@@ -12,7 +12,8 @@ def get_manual_converters():
         'bs4.element.NavigableString': lambda x: str(x),
         'bs4.element.ResultSet': lambda x: [str(res) for res in x],
         'h5py._hl.files.File': lambda x: x.file.filename,
-        'h5py._hl.group.Group': lambda x: x.file.filename + '_' + str([x for x in x.keys()])
+        'h5py._hl.group.Group': lambda x: x.file.filename + '_' + str([x for x in x.keys()]),
+        'sqlalchemy.engine.base.Engine': lambda x: x.url.database
     }
     #'
     return(converters)
