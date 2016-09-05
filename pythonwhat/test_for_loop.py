@@ -84,8 +84,8 @@ def test_for_loop(index=1,
             if rep.failed_test:
                 return
             child = state.to_child_state(subtree_student, subtree_solution)
-            child.context_student = target_student
-            child.context_solution = target_solution
+            child.student_context = target_student
+            child.solution_context = target_solution
             closure()
             child.to_parent_state()
             if rep.failed_test:

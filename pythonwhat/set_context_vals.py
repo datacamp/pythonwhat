@@ -7,16 +7,16 @@ def set_context_vals(student_env=None, solution_env=None, context_vals=None):
     solution_env = solution_env or state.solution_env
 
     if context_vals is not None and context_vals is not []:
-        if len(state.context_student) > 1:
+        if len(state.student_context) > 1:
             student_env.update({key: value for (key, value) in zip(
-                state.context_student, context_vals)})
+                state.student_context, context_vals)})
         else:
-            student_env.update({state.context_student[0]: (
+            student_env.update({state.student_context[0]: (
                 context_vals[0] if len(context_vals) == 1 else context_vals)})
 
-        if len(state.context_solution) > 1:
+        if len(state.solution_context) > 1:
             solution_env.update({key: value for (key, value) in zip(
-                state.context_solution, context_vals)})
+                state.solution_context, context_vals)})
         else:
-            solution_env.update({state.context_solution[0]: (
+            solution_env.update({state.solution_context[0]: (
                 context_vals[0] if len(context_vals) == 1 else context_vals)})

@@ -34,6 +34,12 @@ class State(object):
         if not hasattr(self, 'parent_state'):
             self.parent_state = None
 
+        if not hasattr(self, 'student_context'):
+            self.student_context = None
+
+        if not hasattr(self, 'solution_context'):
+            self.solution_context = None
+
         self.student_operators = None
         self.solution_operators = None
 
@@ -274,8 +280,10 @@ class State(object):
                       full_student_code = self.full_student_code,
                       full_solution_code = self.full_solution_code,
                       pre_exercise_code = self.pre_exercise_code,
-                      student_env = self.student_env, 
+                      student_env = self.student_env,
                       solution_env = self.solution_env,
+                      student_context = self.student_context,
+                      solution_context  = self.solution_context,
                       raw_student_output = self.raw_student_output,
                       pre_exercise_tree = self.pre_exercise_tree,
                       student_tree = student_subtree,

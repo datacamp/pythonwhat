@@ -101,8 +101,8 @@ def test_comp(comp_type, **kwargs):
     def sub_test(closure, subtree_student, subtree_solution, incorrect_part):
         if closure:
             child = state.to_child_state(subtree_student, subtree_solution)
-            child.context_student = student_comp['target_vars']
-            child.context_solution = solution_comp['target_vars']
+            child.student_context = student_comp['target_vars']
+            child.solution_context = solution_comp['target_vars']
             closure()
             child.to_parent_state()
             if rep.failed_test:

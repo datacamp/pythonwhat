@@ -293,8 +293,8 @@ def test_body(rep, state, body,
         if rep.failed_test:
             return
         child = state.to_child_state(subtree_student, subtree_solution)
-        child.context_solution = [arg[0] for arg in args_solution]
-        child.context_student = [arg[0] for arg in args_student]
+        child.solution_context = [arg[0] for arg in args_solution]
+        child.student_context = [arg[0] for arg in args_student]
         body()
         child.to_parent_state()
         if rep.failed_test:

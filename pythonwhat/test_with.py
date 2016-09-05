@@ -40,10 +40,10 @@ def test_with(index,
         return
 
     if context_vals:
-        len_context_solution = len(solution_with['context'])
-        len_context_student = len(student_with['context'])
+        len_solution_context = len(solution_with['context'])
+        len_student_context = len(student_with['context'])
 
-        if len_context_solution > len_context_student:
+        if len_solution_context > len_student_context:
             enough_contexts_string = "too little"
         else:
             enough_contexts_string = "too many"
@@ -52,15 +52,15 @@ def test_with(index,
             "In your %s `with` statement, make sure to use the correct number of context variables. It seems you defined %s."\
                 % (utils.get_ord(index + 1), enough_contexts_string)
 
-        rep.do_test(EqualTest(len_context_solution, len_context_student, Feedback(c_context_vals_len_msg, student_with['node'])))
+        rep.do_test(EqualTest(len_solution_context, len_student_context, Feedback(c_context_vals_len_msg, student_with['node'])))
         if rep.failed_test:
             return
 
-        for (context_solution, context_student) in zip(solution_with['context'], student_with['context']):
+        for (solution_context, student_context) in zip(solution_with['context'], student_with['context']):
             c_context_vals_msg = context_vals_msg or "In your %s `with` statement, make sure to use the correct context variable names. Was expecting `%s` but got `%s`."\
-                % (utils.get_ord(index + 1), names_as_string(context_solution['optional_vars']),
-                    names_as_string(context_student['optional_vars']))
-            rep.do_test(EqualTest(context_solution['optional_vars'], context_student['optional_vars'],
+                % (utils.get_ord(index + 1), names_as_string(solution_context['optional_vars']),
+                    names_as_string(student_context['optional_vars']))
+            rep.do_test(EqualTest(solution_context['optional_vars'], student_context['optional_vars'],
                 Feedback(c_context_vals_msg, student_with['node'])))
             if rep.failed_test:
                 return
