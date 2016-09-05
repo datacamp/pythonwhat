@@ -342,8 +342,8 @@ class IfParser(Parser):
     def visit_If(self, node):
         self.ifs.append((
             node.test,
-            ast.Module(node.body),
-            ast.Module(node.orelse)))
+            node.body,
+            node.orelse))
 
 
 class WhileParser(Parser):
@@ -359,8 +359,8 @@ class WhileParser(Parser):
     def visit_While(self, node):
         self.whiles.append((
             node.test,
-            ast.Module(node.body),
-            ast.Module(node.orelse)))
+            node.body,
+            node.orelse))
 
 
 class ForParser(Parser):
@@ -377,8 +377,8 @@ class ForParser(Parser):
         self.fors.append((
             Parser.get_target_vars(node.target),
             node.iter,
-            ast.Module(node.body),
-            ast.Module(node.orelse)))
+            node.body,
+            node.orelse))
 
 
 class FunctionDefParser(Parser):
@@ -556,7 +556,7 @@ class WithParser(Parser):
         self.withs.append({
             "context": [{"context_expr" : ast.Expression(item.context_expr),
                 "optional_vars": item.optional_vars and WithParser.get_node_ids_in_list(item.optional_vars)} for item in items],
-            "body": ast.Module(node.body),
+            "body": node.body,
             "node": node
         })
 
@@ -568,3 +568,31 @@ class WithParser(Parser):
         else:
             node_ids = []
         return node_ids
+
+class TryExceptParser(Parser):
+    def __init__(self):
+        self.try_excepts = []
+
+    def visit_Try(self, node):
+        handlers = {}
+
+        for handler in node.handlers:
+            if handler.type is None:
+                handlers['all'] = handler
+            elif isinstance(handler.type, ast.Name):
+                handlers[handler.type.id] = handler
+            elif isinstance(handler.type, ast.Tuple):
+                for el in handler.type.elts:
+                    handlers[el.id] = handler
+            else:
+                # do nothing, don't know what to do!
+                pass
+
+        self.try_excepts.append({
+            "try_except": node,
+            "body": node.body,
+            "orelse": node.orelse,
+            "finalbody": node.finalbody,
+            "handlers": handlers
+        })
+

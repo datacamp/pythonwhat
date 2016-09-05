@@ -10,9 +10,11 @@ class Feedback(object):
         self.line_info = {}
         try:
             if astobj is not None:
-                if (issubclass(type(astobj), _ast.Module)):
-                    start = astobj.body[0]
-                    end = astobj.body[-1]
+                if issubclass(type(astobj), _ast.Module):
+                    astobj = astobj.body
+                if isinstance(astobj, list) and len(astobj) > 0:
+                    start = astobj[0]
+                    end = astobj[-1]
                 else:
                     start = astobj
                     end = astobj

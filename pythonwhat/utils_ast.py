@@ -577,10 +577,12 @@ def _tokens_text(tokens):
 def extract_text_from_node(dastring, astobj):
     try:
         if issubclass(type(astobj), _ast.Module):
-            rangeobj = TextRange(lineno=astobj.body[0].lineno,
-                                 col_offset=astobj.body[0].col_offset,
-                                 end_lineno=astobj.body[-1].end_lineno,
-                                 end_col_offset=astobj.body[-1].end_col_offset)
+            astobj = astobj.body
+        if isinstance(astobj, list) and len(astobj) > 0:
+            rangeobj = TextRange(lineno=astobj[0].lineno,
+                                 col_offset=astobj[0].col_offset,
+                                 end_lineno=astobj[-1].end_lineno,
+                                 end_col_offset=astobj[-1].end_col_offset)
         else:
             rangeobj = TextRange(lineno=astobj.lineno,
                                  col_offset=astobj.col_offset,

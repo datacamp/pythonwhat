@@ -1,6 +1,6 @@
 import ast
 import inspect
-from pythonwhat.parsing import FunctionParser, ObjectAccessParser, ObjectAssignmentParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, LambdaFunctionParser, ListCompParser, DictCompParser, GeneratorExpParser, WithParser
+from pythonwhat.parsing import FunctionParser, ObjectAccessParser, ObjectAssignmentParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, LambdaFunctionParser, ListCompParser, DictCompParser, GeneratorExpParser, WithParser, TryExceptParser
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils_ast
@@ -83,6 +83,9 @@ class State(object):
 
         self.student_withs = None
         self.solution_withs = None
+
+        self.student_try_excepts = None
+        self.solution_try_excepts = None
 
 
     def extract_operators(self):
@@ -267,6 +270,17 @@ class State(object):
             wp.visit(self.solution_tree)
             self.solution_withs = wp.withs
 
+    def extract_try_excepts(self):
+        if (self.student_try_excepts is None):
+            tep = TryExceptParser()
+            tep.visit(self.student_tree)
+            self.student_try_excepts = tep.try_excepts
+
+        if (self.solution_try_excepts is None):
+            tep = TryExceptParser()
+            tep.visit(self.solution_tree)
+            self.solution_try_excepts = tep.try_excepts
+
     def to_child_state(self, student_subtree, solution_subtree):
         """Dive into nested tree.
 
@@ -275,10 +289,13 @@ class State(object):
         for loops for example.
         """
 
+        if isinstance(student_subtree, list):
+            student_subtree = ast.Module(student_subtree)
+        if isinstance(solution_subtree, list):
+            solution_subtree = ast.Module(solution_subtree)
+
         child = State(student_code = utils_ast.extract_text_from_node(self.full_student_code, student_subtree),
-                      solution_code = utils_ast.extract_text_from_node( self.full_solution_code, solution_subtree),
                       full_student_code = self.full_student_code,
-                      full_solution_code = self.full_solution_code,
                       pre_exercise_code = self.pre_exercise_code,
                       student_env = self.student_env,
                       solution_env = self.solution_env,
