@@ -200,7 +200,7 @@ class EqualTest(Test):
             if self.objs_are([np.ndarray, dict, list]):
                 np.testing.assert_equal(self.obj1, self.obj2)
                 self.result = True
-            if self.objs_are([map, filter]):
+            elif self.objs_are([map, filter]):
                 np.testing.assert_equal(list(self.obj1), list(self.obj2))
                 self.result = True
             elif self.objs_are([pd.DataFrame]):
