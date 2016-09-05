@@ -9,7 +9,7 @@ def test_try_except(index=1,
                     not_called_msg=None,
                     body=None,
                     handlers={},
-                    except_not_called_msg = None,
+                    except_missing_msg = None,
                     orelse=None,
                     orelse_missing_msg=None,
                     finalbody=None,
@@ -73,11 +73,11 @@ def test_try_except(index=1,
         except:
             raise ValueError("Make sure that you actually specify a %s in your solution code." % incorrect_part)
 
-        c_except_not_called_msg = except_not_called_msg or \
+        c_except_missing_msg = except_missing_msg or \
             ("Have you included a %s in your %s try-except block?" % (incorrect_part, get_ord(index)))
 
         rep.do_test(DefinedTest(key, student_try_except['handlers'],
-            Feedback(c_except_not_called_msg, student_try_except['try_except'])))
+            Feedback(c_except_missing_msg, student_try_except['try_except'])))
         if rep.failed_test:
             return
 

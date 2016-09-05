@@ -105,7 +105,6 @@ except ZeroDivisionError as e:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        print(sct_payload['message'])
         self.assertEqual(sct_payload['message'], "Check your code in the <code>ZeroDivisionError</code> <code>except</code> block of the first try-except block. Are you sure you assigned the correct value to <code>x</code>?")
 
     def test_fail_07(self):
