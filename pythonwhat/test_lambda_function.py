@@ -11,8 +11,8 @@ def test_lambda_function(index,
                          arg_names=True,
                          arg_defaults=True,
                          body=None,
-                         results=None,
-                         errors=None,
+                         results=[],
+                         errors=[],
                          not_called_msg=None,
                          nb_args_msg=None,
                          arg_names_msg=None,
@@ -40,10 +40,10 @@ def test_lambda_function(index,
             definition. It should be passed as a lambda expression or a function. The functions that are
             ran should be other pythonwhat test functions, and they will be tested specifically on only the
             body of the for loop. Defaults to None.
-        results (list(tuple)): a list of strings representing function calls to the lam function. The lam
+        results (list(str)): a list of strings representing function calls to the lam function. The lam
             function will be replaced by the actual lambda function from the student and solution code. The result
             of calling the lambda function will be compared between student and solution.
-        errors (list(tupe)): a list of strings representing function calls to the lam function. The lam
+        errors (list(str)): a list of strings representing function calls to the lam function. The lam
             function will be replaced by the actual lambda function from the student and solution code. It will be
             checked if an error is generated appropriately for the specified inputs.
         not_called_msg (str): message if the function is not defined.
