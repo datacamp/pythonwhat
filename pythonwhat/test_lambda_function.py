@@ -6,6 +6,7 @@ from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
 from pythonwhat import utils
 from pythonwhat.utils import get_ord, get_num
 from pythonwhat.test_function_definition import test_args, test_body
+from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess, ReprFail
 
 def test_lambda_function(index,
                          arg_names=True,
@@ -115,73 +116,47 @@ def test_lambda_function(index,
     if rep.failed_test:
         return
 
+    for el in results:
+        parsed = ast.parse(el).body[0].value
+        argstr = el.replace('lam', '')
 
-    solution_env = state.solution_env
-    student_env = state.student_env
+        parsed.func = solution_fun
+        eval_solution, str_solution = getTreeResultInProcess(process = state.solution_process, tree = parsed)
+        if str_solution is None:
+            raise ValueError("Calling %s for arguments %s in the solution process resulted in an error" % (fun_name, argstr))
+        if isinstance(eval_solution, ReprFail):
+            raise ValueError("Can't get the result of calling %s for arguments %s: %s" % (fun_name, arg_str, eval_solution.info))
 
-    for call in results:
-        parsed = ast.parse(call).body[0].value
-        argstr = call.replace('lam', '')
-        try:
-            # replace fun call with solution lambda function
-            parsed.func = solution_fun
-            solution_result = eval(compile(ast.Expression(parsed), "<solution>", "eval"))
-        except:
-            raise ValueError("Something went wrong in testing the result for %s%s" % (solution_str, call))
+        parsed.func = student_fun
+        eval_student, str_student = getTreeResultInProcess(process = state.student_process, tree = parsed)
 
-        try:
-            # replace fun call with student lambda function
-            parsed.func = student_fun
-            student_result = eval(compile(ast.Expression(parsed), '<student>', 'eval'))
-        except:
+        if str_student is None:
             c_wrong_result_msg = wrong_result_msg or \
                 ("Calling the %s with arguments `%s` should result in `%s`, instead got an error." %
-                    (fun_name, argstr, solution_result))
+                    (fun_name, argstr, str_solution))
             rep.do_test(Test(Feedback(c_wrong_result_msg, student_fun)))
             return
 
         c_wrong_result_msg = wrong_result_msg or \
             ("Calling %s with arguments `%s` should result in `%s`, instead got `%s`." %
-                (fun_name, argstr, solution_result, student_result))
-        rep.do_test(EqualTest(solution_result, student_result, Feedback(c_wrong_result_msg, student_fun)))
+                (fun_name, argstr, str_solution, str_student))
+        rep.do_test(EqualTest(eval_solution, eval_student, Feedback(c_wrong_result_msg, student_fun)))
         if rep.failed_test:
             return
 
-    for call in errors:
-        parsed = ast.parse(call).body[0].value
-        argstr = call.replace('lam', '')
-        try:
-            # replace fun call with solution lambda function
-            parsed.func = solution_fun
-            solution_result = eval(compile(ast.Expression(parsed), "<solution>", "eval"))
-        except Exception as sol_exc:
-            solution_result = sol_exc
-        if not isinstance(solution_result, Exception):
+    for el in errors:
+        parsed = ast.parse(el).body[0].value
+        argstr = el.replace('lam', '')
+
+        parsed.func = solution_fun
+        error_solution = getTreeErrorInProcess(process = state.solution_process, tree = parsed)
+        if error_solution is None:
             raise ValueError("Calling %s with arguments %s did not generate an error in the solution environment." % (fun_name, argstr))
 
-        try:
-            # replace fun call with student lambda function
-            parsed.func = student_fun
-            student_result = eval(compile(ast.Expression(parsed), '<student>', 'eval'))
-        except Exception as stud_exc:
-            student_result = stud_exc
-        feedback_msg = no_error_msg or ("Calling %s with the arguments `%s` doesn't result in an error, but it should!" % (fun_name, argstr))
-        rep.do_test(InstanceTest(student_result, Exception, Feedback(feedback_msg, student_fun)))
+        parsed.func = student_fun
+        error_student = getTreeErrorInProcess(process = state.student_process, tree = parsed)
 
+        if error_student is None:
+            feedback_msg = no_error_msg or ("Calling %s with the arguments `%s` doesn't result in an error, but it should!" % (fun_name, argstr))
+            rep.do_test(Test(Feedback(feedback_msg, student_fun)))
 
-def print_attrs(node):
-    def _print(node):
-        print("============")
-        print(node.__class__.__name__)
-        if hasattr(node, 'lineno'):
-            print('lineno:' + str(node.lineno))
-        else:
-            print("NO LINENO")
-        if hasattr(node, 'col_offset'):
-            print('col_offset:' + str(node.col_offset))
-        else:
-            print("NO COL_OFFSET")
-
-        for child in ast.iter_child_nodes(node):
-            _print(child)
-    _print(node)

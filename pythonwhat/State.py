@@ -5,6 +5,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils_ast
 from pythonwhat import signatures
+from pythonwhat.converters import get_manual_converters
 
 class State(object):
     """State of the SCT environment.
@@ -39,6 +40,8 @@ class State(object):
 
         if not hasattr(self, 'solution_context'):
             self.solution_context = None
+
+        self.converters = None
 
         self.student_operators = None
         self.solution_operators = None
@@ -87,6 +90,11 @@ class State(object):
         self.student_try_excepts = None
         self.solution_try_excepts = None
 
+    def get_converters(self):
+        if self.converters is None:
+            self.converters = get_manual_converters()
+
+        return(self.converters)
 
     def extract_operators(self):
         if (self.student_operators is None):
@@ -297,10 +305,10 @@ class State(object):
         child = State(student_code = utils_ast.extract_text_from_node(self.full_student_code, student_subtree),
                       full_student_code = self.full_student_code,
                       pre_exercise_code = self.pre_exercise_code,
-                      student_env = self.student_env,
-                      solution_env = self.solution_env,
                       student_context = self.student_context,
                       solution_context  = self.solution_context,
+                      student_process = self.student_process,
+                      solution_process = self.solution_process,
                       raw_student_output = self.raw_student_output,
                       pre_exercise_tree = self.pre_exercise_tree,
                       student_tree = student_subtree,
@@ -356,6 +364,7 @@ class State(object):
         res = None
         try:
             res = ast.parse(x)
+            utils_ast.mark_text_ranges(res, x + '\n')
 
         except SyntaxError as e:
             raise SyntaxError(str(e))
@@ -370,3 +379,8 @@ class State(object):
     @staticmethod
     def set_active_state(state):
         State.active_state = state
+
+def set_converter(key, fundef):
+    state = State.active_state
+    state.get_converters()
+    state.converters[key] = fundef

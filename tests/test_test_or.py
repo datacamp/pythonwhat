@@ -38,7 +38,7 @@ class TestExercise1(unittest.TestCase):
         self.data["DC_CODE"] = "test = 4\nprint('not test')"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect. Expected <code>'test'</code>, but got <code>'not test'</code>.")
+        self.assertEqual(sct_payload['message'], "Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.")
 
 if __name__ == "__main__":
     unittest.main()

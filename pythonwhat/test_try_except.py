@@ -2,7 +2,7 @@ import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
-from pythonwhat.Test import BiggerTest, DefinedTest, Test
+from pythonwhat.Test import BiggerTest, Test, DefinedCollTest
 from pythonwhat.utils import get_ord, get_num
 
 def test_try_except(index=1,
@@ -76,7 +76,7 @@ def test_try_except(index=1,
         c_except_missing_msg = except_missing_msg or \
             ("Have you included a %s in your %s try-except block?" % (incorrect_part, get_ord(index)))
 
-        rep.do_test(DefinedTest(key, student_try_except['handlers'],
+        rep.do_test(DefinedCollTest(key, student_try_except['handlers'],
             Feedback(c_except_missing_msg, student_try_except['try_except'])))
         if rep.failed_test:
             return

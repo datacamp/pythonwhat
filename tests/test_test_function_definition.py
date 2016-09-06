@@ -1,6 +1,20 @@
 import unittest
 import helper
 
+
+class TestFunctionDefinitionStepByStep(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '',
+            "DC_SOLUTION": "def test(a, b = 2):\n    print('prod of ' + str(a) + ' and ' + str(b))\n    return a * b",
+            "DC_SCT": "test_function_definition('test', results = [[2, 3]], outputs = [[2,3]], errors = [['a', 'b']])"
+        }
+
+    def test_step_x(self):
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 class TestExercise1(unittest.TestCase):
 
     def setUp(self):
@@ -302,16 +316,7 @@ def to_decimal(number, base = 3):
         helper.test_lines(self, sct_payload, 2, 8, 1, 18)
 
     def test_Fail2(self):
-        self.data["DC_CODE"] = '''
-from numpy import sum
-def to_decimal(number, base = 2):
-    print("Converting %d from base %s to base 10" % (number, base))
-    number_str = str(number)
-    number_range = range(len(number_str))
-    multipliers = [base ** ((len(number_str) - 1) - i) for i in number_range]
-    decimal = sum([int(number_str[i]) * multipliers[i] for i in number_range])
-    return decimal
-        '''
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
@@ -353,54 +358,9 @@ def shout():
         # line info specific to test_object_after_expression!
         helper.test_lines(self, sct_payload, 3, 3, 5, 41)
 
-class TestExercise9(unittest.TestCase):
-
-    def setUp(self):
-        self.data = {
-            "DC_PEC": '''''',
-            "DC_SOLUTION": '''
-def shout(word):
-    shout_word = word + '!!!'
-    print(shout_word)
-shout('congratulations')
-            ''',
-            "DC_SCT": '''
-test_function_definition("shout", arg_names = True)
-test_function_definition(
-        "shout",
-        arg_names = False,
-        body = lambda: test_object_after_expression("word", context_vals = ["congratulations"])
-)
-
-test_function_definition(
-        "shout",
-        arg_names = False,
-        body = lambda: test_object_after_expression("shout_word", context_vals = ["congratulations!!!"])
-)
-
-test_function_definition("shout", arg_names = False, arg_defaults = False, # Already tested this
-        body = lambda: [
-            set_extra_env(extra_env={'shout_word': "congratulations"}),
-            test_function("print", incorrect_msg = "You should use the `print()` function with the correct argument.")])
-'''
-        }
-
-    def test_Fail1(self):
-        self.data["DC_CODE"] = '''
-def shout(word):
-    shout_word = word + '!!!'
-    print(shout_word + '!')
-shout('congratulations')
-        '''
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, you should use the <code>print()</code> function with the correct argument.')
-        # line info specific to test_function!
-        helper.test_lines(self, sct_payload, 4, 4, 11, 26)
-
     def test_Fail2(self):
         self.data["DC_CODE"] = '''
-def shout(word):
+def shout():
     shout_word = 'congratulations' + '!!'
         '''
         sct_payload = helper.run(self.data)
@@ -528,8 +488,9 @@ def shout(word):
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("In your definition of <code>shout()</code>, have you defined <code>shout_word</code>?", sct_payload['message'])
+        self.assertEqual("In your definition of <code>shout()</code>, have you defined <code>shout_word</code> without errors?", sct_payload['message'])
 
 
 if __name__ == "__main__":
     unittest.main()
+

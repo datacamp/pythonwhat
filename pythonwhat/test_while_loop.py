@@ -70,8 +70,6 @@ def test_while_loop(index=1,
 
     index = index - 1
 
-    student_env, solution_env = state.student_env, state.solution_env
-
     state.extract_while_calls()
     student_whiles = state.student_while_calls
     solution_whiles = state.solution_while_calls

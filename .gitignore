@@ -65,20 +65,6 @@ target/
 # pyenv
 .python-version
 
-tests/moby_dick.txt
-tests/not_moby_dick.txt
-tests/cars.csv
-tests/sales.sas7bdat
-tests/albeck_gene_expression.mat
-tests/data.p
-tests/battledeath.xlsx
-tests/Chinook.sqlite
-tests/titanic.csv
-tests/tweets.txt
-tests/census.sqlite
-tests/digits.csv
-tests/tweets.csv
-
 # Mac stuff
 .DS_Store
 tests/.DS_Store

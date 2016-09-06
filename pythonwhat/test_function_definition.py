@@ -1,26 +1,12 @@
 import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedTest, EqualTest, Test, InstanceTest
+from pythonwhat.Test import DefinedCollTest, EqualTest, Test, InstanceTest
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
 from pythonwhat.utils import get_ord
-from contextlib import contextmanager
+from pythonwhat.tasks import getFunctionCallResultInProcess, getFunctionCallOutputInProcess, getFunctionCallErrorInProcess, ReprFail
 
-ordinal = lambda n: "%d%s" % (
-    n, "tsnrhtdd"[(n / 10 % 10 != 1) * (n % 10 < 4) * n % 10::4])
-
-@contextmanager
-def capture_output():
-    import sys
-    from io import StringIO
-    oldout, olderr = sys.stdout, sys.stderr
-    out = [StringIO(), StringIO()]
-    sys.stdout, sys.stderr = out
-    yield out
-    sys.stdout, sys.stderr = oldout, olderr
-    out[0] = out[0].getvalue()
-    out[1] = out[1].getvalue()
 
 def test_function_definition(name,
                              arg_names=True,
@@ -65,7 +51,7 @@ def test_function_definition(name,
         outputs (list(tuple)): a list of tuples representing arguments that should be passed to the defined
             function. These arguments are passed to the function in the student environment and the solution
             environment, the outpus are compared.
-        errors (list(tupe)): a list of tuples representing arguments that should be passed to the defined
+        errors (list(tupe)): a list of lists representing arguments that should be passed to the defined
             function. These arguments are passed to the function in the student environment and the solution
             environment, the errors they generate are compared.
         not_called_msg (str): message if the function is not defined.
@@ -122,7 +108,7 @@ def test_function_definition(name,
     c_not_called_msg = not_called_msg or \
         ("You didn't define the following function: `%s()`." %
             name)
-    rep.do_test(DefinedTest(name, student_defs, c_not_called_msg))
+    rep.do_test(DefinedCollTest(name, student_defs, c_not_called_msg))
     if rep.failed_test:
         return
     student_def = student_defs[name]
@@ -142,7 +128,6 @@ def test_function_definition(name,
               arg_names_msg=arg_names_msg,
               arg_defaults_msg=arg_defaults_msg,
               name=fun_name)
-
     if rep.failed_test:
         return
 
@@ -159,97 +144,108 @@ def test_function_definition(name,
     if rep.failed_test:
         return
 
-    solution_env = state.solution_env
-    student_env = state.student_env
     if results is not None:
-        solution_func = solution_env[name]
-        student_func = student_env[name]
-        for call in results:
-            if isinstance(call, str):
-                call = (call,)
-            solution_result = solution_func(*call)
-            try:
-                student_result = student_func(*call)
-            except:
+        for el in results:
+            el = fix_format(el)
+            call_str = name + stringify(el)
+            eval_solution, str_solution = getFunctionCallResultInProcess(process = state.solution_process,
+                                                                         fun_name = name,
+                                                                         arguments = el)
+            if str_solution is None:
+                raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
+            if isinstance(eval_solution, ReprFail):
+                raise ValueError("Something went wrong in figuring out the result of " + call_str + ": " + eval_solution.info)
+
+            eval_student, str_student = getFunctionCallResultInProcess(process = state.student_process,
+                                                                       fun_name = name,
+                                                                       arguments = el)
+
+            if str_student is None:
                 c_wrong_result_msg = wrong_result_msg or \
-                    ("Calling `%s%s` should result in `%s`, instead got an error." %
-                        (name, arguments_as_string(call), solution_result))
+                    ("Calling `%s` should result in `%s`, instead got an error." %
+                        (call_str, str_solution))
                 rep.do_test(Test(c_wrong_result_msg))
                 return
+
             c_wrong_result_msg = wrong_result_msg or \
-                ("Calling `%s%s` should result in `%s`, instead got `%s`." %
-                    (name, arguments_as_string(call), solution_result, student_result))
-            rep.do_test(EqualTest(solution_result, student_result, c_wrong_result_msg))
+                ("Calling `%s` should result in `%s`, instead got `%s`." %
+                    (call_str, str_solution, str_student))
+            rep.do_test(EqualTest(eval_solution, eval_student, c_wrong_result_msg))
             if rep.failed_test:
                 return
+
     if rep.failed_test:
         return
 
     if outputs is not None:
-        solution_func = solution_env[name]
-        student_func = student_env[name]
-        for call in outputs:
-            if isinstance(call, str):
-                call = (call,)
-            with capture_output() as out:
-                solution_func(*call)
-            solution_output = out[0].strip()
-            try:
-                with capture_output() as out:
-                    student_func(*call)
-                student_output = out[0].strip()
-            except:
+        for el in outputs:
+            el = fix_format(el)
+            call_str = name + stringify(el)
+            output_solution = getFunctionCallOutputInProcess(process = state.solution_process,
+                                                             fun_name = name,
+                                                             arguments = el)
+
+            if output_solution is None:
+                raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
+
+            output_student = getFunctionCallOutputInProcess(process = state.student_process,
+                                                            fun_name = name,
+                                                            arguments = el)
+
+            if output_student is None:
                 c_wrong_output_msg = wrong_output_msg or \
-                    ("Calling `%s%s` should output in `%s`, instead got an error." %
-                        (name, arguments_as_string(call), solution_output))
+                    ("Calling `%s` should output `%s`, instead got an error." %
+                        (call_str, output_solution))
                 rep.do_test(Test(c_wrong_output_msg))
                 return
+
             c_wrong_output_msg = wrong_output_msg or \
-                ("Calling `%s%s` should output `%s`, instead got `%s`." %
-                    (name, arguments_as_string(call), solution_output, student_output))
-            rep.do_test(EqualTest(solution_output, student_output, c_wrong_output_msg))
+                ("Calling `%s` should output `%s`, instead got `%s`." %
+                    (call_str, output_solution, output_student))
+            rep.do_test(EqualTest(output_solution, output_student, c_wrong_output_msg))
             if rep.failed_test:
                 return
 
     if errors is not None:
-        solution_func = solution_env[name]
-        student_func = student_env[name]
-        for call in errors:
-            if isinstance(call, str):
-                call = (call,)
-            try:
-                solution_result = solution_func(*call)
-            except Exception as sol_exc:
-                solution_result = sol_exc
-            if not isinstance(solution_result, Exception):
-                raise ValueError("Calling %s%s did not generate an error in the solution environment." % (name, arguments_as_string(call)))
+        for el in errors:
+            el = fix_format(el)
+            call_str = name + stringify(el)
+            error_solution = getFunctionCallErrorInProcess(process = state.solution_process,
+                                                           fun_name = name,
+                                                           arguments = el)
 
-            try:
-                student_result = student_func(*call)
-            except Exception as stud_exc:
-                student_result = stud_exc
-            feedback_msg = no_error_msg or ("Calling `%s%s` doesn't result in an error, but it should!" % (name, arguments_as_string(call)))
-            rep.do_test(InstanceTest(student_result, Exception, feedback_msg))
-            if rep.failed_test:
-                return
-            feedback_msg = wrong_error_msg or ("Calling `%s%s` should result in a `%s`, instead got a `%s`." % \
-                (name, arguments_as_string(call), solution_result.__class__.__name__, student_result.__class__.__name__))
-            rep.do_test(InstanceTest(student_result, solution_result.__class__, feedback_msg))
-            if rep.failed_test:
+            if error_solution is None:
+                raise ValueError("Calling %s did not generate an error in the solution environment." % call_str)
+
+            error_student = getFunctionCallErrorInProcess(process = state.student_process,
+                                                          fun_name = name,
+                                                          arguments = el)
+
+            if error_student is None:
+                feedback_msg = no_error_msg or ("Calling `%s` doesn't result in an error, but it should!" % call_str)
+                rep.do_test(Test(feedback_msg))
                 return
 
+            feedback_msg = wrong_error_msg or ("Calling `%s` should result in a `%s`, instead got a `%s`." % \
+                (call_str, error_solution.__class__.__name__, error_student.__class__.__name__))
+            rep.do_test(InstanceTest(error_student, error_solution.__class__, feedback_msg))
+            if rep.failed_test:
+                return
 
-def arguments_as_string(args):
+
+def stringify(args):
     if len(args) == 0:
         return '()'
-    if isinstance(args, list):
+    else :
         return "(" + str(args)[1:-1] + ")"
-    elif len(args) > 1:
-        return str(args)
-    elif isinstance(args[0], str):
-        return "('"+args[0]+"')"
-    else:
-        return '('+str(args)+')'
+
+
+def fix_format(arguments):
+    if isinstance(arguments, str):
+        arguments = (arguments, )
+    if isinstance(arguments, tuple):
+        arguments = list(arguments)
+    return(arguments)
 
 def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
               fun_def, nb_args_msg, arg_names_msg, arg_defaults_msg, name):

@@ -1,5 +1,5 @@
 import ast
-from pythonwhat.Test import Test, DefinedTest, EqualTest
+from pythonwhat.Test import Test, DefinedCollTest, EqualTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 
@@ -46,12 +46,12 @@ def test_import(name,
     solution_imports = state.solution_imports
 
     if name not in solution_imports:
-        raise NameError("%r not in solution imports " % name)
+        raise NameError("%r not in solution imports" % name)
 
     if not_imported_msg is None:
-        not_imported_msg = "Did you import `%s` in your code?" % name
+        not_imported_msg = "Did you import `%s`?" % name
 
-    rep.do_test(DefinedTest(name, student_imports, not_imported_msg))
+    rep.do_test(DefinedCollTest(name, student_imports, not_imported_msg))
 
     if rep.failed_test:
         return

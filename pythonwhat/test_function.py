@@ -1,11 +1,12 @@
 import ast
 
-from pythonwhat.Test import Test, DefinedTest, EqualTest, EquivalentTest, BiggerTest
+from pythonwhat.Test import Test, DefinedCollTest, EqualTest, BiggerTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord, get_num
-import inspect
+from pythonwhat.utils_ast import extract_text_from_node
+from pythonwhat.tasks import getTreeResultInProcess, getSignatureInProcess, ReprFail
 
 def test_function(name,
                   index=1,
@@ -15,7 +16,8 @@ def test_function(name,
                   do_eval=True,
                   not_called_msg=None,
                   args_not_specified_msg=None,
-                  incorrect_msg=None):
+                  incorrect_msg=None,
+                  add_more=False):
     """Test if function calls match.
 
     This function compares a function call in the student's code with the corresponding one in the solution
@@ -29,19 +31,14 @@ def test_function(name,
           None, all positional arguments which are in the solution will be checked.
         keywords (list(str)): the indices of the keyword arguments that have to be checked. If it is set to
           None, all keyword arguments which are in the solution will be checked.
-        eq_condition (str): The condition which is checked on the eval of the group. Can be "equal" --
-          meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
-          can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
+        eq_condition (str): how arguments/keywords are compared. Currently, only "equal" is supported,
+          meaning that the result in student and solution process should have exactly the same value.
         do_eval (bool): True: arguments are evaluated and compared. False: arguments are not evaluated but
             'string-matched'. None: arguments are not evaluated; it is only checked if they are specified.
         not_called_msg (str): feedback message if the function is not called.
         args_not_specified_msg (str): feedback message if the function is called but not all required arguments are specified
         incorrect_msg (str): feedback message if the arguments of the function in the solution doesn't match
           the one of the student.
-
-    Raises:
-        NameError: the eq_condition you passed is not "equal" or "equivalent".
-        NameError: function is not called in the solution
 
     Examples:
         Student code
@@ -69,12 +66,12 @@ def test_function(name,
 
     index = index - 1
 
-    eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}
+    eq_map = {"equal": EqualTest}
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
     eq_fun = eq_map[eq_condition]
 
-    student_env, solution_env = state.student_env, state.solution_env
+    student_process, solution_process = state.student_process, state.solution_process
 
     state.extract_function_calls()
     solution_calls = state.solution_function_calls
@@ -94,7 +91,7 @@ def test_function(name,
     if name not in solution_calls or len(solution_calls[name]) <= index:
         raise NameError("%r not in solution environment (often enough)" % name)
 
-    rep.do_test(DefinedTest(name, student_calls, not_called_msg))
+    rep.do_test(DefinedCollTest(name, student_calls, not_called_msg))
     if rep.failed_test:
         return
 
@@ -160,13 +157,11 @@ def test_function(name,
                 arg_solution = args_solution[arg]
                 if incorrect_msg is None:
                     msg = feedback_msg + (" The %s argument seems to be incorrect." % get_ord(arg + 1))
-                    add_more = True
                 else:
                     msg = incorrect_msg
-                    add_more = False
 
                 test = build_test(arg_student, arg_solution,
-                                  student_env, solution_env,
+                                  student_process, solution_process,
                                   do_eval, eq_fun, msg, add_more=add_more)
                 test.test()
 
@@ -188,7 +183,7 @@ def test_function(name,
                         add_more = False
 
                     test = build_test(key_student, key_solution,
-                                      student_env, solution_env,
+                                      student_process, solution_process,
                                       do_eval, eq_fun, msg, add_more=add_more)
                     test.test()
 
@@ -239,7 +234,8 @@ def test_function_v2(name,
                      not_called_msg=None,
                      params_not_matched_msg=None,
                      params_not_specified_msg=None,
-                     incorrect_msg=None):
+                     incorrect_msg=None,
+                     add_more=False):
     """Test if function calls match (v2).
 
     This function compares a function call in the student's code with the corresponding one in the solution
@@ -252,7 +248,8 @@ def test_function_v2(name,
         params (list(str)): the parameter names of the function call that you want to check.
         signature (Signature): Normally, test_function() can figure out what the function signature is,
             but it might be necessary to use build_sig to manually build a signature and pass this along.
-        eq_condition (str): How objects should be compared ("equal" or "equivalent")
+        eq_condition (str): how parameters are compared. Currently, only "equal" is supported,
+            meaning that the arguments in student and solution process should have exactly the same value.
         do_eval (list(bool)): Boolean or list of booleans (parameter-specific) that specify whether or
             not arguments should be evaluated.
             True: arguments are evaluated and compared.
@@ -271,7 +268,7 @@ def test_function_v2(name,
     rep.set_tag("fun", "test_function")
 
     index = index - 1
-    eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}
+    eq_map = {"equal": EqualTest}
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
     eq_fun = eq_map[eq_condition]
@@ -299,7 +296,7 @@ def test_function_v2(name,
     if len(params) != len(incorrect_msg):
         raise NameError("Inside test_function_v2, make sure that incorrect_msg has the same length as params.")
 
-    student_env, solution_env = state.student_env, state.solution_env
+    student_process, solution_process = state.student_process, state.solution_process
 
     state.extract_function_calls()
     solution_calls = state.solution_function_calls
@@ -320,7 +317,7 @@ def test_function_v2(name,
     if name not in solution_calls or len(solution_calls[name]) <= index:
         raise NameError("%r not in solution environment (often enough)" % name)
 
-    rep.do_test(DefinedTest(name, student_calls, not_called_msg))
+    rep.do_test(DefinedCollTest(name, student_calls, not_called_msg))
     if rep.failed_test:
         return
 
@@ -332,9 +329,11 @@ def test_function_v2(name,
 
         try:
             sol_call, arguments, keywords = solution_calls[name][index]
-            solution_args, _ = get_args(args=arguments, keyws=keywords,
-                                        name=name, mapped_name=sol_name,
-                                        signature=signature, env=solution_env)
+            sol_sig = getSignatureInProcess(name=name, mapped_name=sol_name,
+                                            signature=signature,
+                                            manual_sigs = State.active_state.get_manual_sigs(),
+                                            process=solution_process)
+            solution_args, _ = bind_args(signature = sol_sig, arguments=arguments, keyws=keywords)
         except:
             raise ValueError(("Something went wrong in matching the %s call of %s to its signature." + \
                 " You might have to manually specify or correct the function signature.") % (get_ord(index + 1), sol_name))
@@ -356,9 +355,11 @@ def test_function_v2(name,
 
             try:
                 student_call, arguments, keywords = student_calls[name][call_ind]
-                student_args, student_params = get_args(args=arguments, keyws=keywords,
-                         name=name, mapped_name=stud_name,
-                         signature=signature, env=student_env)
+                student_sig = getSignatureInProcess(name = name, mapped_name = stud_name,
+                                                    signature=signature,
+                                                    manual_sigs = State.active_state.get_manual_sigs(),
+                                                    process=student_process)
+                student_args, student_params = bind_args(signature = student_sig, arguments=arguments, keyws=keywords)
             except:
                 if feedback is None:
                     if not params_not_matched_msg:
@@ -396,14 +397,12 @@ def test_function_v2(name,
                     # only if value can be supplied as keyword argument, give more info:
                     if student_params[param].kind in [1, 3, 4]:
                             msg += " The argument you specified for `%s` seems to be incorrect." % param
-                    add_more = True
                 else:
                     msg = incorrect_msg[ind]
-                    add_more = False
 
                 test = build_test(arg_student, arg_solution,
-                                  student_env, solution_env,
-                                  do_eval[ind], eq_fun, msg, add_more)
+                                  student_process, solution_process,
+                                  do_eval[ind], eq_fun, msg, add_more = add_more)
                 test.test()
 
                 if not test.result:
@@ -431,83 +430,33 @@ def get_mapped_name(name, mappings):
                 mapped_name = ".".join([mappings_rev[els[0]]] + els[1:])
     return(mapped_name)
 
-
-def get_args(args, keyws, name, mapped_name, signature, env):
+def bind_args(signature, arguments, keyws):
     keyws = {keyword.arg: keyword.value for keyword in keyws}
-
-    # get manual signatures from the State
-    manual_sigs = State.active_state.get_manual_sigs()
-
-    if isinstance(signature, str):
-        if signature in manual_sigs:
-            signature = inspect.Signature(manual_sigs[signature])
-        else:
-            raise ValueError('signature error - specified signature not found')
-
-    if signature is None:
-        # establish function
-        try:
-            fun = eval(mapped_name, env)
-        except:
-            raise ValueError("%s() was not found." % mapped_name)
-
-        # first go through manual sigs
-        # try to get signature
-        try:
-            if name in manual_sigs:
-                signature = inspect.Signature(manual_sigs[name])
-            else:
-                # it might be a method, and we have to find the general method name
-                if "." in mapped_name:
-                    els = name.split(".")
-                    try:
-                        els[0] = type(eval(els[0], env)).__name__
-                        generic_name = ".".join(els[:])
-                    except:
-                        raise ValueError('signature error - cannot convert call')
-                    if generic_name in manual_sigs:
-                        signature = inspect.Signature(manual_sigs[generic_name])
-                    else:
-                        raise ValueError('signature error - %s not in builtins' % generic_name)
-                else:
-                    raise ValueError('manual signature not found')
-        except:
-            try:
-                signature = inspect.signature(fun)
-            except:
-                raise ValueError('signature error - cannot determine signature')
-
-    bound_args = signature.bind(*args, **keyws)
+    bound_args = signature.bind(*arguments, **keyws)
     return(bound_args.arguments, signature.parameters)
 
-def build_test(stud, sol, student_env, solution_env, do_eval, eq_fun, feedback_msg, add_more):
+def build_test(stud, sol, student_process, solution_process, do_eval, eq_fun, feedback_msg, add_more):
     got_error = False
     if do_eval:
-        try:
-            eval_student = eval(
-                compile(
-                    ast.Expression(stud),
-                    "<student>",
-                    "eval"),
-                student_env)
-        except:
-            got_error = True
 
-        eval_solution = eval(
-            compile(
-                ast.Expression(sol),
-                "<solution>",
-                "eval"),
-            solution_env)
+        eval_solution, str_solution = getTreeResultInProcess(tree = sol, process = solution_process)
+        if str_solution is None:
+            raise ValueError("Running an argument in the solution environment raised an error")
+        if isinstance(eval_solution, ReprFail):
+            raise ValueError("Couldn't figure out the argument: " + eval_solution.info)
+
+        eval_student, str_student = getTreeResultInProcess(tree = stud, process = student_process)
+        if str_student is None:
+            got_error = True
 
         # The (eval_student, ) part is important, because when eval_student is a tuple, we don't want
         # to expand them all over the %'s during formatting, we just want the tuple to be represented
         # in the place of the %r. Same for eval_solution.
         if add_more:
             if got_error:
-                feedback_msg += " Expected `%r`, but got %s." % (eval_solution, "an error")
+                feedback_msg += " Expected `%s`, but got %s." % (str_solution, "an error")
             else:
-                feedback_msg += " Expected `%r`, but got `%r`." % (eval_solution, eval_student)
+                feedback_msg += " Expected `%s`, but got `%s`." % (str_solution, str_student)
     else:
         # We don't want the 'expected...' message here. It's a pain in the ass to deparse the ASTs to
         # give something meaningful.

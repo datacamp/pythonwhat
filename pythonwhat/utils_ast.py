@@ -109,142 +109,11 @@ def extract_text_range(source, text_range):
     lines[0] = lines[0][text_range.col_offset:]
     return "".join(lines)
 
-def find_closest_containing_node(tree, text_range):
-    # first look among children
-    for child in ast.iter_child_nodes(tree):
-        result = find_closest_containing_node(child, text_range)
-        if result is not None:
-            return result
-
-    # no suitable child was found
-    if (hasattr(tree, "lineno")
-        and TextRange(tree.lineno, tree.col_offset, tree.end_lineno, tree.end_col_offset)
-            .contains_smaller_eq(text_range)):
-        return tree
-    # nope
-    else:
-        return None
-
-def find_expression(node, text_range):
-    if (hasattr(node, "lineno")
-        and node.lineno == text_range.lineno and node.col_offset == text_range.col_offset
-        and node.end_lineno == text_range.end_lineno and node.end_col_offset == text_range.end_col_offset
-        # expression and Expr statement can have same range
-        and isinstance(node, _ast.expr)):
-        return node
-    else:
-        for child in ast.iter_child_nodes(node):
-            result = find_expression(child, text_range)
-            if result is not None:
-                return result
-        return None
-
-
-def contains_node(parent_node, child_node):
-    for child in ast.iter_child_nodes(parent_node):
-        if child == child_node or contains_node(child, child_node):
-            return True
-
-    return False
-
-def has_parent_with_class(target_node, parent_class, tree):
-    for node in ast.walk(tree):
-        if isinstance(node, parent_class) and contains_node(node, target_node):
-            return True
-
-    return False
-
 
 def parse_source(source, filename='<unknown>', mode="exec"):
     root = ast.parse(source, filename, mode)
     mark_text_ranges(root, source)
     return root
-
-
-def get_last_child(node):
-    if isinstance(node, ast.Call):
-        # TODO: take care of Python 3.5 updates (Starred etc.)
-        if hasattr(node, "kwargs") and node.kwargs is not None:
-            return node.kwargs
-        elif hasattr(node, "starargs") and node.starargs is not None:
-            return node.starargs
-        elif len(node.keywords) > 0:
-            return node.keywords[-1]
-        elif len(node.args) > 0:
-            return node.args[-1]
-        else:
-            return node.func
-
-    elif isinstance(node, ast.BoolOp):
-        return node.values[-1]
-
-    elif isinstance(node, ast.BinOp):
-        return node.right
-
-    elif isinstance(node, ast.Compare):
-        return node.comparators[-1]
-
-    elif isinstance(node, ast.UnaryOp):
-        return node.operand
-
-    elif (isinstance(node, (ast.Tuple, ast.List, ast.Set))
-          and len(node.elts)) > 0:
-        return node.elts[-1]
-
-    elif (isinstance(node, ast.Dict)
-          and len(node.values)) > 0:
-        return node.values[-1]
-
-    elif (isinstance(node, (ast.Return, ast.Assign, ast.AugAssign, ast.Yield, ast.YieldFrom))
-          and node.value is not None):
-        return node.value
-
-    elif isinstance(node, ast.Delete):
-        return node.targets[-1]
-
-    elif isinstance(node, ast.Expr):
-        return node.value
-
-    elif isinstance(node, ast.Assert):
-        if node.msg is not None:
-            return node.msg
-        else:
-            return node.test
-
-    elif isinstance(node, ast.Subscript):
-        if hasattr(node.slice, "value"):
-            return node.slice.value
-        else:
-            assert (hasattr(node.slice, "lower")
-                    and hasattr(node.slice, "upper")
-                    and hasattr(node.slice, "step"))
-
-            if node.slice.step is not None:
-                return node.slice.step
-            elif node.slice.upper is not None:
-                return node.slice.upper
-            else:
-                return node.slice.lower
-
-
-    elif isinstance(node, (ast.For, ast.While, ast.If, ast.With)):
-        return True # There is last child, but I don't know which it will be
-
-    else:
-        return None
-
-    # TODO: pick more cases from here:
-    """
-    (isinstance(node, (ast.IfExp, ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp))
-            or isinstance(node, ast.Raise) and (node.exc is not None or node.cause is not None)
-            # or isinstance(node, ast.FunctionDef, ast.Lambda) and len(node.args.defaults) > 0
-                and (node.dest is not None or len(node.values) > 0))
-
-            #"TODO: Import ja ImportFrom"
-            # TODO: what about ClassDef ???
-    """
-
-
 
 
 def mark_text_ranges(node, source, debug = False):
@@ -279,6 +148,9 @@ def mark_text_ranges(node, source, debug = False):
                 print(ast.dump(node))
                 print("before extraction")
                 print([tok.string for tok in tokens])
+                print(prelim_end_lineno)
+                print(prelim_end_col_offset)
+                print(node.__dict__)
             tokens = _extract_tokens(tokens, node.lineno, node.col_offset, prelim_end_lineno, prelim_end_col_offset)
             if debug:
                 print("before marking")
@@ -286,8 +158,10 @@ def mark_text_ranges(node, source, debug = False):
             try:
                 tokens = _mark_end_and_return_child_tokens(node, tokens, prelim_end_lineno, prelim_end_col_offset)
             except:
-                # Fallback: something went wrong; assign wrong line numbers
-                traceback.print_exc()
+                if debug:
+                    print("BROKEN")
+                else:
+                    pass
                 node.end_lineno = node.lineno
                 node.end_col_offset = node.col_offset + 1
 
@@ -431,20 +305,6 @@ def mark_text_ranges(node, source, debug = False):
     prelim_end_col_offset = len(source_lines[len(source_lines)-1])
     _mark_text_ranges_rec(node, all_tokens, prelim_end_lineno, prelim_end_col_offset)
 
-def value_to_literal(value):
-    if value is None:
-        return ast.Name(id="None", ctx=ast.Load())
-    elif isinstance(value, bool):
-        if value:
-            return ast.Name(id="True", ctx=ast.Load())
-        else:
-            return ast.Name(id="False", ctx=ast.Load())
-    elif isinstance(value, str):
-        return ast.Str(s=value)
-    else:
-        raise NotImplementedError("only None, bool and str supported at the moment, not " + str(type(value)))
-
-
 
 def fix_ast_problems(tree, source_lines, tokens):
     # Problem 1:
@@ -570,7 +430,6 @@ def _get_ordered_child_nodes(node):
 
 def _tokens_text(tokens):
     return "".join([t.string for t in tokens])
-
 
 
 ## ADDED BY FILIP

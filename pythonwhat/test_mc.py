@@ -2,6 +2,7 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import EqualTest
+from pythonwhat.tasks import isDefinedInProcess, getOptionFromProcess
 
 MC_VAR_NAME = "selected_option"
 
@@ -20,15 +21,13 @@ def test_mc(correct, msgs):
     if not issubclass(type(correct), int):
         raise ValueError("correct should be an integer")
 
-    state = State.active_state
-    student_env = state.student_env
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_mc")
-
-    if MC_VAR_NAME not in student_env:
-        raise NameError("%r not set in the student environment" % MC_VAR_NAME)
+    student_process = State.active_state.student_process
+    if not isDefinedInProcess(MC_VAR_NAME, student_process):
+        raise NameError("Option not available in the student process")
     else:
-        selected_option = student_env[MC_VAR_NAME]
+        selected_option = getOptionFromProcess(student_process, MC_VAR_NAME)
         if not issubclass(type(selected_option), int):
             raise ValueError("selected_option should be an integer")
 
