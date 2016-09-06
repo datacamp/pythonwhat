@@ -114,6 +114,8 @@ def test_function_definition(name,
     solution_defs = state.solution_function_defs
     student_defs = state.student_function_defs
 
+    import pdb; pdb.set_trace()
+
     try:
         solution_def = solution_defs[name]
     except KeyError:

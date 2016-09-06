@@ -391,6 +391,7 @@ class FunctionDefParser(Parser):
         self.defs = {}
 
     def visit_FunctionDef(self, node):
+        import pdb; pdb.set_trace();
         args = [arg.arg for arg in node.args.args]
         defaults = [FunctionDefParser.get_node_literal_value(lit) for lit in node.args.defaults]
         defaults = [None] * (len(args) - len(defaults)) + defaults
