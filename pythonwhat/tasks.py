@@ -1,6 +1,7 @@
 from pythonwhat import utils
 import os
 import dill
+import pickle
 import pythonwhat
 import ast
 import inspect
@@ -177,7 +178,18 @@ class TaskConvert(object):
 #        else:
 #            return None
 
-class TaskGetStream(object):
+class TaskGetStreamPickle(object):
+    def __init__(self, name):
+        self.name = name
+
+    def __call__(self, shell):
+        try:
+            return pickle.dumps(get_env(shell.user_ns)[self.name])
+        except:
+            return None
+
+
+class TaskGetStreamDill(object):
     def __init__(self, name):
         self.name = name
 
@@ -201,25 +213,34 @@ def getRepresentation(name, process):
         if (errored(repres)):
             repres = ReprFail("manual conversion failed")
     else:
-        # try:
-        #     repres = process.executeTask(TaskGetObject(name))
-        #     fail = errored(repres) or repres is None
-        # except:
-        #     fail = True
-        # if fail:
+        # first try to pickle
         try:
-            stream = process.executeTask(TaskGetStream(name))
-            fail2 = errored(stream) or stream is None
+            stream = process.executeTask(TaskGetStreamPickle(name))
+            fail = errored(stream) or stream is None
         except:
-            fail2 = True
+            fail = True
 
-        if fail2:
-            repres = ReprFail("dilling inside process failed for %s - write manual converter" % obj_class)
-        else :
+        if not fail:
             try:
-                repres = dill.loads(stream)
+                repres = pickle.loads(stream)
             except:
-                repres = ReprFail("undilling of bytestream failed - write manual converter")
+                fail = True
+
+        # if it failed, try to dill
+        if fail:
+            try:
+                stream = process.executeTask(TaskGetStreamDill(name))
+                fail2 = errored(stream) or stream is None
+            except:
+                fail2 = True
+
+            if fail2:
+                repres = ReprFail("dilling inside process failed for %s - write manual converter" % obj_class)
+            else :
+                try:
+                    repres = dill.loads(stream)
+                except:
+                    repres = ReprFail("undilling of bytestream failed - write manual converter")
 
     return repres
 
