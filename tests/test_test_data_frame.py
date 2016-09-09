@@ -125,7 +125,7 @@ df = {
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'The object you defined as <code>df</code> is not a pandas DataFrame.')
+        self.assertEqual(sct_payload['message'], '<code>df</code> is not a pandas DataFrame.')
 
 
     def test_Fail6(self):
@@ -186,7 +186,7 @@ df = pd.DataFrame({
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'You did not define column <code>d</code> in the pandas DataFrame, <code>df</code>.')
+        self.assertEqual(sct_payload['message'], 'There is no column <code>d</code> inside <code>df</code>.')
 
     def test_Fail10(self):
         self.data["DC_SCT"] = "test_data_frame('df', columns=['d'], undefined_cols_msg='test 4')"

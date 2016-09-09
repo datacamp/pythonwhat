@@ -1,35 +1,17 @@
 import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import EqualTest, EquivalentTest
+from pythonwhat.Test import EqualTest
 
 from pythonwhat import utils
 
-from pythonwhat.set_extra_env import set_extra_env
-from pythonwhat.set_context_vals import set_context_vals
-
-from contextlib import contextmanager
-
-import copy
-
-
-@contextmanager
-def capture_output():
-    import sys
-    from io import StringIO
-    oldout, olderr = sys.stdout, sys.stderr
-    out = [StringIO(), StringIO()]
-    sys.stdout, sys.stderr = out
-    yield out
-    sys.stdout, sys.stderr = oldout, olderr
-    out[0] = out[0].getvalue()
-    out[1] = out[1].getvalue()
-
+from pythonwhat.tasks import getOutputInProcess
 
 def test_expression_output(extra_env=None,
                            context_vals=None,
                            incorrect_msg=None,
                            eq_condition="equal",
+                           expr_code=None,
                            pre_code=None,
                            keep_objs_in_env=None):
     """Test output of expression.
@@ -51,9 +33,11 @@ def test_expression_output(extra_env=None,
         incorrect_msg (str): feedback message if the output of the expression in the solution doesn't match
           the one of the student. This feedback message will be expanded if it is used in the context of
           another test function, like test_if_else.
-        eq_condition (str): the condition which is checked on the eval of the group. Can be "equal" --
-          meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
-          can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
+        eq_condition (str): how objects are compared. Currently, only "equal" is supported,
+          meaning that the result in student and solution process should have exactly the same value.
+        expr_code (str): if this variable is not None, the expression in the student/solution code will not
+          be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
+          and the result will be compared.
         pre_code (str): the code in string form that should be executed before the expression is executed.
           This is the ideal place to set a random seed, for example.
         keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
@@ -86,43 +70,47 @@ def test_expression_output(extra_env=None,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_expression_output")
 
-    eq_map = {"equal": EqualTest, "equivalent": EquivalentTest}
+    eq_map = {"equal": EqualTest}
 
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
 
-    student_expr = state.student_tree
-    solution_expr = state.solution_tree
+    out_student = getOutputInProcess(tree = state.student_tree,
+                                     process = state.student_process,
+                                     extra_env = extra_env,
+                                     context = state.student_context,
+                                     context_vals = context_vals,
+                                     pre_code = pre_code,
+                                     expr_code = expr_code,
+                                     keep_objs_in_env = keep_objs_in_env)
 
-    student_env = utils.copy_env(state.student_env, keep_objs_in_env)
-    solution_env = utils.copy_env(state.solution_env, keep_objs_in_env)
+    out_solution = getOutputInProcess(tree = state.solution_tree,
+                                      process = state.solution_process,
+                                      extra_env = extra_env,
+                                      context = state.solution_context,
+                                      context_vals = context_vals,
+                                      pre_code = pre_code,
+                                      expr_code = expr_code,
+                                      keep_objs_in_env = keep_objs_in_env)
 
-    set_extra_env(student_env, solution_env, extra_env)
-    set_context_vals(student_env, solution_env, context_vals)
+    if out_solution is None:
+        raise ValueError("test_expression_output raised error in solution process")
 
-    try:
-        with capture_output() as out:
-            if pre_code is not None:
-                exec(pre_code)
-            exec(compile(student_expr, "<student>", "exec"), student_env)
-        out_student = out[0].strip()
-    except:
-        out_student = None
-
-    with capture_output() as out:
-        if pre_code is not None:
-            exec(pre_code)
-        exec(compile(solution_expr, "<solution>", "exec"), solution_env)
-
-    out_solution = out[0].strip()
+    out_student = out_student or "Error"
 
     if incorrect_msg is not None:
         feedback_msg = incorrect_msg
     else:
-        feedback_msg = "Unexpected expression output: expected `%s`, got `%s` with values" + \
-            ((" " + str(extra_env)) if extra_env else ".")
-        feedback_msg = feedback_msg % (utils.shorten_str(
-            str(out_solution)), utils.shorten_str(str(out_student)))
+        if expr_code is not None:
+            prestring = "When running %s e" % expr_code
+        else:
+            prestring = "E"
+        feedback_msg = "%sxpected output `%s`, instead got `%s`" % \
+            (prestring, utils.shorten_str(str(out_solution)), utils.shorten_str(str(out_student)))
+        if extra_env:
+            feedback_msg += "for values %s." % str(extra_env)
+        else:
+            feedback_msg += "."
 
     Reporter.active_reporter.do_test(
         eq_map[eq_condition](

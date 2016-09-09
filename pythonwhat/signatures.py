@@ -1,13 +1,14 @@
 import inspect
 from inspect import Parameter as param
 import pythonwhat
+from pythonwhat.tasks import getSignatureFromObjInProcess
 
 def sig_from_params(*args):
     return(inspect.Signature(list(args)))
 
 def sig_from_obj(obj_char):
-    env = pythonwhat.State.State.active_state.solution_env
-    return(inspect.signature(eval(obj_char, env)))
+  return getSignatureFromObjInProcess(obj_char,
+    pythonwhat.State.State.active_state.solution_process)
 
 def get_manual_sigs():
     manual_sigs = {
@@ -68,12 +69,12 @@ def get_manual_sigs():
         'set': [param('iterable', param.POSITIONAL_ONLY, default=None)],
 
         # Difference v3.4 vs v3.5!!!
-        'setattr': [param('object', param.POSITIONAL_ONLY),
+        'setattr': [param('obj', param.POSITIONAL_ONLY),
                     param('name', param.POSITIONAL_ONLY),
                     param('value', param.POSITIONAL_ONLY)],
         'sorted': [param('iterable', param.POSITIONAL_ONLY),
                    param('key', param.POSITIONAL_OR_KEYWORD, default=None),
-                   param('reverse', param.POSITIONAL_OR_KEYWORD, default=None)],
+                   param('reverse', param.POSITIONAL_OR_KEYWORD, default=False)],
         'str': [param('object', param.POSITIONAL_OR_KEYWORD)],
         'sum': [param('iterable', param.POSITIONAL_ONLY),
                 param('start', param.POSITIONAL_ONLY, default=0)],

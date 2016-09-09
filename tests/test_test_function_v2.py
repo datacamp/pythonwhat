@@ -100,7 +100,7 @@ test_function_v2('max', params = ['iterable'], signature = sig)
             "DC_PEC": "import numpy as np",
             "DC_SOLUTION": "arr = np.array([1, 2, 3])",
             "DC_CODE": "arr = np.array([1, 2, 3])",
-            "DC_SCT": "test_function_v2('numpy.array', params = ['object'])" 
+            "DC_SCT": "test_function_v2('numpy.array', params = ['object'])"
         }
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
@@ -110,7 +110,7 @@ test_function_v2('max', params = ['iterable'], signature = sig)
             "DC_PEC": "import numpy as np",
             "DC_SOLUTION": "arr = np.array([1, 2, 3])",
             "DC_CODE": "arr = np.array([1, 2, 123])",
-            "DC_SCT": "test_function_v2('numpy.array', params = ['object'])" 
+            "DC_SCT": "test_function_v2('numpy.array', params = ['object'])"
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
@@ -383,7 +383,7 @@ class TestArgsKeywords(unittest.TestCase):
 
     def test_fun1(self):
         self.data = {
-            "DC_PEC": '',
+            "DC_PEC": "from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'moby_dick.txt')",
             "DC_SOLUTION": "file = open('moby_dick.txt', 'r')\nfile.close()",
             "DC_CODE": "file = open('moby_dick.txt', 'r')\nfile.close()",
             "DC_SCT": 'test_function_v2("open", params=["file", "mode"])'
@@ -393,7 +393,7 @@ class TestArgsKeywords(unittest.TestCase):
 
     def test_fun2(self):
         self.data = {
-            "DC_PEC": '',
+            "DC_PEC": "from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'moby_dick.txt')",
             "DC_SOLUTION": "file = open('moby_dick.txt', 'r')\nfile.close()",
             "DC_CODE": "file = open('moby_dick.txt', mode='r')\nfile.close()",
             "DC_SCT": 'test_function_v2("open", params=["file", "mode"])'
@@ -403,7 +403,7 @@ class TestArgsKeywords(unittest.TestCase):
 
     def test_fun3(self):
         self.data = {
-            "DC_PEC": '',
+            "DC_PEC": "from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'moby_dick.txt')",
             "DC_SOLUTION": "file = open('moby_dick.txt', mode='r')\nfile.close()",
             "DC_CODE": "file = open('moby_dick.txt', mode='r')\nfile.close()",
             "DC_SCT": 'test_function_v2("open", params=["file", "mode"])'
@@ -413,7 +413,7 @@ class TestArgsKeywords(unittest.TestCase):
 
     def test_fun4(self):
         self.data = {
-            "DC_PEC": '',
+            "DC_PEC": "from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'moby_dick.txt')",
             "DC_SOLUTION": "file = open('moby_dick.txt', mode='r')\nfile.close()",
             "DC_CODE": "file = open('moby_dick.txt', 'r')\nfile.close()",
             "DC_SCT": 'test_function_v2("open", params=["file", "mode"])'
@@ -497,6 +497,7 @@ class TestArgsKeywords(unittest.TestCase):
              "DC_PEC": '''
 from urllib.request import urlretrieve
 from sqlalchemy import create_engine, MetaData, Table
+from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_1115/datasets/census.sqlite', 'census.sqlite')
 engine = create_engine('sqlite:///census.sqlite')
 metadata = MetaData()
 connection = engine.connect()
@@ -523,6 +524,7 @@ test_function_v2('connection.execute.fetchall', params = [])
              "DC_PEC": '''
 from urllib.request import urlretrieve
 from sqlalchemy import create_engine, MetaData, Table
+from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_1115/datasets/census.sqlite', 'census.sqlite')
 engine = create_engine('sqlite:///census.sqlite')
 metadata = MetaData()
 connection = engine.connect()

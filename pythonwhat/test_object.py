@@ -1,11 +1,12 @@
-from pythonwhat.Test import DefinedTest, EqualEnvironmentTest, EquivalentEnvironmentTest
+from pythonwhat.Test import DefinedProcessTest, EqualProcessTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
-
+from pythonwhat.tasks import isDefinedInProcess, getRepresentation, ReprFail
 
 def test_object(name,
                 eq_condition="equal",
+                eq_fun=None,
                 do_eval=True,
                 undefined_msg=None,
                 incorrect_msg=None):
@@ -16,9 +17,8 @@ def test_object(name,
 
     Args:
         name (str): the name of the object which value has to be checked.
-        eq_condition (str): the condition which is checked on the eval of the object. Can be "equal" --
-          meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
-          can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
+        eq_condition (str): how objects are compared. Currently, only "equal" is supported,
+          meaning that the object in student and solution process should have exactly the same value.
         do_eval (bool): if False, the object will only be checked for existence. Defaults to True.
         undefined_msg (str): feedback message when the object is not defined
         incorrect_msg (str): feedback message if the value of the object in the solution environment doesn't match
@@ -53,27 +53,31 @@ def test_object(name,
     if not incorrect_msg:
         incorrect_msg = "The contents of `%s` aren't correct." % name
 
-    eq_map = {"equal": EqualEnvironmentTest,
-              "equivalent": EquivalentEnvironmentTest}
-    student_env = state.student_env
-    solution_env = state.solution_env
+    eq_map = {"equal": EqualProcessTest}
+    student_process = state.student_process
+    solution_process = state.solution_process
 
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
 
-    if name not in solution_env:
+    if not isDefinedInProcess(name, solution_process):
         raise NameError("%r not in solution environment " % name)
 
-    rep.do_test(DefinedTest(name, student_env, Feedback(undefined_msg)))
+    rep.do_test(DefinedProcessTest(name, student_process, Feedback(undefined_msg)))
 
     if (rep.failed_test):
         return
 
     if do_eval:
         ass_node = get_assignment_node(student_obj_ass, name)
+
+        sol_obj = getRepresentation(name, solution_process)
+        if isinstance(sol_obj, ReprFail):
+            raise NameError(sol_obj.info)
+
         rep.do_test(eq_map[eq_condition](name,
-                                         student_env,
-                                         solution_env,
+                                         student_process,
+                                         sol_obj,
                                          Feedback(incorrect_msg, ass_node)))
 
 def get_assignment_node(student_obj_ass, name):

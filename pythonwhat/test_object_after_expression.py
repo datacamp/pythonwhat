@@ -1,16 +1,13 @@
 import ast
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedTest, EqualEnvironmentTest, EquivalentEnvironmentTest
+from pythonwhat.Test import EqualTest, Test
 
-from pythonwhat.set_extra_env import set_extra_env
-from pythonwhat.set_context_vals import set_context_vals
 from pythonwhat.test_object import get_assignment_node
 from pythonwhat.Feedback import Feedback
-
 from pythonwhat import utils
 
-import copy
+from pythonwhat.tasks import getObjectAfterExpressionInProcess
 
 
 def test_object_after_expression(name,
@@ -42,9 +39,8 @@ def test_object_after_expression(name,
         incorrect_msg (str): feedback message if the value of the object in the solution environment doesn't match
           the one in the student environment. This feedback message will be expanded if it is used in the context of
           another test function, like test_for_loop.
-        eq_condition (str): the condition which is checked on the eval of the object. Can be "equal" --
-          meaning that the operators have to evaluate to exactly the same value, or "equivalent" -- which
-          can be used when you expect an integer and the result can differ slightly. Defaults to "equal".
+        eq_condition (str): how objects are compared. Currently, only "equal" is supported,
+            meaning that the resulting objects in student and solution process should have exactly the same value.
         expr_code (str): if this variable is not None, the expression in the studeont/solution code will not
           be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
           and the result will be compared.
@@ -85,45 +81,44 @@ def test_object_after_expression(name,
     student_obj_ass = state.student_object_assignments
 
     if not undefined_msg:
-        undefined_msg = "Have you defined `%s`?" % name
+        undefined_msg = "Have you defined `%s` without errors?" % name
 
     if not incorrect_msg:
         incorrect_msg = "Are you sure you assigned the correct value to `%s`?" % name
 
-    eq_map = {"equal": EqualEnvironmentTest,
-              "equivalent": EquivalentEnvironmentTest}
+    eq_map = {"equal": EqualTest}
 
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
 
-    student_expr = state.student_tree
-    solution_expr = state.solution_tree
 
-    student_env = utils.copy_env(state.student_env, keep_objs_in_env)
-    solution_env = utils.copy_env(state.solution_env, keep_objs_in_env)
+    eval_student, str_student = getObjectAfterExpressionInProcess(tree = state.student_tree,
+                                                                  name = name,
+                                                                  process = state.student_process,
+                                                                  extra_env = extra_env,
+                                                                  context = state.student_context,
+                                                                  context_vals = context_vals,
+                                                                  pre_code = pre_code,
+                                                                  keep_objs_in_env = keep_objs_in_env)
 
-    set_extra_env(student_env, solution_env, extra_env)
-    set_context_vals(student_env, solution_env, context_vals)
+    eval_solution, str_solution = getObjectAfterExpressionInProcess(tree = state.solution_tree,
+                                                                    name = name,
+                                                                    process = state.solution_process,
+                                                                    extra_env = extra_env,
+                                                                    context = state.solution_context,
+                                                                    context_vals = context_vals,
+                                                                    pre_code = pre_code,
+                                                                    keep_objs_in_env = keep_objs_in_env)
 
-    try:
-        if pre_code is not None:
-            exec(pre_code, student_env)
-        exec(compile(student_expr, "<student>", "exec"), student_env)
-    except:
-        pass
+    if str_solution is None:
+        raise ValueError("Running the expression in the solution environment caused an error.")
 
-    if pre_code is not None:
-        exec(pre_code, solution_env)
-    exec(compile(solution_expr, "<solution>", "exec"), solution_env)
-
-    rep.do_test(DefinedTest(name, student_env, undefined_msg))
-    if (rep.failed_test):
+    if str_student == "undefined" or str_student is None:
+        rep.do_test(Test(undefined_msg))
         return
 
     ass_node = get_assignment_node(student_obj_ass, name)
-
-    rep.do_test(eq_map[eq_condition](name,
-                                     student_env,
-                                     solution_env,
+    rep.do_test(eq_map[eq_condition](eval_student,
+                                     eval_solution,
                                      Feedback(incorrect_msg, ass_node)))
 

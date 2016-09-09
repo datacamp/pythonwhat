@@ -40,14 +40,14 @@ test_lambda_function(1,
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 2: word * echo"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "In your definition of the first lambda function, the second argument should have <code>1</code> as default, instead got <code>2</code>.")        
+        self.assertEqual(sct_payload['message'], "In your definition of the first lambda function, the second argument should have <code>1</code> as default, instead got <code>2</code>.")
         helper.test_lines(self, sct_payload, 1, 1, 13, 46)
 
     def test_fail_5(self):
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 1: 2 * echo"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "In your definition of the first lambda function, could not find the correct pattern in your code.")        
+        self.assertEqual(sct_payload['message'], "In your definition of the first lambda function, could not find the correct pattern in your code.")
         helper.test_lines(self, sct_payload, 1, 1, 36, 43)
 
     def test_fail_6(self):
@@ -119,13 +119,13 @@ test_lambda_function(1,
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 2: word * echo"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "argdefaults")        
+        self.assertEqual(sct_payload['message'], "argdefaults")
 
     def test_fail_5(self):
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 1: 2 * echo"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Could not find the correct pattern in your code.")        
+        self.assertEqual(sct_payload['message'], "Could not find the correct pattern in your code.")
 
     def test_fail_6(self):
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 1: word * echo + 1"

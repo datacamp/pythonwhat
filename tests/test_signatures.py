@@ -4,7 +4,7 @@ import helper
 class TestBuiltInSignatures(unittest.TestCase):
 
     # https://docs.python.org/3.x/library/functions.html
-    # 
+    #
     # Builtins that haven't been implemented/tested yet
     # filter(), format(), frozenset(), iter(), map(), max(), min(),
     # memoryview(), next(), property(), range(), slice(), super(), zip()
@@ -58,7 +58,7 @@ x = Test(123)
     def test_dir(self):
         helper.test_builtin(self, "dir", params="'object'", arguments="[1,2,3]")
 
-    def test_divmod(self): 
+    def test_divmod(self):
         helper.test_builtin(self, "divmod", params="'x','y'", arguments="7,3")
 
     def test_enumerate(self):
@@ -104,17 +104,17 @@ x = Test(123)
 
     def test_hex(self):
         helper.test_builtin(self, "hex", params="'number'", arguments="123")
-        
-    def test_id(self): 
+
+    def test_id(self):
         helper.test_builtin(self, "id", params="'obj'", arguments="123")
 
     def test_int(self):
         helper.test_builtin(self, "int", params="'x','base'", arguments="'1001',2")
 
-    def test_isinstance(self): 
+    def test_isinstance(self):
         helper.test_builtin(self, "isinstance", params="'obj','class_or_tuple'", arguments="[1,2,3],list")
 
-    def test_issubclass(self): 
+    def test_issubclass(self):
         helper.test_builtin(self, "issubclass", params="'cls','class_or_tuple'", arguments="list,str")
 
     def test_len(self):
@@ -146,7 +146,7 @@ x = Test(123)
     def test_round(self):
         helper.test_builtin(self, "round", params = "'number','ndigits'", arguments="2.123123, 2")
 
-    def test_set(self): 
+    def test_set(self):
         helper.test_builtin(self, "set", params="", arguments="")
         helper.test_builtin(self, "set", params="'iterable'", arguments="[1,2,3,4]")
 
@@ -162,7 +162,7 @@ x = Test(123)
             ''',
             "DC_SOLUTION": "setattr(x,'a',4)",
             "DC_CODE": "setattr(x,'a',4)",
-            "DC_SCT": "test_function_v2('setattr', params=['object','name','value'], do_eval=False)"}
+            "DC_SCT": "test_function_v2('setattr', params=['obj','name','value'], do_eval=False)"}
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 

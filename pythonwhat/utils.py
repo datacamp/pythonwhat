@@ -27,7 +27,7 @@ def get_num(num):
     if num in nums:
         return(nums[num])
     else:
-        return(str(num))    
+        return(str(num))
 
 def copy_env(env, keep_objs=None):
     if keep_objs is None:
@@ -63,4 +63,8 @@ def check_str(x):
 
 def check_dict(x):
     assert isinstance(x, dict), "object isn't dict where dict expected"
+    return(x)
+
+def check_process(x):
+    assert x.__class__.__name__ == "WorkerProcess"
     return(x)

@@ -381,6 +381,7 @@ class ForParser(Parser):
             node.orelse))
 
 
+
 class FunctionDefParser(Parser):
     """Find function definitions
 
@@ -526,7 +527,6 @@ class DictCompParser(CompParser):
                 "iter": node.generators[0].iter,
                 "ifs": node.generators[0].ifs
             })
-
 
 
 class FunctionBodyTransformer(ast.NodeTransformer):

@@ -1,6 +1,5 @@
 from pythonwhat.State import State
-from pythonwhat.utils import check_str
-from pythonwhat.utils import check_dict
+from pythonwhat.utils import check_str, check_dict, check_process
 from pythonwhat.Reporter import Reporter
 
 # explicitly import all functions so that they can be used in SCT
@@ -14,7 +13,6 @@ from pythonwhat.test_import import test_import
 from pythonwhat.test_object import test_object
 from pythonwhat.test_correct import test_correct
 from pythonwhat.test_if_else import test_if_else
-from pythonwhat.set_extra_env import set_extra_env
 from pythonwhat.test_for_loop import test_for_loop
 from pythonwhat.test_function import test_function
 from pythonwhat.test_function import test_print
@@ -24,7 +22,6 @@ from pythonwhat.test_try_except import test_try_except
 from pythonwhat.test_data_frame import test_data_frame
 from pythonwhat.test_dictionary import test_dictionary
 from pythonwhat.test_while_loop import test_while_loop
-from pythonwhat.set_context_vals import set_context_vals
 from pythonwhat.test_student_typed import test_student_typed
 from pythonwhat.test_object_accessed import test_object_accessed
 from pythonwhat.test_output_contains import test_output_contains
@@ -37,13 +34,15 @@ from pythonwhat.test_object_after_expression import test_object_after_expression
 # utilities for signatures
 from inspect import Parameter as param
 from pythonwhat.signatures import sig_from_params, sig_from_obj
+from pythonwhat.State import set_converter
+
 
 def test_exercise(sct,
                   student_code,
                   solution_code,
                   pre_exercise_code,
-                  student_environment,
-                  solution_environment,
+                  student_process,
+                  solution_process,
                   raw_student_output,
                   ex_type,
                   error):
@@ -54,8 +53,8 @@ def test_exercise(sct,
             student_code (str): The code which is entered by the student.
             solution_code (str): The code which is in the solution.
             pre_exercise_code (str): The code which is executed pre exercise.
-            student_environment (dict): A dictionary representing the ending environment of the student's program.
-            solution_environment (dict): A dictionary representing the ending environment of the solution.
+            student_process (Process): Process in which the student code was executed.
+            solution_process (Process): Process in which the solution code was executed.
             raw_student_output (str): The output which is given by executing the student's program.
             ex_type (str): The type of the exercise.
             error (tuple): A tuple with some information on possible errors.
@@ -73,8 +72,8 @@ def test_exercise(sct,
         full_student_code = check_str(student_code),
         full_solution_code = check_str(solution_code),
         pre_exercise_code = check_str(pre_exercise_code),
-        student_env = check_dict(student_environment),
-        solution_env = check_dict(solution_environment),
+        student_process = check_process(student_process),
+        solution_process = check_process(solution_process),
         raw_student_output = check_str(raw_student_output))
 
     State.set_active_state(state)

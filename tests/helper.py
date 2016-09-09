@@ -2,15 +2,19 @@ from pythonbackend.Exercise import Exercise
 from pythonbackend import utils
 
 def get_sct_payload(output):
-	output = [out for out in output if out['type'] == 'sct']
-	if (len(output) > 0):
-		return(output[0]['payload'])
-	else:
-		return(None)
+    output = [out for out in output if out['type'] == 'sct']
+    if (len(output) > 0):
+        return(output[0]['payload'])
+    else:
+        print(output)
+        return(None)
 
 def run(data):
     exercise = Exercise(data)
-    exercise.runInit()
+    output = exercise.runInit()
+    if 'backend-error' in str(output):
+        print(output)
+        raise(ValueError("Backend error"))
     output = exercise.runSubmit(data)
     return(get_sct_payload(output))
 
@@ -27,7 +31,6 @@ def test_absent_lines(test, sct_payload):
     test.assertFalse('column_end' in sct_payload)
 
 def test_builtin(test, name, params, arguments):
-    # import pdb; pdb.set_trace()
     test.data = {
         "DC_PEC": "",
         "DC_SOLUTION": "%s(%s)" % (name, arguments),
@@ -36,3 +39,5 @@ def test_builtin(test, name, params, arguments):
     }
     sct_payload = run(test.data)
     test.assertTrue(sct_payload['correct'])
+
+

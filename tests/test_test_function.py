@@ -109,7 +109,7 @@ class TestFunctionImporting(unittest.TestCase):
 
     def setUp(self):
         self.data = {
-            "DC_PEC": '',
+            "DC_PEC": "from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'moby_dick.txt')",
             "DC_CODE": '''
 file = open('moby_dick.txt' , 'r') # 'r' is to read only.
 print(file.read())
@@ -128,15 +128,15 @@ print(file.closed)
 
     def test_Fail(self):
         self.data["DC_SCT"] = '''
-test_function("open", incorrect_msg = "Pass the correct arguments to `open()`" )
-file_read_msg = "Make sure to print out the contents of the file like this: `print(file.read())`."
-test_function("file.read", incorrect_msg = file_read_msg)
-test_function("print", 1, args = [], incorrect_msg = file_read_msg)
+#test_function("open", incorrect_msg = "Pass the correct arguments to `open()`" )
+#file_read_msg = "Make sure to print out the contents of the file like this: `print(file.read())`."
+#test_function("file.read", incorrect_msg = file_read_msg)
+#test_function("print", 1, args = [], incorrect_msg = file_read_msg)
 file_closed_msg = "Make sure to call `print()` the attribute `file.closed` twice, once before you closed the `file` and once after."
-test_function("print", 2, incorrect_msg = file_closed_msg)
-test_function("print", 3, incorrect_msg = file_closed_msg)
-test_expression_output(incorrect_msg = file_read_msg)
-test_function("file.close", not_called_msg = "Make sure to close the file, man!")
+#test_function("print", 2, incorrect_msg = file_closed_msg)
+#test_function("print", 3, incorrect_msg = file_closed_msg)
+test_expression_output(incorrect_msg = file_closed_msg)
+#test_function("file.close", not_called_msg = "Make sure to close the file, man!")
 success_msg("Good job!")
         '''
         sct_payload = helper.run(self.data)
@@ -149,13 +149,10 @@ class TestTestFunctionInWith(unittest.TestCase):
     def setUp(self):
         self.data = {
             "DC_PEC": '''
-# pec comes here
+from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/data.p', 'data.p')
             ''',
             "DC_CODE": '''
-# Import pickle package
 import pickle
-
-# Open pickle file and load data
 with open('data.p','rb') as file:
         d = pickle.load(file)
 print(d)
@@ -172,31 +169,21 @@ print(type(d))
 
     def test_Pass(self):
         self.data["DC_SCT"] = '''
-# Test: import pickle package
 import_msg = "Did you import `pickle` correctly?"
 test_import("pickle", same_as = True, not_imported_msg = import_msg, incorrect_as_msg = import_msg)
-
-# For testing statements inside with statement
 def test_with_body():
         test_object("d")
         test_function("pickle.load", do_eval = False)
-
-# Test: Context manager
 test_with(
         1,
         context_vals = True,
         context_tests = lambda: test_function("open"),
         body = test_with_body
 )
-
-# Test: print() statement
 test_function("print", index = 1)
-
-# Test: print() statement and call to type()
 type_msg = "Print out the type of `d` as follows: `print(type(d))`."
 test_function("type", index = 1, incorrect_msg = type_msg)
 test_function("print", index = 1, incorrect_msg = type_msg)
-
 success_msg("Awesome!")
         '''
         sct_payload = helper.run(self.data)
@@ -204,163 +191,52 @@ success_msg("Awesome!")
 
     def test_Fail(self):
         self.data["DC_CODE"] = '''
-# Import pickle package
 import pickle
-
-# Open pickle file and load data
 with open('data.p','rb') as file:
         d = pickle.load('something_else')
-
-# Print data
 print(d)
-
-# Print datatype
 print(type(d))
             '''
         self.data["DC_SCT"] = '''
-# Test: import pickle package
 import_msg = "Did you import `pickle` correctly?"
 test_import("pickle", same_as = True, not_imported_msg = import_msg, incorrect_as_msg = import_msg)
-
-# For testing statements inside with statement
 def test_with_body():
         test_function("pickle.load", do_eval = False)
         test_object("d")
-
-# Test: Context manager
 test_with(
         1,
         context_vals = True,
         context_tests = lambda: test_function("open"),
         body = test_with_body
 )
-
-# Test: print() statement
 test_function("print", index = 1)
-
-# Test: print() statement and call to type()
 type_msg = "Print out the type of `d` as follows: `print(type(d))`."
 test_function("type", index = 1, incorrect_msg = type_msg)
 test_function("print", index = 1, incorrect_msg = type_msg)
-
-success_msg("Awesome!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'Check the body of the first <code>with</code> statement. Did you call <code>pickle.load()</code> with the correct arguments? The first argument seems to be incorrect.')
 
-class TestTestFunctionAndTestCorrectInWith(unittest.TestCase):
-    def setUp(self):
-        self.data = {
-            "DC_PEC": '''
-# pec comes here
-            ''',
-            "DC_CODE": '''
-# Import package
-import scipy.io
-
-# Load MATLAB file: mat
-mat = scipy.io.loadmat('albeck_gene_expression.mat')
-
-# Print the datatype type that we have created
-print(type(mat))
-            ''',
-            "DC_SOLUTION": '''
-# Import package
-import scipy.io
-
-# Load MATLAB file: mat
-mat = scipy.io.loadmat('albeck_gene_expression.mat')
-
-# Print the datatype type that we have created
-print(type(mat))
-'''
-        }
-
-    def test_Pass(self):
-        self.data["DC_SCT"] = '''
-# Test: import scipy.io
-test_import("scipy.io", same_as = True)
-
-# Test: call to scipy.io.loadmat() and 'mat' variable
-test_correct(
-        lambda: test_object("mat"),
-        lambda: test_function("scipy.io.loadmat", do_eval = False)
-)
-
-# Test: print() statement and call to type()
-type_msg = "Print out the type of `mat` as follows: `print(type(mat))`."
-test_function("type", incorrect_msg = type_msg)
-test_function("print", incorrect_msg = type_msg)
-
-success_msg("Great job!")
-        '''
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_Fail(self):
-        self.data["DC_CODE"] = '''
-# Import package
-import scipy.io
-
-# Load MATLAB file: mat
-mat = scipy.io.loadmat('test')
-
-# Print the datatype type that we have created
-print(type(mat))
-            '''
-        self.data["DC_SCT"] = '''
-# Test: import scipy.io
-# test_import("scipy.io", same_as = True)
-
-# Test: call to scipy.io.loadmat() and 'mat' variable
-test_correct(
-        lambda: test_object("mat"),
-        lambda: test_function("scipy.io.loadmat", do_eval = False)
-)
-
-# Test: print() statement and call to type()
-type_msg = "Print out the type of `mat` as follows: `print(type(mat))`."
-test_function("type", incorrect_msg = type_msg)
-test_function("print", incorrect_msg = type_msg)
-
-success_msg("Great job!")
-        '''
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'Did you call <code>scipy.io.loadmat()</code> with the correct arguments? The first argument seems to be incorrect.')
-
 class TestTestFunctionAndTestCorrectWithoutWith(unittest.TestCase):
     def setUp(self):
         self.data = {
-            "DC_PEC": '''
-# pec comes here
-            ''',
+            "DC_PEC": "",
             "DC_CODE": '''
-# Import package
 import tweepy
-
-# Store OAuth authentication credentials in relevant variables
 access_token = "1092294848-aHN7DcRP9B4VMTQIhwqOYiB14YkW92fFO8k8EPy"
 access_token_secret = "X4dHmhPfaksHcQ7SCbmZa2oYBBVSD2g8uIHXsp5CTaksx"
 consumer_key = "nZ6EA0FxZ293SxGNg8g8aP0HM"
 consumer_secret = "fJGEodwe3KiKUnsYJC3VRndj7jevVvXbK2D5EiJ2nehafRgA6i"
-
-# Pass OAuth details to tweepy's OAuth handler
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
             ''',
             "DC_SOLUTION": '''
-# Import package
 import tweepy
-
-# Store OAuth authentication credentials in relevant variables
 access_token = "1092294848-aHN7DcRP9B4VMTQIhwqOYiB14YkW92fFO8k8EPy"
 access_token_secret = "X4dHmhPfaksHcQ7SCbmZa2oYBBVSD2g8uIHXsp5CTaksx"
 consumer_key = "nZ6EA0FxZ293SxGNg8g8aP0HM"
 consumer_secret = "fJGEodwe3KiKUnsYJC3VRndj7jevVvXbK2D5EiJ2nehafRgA6i"
-
-# Pass OAuth details to tweepy's OAuth handler
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 '''
@@ -511,7 +387,7 @@ test_function("print")
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>print()</code> with the correct arguments?", sct_payload['message'])
 
-        
+
     def test_custom(self):
         self.data["DC_SCT"] = '''
 test_function("pandas.DataFrame")
@@ -548,7 +424,7 @@ class TestLineNumbers(unittest.TestCase):
                      "DC_SCT": "test_function('round', index = 1)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Did you call <code>round()</code> with the correct arguments? The first argument seems to be incorrect. Expected <code>1.23456</code>, but got <code>1.34567</code>.")
+        self.assertIn("Did you call <code>round()</code> with the correct arguments? The first argument seems to be incorrect.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 7, 13)
 
     def test_line_numbers(self):
@@ -558,7 +434,7 @@ class TestLineNumbers(unittest.TestCase):
                      "DC_SCT": "test_function('round', index = 1)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Did you call <code>round()</code> with the correct arguments? Keyword <code>ndigits</code> seems to be incorrect. Expected <code>1</code>, but got <code>3</code>.")
+        self.assertIn("Did you call <code>round()</code> with the correct arguments? Keyword <code>ndigits</code> seems to be incorrect.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 26, 26)
 
 
@@ -716,7 +592,7 @@ test_function("print", index = 3)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 2, 2, 7, 10)
-        
+
     def test_multiple_6(self):
         self.data["DC_CODE"] = 'print("abc")\nprint(123)\nprint([1, 2, 3, 4])'
         sct_payload = helper.run(self.data)
@@ -724,103 +600,6 @@ test_function("print", index = 3)
         self.assertIn("Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 3, 3, 7, 18)
 
-
-class Test_ProblemsHugo(unittest.TestCase):
-
-    def test_problem_1(self):
-        self.data = {
-             "DC_PEC": '''
-from urllib.request import urlretrieve
-from sqlalchemy import create_engine, MetaData, Table
-engine = create_engine('sqlite:///census.sqlite')
-metadata = MetaData()
-connection = engine.connect()
-from sqlalchemy import select
-             ''',
-            "DC_SOLUTION": '''
-census = Table('census', metadata, autoload=True, autoload_with=engine)
-            ''',
-             "DC_CODE": '''
-census = Table('census', metadata, autoload=True, autoload_with=engine)
-            ''',
-            "DC_SCT": "test_function('sqlalchemy.Table', do_eval = False)"
-        }
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_problem_1b(self):
-        self.data = {
-             "DC_PEC": '''
-from urllib.request import urlretrieve
-from sqlalchemy import create_engine, MetaData, Table
-engine = create_engine('sqlite:///census.sqlite')
-metadata = MetaData()
-connection = engine.connect()
-from sqlalchemy import select
-census = Table('census', metadata, autoload=True, autoload_with=engine)
-stmt = select([census])
-             ''',
-            "DC_SOLUTION": '''
-x = connection.execute(stmt).fetchall()
-            ''',
-             "DC_CODE": '''
-x = connection.execute(stmt).fetchall()
-            ''',
-            "DC_SCT": '''
-test_function('connection.execute', args = [0], keywords = [], do_eval = False)
-test_function('connection.execute.fetchall', args = [], keywords = [])
-            '''
-        }
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_problem_2(self):
-        self.data = {
-             "DC_PEC": '',
-            "DC_SOLUTION": '''
-file = open('moby_dick.txt', mode='r')
-print(file.read())
-print(file.closed)
-file.close()
-print(file.closed)
-            ''',
-             "DC_CODE": '''
-file = open('moby_dick.txt', mode='rw')
-print(file.read())
-print(file.closed)
-file.close()
-print(file.closed)
-            ''',
-            "DC_SCT": '''
-test_function("open", args = [0], keywords = [], index=1, incorrect_msg = "first arg wrong!")
-test_function("open", args = [], keywords = ['mode'], index=1, incorrect_msg = 'second arg wrong!')
-'''
-        }
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "second arg wrong!")
-
-    def test_problem_3(self):
-        self.data = {
-             "DC_PEC": '',
-            "DC_SOLUTION": '''
-import numpy as np
-file = 'digits.csv'
-digits = np.loadtxt(file, delimiter=',')
-            ''',
-             "DC_CODE": '''
-import numpy as np
-file = 'digits.csv'
-digits = np.loadtxt(file, delimiter=';')
-            ''',
-            "DC_SCT": '''
-test_function("numpy.loadtxt", args = [0], keywords = [], index=1, incorrect_msg = 'first arg wrong!')
-test_function("numpy.loadtxt", args = [], keywords = ['delimiter'], index=1, incorrect_msg = 'second arg wrong!')
-'''
-        }
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "second arg wrong!")
 
 
 if __name__ == "__main__":

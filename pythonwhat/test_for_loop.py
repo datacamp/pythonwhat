@@ -65,8 +65,6 @@ def test_for_loop(index=1,
 
     index = index - 1
 
-    student_env, solution_env = state.student_env, state.solution_env
-
     state.extract_for_calls()
     student_fors = state.student_for_calls
     solution_fors = state.solution_for_calls
