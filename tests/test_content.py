@@ -278,7 +278,7 @@ test_correct(lambda: test_object('shout_spells'), diagnose)
 
 
 class TestToolbox7(unittest.TestCase):
-    def setUp(self):
+    def test_pass(self):
         self.data = {
             "DC_PEC": '''
 fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_1342/datasets/tweets.csv'
@@ -339,8 +339,42 @@ test_function("print")
 success_msg("Great work!")
             '''
         }
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
+
+class TestToolbox8(unittest.TestCase):
     def test_pass(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+# Define shout_echo
+def shout_echo(word1, echo=1):
+    echo_word = ''
+    shout_words = ''
+    try:
+        echo_word = word1 * echo
+        shout_words = echo_word + '!!!'
+    except:
+        print("word1 must be a string and echo must be an integer.")
+    return shout_words
+shout_echo("particle", echo="accelerator")
+            ''',
+            "DC_SCT": '''
+def inner_test():
+    def inner_inner_test():
+        test_object_after_expression("echo_word", extra_env={'word1' : 'hithere', 'echo': 2})
+    import collections
+    handlers = collections.OrderedDict()
+    handlers['all'] = lambda: test_function('print')
+    test_try_except(index = 1,body = inner_inner_test,handlers = handlers)
+test_function_definition("shout_echo", body=inner_test)
+test_function_v2("shout_echo",index=1,params=["word1", "echo"])
+test_function("shout_echo",index=1)
+success_msg("Great work!")
+            '''
+        }
         self.data["DC_CODE"] = self.data["DC_SOLUTION"]
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
