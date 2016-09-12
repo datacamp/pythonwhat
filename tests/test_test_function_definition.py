@@ -1,7 +1,6 @@
 import unittest
 import helper
 
-
 class TestFunctionDefinitionStepByStep(unittest.TestCase):
     def setUp(self):
         self.data = {
@@ -495,11 +494,11 @@ class TestFunctionDefinitionArgsAndKwargs(unittest.TestCase):
         self.data = {
             "DC_PEC": "",
             "DC_SOLUTION": '''
-def my_fun(x, *args, **kwargs):
+def my_fun(x, y = 4, z = ['a', 'b'], *args, **kwargs):
     print(x)
     print(args)
     print(kwargs)
-my_fun('test', 'a', 'b', y = 2, z = 3)
+my_fun('a', 'b', ['c', 'd'], 'e', 'f', r = 2, s = 3)
             ''',
             "DC_SCT": '''
 test_function_definition("my_fun")

@@ -393,12 +393,12 @@ class FunctionDefParser(Parser):
 
     def visit_FunctionDef(self, node):
         import pdb; pdb.set_trace();
-        args = [arg.arg for arg in node.args.args]
+        arguments = [arg.arg for arg in node.args.args]
         defaults = [FunctionDefParser.get_node_literal_value(lit) for lit in node.args.defaults]
         defaults = [None] * (len(args) - len(defaults)) + defaults
         self.defs[node.name] = {
             "fundef": node,
-            "args": [(arg, default) for arg, default in zip(args,defaults)],
+            "args": [(arg, default) for arg, default in zip(arguments,defaults)],
             "body": FunctionBodyTransformer().visit(ast.Module(node.body)),
         }
 
