@@ -276,6 +276,75 @@ test_correct(lambda: test_object('shout_spells'), diagnose)
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+
+class TestToolbox7(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '''
+fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_1342/datasets/tweets.csv'
+from urllib.request import urlretrieve
+urlretrieve(fn, 'tweets.csv')
+import pandas as pd
+tweets_df = pd.read_csv('tweets.csv')
+            ''',
+            "DC_SOLUTION": '''
+def count_entries(df, col_name):
+    langs_count = {}
+    col = df[col_name]
+    for entry in col:
+        if entry in langs_count.keys():
+            langs_count[entry] += 1
+        else:
+            langs_count[entry] = 1
+    return langs_count
+
+result = count_entries(tweets_df, 'lang')
+print(result)
+            ''',
+            "DC_SCT": '''
+
+def inner_test():
+    import pandas as pd
+    test_df = pd.DataFrame({'a': [0,1], 'lang':[2,2]})
+    test_object_after_expression("col", context_vals = [test_df, 'lang'])
+    def test_for_iter():
+        test_expression_result(extra_env = {'col': pd.Series([2, 2])})
+
+    def test_for_body():
+        test_object_after_expression("langs_count",
+                                     extra_env = {'langs_count': {"en": 1}},
+                                     context_vals = ['et'])
+        test_object_after_expression("langs_count",
+                                     extra_env = {'langs_count': {"en": 1}},
+                                     context_vals = ['en'])
+
+    test_for_loop(
+        index=1,
+        for_iter=test_for_iter,
+        body=test_for_body
+    )
+
+    test_object_after_expression("langs_count", context_vals = [test_df, 'lang'])
+
+import pandas as pd
+test_df = pd.DataFrame({'a': [0,1], 'lang':[2,2]})
+test_function_definition(
+    "count_entries", body = inner_test,
+    results=[[test_df, 'lang']],
+)
+test_function("count_entries")
+test_object("result")
+test_function("print")
+
+success_msg("Great work!")
+            '''
+        }
+
+    def test_pass(self):
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 class TestFunctionBase(unittest.TestCase):
 
     def test_pass(self):
