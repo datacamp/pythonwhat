@@ -276,6 +276,109 @@ test_correct(lambda: test_object('shout_spells'), diagnose)
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+
+class TestToolbox7(unittest.TestCase):
+    def test_pass(self):
+        self.data = {
+            "DC_PEC": '''
+fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_1342/datasets/tweets.csv'
+from urllib.request import urlretrieve
+urlretrieve(fn, 'tweets.csv')
+import pandas as pd
+tweets_df = pd.read_csv('tweets.csv')
+            ''',
+            "DC_SOLUTION": '''
+def count_entries(df, col_name):
+    langs_count = {}
+    col = df[col_name]
+    for entry in col:
+        if entry in langs_count.keys():
+            langs_count[entry] += 1
+        else:
+            langs_count[entry] = 1
+    return langs_count
+
+result = count_entries(tweets_df, 'lang')
+print(result)
+            ''',
+            "DC_SCT": '''
+
+def inner_test():
+    import pandas as pd
+    test_df = pd.DataFrame({'a': [0,1], 'lang':[2,2]})
+    test_object_after_expression("col", context_vals = [test_df, 'lang'])
+    def test_for_iter():
+        test_expression_result(extra_env = {'col': pd.Series([2, 2])})
+
+    def test_for_body():
+        test_object_after_expression("langs_count",
+                                     extra_env = {'langs_count': {"en": 1}},
+                                     context_vals = ['et'])
+        test_object_after_expression("langs_count",
+                                     extra_env = {'langs_count': {"en": 1}},
+                                     context_vals = ['en'])
+
+    test_for_loop(
+        index=1,
+        for_iter=test_for_iter,
+        body=test_for_body
+    )
+
+    test_object_after_expression("langs_count", context_vals = [test_df, 'lang'])
+
+import pandas as pd
+test_df = pd.DataFrame({'a': [0,1], 'lang':[2,2]})
+test_function_definition(
+    "count_entries", body = inner_test,
+    results=[[test_df, 'lang']],
+)
+test_function("count_entries")
+test_object("result")
+test_function("print")
+
+success_msg("Great work!")
+            '''
+        }
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+
+class TestToolbox8(unittest.TestCase):
+    def test_pass(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+# Define shout_echo
+def shout_echo(word1, echo=1):
+    echo_word = ''
+    shout_words = ''
+    try:
+        echo_word = word1 * echo
+        shout_words = echo_word + '!!!'
+    except:
+        print("word1 must be a string and echo must be an integer.")
+    return shout_words
+shout_echo("particle", echo="accelerator")
+            ''',
+            "DC_SCT": '''
+def inner_test():
+    def inner_inner_test():
+        test_object_after_expression("echo_word", extra_env={'word1' : 'hithere', 'echo': 2})
+    import collections
+    handlers = collections.OrderedDict()
+    handlers['all'] = lambda: test_function('print')
+    test_try_except(index = 1,body = inner_inner_test,handlers = handlers)
+test_function_definition("shout_echo", body=inner_test)
+test_function_v2("shout_echo",index=1,params=["word1", "echo"])
+test_function("shout_echo",index=1)
+success_msg("Great work!")
+            '''
+        }
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 class TestFunctionBase(unittest.TestCase):
 
     def test_pass(self):

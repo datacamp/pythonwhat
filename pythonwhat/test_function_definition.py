@@ -45,13 +45,13 @@ def test_function_definition(name,
             definition. It should be passed as a lambda expression or a function. The functions that are
             ran should be other pythonwhat test functions, and they will be tested specifically on only the
             body of the for loop. Defaults to None.
-        results (list(tuple)): a list of tuples representing arguments that should be passed to the defined
+        results (list(list)): a list of lists representing arguments that should be passed to the defined
             function. These arguments are passed to the function in the student environment and the solution
             environment, the results (what's returned) are compared.
-        outputs (list(tuple)): a list of tuples representing arguments that should be passed to the defined
+        outputs (list(list)): a list of lists representing arguments that should be passed to the defined
             function. These arguments are passed to the function in the student environment and the solution
             environment, the outpus are compared.
-        errors (list(tupe)): a list of lists representing arguments that should be passed to the defined
+        errors (list(list)): a list of lists representing arguments that should be passed to the defined
             function. These arguments are passed to the function in the student environment and the solution
             environment, the errors they generate are compared.
         not_called_msg (str): message if the function is not defined.

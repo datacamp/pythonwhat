@@ -532,7 +532,7 @@ class DictCompParser(CompParser):
 class FunctionBodyTransformer(ast.NodeTransformer):
     # TODO this does not automatically contain line_end information!
     def visit_Nonlocal(self, node):
-        new_node = ast.copy_location(Global(names = node.names), node)
+        new_node = ast.copy_location(ast.Global(names = node.names), node)
         return FunctionBodyTransformer.decorate(new_node, node)
 
     def visit_Return(self, node):

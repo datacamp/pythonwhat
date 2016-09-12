@@ -489,6 +489,36 @@ def shout(word):
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("In your definition of <code>shout()</code>, have you defined <code>shout_word</code> without errors?", sct_payload['message'])
 
+class TestFunctionDefinitionNonLocal(unittest.TestCase):
+    def test_pass(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+def echo_shout(word):
+    echo_word = word*2
+    print(echo_word)
+    def shout():
+        nonlocal echo_word
+        echo_word = echo_word + '!!!'
+    shout()
+    print(echo_word)
+echo_shout('hello')
+            ''',
+            "DC_SCT": '''
+def inner_test():
+    test_object_after_expression("echo_word", context_vals=["hello"])
+    test_function_definition("shout")
+    test_function("shout")
+    test_function("print", args=[], index=1)
+    test_function("print", args=[], index=2)
+test_function_definition("echo_shout", body=inner_test)
+test_function("echo_shout")
+            '''
+        }
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 class TestFunctionDefinitionArgsAndKwargs(unittest.TestCase):
     def setUp(self):
         self.data = {
