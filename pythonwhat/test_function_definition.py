@@ -17,6 +17,7 @@ def test_function_definition(name,
                              errors=None,
                              not_called_msg=None,
                              nb_args_msg=None,
+                             other_args_msg=None,
                              arg_names_msg=None,
                              arg_defaults_msg=None,
                              wrong_result_msg=None,
@@ -113,16 +114,14 @@ def test_function_definition(name,
         return
     student_def = student_defs[name]
 
-    args_student=student_def['args']['args']
-    args_solution=solution_def['args']['args']
     fun_def = student_def['fundef']
     fun_name = ("`%s()`" % name)
 
     test_args(rep=rep,
               arg_names=arg_names,
               arg_defaults=arg_defaults,
-              args_student=args_student,
-              args_solution=args_solution,
+              args_student=student_def['args']['args'],
+              args_solution=solution_def['args']['args'],
               fun_def=fun_def,
               nb_args_msg=nb_args_msg,
               arg_names_msg=arg_names_msg,
@@ -130,6 +129,15 @@ def test_function_definition(name,
               student_process=state.student_process,
               solution_process=state.solution_process,
               name=fun_name)
+
+    test_other_args(rep = rep,
+                    arg_names=arg_names,
+                    args_student=student_def['args'],
+                    args_solution=solution_def['args'],
+                    fun_def=fun_def,
+                    other_args_msg=other_args_msg,
+                    name=fun_name)
+
     if rep.failed_test:
         return
 
@@ -138,8 +146,8 @@ def test_function_definition(name,
               body=body,
               subtree_student=student_def['body'],
               subtree_solution=solution_def['body'],
-              args_student=args_student,
-              args_solution=args_solution,
+              args_student=student_def['args'],
+              args_solution=solution_def['args'],
               name=fun_name,
               expand_message=expand_message)
 
@@ -150,6 +158,7 @@ def test_function_definition(name,
         for el in results:
             el = fix_format(el)
             call_str = name + stringify(el)
+
             eval_solution, str_solution = getFunctionCallResultInProcess(process = state.solution_process,
                                                                          fun_name = name,
                                                                          arguments = el)
@@ -202,8 +211,8 @@ def test_function_definition(name,
                 return
 
             c_wrong_output_msg = wrong_output_msg or \
-                ("Calling `%s` should output `%s`, instead got `%s`." %
-                    (call_str, output_solution, output_student))
+                ("Calling `%s` should output `%s`, instead got %s." %
+                    (call_str, output_solution, "no output" if len(output_student) == 0 else "`%s`" % output_student))
             rep.do_test(EqualTest(output_solution, output_student, c_wrong_output_msg))
             if rep.failed_test:
                 return
@@ -235,11 +244,19 @@ def test_function_definition(name,
                 return
 
 
-def stringify(args):
-    if len(args) == 0:
-        return '()'
+def stringify(arguments):
+    vararg = str(arguments['args'])[1:-1]
+    kwarg = ', '.join(['%s = %s' % (key, value) for key, value in arguments['kwargs'].items()])
+    if len(vararg) == 0:
+        if len(kwarg) == 0:
+            return "()"
+        else:
+            return "(" + kwarg + ")"
     else :
-        return "(" + str(args)[1:-1] + ")"
+        if len(kwarg) == 0:
+            return "(" + vararg + ")"
+        else :
+            return "(" + ", ".join([vararg, kwarg]) + ")"
 
 
 def fix_format(arguments):
@@ -247,13 +264,18 @@ def fix_format(arguments):
         arguments = (arguments, )
     if isinstance(arguments, tuple):
         arguments = list(arguments)
+
+    if isinstance(arguments, list):
+        arguments = {'args': arguments, 'kwargs': {}}
+
+    if not isinstance(arguments, dict) or 'args' not in arguments or 'kwargs' not in arguments:
+        raise ValueError("Wrong format of arguments in 'results', 'outputs' or 'errors'; either a list, or a dictionary with names args (a list) and kwargs (a dict)")
+
     return(arguments)
 
 def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
               fun_def, nb_args_msg, arg_names_msg, arg_defaults_msg,
               student_process, solution_process, name):
-
-    #import pdb; pdb.set_trace();
 
     if arg_names or arg_defaults:
         nb_args_solution = len(args_solution)
@@ -282,9 +304,9 @@ def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
 
                 if arg_defaults_msg is None:
                     if arg_default_solution is None:
-                        c_arg_defaults_msg = "In your definition of %s, the %s argument should have no default." % (name, get_ord(i+1))
+                        c_arg_defaults_msg = "In your definition of %s, the argument `%s` should have no default." % (name, arg_name_student)
                     else :
-                        c_arg_defaults_msg = "In your definition of %s, the %s argument does not have the correct default." % (name, get_ord(i+1))
+                        c_arg_defaults_msg = "In your definition of %s, the argument `%s` does not have the correct default." % (name, arg_name_student)
                 else :
                     c_arg_defaults_msg = arg_defaults_msg
 
@@ -312,6 +334,17 @@ def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
                 if rep.failed_test:
                     return
 
+def test_other_args(rep, arg_names, args_student, args_solution, fun_def, other_args_msg, name):
+    if arg_names:
+        patt = "In your definition of %s, have you specified an argument to take a `*` argument and named it `%s`?"
+        if args_solution['vararg'] is not None:
+            c_other_args_msg = other_args_msg or (patt % (name, args_solution['vararg']))
+            rep.do_test(EqualTest(args_solution['vararg'], args_student['vararg'], Feedback(c_other_args_msg, fun_def)))
+        patt = "In your definition of %s, have you specified an argument to take a `**` argument and named it `%s`?"
+        if args_solution['kwarg'] is not None:
+            c_other_args_msg = other_args_msg or (patt % (name, args_solution['kwarg']))
+            rep.do_test(EqualTest(args_solution['kwarg'], args_student['kwarg'], Feedback(c_other_args_msg, fun_def)))
+
 def test_body(rep, state, body,
               subtree_student, subtree_solution,
               args_student, args_solution,
@@ -320,8 +353,18 @@ def test_body(rep, state, body,
         if rep.failed_test:
             return
         child = state.to_child_state(subtree_student, subtree_solution)
-        child.solution_context = [arg[0] for arg in args_solution]
-        child.student_context = [arg[0] for arg in args_student]
+        child.solution_context = [arg[0] for arg in args_solution['args']]
+        if args_solution['vararg'] is not None:
+            child.solution_context += [args_solution['vararg']]
+        if args_solution['kwarg'] is not None:
+            child.solution_context += [args_solution['kwarg']]
+
+        child.student_context = [arg[0] for arg in args_student['args']]
+        if args_student['vararg'] is not None:
+            child.student_context += [args_student['vararg']]
+        if args_student['kwarg'] is not None:
+            child.student_context += [args_student['kwarg']]
+
         body()
         child.to_parent_state()
         if rep.failed_test:

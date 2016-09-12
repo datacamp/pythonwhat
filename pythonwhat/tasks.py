@@ -425,7 +425,7 @@ class TaskGetFunctionCallResult(object):
 
     def __call__(self, shell):
         try:
-            get_env(shell.user_ns)[self.name] = get_env(shell.user_ns)[self.fun_name](*self.arguments)
+            get_env(shell.user_ns)[self.name] = get_env(shell.user_ns)[self.fun_name](*self.arguments['args'], **self.arguments['kwargs'])
             return str(get_env(shell.user_ns)[self.name])
         except:
             return None
@@ -447,7 +447,7 @@ class TaskGetFunctionCallOutput(object):
     def __call__(self, shell):
         try:
             with capture_output() as out:
-                get_env(shell.user_ns)[self.fun_name](*self.arguments)
+                get_env(shell.user_ns)[self.fun_name](*self.arguments['args'], **self.arguments['kwargs'])
             return out[0].strip()
         except:
             return None
@@ -462,7 +462,7 @@ class TaskGetFunctionCallError(object):
 
     def __call__(self, shell):
         try:
-            get_env(shell.user_ns)[self.fun_name](*self.arguments)
+            get_env(shell.user_ns)[self.fun_name](*self.arguments['args'], **self.arguments['kwargs'])
         except Exception as e:
             return e
         else:

@@ -40,8 +40,8 @@ test_lambda_function(1,
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 2: word * echo"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "In your definition of the first lambda function, the second argument should have <code>1</code> as default, instead got <code>2</code>.")
-        helper.test_lines(self, sct_payload, 1, 1, 13, 46)
+        self.assertEqual(sct_payload['message'], "In your definition of the first lambda function, the argument <code>echo</code> does not have the correct default.")
+        helper.test_lines(self, sct_payload, 1, 1, 33, 33)
 
     def test_fail_5(self):
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 1: 2 * echo"

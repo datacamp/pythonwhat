@@ -193,7 +193,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Calling <code>shout('help', 'fire')</code> should output <code>helpfire</code>, instead got ``.")
+        self.assertEqual(sct_payload['message'], "Calling <code>shout('help', 'fire')</code> should output <code>helpfire</code>, instead got no output.")
 
 class TestExercise5(unittest.TestCase):
 
@@ -271,7 +271,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Calling <code>shout('help', 'fire')</code> should output <code>helpfire</code>, instead got ``.")
+        self.assertEqual(sct_payload['message'], "Calling <code>shout('help', 'fire')</code> should output <code>helpfire</code>, instead got no output.")
 
 
 class TestExercise7(unittest.TestCase):
@@ -311,7 +311,7 @@ def to_decimal(number, base = 3):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'In your definition of <code>to_decimal()</code>, the second argument does not have the correct default.')
+        self.assertEqual(sct_payload['message'], 'In your definition of <code>to_decimal()</code>, the argument <code>base</code> does not have the correct default.')
         helper.test_lines(self, sct_payload, 2, 2, 31, 31)
 
     def test_Fail2(self):
@@ -519,26 +519,127 @@ test_function("echo_shout")
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-class TestFunctionDefinitionArgsAndKwargs(unittest.TestCase):
+class TestFunctionDefinitionArgs(unittest.TestCase):
     def setUp(self):
         self.data = {
             "DC_PEC": "",
             "DC_SOLUTION": '''
 def my_fun(x, y = 4, z = ['a', 'b'], *args, **kwargs):
-    print(x)
-    #print(args)
-    #print(kwargs)
-
-my_fun('a', 'b', ['c', 'd'], 'e', 'f', r = 2, s = 3)
+    k = len(args)
+    l = len(kwargs)
+    print("hello mister")
+    return k + l
             ''',
             "DC_SCT": '''
-test_function_definition("my_fun")
+def inner_test():
+    context = ['r', 's', ['c', 'd'], ['t', 'u'], {'a': 2, 'b': 3, 'd':4}]
+    test_object_after_expression('k', context_vals = context)
+    test_object_after_expression('l', context_vals = context)
+test_function_definition("my_fun", body = inner_test,
+        results = [{'args': ['r', 's', ['c', 'd'], 't', 'u', 'v'], 'kwargs': {'a': 2, 'b': 3, 'd': 4}}],
+        outputs = [{'args': ['r', 's', ['c', 'd'], 't', 'u', 'v'], 'kwargs': {'a': 2, 'b': 3, 'd': 4}}])
             '''}
+
+    def test_fail_1(self):
+        self.data["DC_CODE"] = '''
+def my_fun(x):
+    print(x)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("You should define <code>my_fun()</code> with 3 arguments, instead got 1.", sct_payload['message'])
+
+    def test_fail_2(self):
+        self.data["DC_CODE"] = '''
+def my_fun(x, y):
+    print(x)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("You should define <code>my_fun()</code> with 3 arguments, instead got 2.", sct_payload['message'])
+
+    def test_fail_2(self):
+        self.data["DC_CODE"] = '''
+def my_fun(x, y = 3):
+    print(x)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("You should define <code>my_fun()</code> with 3 arguments, instead got 2.", sct_payload['message'])
+
+    def test_fail_3(self):
+        self.data["DC_CODE"] = '''
+def my_fun(x, y = 4):
+    print(x)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("You should define <code>my_fun()</code> with 3 arguments, instead got 2.", sct_payload['message'])
+
+    def test_fail_4(self):
+        self.data["DC_CODE"] = '''
+def my_fun(x, y = 4, z = ['a', 'c']):
+    print(x)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("In your definition of <code>my_fun()</code>, the argument <code>z</code> does not have the correct default.", sct_payload['message'])
+
+    def test_fail_5(self):
+        self.data["DC_CODE"] = '''
+def my_fun(x, y = 4, z = ['a', 'b']):
+    print(x)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("In your definition of <code>my_fun()</code>, have you specified an argument to take a <code>*</code> argument and named it <code>args</code>?", sct_payload['message'])
+
+    def test_fail_6(self):
+        self.data["DC_CODE"] = '''
+def my_fun(x, y = 4, z = ['a', 'b'], *args):
+    print(x)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("In your definition of <code>my_fun()</code>, have you specified an argument to take a <code>**</code> argument and named it <code>kwargs</code>?", sct_payload['message'])
+
+    def test_fail_7(self):
+        self.data["DC_CODE"] = '''
+def my_fun(x, y = 4, z = ['a', 'b'], *args, **kwargs):
+    print(x)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("In your definition of <code>my_fun()</code>, have you defined <code>k</code> without errors?", sct_payload['message'])
+
+    def test_fail_8(self):
+        self.data["DC_CODE"] = '''
+def my_fun(x, y = 4, z = ['a', 'b'], *args, **kwargs):
+    k = len(kwargs)
+    l = len(args)
+    return k + l
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("In your definition of <code>my_fun()</code>, are you sure you assigned the correct value to <code>k</code>?", sct_payload['message'])
+
+    def test_fail_9(self):
+        self.data["DC_CODE"] = '''
+def my_fun(x, y = 4, z = ['a', 'b'], *args, **kwargs):
+    k = len(args)
+    l = len(kwargs)
+    return k + l
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        # in two pieces because order of dict not fixed
+        self.assertIn("Calling <code>my_fun('r', 's', ['c', 'd'], 't', 'u', 'v'", sct_payload['message'])
+        self.assertIn(")</code> should output <code>hello mister</code>, instead got no output.", sct_payload['message'])
 
     def test_pass(self):
         self.data["DC_CODE"] = self.data["DC_SOLUTION"]
-        #sct_payload = helper.run(self.data)
-        #self.assertTrue(sct_payload['correct'])
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
 if __name__ == "__main__":
     unittest.main()

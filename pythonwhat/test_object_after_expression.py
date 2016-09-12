@@ -91,7 +91,6 @@ def test_object_after_expression(name,
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
 
-
     eval_student, str_student = getObjectAfterExpressionInProcess(tree = state.student_tree,
                                                                   name = name,
                                                                   process = state.student_process,

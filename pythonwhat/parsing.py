@@ -459,14 +459,15 @@ class LambdaFunctionParser(Parser):
         self.visit_each(node.finalbody)
 
     def visit_Lambda(self, node):
-        args = [arg.arg for arg in node.args.args]
-        defaults = [FunctionDefParser.get_node_literal_value(lit) for lit in node.args.defaults]
-        defaults = [None] * (len(args) - len(defaults)) + defaults
+        normal_args = FunctionDefParser.get_arg_tuples(node.args.args, node.args.defaults)
+        kwonlyargs = FunctionDefParser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
+        vararg = FunctionDefParser.get_arg(node.args.vararg)
+        kwarg = FunctionDefParser.get_arg(node.args.kwarg)
         self.funs.append({
-                "fun": node,
-                "args": [(arg, default) for arg, default in zip(args,defaults)],
-                "body": node.body
-            })
+            "fun": node,
+            "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
+            "body": node.body
+        })
 
 
 class CompParser(Parser):
