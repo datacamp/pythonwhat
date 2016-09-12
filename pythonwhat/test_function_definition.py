@@ -5,7 +5,7 @@ from pythonwhat.Test import DefinedCollTest, EqualTest, Test, InstanceTest
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
 from pythonwhat.utils import get_ord
-from pythonwhat.tasks import getFunctionCallResultInProcess, getFunctionCallOutputInProcess, getFunctionCallErrorInProcess, ReprFail
+from pythonwhat.tasks import getTreeResultInProcess, getFunctionCallResultInProcess, getFunctionCallOutputInProcess, getFunctionCallErrorInProcess, ReprFail
 
 
 def test_function_definition(name,
@@ -100,8 +100,6 @@ def test_function_definition(name,
     solution_defs = state.solution_function_defs
     student_defs = state.student_function_defs
 
-    import pdb; pdb.set_trace()
-
     try:
         solution_def = solution_defs[name]
     except KeyError:
@@ -115,8 +113,8 @@ def test_function_definition(name,
         return
     student_def = student_defs[name]
 
-    args_student=student_def['args']
-    args_solution=solution_def['args']
+    args_student=student_def['args']['args']
+    args_solution=solution_def['args']['args']
     fun_def = student_def['fundef']
     fun_name = ("`%s()`" % name)
 
@@ -129,6 +127,8 @@ def test_function_definition(name,
               nb_args_msg=nb_args_msg,
               arg_names_msg=arg_names_msg,
               arg_defaults_msg=arg_defaults_msg,
+              student_process=state.student_process,
+              solution_process=state.solution_process,
               name=fun_name)
     if rep.failed_test:
         return
@@ -250,7 +250,10 @@ def fix_format(arguments):
     return(arguments)
 
 def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
-              fun_def, nb_args_msg, arg_names_msg, arg_defaults_msg, name):
+              fun_def, nb_args_msg, arg_names_msg, arg_defaults_msg,
+              student_process, solution_process, name):
+
+    #import pdb; pdb.set_trace();
 
     if arg_names or arg_defaults:
         nb_args_solution = len(args_solution)
@@ -274,12 +277,38 @@ def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
                     EqualTest(arg_name_solution, arg_name_student, Feedback(c_arg_names_msg, fun_def)))
                 if rep.failed_test:
                     return
+
             if arg_defaults:
-                c_arg_defaults_msg = arg_defaults_msg or \
-                    ("In your definition of %s, the %s argument should have `%s` as default, instead got `%s`." %
-                        (name, get_ord(i+1), arg_default_solution, arg_default_student))
-                rep.do_test(
-                    EqualTest(arg_default_solution, arg_default_student, Feedback(c_arg_defaults_msg, fun_def)))
+
+                if arg_defaults_msg is None:
+                    if arg_default_solution is None:
+                        c_arg_defaults_msg = "In your definition of %s, the %s argument should have no default." % (name, get_ord(i+1))
+                    else :
+                        c_arg_defaults_msg = "In your definition of %s, the %s argument does not have the correct default." % (name, get_ord(i+1))
+                else :
+                    c_arg_defaults_msg = arg_defaults_msg
+
+                if arg_default_solution is None:
+                    if arg_default_student is not None:
+                        rep.do_test(Test(Feedback(c_arg_defaults_msg, arg_default_student)))
+                        return
+                else:
+                    if arg_default_student is None:
+                        rep.do_test(Test(Feedback(c_arg_defaults_msg, fun_def)))
+                        return
+                    else:
+                        eval_solution, str_solution = getTreeResultInProcess(tree = arg_default_solution, process = solution_process)
+                        if str_solution is None:
+                            raise ValueError("Evaluating a default argument in the solution environment raised an error")
+                        if isinstance(eval_solution, ReprFail):
+                            raise ValueError("Couldn't figure out the value of a default argument: " + eval_solution.info)
+
+                        eval_student, str_student = getTreeResultInProcess(tree = arg_default_student, process = student_process)
+                        if str_student is None:
+                            rep.do_test(Test(Feedback(c_arg_defaults_msg, arg_default_student)))
+                        else :
+                            rep.do_test(EqualTest(eval_student, eval_solution, Feedback(c_arg_defaults_msg, arg_default_student)))
+
                 if rep.failed_test:
                     return
 

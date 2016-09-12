@@ -392,21 +392,26 @@ class FunctionDefParser(Parser):
         self.defs = {}
 
     def visit_FunctionDef(self, node):
-        import pdb; pdb.set_trace();
-        arguments = [arg.arg for arg in node.args.args]
-        defaults = [FunctionDefParser.get_node_literal_value(lit) for lit in node.args.defaults]
-        defaults = [None] * (len(args) - len(defaults)) + defaults
+        normal_args = FunctionDefParser.get_arg_tuples(node.args.args, node.args.defaults)
+        kwonlyargs = FunctionDefParser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
+        vararg = FunctionDefParser.get_arg(node.args.vararg)
+        kwarg = FunctionDefParser.get_arg(node.args.kwarg)
         self.defs[node.name] = {
             "fundef": node,
-            "args": [(arg, default) for arg, default in zip(arguments,defaults)],
+            "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
             "body": FunctionBodyTransformer().visit(ast.Module(node.body)),
         }
 
-    def get_node_literal_value(node):
-        if isinstance(node, ast.Num):
-            return node.n
-        if isinstance(node, ast.Str) or isinstance(node, ast.Bytes):
-            return node.s
+    def get_arg(el):
+        if el is None:
+            return None
+        else :
+            return el.arg
+
+    def get_arg_tuples(arguments, defaults):
+        arguments = [arg.arg for arg in arguments]
+        defaults = [None] * (len(arguments) - len(defaults)) + defaults
+        return [(arg, default) for arg, default in zip(arguments,defaults)]
 
 class LambdaFunctionParser(Parser):
     """Find lambda functions
