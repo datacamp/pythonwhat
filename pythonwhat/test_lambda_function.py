@@ -82,8 +82,6 @@ def test_lambda_function(index,
 
     student_lambda = student_lambdas[index - 1]
 
-    args_student = student_lambda['args']
-    args_solution = solution_lambda['args']
     student_fun = student_lambda['fun']
     solution_fun = solution_lambda['fun']
 
@@ -91,12 +89,14 @@ def test_lambda_function(index,
     test_args(rep=rep,
               arg_names=arg_names,
               arg_defaults=arg_defaults,
-              args_student=args_student,
-              args_solution=args_solution,
+              args_student=student_lambda['args']['args'],
+              args_solution=solution_lambda['args']['args'],
               fun_def=student_fun,
               nb_args_msg=nb_args_msg,
               arg_names_msg=arg_names_msg,
               arg_defaults_msg=arg_defaults_msg,
+              student_process=state.student_process,
+              solution_process=state.solution_process,
               name=fun_name)
 
     if rep.failed_test:
@@ -106,10 +106,10 @@ def test_lambda_function(index,
     test_body(rep=rep,
               state=state,
               body=body,
-              subtree_student=ast.Module([student_lambda['body']]),
-              subtree_solution=ast.Module([solution_lambda['body']]),
-              args_student=args_student,
-              args_solution=args_solution,
+              subtree_student=student_lambda['body'],
+              subtree_solution=solution_lambda['body'],
+              args_student=student_lambda['args'],
+              args_solution=solution_lambda['args'],
               name=fun_name,
               expand_message=expand_message)
 

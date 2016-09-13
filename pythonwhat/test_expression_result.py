@@ -12,7 +12,8 @@ def test_expression_result(extra_env=None,
                            eq_condition="equal",
                            expr_code=None,
                            pre_code=None,
-                           keep_objs_in_env=None):
+                           keep_objs_in_env=None,
+                           error_msg=None):
     """Test result of expression.
 
     The code of the student is ran in the active state and the result of the evaluation is
@@ -42,6 +43,7 @@ def test_expression_result(extra_env=None,
         keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
           the expression is evaluated. All primitive types are copied automatically, other objects have to
           be passed explicitely.
+        error_msg (str): Message to override the default error message that is thrown if the expression resulted in an error.
 
     Examples:
         Student code
@@ -102,11 +104,11 @@ def test_expression_result(extra_env=None,
 
 
     if str_student is None:
-        rep.do_test(Test("Running an expression in the student process caused an error"))
+        rep.do_test(Test(error_msg or "Running an expression in the student process caused an error"))
         return
 
     if eval_student is None:
-        rep.do_test(Test("Running an expression in the student process caused an error"))
+        rep.do_test(Test(error_msg or "Running an expression in the student process caused an error"))
         return
 
     if incorrect_msg is not None:

@@ -67,6 +67,19 @@ class Parser(ast.NodeVisitor):
         else:
             return []
 
+    @staticmethod
+    def get_arg(el):
+        if el is None:
+            return None
+        else :
+            return el.arg
+
+    @staticmethod
+    def get_arg_tuples(arguments, defaults):
+        arguments = [arg.arg for arg in arguments]
+        defaults = [None] * (len(arguments) - len(defaults)) + defaults
+        return [(arg, default) for arg, default in zip(arguments,defaults)]
+
 class OperatorParser(Parser):
     """Find operations.
 
@@ -392,20 +405,15 @@ class FunctionDefParser(Parser):
         self.defs = {}
 
     def visit_FunctionDef(self, node):
-        args = [arg.arg for arg in node.args.args]
-        defaults = [FunctionDefParser.get_node_literal_value(lit) for lit in node.args.defaults]
-        defaults = [None] * (len(args) - len(defaults)) + defaults
+        normal_args = Parser.get_arg_tuples(node.args.args, node.args.defaults)
+        kwonlyargs = Parser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
+        vararg = Parser.get_arg(node.args.vararg)
+        kwarg = Parser.get_arg(node.args.kwarg)
         self.defs[node.name] = {
             "fundef": node,
-            "args": [(arg, default) for arg, default in zip(args,defaults)],
+            "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
             "body": FunctionBodyTransformer().visit(ast.Module(node.body)),
         }
-
-    def get_node_literal_value(node):
-        if isinstance(node, ast.Num):
-            return node.n
-        if isinstance(node, ast.Str) or isinstance(node, ast.Bytes):
-            return node.s
 
 class LambdaFunctionParser(Parser):
     """Find lambda functions
@@ -453,14 +461,15 @@ class LambdaFunctionParser(Parser):
         self.visit_each(node.finalbody)
 
     def visit_Lambda(self, node):
-        args = [arg.arg for arg in node.args.args]
-        defaults = [FunctionDefParser.get_node_literal_value(lit) for lit in node.args.defaults]
-        defaults = [None] * (len(args) - len(defaults)) + defaults
+        normal_args = Parser.get_arg_tuples(node.args.args, node.args.defaults)
+        kwonlyargs = Parser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
+        vararg = Parser.get_arg(node.args.vararg)
+        kwarg = Parser.get_arg(node.args.kwarg)
         self.funs.append({
-                "fun": node,
-                "args": [(arg, default) for arg, default in zip(args,defaults)],
-                "body": node.body
-            })
+            "fun": node,
+            "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
+            "body": node.body
+        })
 
 
 class CompParser(Parser):
