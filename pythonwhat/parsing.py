@@ -67,6 +67,19 @@ class Parser(ast.NodeVisitor):
         else:
             return []
 
+    @staticmethod
+    def get_arg(el):
+        if el is None:
+            return None
+        else :
+            return el.arg
+
+    @staticmethod
+    def get_arg_tuples(arguments, defaults):
+        arguments = [arg.arg for arg in arguments]
+        defaults = [None] * (len(arguments) - len(defaults)) + defaults
+        return [(arg, default) for arg, default in zip(arguments,defaults)]
+
 class OperatorParser(Parser):
     """Find operations.
 
@@ -392,26 +405,15 @@ class FunctionDefParser(Parser):
         self.defs = {}
 
     def visit_FunctionDef(self, node):
-        normal_args = FunctionDefParser.get_arg_tuples(node.args.args, node.args.defaults)
-        kwonlyargs = FunctionDefParser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
-        vararg = FunctionDefParser.get_arg(node.args.vararg)
-        kwarg = FunctionDefParser.get_arg(node.args.kwarg)
+        normal_args = Parser.get_arg_tuples(node.args.args, node.args.defaults)
+        kwonlyargs = Parser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
+        vararg = Parser.get_arg(node.args.vararg)
+        kwarg = Parser.get_arg(node.args.kwarg)
         self.defs[node.name] = {
             "fundef": node,
             "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
             "body": FunctionBodyTransformer().visit(ast.Module(node.body)),
         }
-
-    def get_arg(el):
-        if el is None:
-            return None
-        else :
-            return el.arg
-
-    def get_arg_tuples(arguments, defaults):
-        arguments = [arg.arg for arg in arguments]
-        defaults = [None] * (len(arguments) - len(defaults)) + defaults
-        return [(arg, default) for arg, default in zip(arguments,defaults)]
 
 class LambdaFunctionParser(Parser):
     """Find lambda functions
@@ -459,10 +461,10 @@ class LambdaFunctionParser(Parser):
         self.visit_each(node.finalbody)
 
     def visit_Lambda(self, node):
-        normal_args = FunctionDefParser.get_arg_tuples(node.args.args, node.args.defaults)
-        kwonlyargs = FunctionDefParser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
-        vararg = FunctionDefParser.get_arg(node.args.vararg)
-        kwarg = FunctionDefParser.get_arg(node.args.kwarg)
+        normal_args = Parser.get_arg_tuples(node.args.args, node.args.defaults)
+        kwonlyargs = Parser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
+        vararg = Parser.get_arg(node.args.vararg)
+        kwarg = Parser.get_arg(node.args.kwarg)
         self.funs.append({
             "fun": node,
             "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
