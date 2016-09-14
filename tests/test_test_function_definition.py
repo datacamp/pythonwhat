@@ -594,7 +594,17 @@ def my_fun(x, y = 4, z = ['a', 'b']):
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("In your definition of <code>my_fun()</code>, have you specified an argument to take a <code>*</code> argument and named it <code>args</code>?", sct_payload['message'])
 
-    def test_fail_6(self):
+    def test_fail_6a(self):
+        self.data["DC_CODE"] = '''
+def my_fun(x, y = 4, z = ['a', 'b'], *asdfasdf):
+    print(x)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("In your definition of <code>my_fun()</code>, have you specified an argument to take a <code>*</code> argument and named it <code>args</code>?", sct_payload['message'])
+
+
+    def test_fail_6b(self):
         self.data["DC_CODE"] = '''
 def my_fun(x, y = 4, z = ['a', 'b'], *args):
     print(x)
@@ -603,7 +613,16 @@ def my_fun(x, y = 4, z = ['a', 'b'], *args):
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("In your definition of <code>my_fun()</code>, have you specified an argument to take a <code>**</code> argument and named it <code>kwargs</code>?", sct_payload['message'])
 
-    def test_fail_7(self):
+    def test_fail_7a(self):
+        self.data["DC_CODE"] = '''
+def my_fun(x, y = 4, z = ['a', 'b'], *args, **asdfasdf):
+    print(x)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual("In your definition of <code>my_fun()</code>, have you specified an argument to take a <code>**</code> argument and named it <code>kwargs</code>?", sct_payload['message'])
+
+    def test_fail_7b(self):
         self.data["DC_CODE"] = '''
 def my_fun(x, y = 4, z = ['a', 'b'], *args, **kwargs):
     print(x)
