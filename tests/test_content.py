@@ -560,6 +560,76 @@ success_msg("Excellent!")
 #         sct_payload = helper.run(self.data)
 #         print(sct_payload)
 
+class TestToolbox9(unittest.TestCase):
+    def test_pass(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+def gibberish(*args):
+    hodgepodge = ''
+    for word in args:
+        hodgepodge += word
+    return hodgepodge
+one_word = gibberish("luke")
+many_words = gibberish("luke", "leia", "han", "obi", "darth")
+print(one_word)
+print(many_words)
+            ''',
+            "DC_SCT": '''
+def inner_test():
+    context=[["luke", "leia"]]
+    def test_for_iter():
+        test_expression_result(extra_env = {'args': ("luke", "leia")})
+    def test_for_body():
+        test_object_after_expression("hodgepodge", extra_env = {'hodgepodge': ''}, context_vals='luke')
+    test_for_loop(
+        index=1,
+        for_iter=test_for_iter,
+        body=test_for_body
+    )
+    test_object_after_expression("hodgepodge", context_vals=context)
+
+test_function_definition("gibberish", body=inner_test,
+    results=[{'args':["luke", "leia"], 'kwargs':{}}])
+
+
+test_function(
+    "gibberish",
+    index=1
+)
+            '''
+        }
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        print(sct_payload['message'])
+        self.assertTrue(sct_payload['correct'])
+
+class TestToolbox10(unittest.TestCase):
+    def test_pass(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+my_dict = {'a': 1, 'b': 2, 'c': 3}
+for k, v in my_dict.items():
+    print(k + ' - ' + str(v))
+            ''',
+            "DC_SCT": '''
+test_object('my_dict')
+test_for_loop(index=1,
+              for_iter = lambda: test_expression_result(),
+              body = lambda: test_expression_output(context_vals = ['a', 1]))
+            '''
+        }
+        self.data["DC_CODE"] = '''
+my_dict = {'a': 1, 'b': 2, 'c': 3}
+for a,b in my_dict.items():
+    print(a + ' - ' + str(b))
+'''
+        sct_payload = helper.run(self.data)
+        print(sct_payload['message'])
+        self.assertTrue(sct_payload['correct'])
+
+
 
 if __name__ == "__main__":
     unittest.main()
