@@ -498,5 +498,68 @@ success_msg("Excellent!")
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+# class TestMessage(unittest.TestCase):
+#     def test_pass(self):
+#         self.data = {
+#             "DC_PEC": '',
+#             "DC_SOLUTION": '''
+# # Define gibberish
+# def gibberish(*args):
+#     """Concatenate strings in *args together."""
+
+#     # Initialize an empty string: hodgepodge
+#     hodgepodge = ''
+
+#     # Concatenate the strings in args
+#     for word in args:
+#         hodgepodge += word
+
+#     # Return hodgepodge
+#     return hodgepodge
+
+# # Call gibberish() with one string: one_word
+# one_word = gibberish("luke")
+
+# # Call gibberish() with five strings: many_words
+# many_words = gibberish("luke", "leia", "han", "obi", "darth")
+
+# # Print one_word and many_words
+# print(one_word)
+# print(many_words)
+#             ''',
+#             "DC_SCT": '''
+# def inner_test():
+#     #context=[{'name':"luke", 'affiliation':"jedi", 'status':"missing"}]
+#     test_function("print", index=1)
+
+# test_function_definition(
+#     "report_status", body=inner_test,
+#     outputs = [{'args': [], 'kwargs': {'name':"hugo", 'affiliation':"datacamp"}}]
+# )
+#             '''
+#         }
+#         self.data["DC_CODE"] = '''
+# # Define report_status
+# def report_status(**kwargs):
+#     """Print out the status of a movie character."""
+
+#     print("\\nBEGIN: REPORT\\n=====")
+
+#     # Print a formatted status report
+#     for key, value in kwargs.items():
+#         print(key + ": " + value)
+
+#     print("====\\nEND REPORT")
+
+# # First call to report_status()
+# report_status(name="luke", affiliation="jedi", status="missing")
+
+# # Second call to report_status()
+# report_status(name="anakin", affiliation="sith lord", status="deceased")
+#         '''
+#         sct_payload = helper.run(self.data)
+#         print(sct_payload)
+
+
 if __name__ == "__main__":
     unittest.main()
