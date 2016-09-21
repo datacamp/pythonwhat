@@ -5,6 +5,9 @@ from pythonwhat.Test import Test
 from pythonwhat.utils import get_ord
 from pythonwhat.Feedback import Feedback
 
+from .sub_test import sub_test
+from functools import partial
+
 def test_while_loop(index=1,
                     test=None,
                     body=None,
@@ -82,21 +85,10 @@ def test_while_loop(index=1,
 
     test_solution, body_solution, orelse_solution = solution_whiles[index]
 
-    def sub_test(closure, subtree_student, subtree_solution, incorrect_part):
-        if closure:
-            if rep.failed_test:
-                return
-            child = state.to_child_state(subtree_student, subtree_solution)
-            closure()
-            child.to_parent_state()
-            if rep.failed_test:
-                if expand_message:
-                    rep.feedback.message = ("Check your code in the %s of the %s while loop. " %
-                        (incorrect_part, get_ord(index + 1))) + rep.feedback.message
-                if not rep.feedback.line_info:
-                    rep.feedback = Feedback(rep.feedback.message, subtree_student)
+    prepend_fmt = "Check your code in the {incorrect_part} of the %s while loop. " % (get_ord(index + 1))
 
+    psub_test = partial(sub_test, state, rep, expand_message=expand_message and prepend_fmt)
 
-    sub_test(test, test_student, test_solution, "condition")
-    sub_test(body, body_student, body_solution, "body")
-    sub_test(orelse, orelse_student, orelse_solution, "else part")
+    psub_test(test, test_student, test_solution, "condition")
+    psub_test(body, body_student, body_solution, "body")
+    psub_test(orelse, orelse_student, orelse_solution, "else part")

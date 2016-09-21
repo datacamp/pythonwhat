@@ -7,6 +7,9 @@ from pythonwhat import utils
 from pythonwhat.utils import get_ord, get_num
 from pythonwhat.test_function_definition import test_args, test_body
 from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess, ReprFail
+from .sub_test import sub_test
+
+from functools import partial
 
 
 def test_list_comp(index=1,
@@ -102,22 +105,16 @@ def test_comp(comp_type, **kwargs):
 
     student_comp = student_comp_list[index - 1]
 
-    def sub_test(closure, subtree_student, subtree_solution, incorrect_part):
-        if closure:
-            child = state.to_child_state(subtree_student, subtree_solution)
-            child.student_context = student_comp['target_vars']
-            child.solution_context = solution_comp['target_vars']
-            closure()
-            child.to_parent_state()
-            if rep.failed_test:
-                if kwargs['expand_message']:
-                    rep.feedback.message = ("Check your code in the %s of the %s %s. " %
-                        (incorrect_part, get_ord(index), typestr)) + rep.feedback.message
-                if not rep.feedback.line_info:
-                    rep.feedback = Feedback(rep.feedback.message, subtree_student)
+    prepend_fmt = "Check your code in the {incorrect_part} of the %s %s. "%(
+            get_ord(index), typestr)
+
+    psub_test = partial(sub_test, state, rep,
+                       student_context = student_comp['target_vars'], 
+                       solution_context = solution_comp['target_vars'],
+                       expand_message=kwargs['expand_message'] and prepend_fmt)
 
     # test iterable
-    sub_test(kwargs['comp_iter'], student_comp['iter'], solution_comp['iter'], "iterable part")
+    psub_test(kwargs['comp_iter'], student_comp['iter'], solution_comp['iter'], "iterable part")
     if rep.failed_test:
         return
 
@@ -137,14 +134,14 @@ def test_comp(comp_type, **kwargs):
 
 
     if comp_type in ['list', 'gen'] :
-        sub_test(kwargs['body'], student_comp['body'], solution_comp['body'], "body")
+        psub_test(kwargs['body'], student_comp['body'], solution_comp['body'], "body")
         if rep.failed_test:
             return
     else :
-        sub_test(kwargs['key'], student_comp['key'], solution_comp['key'], "key part")
+        psub_test(kwargs['key'], student_comp['key'], solution_comp['key'], "key part")
         if rep.failed_test:
             return
-        sub_test(kwargs['value'], student_comp['value'], solution_comp['value'], "value part")
+        psub_test(kwargs['value'], student_comp['value'], solution_comp['value'], "value part")
         if rep.failed_test:
             return
 
@@ -161,6 +158,6 @@ def test_comp(comp_type, **kwargs):
             raise ValueError("If you specify tests for the ifs, pass a list with the same length as the number of ifs in the solution")
 
         for i, if_test in enumerate(kwargs['ifs']):
-            sub_test(if_test, student_comp['ifs'][i], solution_comp['ifs'][i], ("%s if") % get_ord(i + 1))
+            psub_test(if_test, student_comp['ifs'][i], solution_comp['ifs'][i], ("%s if") % get_ord(i + 1))
             if rep.failed_test:
                 return
