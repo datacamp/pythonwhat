@@ -498,5 +498,245 @@ success_msg("Excellent!")
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+# class TestMessage(unittest.TestCase):
+#     def test_pass(self):
+#         self.data = {
+#             "DC_PEC": '',
+#             "DC_SOLUTION": '''
+# # Define gibberish
+# def gibberish(*args):
+#     """Concatenate strings in *args together."""
+
+#     # Initialize an empty string: hodgepodge
+#     hodgepodge = ''
+
+#     # Concatenate the strings in args
+#     for word in args:
+#         hodgepodge += word
+
+#     # Return hodgepodge
+#     return hodgepodge
+
+# # Call gibberish() with one string: one_word
+# one_word = gibberish("luke")
+
+# # Call gibberish() with five strings: many_words
+# many_words = gibberish("luke", "leia", "han", "obi", "darth")
+
+# # Print one_word and many_words
+# print(one_word)
+# print(many_words)
+#             ''',
+#             "DC_SCT": '''
+# def inner_test():
+#     #context=[{'name':"luke", 'affiliation':"jedi", 'status':"missing"}]
+#     test_function("print", index=1)
+
+# test_function_definition(
+#     "report_status", body=inner_test,
+#     outputs = [{'args': [], 'kwargs': {'name':"hugo", 'affiliation':"datacamp"}}]
+# )
+#             '''
+#         }
+#         self.data["DC_CODE"] = '''
+# # Define report_status
+# def report_status(**kwargs):
+#     """Print out the status of a movie character."""
+
+#     print("\\nBEGIN: REPORT\\n=====")
+
+#     # Print a formatted status report
+#     for key, value in kwargs.items():
+#         print(key + ": " + value)
+
+#     print("====\\nEND REPORT")
+
+# # First call to report_status()
+# report_status(name="luke", affiliation="jedi", status="missing")
+
+# # Second call to report_status()
+# report_status(name="anakin", affiliation="sith lord", status="deceased")
+#         '''
+#         sct_payload = helper.run(self.data)
+#         print(sct_payload)
+
+class TestToolbox9(unittest.TestCase):
+    def test_pass(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+def gibberish(*args):
+    hodgepodge = ''
+    for word in args:
+        hodgepodge += word
+    return hodgepodge
+one_word = gibberish("luke")
+many_words = gibberish("luke", "leia", "han", "obi", "darth")
+print(one_word)
+print(many_words)
+            ''',
+            "DC_SCT": '''
+def inner_test():
+    context=[["luke", "leia"]]
+    def test_for_iter():
+        test_expression_result(extra_env = {'args': ("luke", "leia")})
+    def test_for_body():
+        test_object_after_expression("hodgepodge", extra_env = {'hodgepodge': ''}, context_vals='luke')
+    test_for_loop(
+        index=1,
+        for_iter=test_for_iter,
+        body=test_for_body
+    )
+    test_object_after_expression("hodgepodge", context_vals=context)
+
+test_function_definition("gibberish", body=inner_test,
+    results=[{'args':["luke", "leia"], 'kwargs':{}}])
+
+
+test_function(
+    "gibberish",
+    index=1
+)
+            '''
+        }
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        print(sct_payload['message'])
+        self.assertTrue(sct_payload['correct'])
+
+class TestToolbox10(unittest.TestCase):
+    def test_pass(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+my_dict = {'a': 1, 'b': 2, 'c': 3}
+for k, v in my_dict.items():
+    print(k + ' - ' + str(v))
+            ''',
+            "DC_SCT": '''
+test_object('my_dict')
+test_for_loop(index=1,
+              for_iter = lambda: test_expression_result(),
+              body = lambda: test_expression_output(context_vals = ['a', 1]))
+            '''
+        }
+        self.data["DC_CODE"] = '''
+my_dict = {'a': 1, 'b': 2, 'c': 3}
+for a,b in my_dict.items():
+    print(a + ' - ' + str(b))
+'''
+        sct_payload = helper.run(self.data)
+        print(sct_payload['message'])
+        self.assertTrue(sct_payload['correct'])
+
+class TestToolbox11(unittest.TestCase):
+    def test_pass(self):
+        self.data = {
+            "DC_PEC": '''
+fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_1342/datasets/tweets.csv'
+from urllib.request import urlretrieve
+urlretrieve(fn, 'tweets.csv')
+import pandas as pd
+tweets_df = pd.read_csv('tweets.csv')
+            ''',
+            "DC_SOLUTION": '''
+def count_entries(df, col_name='lang'):
+    cols_count = {}
+    try:
+        col = df[col_name]
+        for entry in col:
+            if entry in cols_count.keys():
+                cols_count[entry] += 1
+            else:
+                cols_count[entry] = 1
+        return cols_count
+    except:
+        print('The dataframe does not have a ' + col_name + ' column.')
+            ''',
+            "DC_SCT": '''
+# Documentation can also be found at github.com/datacamp/pythonwhat/wiki
+def inner_test():
+    def inner_inner_test():
+        import pandas as pd
+        test_df = pd.DataFrame({'a': [0,1], 'lang':[2,2]})
+        test_object_after_expression("col", context_vals = [test_df, 'lang'], extra_env = {'cols_count': {}})
+        def test_for_iter():
+            test_expression_result(extra_env = {'col': pd.Series([2, 2])})
+
+        def test_for_body():
+            test_object_after_expression("cols_count",
+                                         extra_env = {'cols_count': {"en": 1}},
+                                         context_vals = ['et'])
+            test_object_after_expression("cols_count",
+                                         extra_env = {'cols_count': {"en": 1}},
+                                         context_vals = ['en'])
+
+        test_for_loop(
+            index=1,
+            for_iter=test_for_iter,
+            body=test_for_body
+        )
+
+        test_object_after_expression("cols_count", context_vals = [test_df, 'lang'], extra_env = {'cols_count': {}})
+    #Now test try-except:
+    import collections
+    handlers = collections.OrderedDict()
+    handlers['all'] = lambda: test_function('print', do_eval=False)
+    test_try_except(index = 1,
+                body = inner_inner_test,
+                handlers = handlers)
+
+import pandas as pd
+test_df = pd.DataFrame({'a': [0,1], 'lang':[2,2]})
+test_function_definition(
+    "count_entries", body = inner_test,
+    results=[[test_df, 'lang']], wrong_result_msg='When defining `count_entries()`, did you return `cols_count`?')
+success_msg("Great work!")
+            '''
+        }
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        print(sct_payload['message'])
+        self.assertTrue(sct_payload['correct'])
+
+class TestToolbox12(unittest.TestCase):
+    def test_pass(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+def report_status(**kwargs):
+    print("\\nBEGIN: REPORT\\n")
+    for key, value in kwargs.items():
+        print(key + ": " + value)
+    print("\\nEND REPORT")
+report_status(name="luke", affiliation="jedi", status="missing")
+report_status(name="anakin", affiliation="sith lord", status="deceased")
+            ''',
+            "DC_SCT": '''
+def inner_test():
+    test_function("print", index=1)
+
+    def iter_test():
+        context=[{'name':"luke", 'affiliation':"jedi", 'status':"missing"}]
+        test_expression_result(context_vals = context)
+
+    def body_test():
+        context=['name', 'luke']
+        test_expression_output(context_vals = context)
+
+    test_for_loop(for_iter = iter_test, body = body_test)
+    test_function("print", index=2)
+
+# Test: report_status() definition
+test_function_definition(
+    "report_status", body=inner_test,
+    outputs = [{'args': [], 'kwargs': {'name':"hugo", 'affiliation':"datacamp"}}])
+            '''
+        }
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        print(sct_payload['message'])
+        self.assertTrue(sct_payload['correct'])
+
 if __name__ == "__main__":
     unittest.main()

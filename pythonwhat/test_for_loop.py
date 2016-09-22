@@ -77,13 +77,14 @@ def test_for_loop(index=1,
 
     target_solution, for_iter_solution, body_solution, orelse_solution = solution_fors[index]
 
-    def sub_test(closure, subtree_student, subtree_solution, incorrect_part):
+    def sub_test(closure, subtree_student, subtree_solution, incorrect_part, set_context = True):
         if closure:
             if rep.failed_test:
                 return
             child = state.to_child_state(subtree_student, subtree_solution)
-            child.student_context = target_student
-            child.solution_context = target_solution
+            if set_context:
+                child.student_context = target_student
+                child.solution_context = target_solution
             closure()
             child.to_parent_state()
             if rep.failed_test:
@@ -93,6 +94,6 @@ def test_for_loop(index=1,
                 if not rep.feedback.line_info:
                     rep.feedback = Feedback(rep.feedback.message, subtree_student)
 
-    sub_test(for_iter, for_iter_student, for_iter_solution, "sequence part")
+    sub_test(for_iter, for_iter_student, for_iter_solution, "sequence part", set_context = False)
     sub_test(body, body_student, body_solution, "body")
     sub_test(orelse, orelse_student, orelse_solution, "else part")
