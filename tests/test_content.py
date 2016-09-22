@@ -558,7 +558,6 @@ success_msg("Excellent!")
 # report_status(name="anakin", affiliation="sith lord", status="deceased")
 #         '''
 #         sct_payload = helper.run(self.data)
-#         print(sct_payload)
 
 class TestToolbox9(unittest.TestCase):
     def test_pass(self):
@@ -715,7 +714,6 @@ report_status(name="anakin", affiliation="sith lord", status="deceased")
             "DC_SCT": '''
 def inner_test():
     test_function("print", index=1)
-
     def iter_test():
         context=[{'name':"luke", 'affiliation':"jedi", 'status':"missing"}]
         test_expression_result(context_vals = context)
@@ -735,7 +733,56 @@ test_function_definition(
         }
         self.data["DC_CODE"] = self.data["DC_SOLUTION"]
         sct_payload = helper.run(self.data)
-        print(sct_payload['message'])
+        self.assertTrue(sct_payload['correct'])
+
+class TestWiki(unittest.TestCase):
+    def test_pass(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+def print_dict(my_dict):
+    for key, value in my_dict.items():
+        print(key + " - " + str(value))
+            ''',
+            "DC_SCT": '''
+def fun_body_test():
+    def for_iter_test():
+        example_dict = {'a': 2, 'b': 3}
+        test_expression_result(context_vals = [example_dict])
+    def for_body_test():
+        test_expression_output(context_vals = ['c', 3])
+    test_for_loop(for_iter = for_iter_test, body = for_body_test)
+test_function_definition('print_dict', body = fun_body_test)
+            '''
+        }
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+class TestWiki2(unittest.TestCase):
+    def test_pass(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+def print_dict(my_dict):
+    for key, value in my_dict.items():
+        print("total length: " + str(len(my_dict)))
+        print(key + " - " + str(value))
+            ''',
+            "DC_SCT": '''
+def fun_body_test():
+    def for_iter_test():
+        example_dict = {'a': 2, 'b': 3}
+        test_expression_result(context_vals = [example_dict])
+    def for_body_test():
+        example_dict = {'a': 2, 'b': 3}
+        test_expression_output(context_vals = ['c', 3], extra_env = {'my_dict': example_dict})
+    test_for_loop(for_iter = for_iter_test, body = for_body_test)
+test_function_definition('print_dict', body = fun_body_test)
+            '''
+        }
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
 if __name__ == "__main__":

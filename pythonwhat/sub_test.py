@@ -4,8 +4,10 @@ def sub_test(state, rep, closure, subtree_student, subtree_solution, incorrect_p
                 student_context=None, solution_context=None, expand_message=""):
     if closure:
         child = state.to_child_state(subtree_student, subtree_solution)
-        child.student_context = student_context
-        child.solution_context = solution_context
+        if student_context is not None:
+            child.student_context = student_context
+        if solution_context is not None:
+            child.solution_context = solution_context
         closure()
         child.to_parent_state()
         if rep.failed_test:
