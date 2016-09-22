@@ -5,6 +5,9 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.Test import BiggerTest, Test, DefinedCollTest
 from pythonwhat.utils import get_ord, get_num
 
+from .sub_test import sub_test
+from functools import partial
+
 def test_try_except(index=1,
                     not_called_msg=None,
                     body=None,
@@ -42,25 +45,12 @@ def test_try_except(index=1,
 
     student_try_except = student_try_excepts[index - 1]
 
-    def sub_test(closure, subtree_student, subtree_solution, err_name_student, err_name_solution, incorrect_part):
-        if closure:
-            if rep.failed_test:
-                return
-            child = state.to_child_state(subtree_student, subtree_solution)
-            if err_name_student is not None:
-                child.student_context = list(err_name_student)
-            if err_name_solution is not None:
-                child.solution_context = list(err_name_solution)
-            closure()
-            child.to_parent_state()
-            if rep.failed_test:
-                if expand_message:
-                    rep.feedback.message = ("Check your code in the %s of the %s try-except block. " %
-                        (incorrect_part, get_ord(index))) + rep.feedback.message
-                if not rep.feedback.line_info:
-                    rep.feedback = Feedback(rep.feedback.message, subtree_student)
+    prepend_fmt = "Check your code in the {incorrect_part} of the %s try-except block. " % (get_ord(index))
 
-    sub_test(body, student_try_except['body'], solution_try_except['body'], None, None, "body")
+    psub_test = partial(sub_test, state, rep, 
+            expand_message = expand_message and prepend_fmt)
+
+    psub_test(body, student_try_except['body'], solution_try_except['body'], "body")
 
     for key,value in handlers.items():
         if key == 'all':
@@ -83,7 +73,7 @@ def test_try_except(index=1,
 
         student_except = student_try_except['handlers'][key]
 
-        sub_test(value, student_except.body, solution_except.body, student_except.name, solution_except.name, incorrect_part)
+        psub_test(value, student_except.body, solution_except.body, incorrect_part, student_except.name, solution_except.name)
         if rep.failed_test:
             return
 
@@ -97,7 +87,7 @@ def test_try_except(index=1,
             rep.do_test(Test(Feedback(c_missing_msg, student_try_except['try_except'])))
             return
 
-        sub_test(test, student_try_except[el], solution_try_except[el], None, None, incorrect_part)
+        psub_test(test, student_try_except[el], solution_try_except[el], incorrect_part)
 
     if orelse is not None:
         test_part("orelse", "`else` part", orelse_missing_msg, orelse)
