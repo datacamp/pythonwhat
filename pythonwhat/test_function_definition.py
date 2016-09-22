@@ -350,8 +350,6 @@ def test_body(rep, state, body,
               args_student, args_solution,
               name, expand_message):
     if body is not None:
-        if rep.failed_test:
-            return
         child = state.to_child_state(subtree_student, subtree_solution)
         child.solution_context = [arg[0] for arg in args_solution['args']]
         if args_solution['vararg'] is not None:
@@ -365,11 +363,15 @@ def test_body(rep, state, body,
         if args_student['kwarg'] is not None:
             child.student_context += [args_student['kwarg']]
 
-        body()
+        # TODO why is the original message made lowercase?
+        feedback = "Check your definition of %s. " %name if expand_message else ""
+
+        rep.do_test(body, feedback, fallback_ast=subtree_student)
         child.to_parent_state()
-        if rep.failed_test:
-            if expand_message:
-                rep.feedback.message = ("In your definition of %s, " % name) + \
-                    utils.first_lower(rep.feedback.message)
-            if not rep.feedback.line_info:
-                rep.feedback = Feedback(rep.feedback.message, subtree_student)
+# TODO remove
+#        if rep.failed_test:
+#            if expand_message:
+#                rep.feedback.message = ("Check your definition of %s. " % name) + \
+#                    utils.first_lower(rep.feedback.message)
+#            if not rep.feedback.line_info:
+#                rep.feedback = Feedback(rep.feedback.message, subtree_student)

@@ -11,15 +11,9 @@ def test_or(*tests):
     success = False
     first_message = None
 
+    rep.start_or_test()
+
     for test in tests:
-        test()
-        if not rep.failed_test:
-            success = True
-            break
-        else:
-            first_message = first_message or rep.feedback.message
-            rep.failed_test = False
+        rep.do_test(test)
 
-    if not success:
-        rep.fail(first_message)
-
+    rep.end_or_test()

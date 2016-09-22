@@ -1,6 +1,6 @@
 export PYTHONWARNINGS="ignore"
 
-fixed="test_function test_with test_object"
+fixed="test_function test_with test_object test_function_definition test_or"
 
 for f in $fixed; do
     echo "-----------------------------------------"

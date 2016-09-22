@@ -6,6 +6,8 @@ from pythonwhat.Test import EqualTest, Test
 from pythonwhat import utils
 from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
 
+from functools import partial
+
 def test_with(index,
               context_vals=False, # whether to check number of context vals
               context_tests=None, # check on context expressions
@@ -96,6 +98,7 @@ with open_file('...') as file:
             context_test()
             child.to_parent_state()
             # TODO implement and add tests
+            #      change from manually running reporter msg stack
 #            if rep.failed_test:
 #                if not rep.feedback.line_info:
 #                    rep.feedback = Feedback(rep.feedback.message, student_context)
@@ -103,11 +106,6 @@ with open_file('...') as file:
             rep.failure_msg_stack.pop()
 
     if body is not None:
-        # feedback pasted on failed sub_test messages
-        feedback = "Check the body of the %s `with` statement. " % utils.get_ord(index + 1)
-        expand_message = feedback if expand_message else ""
-
-        rep.failure_msg_stack.append(expand_message)
 
         solution_res = setUpNewEnvInProcess(process = state.solution_process,
                                             context = solution_with['context'])
@@ -118,31 +116,32 @@ with open_file('...') as file:
                                            context = student_with['context'])
         if isinstance(student_res, AttributeError):
             rep.do_test(Test(Feedback("In your %s `with` statement, you're not using a correct context manager." % (utils.get_ord(index + 1)), student_with['node'])))
-            return
+
         if isinstance(student_res, (AssertionError, ValueError, TypeError)):
             rep.do_test(Test(Feedback("In your %s `with` statement, the number of values in your context manager " + \
                 "doesn't correspond to the number of variables you're trying to assign it to." % (utils.get_ord(index + 1)), student_with['node'])))
-            return
 
         child = state.to_child_state(student_with['body'], solution_with['body'])
+
+        # TODO clean up feedback related variables a bit
+        #      add line_info unit test
+        # feedback pasted on failed sub_test messages
+        feedback = "Check the body of the %s `with` statement. " % utils.get_ord(index + 1)
         try:
-            body()
+            rep.do_test(body, prepend_on_fail = feedback if expand_message else "")
         finally:
             if breakDownNewEnvInProcess(process = state.solution_process):
                 raise Exception("error in the solution, closing the %s with fails with: %s" %
                     (utils.get_ord(index + 1), close_solution_context))
 
             if breakDownNewEnvInProcess(process = state.student_process):
+
                 rep.do_test(Test(Feedback("Your %s `with` statement can not be closed off correctly, you're " + \
-                    "not using the context manager correctly." % (utils.get_ord(index + 1)), student_width['node'])))
+                                "not using the context manager correctly." % (utils.get_ord(index + 1)), student_width['node'])),
+                            prepend_on_fail = feedback if expand_message else "",
+                            fallback_ast = student_with['body'])
 
         child.to_parent_state()
-
-        rep.failure_msg_stack.pop()
-        # TODO modify and add tests
-#        if rep.failed_test:
-#            if not rep.feedback.line_info and rep.failed_test:
-#                rep.feedback = Feedback(rep.feedback.message, student_with['body'])
 
 def names_as_string(names):
     if len(names) > 1:
