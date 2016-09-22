@@ -83,10 +83,8 @@ def test_for_loop(index=1,
     prepend_fmt = "Check your code in the {incorrect_part} of the %s for loop. " %(get_ord(index + 1))
 
     psub_test = partial(sub_test, state, rep, 
-            student_context = target_student, 
-            solution_context = target_solution, 
             expand_message=expand_message and prepend_fmt)
 
     psub_test(for_iter, for_iter_student, for_iter_solution, "sequence part")
-    psub_test(body, body_student, body_solution, "body")
-    psub_test(orelse, orelse_student, orelse_solution, "else part")
+    psub_test(body, body_student, body_solution, "body", target_student, target_solution)
+    psub_test(orelse, orelse_student, orelse_solution, "else part", target_student, target_solution)
