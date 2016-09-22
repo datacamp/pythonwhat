@@ -100,8 +100,6 @@ def test_comp(comp_type, **kwargs):
     c_not_called_msg = kwargs['not_called_msg'] or \
         ("The system wants to check the %s %s you defined but hasn't found it." % (get_ord(index), typestr))
     rep.do_test(BiggerTest(len(student_comp_list), index - 1, Feedback(c_not_called_msg)))
-    if rep.failed_test:
-        return
 
     student_comp = student_comp_list[index - 1]
 

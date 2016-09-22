@@ -1,6 +1,7 @@
 from pythonwhat.Feedback import Feedback
 import re
 import markdown2
+from pythonwhat.Test import TestFail
 
 """
 This file holds the reporter class.
@@ -20,6 +21,7 @@ class Reporter(object):
         self.success_msg = "Great work!"
         self.errors_allowed = False
         self.tags = {}
+        self.failure_msg_stack = []
 
     def set_success_msg(self, success_msg):
         self.success_msg = success_msg
@@ -34,13 +36,17 @@ class Reporter(object):
         self.failed_test = True
         self.feedback = Feedback(failure_msg)
 
-    def do_test(self, testobj):
+    def do_test(self, testobj, prepend_on_fail=""):
         """Do test.
 
         Execute a given test, unless some previous test has failed. If the test has failed,
         the state of the reporter changes and the feedback is kept.
         """
+        self.failure_msg_stack.append(prepend_on_fail)
+
         if self.failed_test:
+            self.feedback.message = "".join(self.failure_msg_stack) + self.feedback.message
+            raise TestFail
             return
 
         testobj.test()
@@ -48,6 +54,11 @@ class Reporter(object):
         if (not result):
             self.failed_test = True
             self.feedback = testobj.get_feedback()
+            self.feedback.message = "".join(self.failure_msg_stack) + self.feedback.message
+            raise TestFail
+
+        self.failure_msg_stack.pop()
+        return result
 
     def do_tests(self, testobjs):
         """Do multiple tests.

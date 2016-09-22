@@ -59,8 +59,6 @@ with open_file('...') as file:
                 % (utils.get_ord(index + 1), enough_contexts_string)
 
         rep.do_test(EqualTest(len_solution_context, len_student_context, Feedback(c_context_vals_len_msg, student_with['node'])))
-        if rep.failed_test:
-            return
 
         for (solution_context, student_context) in zip(solution_with['context'], student_with['context']):
             c_context_vals_msg = context_vals_msg or "In your %s `with` statement, make sure to use the correct context variable names. Was expecting `%s` but got `%s`."\
@@ -68,15 +66,14 @@ with open_file('...') as file:
                     names_as_string(student_context['optional_vars']))
             rep.do_test(EqualTest(solution_context['optional_vars'], student_context['optional_vars'],
                 Feedback(c_context_vals_msg, student_with['node'])))
-            if rep.failed_test:
-                return
 
     if context_tests is not None:
+        feedback_fmt = "Check the {0} context in the {1} `with` statement. " 
+
         if not isinstance(context_tests, list):
             context_tests = [context_tests]
         for i in range(len(context_tests)):
-            if rep.failed_test:
-                return
+
             context_test = context_tests[i]
             try:
                 solution_context = solution_with['context'][i]['context_expr']
@@ -88,22 +85,29 @@ with open_file('...') as file:
                 rep.do_test(Test(Feedback(context_vals_len_msg or "In your %s `with` statement, make sure to use the correct number of context variables. It seems you defined too little."\
                         % (utils.get_ord(index + 1)), student_with['node'])))
                 return
-            if rep.failed_test:
-                return
+
+            # TODO does the test about need to be in this loop?
+            # prepend message on failure
+            expand_message = feedback_fmt.format(utils.get_ord(i+1), utils.get_ord(index + 1)) if expand_message else ""
+            rep.failure_msg_stack.append(expand_message)
+            #
+
             child = state.to_child_state(student_context, solution_context)
             context_test()
             child.to_parent_state()
-            if rep.failed_test:
-                if expand_message:
-                    rep.feedback.message = ("Check the %s context in the %s `with` statement. " % (utils.get_ord(i+1), utils.get_ord(index + 1))) + \
-                        rep.feedback.message
-                if not rep.feedback.line_info:
-                    rep.feedback = Feedback(rep.feedback.message, student_context)
+            # TODO implement and add tests
+#            if rep.failed_test:
+#                if not rep.feedback.line_info:
+#                    rep.feedback = Feedback(rep.feedback.message, student_context)
 
-    if rep.failed_test:
-        return
+            rep.failure_msg_stack.pop()
 
     if body is not None:
+        # feedback pasted on failed sub_test messages
+        feedback = "Check the body of the %s `with` statement. " % utils.get_ord(index + 1)
+        expand_message = feedback if expand_message else ""
+
+        rep.failure_msg_stack.append(expand_message)
 
         solution_res = setUpNewEnvInProcess(process = state.solution_process,
                                             context = solution_with['context'])
@@ -119,8 +123,6 @@ with open_file('...') as file:
             rep.do_test(Test(Feedback("In your %s `with` statement, the number of values in your context manager " + \
                 "doesn't correspond to the number of variables you're trying to assign it to." % (utils.get_ord(index + 1)), student_with['node'])))
             return
-        if rep.failed_test:
-            return
 
         child = state.to_child_state(student_with['body'], solution_with['body'])
         try:
@@ -135,12 +137,12 @@ with open_file('...') as file:
                     "not using the context manager correctly." % (utils.get_ord(index + 1)), student_width['node'])))
 
         child.to_parent_state()
-        if rep.failed_test:
-            if expand_message and rep.failed_test:
-                rep.feedback.message = ("Check the body of the %s `with` statement. " % utils.get_ord(index + 1)) + \
-                    rep.feedback.message
-            if not rep.feedback.line_info and rep.failed_test:
-                rep.feedback = Feedback(rep.feedback.message, student_with['body'])
+
+        rep.failure_msg_stack.pop()
+        # TODO modify and add tests
+#        if rep.failed_test:
+#            if not rep.feedback.line_info and rep.failed_test:
+#                rep.feedback = Feedback(rep.feedback.message, student_with['body'])
 
 def names_as_string(names):
     if len(names) > 1:
