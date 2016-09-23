@@ -26,7 +26,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, test')
+        self.assertEqual(sct_payload['message'], 'Check your definition of <code>shout()</code>. test')
         helper.test_lines(self, sct_payload, 3, 3, 5, 41)
 
     def test_Pass2(self):
@@ -37,7 +37,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, are you sure you assigned the correct value to <code>shout_word</code>?')
+        self.assertEqual(sct_payload['message'], 'Check your definition of <code>shout()</code>. Are you sure you assigned the correct value to <code>shout_word</code>?')
         helper.test_lines(self, sct_payload, 3, 3, 5, 41)
 
 if __name__ == "__main__":
