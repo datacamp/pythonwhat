@@ -29,7 +29,7 @@ python3 setup.py install
 cd /path/to/pythonwhat
 python3 setup.py install
 cd tests
-ipython3 run_all.py
+python3 run_all.py
 ```
 
 To disable deprecation warnings: `$ export PYTHONWARNINGS="ignore"`
