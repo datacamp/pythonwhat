@@ -92,16 +92,10 @@ with open_file('...') as file:
             # prepend message on failure
             expand_message = feedback_fmt.format(utils.get_ord(i+1), utils.get_ord(index + 1)) if expand_message else ""
             rep.failure_msg_stack.append(expand_message)
-            #
 
             child = state.to_child_state(student_context, solution_context)
             context_test()
             child.to_parent_state()
-            # TODO implement and add tests
-            #      change from manually running reporter msg stack
-#            if rep.failed_test:
-#                if not rep.feedback.line_info:
-#                    rep.feedback = Feedback(rep.feedback.message, student_context)
 
             rep.failure_msg_stack.pop()
 

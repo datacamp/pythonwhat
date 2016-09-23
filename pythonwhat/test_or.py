@@ -5,9 +5,6 @@ def test_or(*tests):
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_or")
 
-    if rep.failed_test:
-        return
-
     success = False
     first_message = None
 

@@ -74,8 +74,6 @@ def test_operator(index=1,
             len(student_ops),
             index,
             (not_found_msg if not_found_msg else "You didn't define enough operations in your code.")))
-    if rep.failed_test:
-        return
 
     expr_student, used_student = student_ops[index]
 
@@ -100,9 +98,6 @@ def test_operator(index=1,
 
         rep.do_test(DefinedCollTest(op, used_student,
             Feedback(incorrect_op_msg, expr_student)))
-
-        if rep.failed_test:
-            return
 
     if (do_eval):
 

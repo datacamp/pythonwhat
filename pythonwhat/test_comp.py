@@ -113,8 +113,6 @@ def test_comp(comp_type, **kwargs):
 
     # test iterable
     psub_test(kwargs['comp_iter'], student_comp['iter'], solution_comp['iter'], "iterable part")
-    if rep.failed_test:
-        return
 
     # test iterator variable names, if required
     if kwargs['iter_vars_names']:
@@ -127,21 +125,13 @@ def test_comp(comp_type, **kwargs):
             ("Have you used %s iterator variables in the %s %s?" % (len(solution_comp['target_vars']), get_ord(index), typestr))
         rep.do_test(EqualTest(len(student_comp['target_vars']), len(solution_comp['target_vars']),
             Feedback(c_incorrect_iter_vars_msg, student_comp['target'])))
-    if rep.failed_test:
-        return
 
 
     if comp_type in ['list', 'gen'] :
         psub_test(kwargs['body'], student_comp['body'], solution_comp['body'], "body")
-        if rep.failed_test:
-            return
     else :
         psub_test(kwargs['key'], student_comp['key'], solution_comp['key'], "key part")
-        if rep.failed_test:
-            return
         psub_test(kwargs['value'], student_comp['value'], solution_comp['value'], "value part")
-        if rep.failed_test:
-            return
 
     # test ifs, one by one
     if kwargs['ifs'] is not None:
@@ -149,13 +139,9 @@ def test_comp(comp_type, **kwargs):
             ("Have you used %s ifs inside the %s %s?" % (len(solution_comp['ifs']), get_ord(index), typestr))
         rep.do_test(EqualTest(len(student_comp['ifs']), len(solution_comp['ifs']),
             Feedback(c_insufficient_ifs_msg, student_comp['list_comp'])))
-        if rep.failed_test:
-            return
 
         if len(kwargs['ifs']) != len(solution_comp['ifs']):
             raise ValueError("If you specify tests for the ifs, pass a list with the same length as the number of ifs in the solution")
 
         for i, if_test in enumerate(kwargs['ifs']):
             psub_test(if_test, student_comp['ifs'][i], solution_comp['ifs'][i], ("%s if") % get_ord(i + 1))
-            if rep.failed_test:
-                return
