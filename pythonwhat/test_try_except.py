@@ -17,11 +17,11 @@ def test_try_except(index=1,
                     orelse_missing_msg=None,
                     finalbody=None,
                     finalbody_missing_msg=None,
-                    expand_message=True):
+                    expand_message=True,
+                    state=None):
     """Test a try except construct
     """
 
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_try_except")
 

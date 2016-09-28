@@ -82,6 +82,23 @@ test_list_comp(index=1,
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_pass_no_lam(self):
+        self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if isinstance(key, str) if isinstance(val, str)]"
+        self.data["DC_SCT"] = '''
+test_list_comp(index=1,
+               not_called_msg=None,
+               comp_iter=lambda: test_expression_result(),
+               iter_vars_names=True,
+               incorrect_iter_vars_msg=None,
+               body=test_expression_result(context_vals = ['a', 2]),
+               ifs=[test_function_v2('isinstance', params = ['obj'], do_eval = [False]),
+                    test_function_v2('isinstance', params = ['obj'], do_eval = [False])],
+               insufficient_ifs_msg=None,
+               expand_message=True)
+            '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 
 class TestListCompStepByStepCustom(unittest.TestCase):
 

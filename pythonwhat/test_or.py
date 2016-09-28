@@ -1,7 +1,8 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
+from pythonwhat.sub_test import sub_test
 
-def test_or(*tests):
+def test_or(*tests, state=None):
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_or")
 
@@ -12,7 +13,7 @@ def test_or(*tests):
     first_message = None
 
     for test in tests:
-        test()
+        sub_test(state, rep, test, None, None)
         if not rep.failed_test:
             success = True
             break

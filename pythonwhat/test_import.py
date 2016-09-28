@@ -6,7 +6,8 @@ from pythonwhat.Reporter import Reporter
 def test_import(name,
                 same_as=True,
                 not_imported_msg=None,
-                incorrect_as_msg=None):
+                incorrect_as_msg=None,
+                state=None):
     """Test import.
 
     Test whether an import statement is used the same in the student's environment as in the solution
@@ -36,7 +37,6 @@ def test_import(name,
         | ``test_import("pandas")``: fail.
         | ``test_import("pandas", same_as = False)``: pass.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_import")
 

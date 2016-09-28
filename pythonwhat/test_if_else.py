@@ -12,7 +12,8 @@ def test_if_else(index=1,
                  test=None,
                  body=None,
                  orelse=None,
-                 expand_message=True):
+                 expand_message=True,
+                 state=None):
     """Test parts of the if statement.
 
     This test function will allow you to extract parts of a specific if statement and perform a set of tests
@@ -66,7 +67,6 @@ def test_if_else(index=1,
         This SCT will pass as `test_expression_output()` is ran on the body of the if statement and it will output
         the same thing in the solution as in the student code.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_if_else")
 

@@ -9,11 +9,11 @@ def test_dictionary(name,
                     undefined_msg=None,
                     not_dictionary_msg=None,
                     key_missing_msg=None,
-                    incorrect_value_msg=None):
+                    incorrect_value_msg=None,
+                    state=None):
     """Test the contents of a dictionary.
     """
 
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_dictionary")
 

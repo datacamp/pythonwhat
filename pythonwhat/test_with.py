@@ -6,6 +6,8 @@ from pythonwhat.Test import EqualTest, Test
 from pythonwhat import utils
 from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
 
+from pythonwhat.sub_test import sub_test
+
 def test_with(index,
               context_vals=False, # whether to check number of context vals
               context_tests=None, # check on context expressions
@@ -13,7 +15,8 @@ def test_with(index,
               undefined_msg=None,
               context_vals_len_msg=None,
               context_vals_msg=None,
-              expand_message=True):
+              expand_message=True,
+              state=None):
     """Test a with statement.
 with open_file('...') as bla:
 
@@ -24,7 +27,6 @@ with open_file('...') as file:
     [ ]
 
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_with")
 
@@ -90,9 +92,7 @@ with open_file('...') as file:
                 return
             if rep.failed_test:
                 return
-            child = state.to_child_state(student_context, solution_context)
-            context_test()
-            child.to_parent_state()
+            sub_test(state, rep, context_test, student_context, solution_context)
             if rep.failed_test:
                 if expand_message:
                     rep.feedback.message = ("Check the %s context in the %s `with` statement. " % (utils.get_ord(i+1), utils.get_ord(index + 1))) + \
@@ -124,7 +124,7 @@ with open_file('...') as file:
 
         child = state.to_child_state(student_with['body'], solution_with['body'])
         try:
-            body()
+            sub_test(state, rep, body, None, None)
         finally:
             if breakDownNewEnvInProcess(process = state.solution_process):
                 raise Exception("error in the solution, closing the %s with fails with: %s" %

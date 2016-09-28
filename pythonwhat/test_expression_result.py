@@ -13,7 +13,8 @@ def test_expression_result(extra_env=None,
                            expr_code=None,
                            pre_code=None,
                            keep_objs_in_env=None,
-                           error_msg=None):
+                           error_msg=None,
+                           state=None):
     """Test result of expression.
 
     The code of the student is ran in the active state and the result of the evaluation is
@@ -70,7 +71,6 @@ def test_expression_result(extra_env=None,
         to `3`.
 
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_expression_result")
 

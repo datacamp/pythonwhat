@@ -7,7 +7,7 @@ from pythonwhat.tasks import isDefinedInProcess, getOptionFromProcess
 MC_VAR_NAME = "selected_option"
 
 
-def test_mc(correct, msgs):
+def test_mc(correct, msgs, state=None):
     """Test multiple choice exercise.
 
     Test for a MultipleChoiceExercise. The correct answer (as an integer) and feedback messages
@@ -23,7 +23,7 @@ def test_mc(correct, msgs):
 
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_mc")
-    student_process = State.active_state.student_process
+    student_process = state.student_process
     if not isDefinedInProcess(MC_VAR_NAME, student_process):
         raise NameError("Option not available in the student process")
     else:

@@ -16,6 +16,8 @@ class State(object):
 
     """
     active_state = None
+    TEST_CLOSURE_SYNTAX = False     # flag for running a test closure (backwards compatibility)
+    TEST_TOP_LEVEL = True
 
     def __init__(self, **kwargs):
 

@@ -5,7 +5,8 @@ from pythonwhat.Reporter import Reporter
 
 def test_student_typed(text,
                        pattern=True,
-                       not_typed_msg=None):
+                       not_typed_msg=None,
+                       state=None):
     """Test the student code.
 
     Tests if the student typed a (pattern of) text.
@@ -16,7 +17,6 @@ def test_student_typed(text,
           Defaults to False.
         not_typed_msg (str): feedback message to be displayed if the student did not type the text.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_student_typed")
 

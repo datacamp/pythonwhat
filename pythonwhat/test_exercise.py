@@ -36,6 +36,13 @@ from inspect import Parameter as param
 from pythonwhat.signatures import sig_from_params, sig_from_obj
 from pythonwhat.State import set_converter
 
+from pythonwhat.sub_test import state_decorator
+
+all_test_names = list(filter(lambda s: s != 'test_exercise' and s.startswith('test'), globals().keys()))
+print(all_test_names)
+print('test_list_comp' in all_test_names)
+
+for t in all_test_names: globals()[t] = state_decorator(globals()[t])
 
 def test_exercise(sct,
                   student_code,
@@ -77,6 +84,7 @@ def test_exercise(sct,
         raw_student_output = check_str(raw_student_output))
 
     State.set_active_state(state)
+    State.TEST_TOP_LEVEL = True
 
     # check if no fails yet (can be because of syntax and indentation errors)
     if not rep.failed_test:

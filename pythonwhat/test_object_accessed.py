@@ -5,7 +5,8 @@ import pythonwhat.utils
 
 def test_object_accessed(name,
                          times=1,
-                         not_accessed_msg=None):
+                         not_accessed_msg=None,
+                         state=None):
     """Test if object accessed
 
     Checks whether an object, or the attribute of an object, are accessed
@@ -38,7 +39,6 @@ def test_object_accessed(name,
         | ``test_object_accessed("arr.dtype")``: fail.
     """
 
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object_accessed")
 

@@ -12,7 +12,8 @@ def test_for_loop(index=1,
                   for_iter=None,
                   body=None,
                   orelse=None,
-                  expand_message=True):
+                  expand_message=True,
+                  state=None):
     """Test parts of the for loop.
 
     This test function will allow you to extract parts of a specific for loop and perform a set of tests
@@ -62,7 +63,6 @@ def test_for_loop(index=1,
         This SCT will evaluate to True as the function `"range"` is used in the sequence and the function
         `test_exression_output()` will pass on the body code.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_for_loop")
 

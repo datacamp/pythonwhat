@@ -6,6 +6,7 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
 from pythonwhat.utils import get_ord
 from pythonwhat.tasks import getTreeResultInProcess, getFunctionCallResultInProcess, getFunctionCallOutputInProcess, getFunctionCallErrorInProcess, ReprFail
+from pythonwhat.sub_test import sub_test
 
 
 def test_function_definition(name,
@@ -24,7 +25,8 @@ def test_function_definition(name,
                              wrong_output_msg=None,
                              no_error_msg=None,
                              wrong_error_msg=None,
-                             expand_message=True):
+                             expand_message=True,
+                             state=None):
     """Test a function definition.
 
     This function helps you test a function definition. Generally four things can be tested:
@@ -93,7 +95,6 @@ def test_function_definition(name,
         | ``test_function_definition('shout', args_defaults = False``
         |     ``body = lambda: test_function('print', args = []]))``: pass.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_function_definition")
 
@@ -365,7 +366,8 @@ def test_body(rep, state, body,
         if args_student['kwarg'] is not None:
             child.student_context += [args_student['kwarg']]
 
-        body()
+        # TODO remove reduntant state setting
+        sub_test(state, rep, body, None, None)
         child.to_parent_state()
         if rep.failed_test:
             if expand_message:

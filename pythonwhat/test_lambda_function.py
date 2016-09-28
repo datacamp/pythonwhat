@@ -20,7 +20,8 @@ def test_lambda_function(index,
                          arg_defaults_msg=None,
                          wrong_result_msg=None,
                          no_error_msg=None,
-                         expand_message=True):
+                         expand_message=True,
+                         state=None):
     """Test a lambda function definition.
 
     This function helps you test a lambda function definition. Generally four things can be tested:
@@ -58,7 +59,6 @@ def test_lambda_function(index,
             will generate no extra feedback if the body test fails. Defaults to True.
     """
 
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_lambda_function")
 

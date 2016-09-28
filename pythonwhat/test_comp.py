@@ -20,11 +20,11 @@ def test_list_comp(index=1,
                    body=None,
                    ifs=None,
                    insufficient_ifs_msg=None,
-                   expand_message=True):
+                   expand_message=True,
+                   state=None):
     """Test list comprehension.
     """
 
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_list_comp")
 
@@ -41,10 +41,10 @@ def test_generator_exp(index=1,
                        body=None,
                        ifs=None,
                        insufficient_ifs_msg=None,
-                       expand_message=True):
+                       expand_message=True,
+                       state=None):
     """Test generator expressions
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_generator_exp")
 
@@ -63,10 +63,10 @@ def test_dict_comp(index=1,
                    value=None,
                    ifs=None,
                    insufficient_ifs_msg=None,
-                   expand_message=True):
+                   expand_message=True,
+                   state=None):
     """Test dict comprehension.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_dict_comp")
 
@@ -77,13 +77,13 @@ def test_dict_comp(index=1,
     test_comp(comp_type = "dict", **(locals()))
 
 
-def test_comp(comp_type, **kwargs):
+def test_comp(comp_type, state=None, **kwargs):
 
     if comp_type not in ['list', 'dict', 'gen']:
         raise ValueError("comp_type not valid")
     typestr = {'list':'list comprehension', 'dict': 'dictionary comprehension', 'gen': 'generator expression'}[comp_type]
 
-    state = kwargs['state']
+    #state = kwargs['state']
     rep = kwargs['rep']
 
     solution_comp_list = kwargs['solution_comp_list']
