@@ -31,6 +31,21 @@ success_msg("Nice")
             '''
         }
 
+        self.DC_SCT_NO_LAM = '''
+condition_test = [
+    test_expression_result({"offset": 7}),
+    test_expression_result({"offset": 8}),
+    test_expression_result({"offset": 9})
+]
+
+
+test_if_else(index=1,
+             test = condition_test,
+             body = test_student_typed('x\s*=\s*5', not_typed_msg = "you did something wrong"),
+             orelse = test_function('round'))
+success_msg("Nice")
+            '''
+
     def test_Pass(self):
         self.data["DC_CODE"] = '''
 # Initialize offset
@@ -135,6 +150,23 @@ else:
         self.assertFalse(sct_payload['correct'])
         # should give line numbers of more detailed test_function test.
         helper.test_lines(self, sct_payload, 9, 9, 15, 23)
+
+    def test_Pass_no_lam(self):
+        self.data["DC_SCT"] = self.DC_SCT_NO_LAM
+        self.test_Pass()
+
+    def test_Fail0_no_lam(self):
+        self.data["DC_SCT"] = self.DC_SCT_NO_LAM
+        self.test_Fail0()
+
+    def test_Fail3_no_lam(self):
+        self.data["DC_SCT"] = self.DC_SCT_NO_LAM
+        self.test_Fail3()
+
+    def test_Fail3b_no_lam(self):
+        self.data["DC_SCT"] = self.DC_SCT_NO_LAM
+        self.test_Fail3b()
+
 
 
 class TestIfElseEmbedded(unittest.TestCase):

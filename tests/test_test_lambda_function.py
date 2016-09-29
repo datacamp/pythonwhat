@@ -76,6 +76,15 @@ test_lambda_function(1,
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_fail_8_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_fail_8()
+
+    def test_pass_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_pass()
+
+
 class TestLambdaFunctionStepByStepCustom(unittest.TestCase):
 
     def setUp(self):
@@ -149,6 +158,15 @@ test_lambda_function(1,
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 1: word * echo"
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
+    def test_fail_8_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_fail_8()
+
+    def test_pass_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_pass()
+
 
 
 class TestLambdaFunctionDifferentform(unittest.TestCase):

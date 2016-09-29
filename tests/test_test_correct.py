@@ -43,5 +43,22 @@ class TestExercise1(unittest.TestCase):
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'The contents of <code>test</code> aren\'t correct.')
 
+    def test_Fail2_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Fail2()
+
+    def test_Pass2_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Pass2()
+
+    def test_Fail2_mix_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"], count=1)
+        self.test_Fail2()
+        
+    def test_Pass2_mix_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"], count=1)
+        self.test_Pass2()
+
+
 if __name__ == "__main__":
     unittest.main()

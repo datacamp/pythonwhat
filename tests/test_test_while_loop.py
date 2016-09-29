@@ -56,5 +56,13 @@ while offset != 0 :
         self.assertIn("Are you sure you assigned the correct value to <code>offset</code>", sct_payload['message'])
         helper.test_lines(self, sct_payload, 4, 4, 5, 23)
 
+    def test_Pass_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"], with_args=True)
+        self.test_Pass()
+
+    def test_Fail2_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"], with_args=True)
+        self.test_Fail2()
+
 if __name__ == "__main__":
     unittest.main()

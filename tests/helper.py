@@ -1,5 +1,6 @@
 from pythonbackend.Exercise import Exercise
 from pythonbackend import utils
+import re
 
 def get_sct_payload(output):
     output = [out for out in output if out['type'] == 'sct']
@@ -40,4 +41,7 @@ def test_builtin(test, name, params, arguments):
     sct_payload = run(test.data)
     test.assertTrue(sct_payload['correct'])
 
+def remove_lambdas(sct_str, count=0, with_args = False): 
+    if with_args: return re.sub("lambda.*?:", "", sct_str, count=count)
+    else: return re.sub("lambda:", "", sct_str, count=count)
 

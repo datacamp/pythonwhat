@@ -4,7 +4,14 @@ import inspect
 
 def sub_test(state, rep, closure, subtree_student=None, subtree_solution=None, incorrect_part="",
                 student_context=None, solution_context=None, expand_message=""):
-    if closure:
+    # recurse for a list of tests
+    if hasattr(closure, '__len__'):
+        for c in closure: 
+            sub_test(state, rep, c, subtree_student, subtree_solution, incorrect_part,
+                    student_context, solution_context, expand_message)
+        return
+    # otherwise, call a single test
+    elif closure:
         # check if it's using the old closure syntax
         pars = inspect.signature(closure).parameters
         state_arg = lambda arg: arg.default == arg.empty and arg.name == "state"
@@ -23,6 +30,7 @@ def sub_test(state, rep, closure, subtree_student=None, subtree_solution=None, i
             child.student_context = student_context
         if solution_context is not None:
             child.solution_context = solution_context
+        
         closure()
 
         if descend_to_child: 
@@ -47,7 +55,9 @@ def state_decorator(f):
 
     @wraps(f)
     def wrapper(*args, **kwargs):
-        if kwargs.get('state'):
+        ba = inspect.signature(f).bind(*args, **kwargs)
+        ba.apply_defaults()
+        if ba.arguments.get('state'):
             return f(*args, **kwargs)
         elif State.TEST_TOP_LEVEL:
             State.TEST_TOP_LEVEL = False

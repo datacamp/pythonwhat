@@ -147,6 +147,7 @@ def test_comp(comp_type, state=None, **kwargs):
 
     # test ifs, one by one
     if kwargs['ifs'] is not None:
+        ifs = [kwargs['ifs']] if not hasattr(kwargs['ifs'], '__len__') else kwargs['ifs']
         c_insufficient_ifs_msg = kwargs['insufficient_ifs_msg'] or \
             ("Have you used %s ifs inside the %s %s?" % (len(solution_comp['ifs']), get_ord(index), typestr))
         rep.do_test(EqualTest(len(student_comp['ifs']), len(solution_comp['ifs']),
@@ -154,10 +155,10 @@ def test_comp(comp_type, state=None, **kwargs):
         if rep.failed_test:
             return
 
-        if len(kwargs['ifs']) != len(solution_comp['ifs']):
+        if len(ifs) != len(solution_comp['ifs']):
             raise ValueError("If you specify tests for the ifs, pass a list with the same length as the number of ifs in the solution")
 
-        for i, if_test in enumerate(kwargs['ifs']):
+        for i, if_test in enumerate(ifs):
             psub_test(if_test, student_comp['ifs'][i], solution_comp['ifs'][i], ("%s if") % get_ord(i + 1))
             if rep.failed_test:
                 return

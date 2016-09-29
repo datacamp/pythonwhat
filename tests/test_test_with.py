@@ -72,6 +72,25 @@ success_msg("Nice work!")
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_Fail2_no_lam(self):
+        self.data["DC_SCT"] = '''
+test_with(1, body = [test_function('print', index = i + 1) for i in range(3)], expand_message = False)
+success_msg("Nice work!")
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertNotIn("Check the body of the first <code>with</code>.", sct_payload['message'])
+        # line info should be specific to test_function
+        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
+
+    def test_Pass1_no_lam(self):
+        self.data["DC_SCT"] = '''
+test_with(2, body = test_for_loop(1, body = test_if_else(1, body = test_function('print'))))
+success_msg("Nice work!")
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 class TestExercise2(unittest.TestCase):
 
     def setUp(self):
@@ -247,6 +266,15 @@ test_with(1,
             lambda: test_function('open')],
                  body = test_with_body
 )
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_Pass1_no_lam(self):
+        self.data["DC_SCT"] = '''
+test_with(1,
+          context_tests = [test_function('open'), test_function('open')],
+          body = [test_function('print', 1), test_function('print', 2)])
         '''
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])

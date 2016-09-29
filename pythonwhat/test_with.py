@@ -104,6 +104,7 @@ with open_file('...') as file:
         return
 
     if body is not None:
+        body = [body] if not hasattr(body, '__len__') else body
 
         solution_res = setUpNewEnvInProcess(process = state.solution_process,
                                             context = solution_with['context'])
@@ -124,7 +125,7 @@ with open_file('...') as file:
 
         child = state.to_child_state(student_with['body'], solution_with['body'])
         try:
-            sub_test(state, rep, body, None, None)
+            for test in body: sub_test(state, rep, test, None, None)
         finally:
             if breakDownNewEnvInProcess(process = state.solution_process):
                 raise Exception("error in the solution, closing the %s with fails with: %s" %

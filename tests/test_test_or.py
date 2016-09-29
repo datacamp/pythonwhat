@@ -40,5 +40,13 @@ class TestExercise1(unittest.TestCase):
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.")
 
+    def test_Pass4_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Pass4()
+
+    def test_Fail1_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Fail1()
+
 if __name__ == "__main__":
     unittest.main()

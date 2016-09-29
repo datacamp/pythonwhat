@@ -1,5 +1,6 @@
 import pprint as pp
 import itertools
+import inspect
 
 TEST_NAMES = [
     "test_mc",
@@ -28,17 +29,23 @@ TEST_NAMES = [
     "test_expression_result",
     "test_expression_output",
     "test_function_definition",
-    "test_object_after_expression"
+    "test_object_after_expression",
+    "success_msg"
 ]
 
 SUB_TESTS = {
     "test_if_else": ['test', 'body', 'orelse'],
-    "test_list_comp": ['body', 'ifs'],
-    "test_dict_comp": ['key', 'value', 'ifs'],
-    "test_generator_exp": ['body', 'ifs'],
+    "test_list_comp": ['comp_iter', 'body', 'ifs'],
+    "test_dict_comp": ['comp_iter', 'key', 'value', 'ifs'],
+    "test_correct": ['check', 'diagnose'],
+    "test_generator_exp": ['comp_iter', 'body', 'ifs'],
     "test_for_loop": ['for_iter', 'body', 'orelse'],
     "test_try_except": ['body', 'value', 'test'],
-    "test_while_loop": ['test', 'body', 'orelse']
+    "test_while_loop": ['test', 'body', 'orelse'],
+    "test_with": ['context_tests', 'body'],
+    "test_function_definition": ['body'],
+    "test_or": ['tests'],
+    "test_lambda_function": ['body']
 }
 
 class Tree(object):
@@ -56,10 +63,9 @@ class Tree(object):
     def __str__(self):
         return self.str_branch(self.crnt_node)
 
-    @classmethod
-    def descend(cls, node=None):
+    def descend(self, node=None):
         node = self.crnt_node if node is None else node
-        children = map(cls.descend, node.child_list)
+        children = map(self.descend, node.child_list)
         base = [node] if node.name != "root" else []
         return sum(children, base)
 
@@ -77,21 +83,31 @@ class Node(object):
         self._add_child_callback = None
 
     def __call__(self):
-        self.data['func'](**self.data['bound_args'])
+        ba = self.data['bound_args']
+        self.data['func'](*ba.args, **ba.kwargs)
 
     def update_child_calls(self):
         # TODO can use count dict in collection lib?
-        arg_names = set(node.arg_name for node in self.child_list)
+        from functools import partial
+        arg_names = set(node.arg_name for node in self.child_list if node.arg_name)
         for name in arg_names:
-            args = list(filter(lambda n: n.arg_name == name, self.child_list))
+            node_dat = map(lambda x: x.data, filter(lambda n: n.arg_name == name, self.child_list))
+            args = list(map(lambda d: partial(d['func'], **d['bound_args'].arguments), node_dat))
             args = args[0] if len(args) == 1 else args
-            self.data['bound_args'] = args
+            self.data['bound_args'].arguments[name] = args
 
+    def remove_child(self, node):
+        indx = self.child_list.index(node)
+        del self.child_list[indx]
+        return indx
 
     def serialize(self):
         return [[c.serialize() for c in self.child_list], self.data]
 
     def add_child(self, child):
+        # since it is a tree, there is only one parent 
+        # note this means we do not allow edges between same layer units
+        if child.parent: child.parent.remove_child(child)
         child.parent = self
         self.child_list.append(child)
         if self._add_child_callback: self._add_child_callback(child)
@@ -123,8 +139,8 @@ class Probe(object):
         par_names = list(bound_args.signature.parameters.keys())
 
         data = dict(
-                bound_args =  bound_args.arguments, 
-                par_names=par_names, 
+                bound_args = bound_args, 
+                par_names= par_names, 
                 func = self.f)
         this_node = Node(data=data, name=self.test_name, arg_name = self.tree.crnt_test_name)
         self.tree.crnt_node.add_child(this_node)
@@ -134,18 +150,22 @@ class Probe(object):
         for st in self.sub_tests: 
             if st in da and da[st]:
                 self.run_sub_tests(da[st], self.tree, this_node, st)
+        return this_node
 
     def run_sub_tests(self, test, tree, node, arg_name):
-        prev_node, crnt_node = tree.crnt_node, node
-        tree.crnt_node = crnt_node
-        tree.crnt_test_name = arg_name
         # note that I've made the strong assumption that
         # if not a function, then test is a list or tuple of them
-        if callable(test): test()
-        else: 
-            for f in test: f()
-        tree.crnt_node = prev_node
-        tree.crnt_test_name = ""
+        if hasattr(test, '__len__'): 
+            for f in test: self.run_sub_tests(f, tree, node, arg_name)
+        elif isinstance(test, Node): node.add_child(test)
+        elif callable(test): 
+            prev_node, tree.crnt_node = tree.crnt_node, node
+            tree.crnt_test_name = arg_name
+            test()
+            tree.crnt_node = prev_node
+            tree.crnt_test_name = ""
+        elif test is not None:
+            raise Exception("Expected a function or list of functions")
         
 
 
@@ -159,13 +179,5 @@ def create_test_probes(test_exercise):
     new_context = {f.__name__: Probe(tree, f) for f in all_tests} 
     if not isinstance(test_exercise, ModuleType):
         new_context.update({k:v for k,v in test_exercise.items() if k not in new_context})
-    new_context['success_msg'] =  lambda s: s
+    #new_context['success_msg'] =  lambda s: s
     return tree, new_context
-
-import inspect
-def match_args(f, *args, **kwargs):
-    bound_args = inspect.signature(f).bind(*args, **kwargs)
-    manual_args = bound_args.arguments
-    bound_args.apply_defaults()
-
-    return manual_args, bound_args.arguments

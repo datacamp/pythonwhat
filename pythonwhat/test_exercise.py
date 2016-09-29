@@ -35,12 +35,11 @@ from pythonwhat.test_object_after_expression import test_object_after_expression
 from inspect import Parameter as param
 from pythonwhat.signatures import sig_from_params, sig_from_obj
 from pythonwhat.State import set_converter
+from pythonwhat.probe import create_test_probes
 
 from pythonwhat.sub_test import state_decorator
 
 all_test_names = list(filter(lambda s: s != 'test_exercise' and s.startswith('test'), globals().keys()))
-print(all_test_names)
-print('test_list_comp' in all_test_names)
 
 for t in all_test_names: globals()[t] = state_decorator(globals()[t])
 
@@ -86,9 +85,14 @@ def test_exercise(sct,
     State.set_active_state(state)
     State.TEST_TOP_LEVEL = True
 
+    tree, context = create_test_probes(globals())
+    exec(sct, context)
+
     # check if no fails yet (can be because of syntax and indentation errors)
     if not rep.failed_test:
-        exec(sct)
+        for test in tree.descend(): test.update_child_calls()
+        for test in tree.crnt_node: 
+            test()
 
     return(rep.build_payload(error))
 
