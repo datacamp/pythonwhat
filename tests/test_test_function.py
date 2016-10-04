@@ -524,7 +524,7 @@ class TestFunctionDoEval(unittest.TestCase):
              "DC_SCT": "test_function('round', do_eval = None)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Have you specified all required arguments inside <code>round()</code>? You should specify the keyword <code>ndigits</code> explicitly by its name.", sct_payload['message'])
+        self.assertEqual("Have you specified all required arguments inside <code>round()</code>?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 1, 14)
 
     def test_do_eval_none_fail2(self):
@@ -534,7 +534,7 @@ class TestFunctionDoEval(unittest.TestCase):
              "DC_SCT": "test_function('round', do_eval = None)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Have you specified all required arguments inside <code>round()</code>? You should specify one argument without naming it.", sct_payload['message'])
+        self.assertEqual("Have you specified all required arguments inside <code>round()</code>?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 1, 23)
 
     def test_do_eval_none_fail3(self):
@@ -544,7 +544,7 @@ class TestFunctionDoEval(unittest.TestCase):
              "DC_SCT": "test_function('round', do_eval = None)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Have you specified all required arguments inside <code>round()</code>? You should specify two arguments without naming them.", sct_payload['message'])
+        self.assertEqual("Have you specified all required arguments inside <code>round()</code>?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 1, 14)
 
 class Test_MultipleCalls(unittest.TestCase):
