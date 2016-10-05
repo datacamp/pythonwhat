@@ -40,8 +40,6 @@ def test_try_except(index=1,
     c_not_called_msg = not_called_msg or \
         ("The system wants to check the %s try-except block you defined but hasn't found it." % get_ord(index))
     rep.do_test(BiggerTest(len(student_try_excepts), index - 1, Feedback(c_not_called_msg)))
-    if rep.failed_test:
-        return
 
     student_try_except = student_try_excepts[index - 1]
 
@@ -68,14 +66,10 @@ def test_try_except(index=1,
 
         rep.do_test(DefinedCollTest(key, student_try_except['handlers'],
             Feedback(c_except_missing_msg, student_try_except['try_except'])))
-        if rep.failed_test:
-            return
 
         student_except = student_try_except['handlers'][key]
 
         psub_test(value, student_except.body, solution_except.body, incorrect_part, student_except.name, solution_except.name)
-        if rep.failed_test:
-            return
 
     def test_part(el, incorrect_part, missing_msg, test):
         if len(solution_try_except[el]) == 0:
@@ -91,11 +85,6 @@ def test_try_except(index=1,
 
     if orelse is not None:
         test_part("orelse", "`else` part", orelse_missing_msg, orelse)
-        if rep.failed_test:
-            return
 
     if finalbody is not None:
         test_part("finalbody", "`finally` part", finalbody_missing_msg, finalbody)
-        if rep.failed_test:
-            return
-

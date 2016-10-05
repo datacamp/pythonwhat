@@ -47,7 +47,7 @@ test_lambda_function(1,
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 1: 2 * echo"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "In your definition of the first lambda function, could not find the correct pattern in your code.")
+        self.assertEqual(sct_payload['message'], "Check your definition of the first lambda function. Could not find the correct pattern in your code.")
         helper.test_lines(self, sct_payload, 1, 1, 36, 43)
 
     def test_fail_6(self):

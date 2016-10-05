@@ -12,6 +12,8 @@ the result boolean. A test contains a failure message, which can be used by the 
 show when the test failed.
 """
 
+class TestFail(Exception):
+    pass
 
 class Test(object):
     """

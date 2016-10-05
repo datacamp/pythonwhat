@@ -30,14 +30,10 @@ def test_dictionary(name,
     if not undefined_msg:
         undefined_msg = "Are you sure you defined the dictionary `%s`?" % name
     rep.do_test(DefinedProcessTest(name, student_process, Feedback(undefined_msg)))
-    if rep.failed_test:
-        return
 
     if not not_dictionary_msg:
         not_dictionary_msg = "`%s` is not a dictionary." % name
     rep.do_test(InstanceProcessTest(name, dict, student_process, Feedback(not_dictionary_msg)))
-    if rep.failed_test:
-        return
 
     sol_keys = getKeysInProcess(name, solution_process)
     if sol_keys is None:
@@ -58,8 +54,6 @@ def test_dictionary(name,
         else:
             msg = key_missing_msg
         rep.do_test(DefinedCollProcessTest(name, key, student_process, Feedback(msg)))
-        if rep.failed_test:
-            return
 
 
         sol_value = getValueInProcess(name, key, solution_process)
@@ -72,5 +66,3 @@ def test_dictionary(name,
         else:
             msg = incorrect_value_msg
         rep.do_test(EqualValueProcessTest(name, key, student_process, sol_value, Feedback(msg)))
-        if rep.failed_test:
-            return

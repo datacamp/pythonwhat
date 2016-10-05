@@ -110,8 +110,7 @@ def test_function_definition(name,
         ("You didn't define the following function: `%s()`." %
             name)
     rep.do_test(DefinedCollTest(name, student_defs, c_not_called_msg))
-    if rep.failed_test:
-        return
+
     student_def = student_defs[name]
 
     fun_def = student_def['fundef']
@@ -138,9 +137,6 @@ def test_function_definition(name,
                     other_args_msg=other_args_msg,
                     name=fun_name)
 
-    if rep.failed_test:
-        return
-
     test_body(rep=rep,
               state=state,
               body=body,
@@ -150,9 +146,6 @@ def test_function_definition(name,
               args_solution=solution_def['args'],
               name=fun_name,
               expand_message=expand_message)
-
-    if rep.failed_test:
-        return
 
     if results is not None:
         for el in results:
@@ -182,11 +175,6 @@ def test_function_definition(name,
                 ("Calling `%s` should result in `%s`, instead got `%s`." %
                     (call_str, str_solution, str_student))
             rep.do_test(EqualTest(eval_solution, eval_student, c_wrong_result_msg))
-            if rep.failed_test:
-                return
-
-    if rep.failed_test:
-        return
 
     if outputs is not None:
         for el in outputs:
@@ -214,8 +202,6 @@ def test_function_definition(name,
                 ("Calling `%s` should output `%s`, instead got %s." %
                     (call_str, output_solution, "no output" if len(output_student) == 0 else "`%s`" % output_student))
             rep.do_test(EqualTest(output_solution, output_student, c_wrong_output_msg))
-            if rep.failed_test:
-                return
 
     if errors is not None:
         for el in errors:
@@ -240,8 +226,6 @@ def test_function_definition(name,
             feedback_msg = wrong_error_msg or ("Calling `%s` should result in a `%s`, instead got a `%s`." % \
                 (call_str, error_solution.__class__.__name__, error_student.__class__.__name__))
             rep.do_test(InstanceTest(error_student, error_solution.__class__, feedback_msg))
-            if rep.failed_test:
-                return
 
 
 def stringify(arguments):
@@ -285,8 +269,6 @@ def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
                 (name, nb_args_solution, nb_args_student))
 
         rep.do_test(EqualTest(nb_args_solution, nb_args_student, Feedback(c_nb_args_msg, fun_def)))
-        if rep.failed_test:
-            return
 
         for i in range(nb_args_solution):
             arg_name_solution, arg_default_solution = args_solution[i]
@@ -297,8 +279,6 @@ def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
                         (name, get_ord(i+1), arg_name_solution, arg_name_student))
                 rep.do_test(
                     EqualTest(arg_name_solution, arg_name_student, Feedback(c_arg_names_msg, fun_def)))
-                if rep.failed_test:
-                    return
 
             if arg_defaults:
 
@@ -331,8 +311,6 @@ def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
                         else :
                             rep.do_test(EqualTest(eval_student, eval_solution, Feedback(c_arg_defaults_msg, arg_default_student)))
 
-                if rep.failed_test:
-                    return
 
 def test_other_args(rep, arg_names, args_student, args_solution, fun_def, other_args_msg, name):
     if arg_names:
@@ -350,8 +328,6 @@ def test_body(rep, state, body,
               args_student, args_solution,
               name, expand_message):
     if body is not None:
-        if rep.failed_test:
-            return
         child = state.to_child_state(subtree_student, subtree_solution)
         child.solution_context = [arg[0] for arg in args_solution['args']]
         if args_solution['vararg'] is not None:
@@ -365,11 +341,9 @@ def test_body(rep, state, body,
         if args_student['kwarg'] is not None:
             child.student_context += [args_student['kwarg']]
 
-        body()
+        # TODO modified so it didn't change original message
+        #      but this could always be reimplimented with callbacks
+        feedback = "Check your definition of %s. " %name if expand_message else ""
+
+        rep.do_test(body, feedback, fallback_ast=subtree_student)
         child.to_parent_state()
-        if rep.failed_test:
-            if expand_message:
-                rep.feedback.message = ("In your definition of %s, " % name) + \
-                    utils.first_lower(rep.feedback.message)
-            if not rep.feedback.line_info:
-                rep.feedback = Feedback(rep.feedback.message, subtree_student)
