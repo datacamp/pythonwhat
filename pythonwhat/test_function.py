@@ -119,25 +119,13 @@ def test_function(name,
             keyw_student = {keyword.arg: keyword.value for keyword in keyw_student}
 
             success = True
-            start = "Have you specified all required arguments inside `%s()`?" % stud_name
-
-            if len(args) > 0 and (max(args) >= len(args_student)):
-                if feedback is None:
-                    if not args_not_specified_msg:
-                        n = max(args)
-                        if n == 0:
-                            args_not_specified_msg = start + " You should specify one argument without naming it."
-                        else:
-                            args_not_specified_msg = start + (" You should specify %s arguments without naming them." % get_num(n + 1))
-                    feedback = Feedback(args_not_specified_msg, student_call)
-                success = False
-                continue
+            dflt = "Have you specified all required arguments inside `%s()`?" % stud_name
 
             setdiff = list(set(keywords) - set(keyw_student.keys()))
-            if len(setdiff) > 0:
+            if (len(args) > 0 and (max(args) >= len(args_student))) or len(setdiff) > 0:
                 if feedback is None:
                     if not args_not_specified_msg:
-                        args_not_specified_msg = start + " You should specify the keyword `%s` explicitly by its name." % setdiff[0]
+                        args_not_specified_msg = dflt
                     feedback = Feedback(args_not_specified_msg, student_call)
                 success = False
                 continue
