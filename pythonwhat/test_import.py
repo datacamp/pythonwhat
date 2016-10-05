@@ -53,9 +53,6 @@ def test_import(name,
 
     rep.do_test(DefinedCollTest(name, student_imports, not_imported_msg))
 
-    if rep.failed_test:
-        return
-
     if (same_as):
         if incorrect_as_msg is None:
             incorrect_as_msg = "Did you set the correct alias for `%s`?" % name

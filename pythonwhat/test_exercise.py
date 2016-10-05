@@ -1,6 +1,7 @@
 from pythonwhat.State import State
 from pythonwhat.utils import check_str, check_dict, check_process
 from pythonwhat.Reporter import Reporter
+from pythonwhat.Test import TestFail
 
 # explicitly import all functions so that they can be used in SCT
 from pythonwhat.test_mc import test_mc
@@ -91,8 +92,10 @@ def test_exercise(sct,
     # check if no fails yet (can be because of syntax and indentation errors)
     if not rep.failed_test:
         for test in tree.descend(): test.update_child_calls()
-        for test in tree.crnt_node: 
-            test()
+        try:
+            for test in tree.crnt_node: 
+                test()
+        except TestFail: pass
 
     return(rep.build_payload(error))
 

@@ -65,9 +65,6 @@ def test_object(name,
 
     rep.do_test(DefinedProcessTest(name, student_process, Feedback(undefined_msg)))
 
-    if (rep.failed_test):
-        return
-
     if do_eval:
         ass_node = get_assignment_node(student_obj_ass, name)
 

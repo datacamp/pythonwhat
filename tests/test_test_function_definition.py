@@ -50,7 +50,7 @@ shout( 'help' )
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "In your definition of <code>shout()</code>, make sure to output the correct string.")
+        self.assertEqual(sct_payload['message'], "Check your definition of <code>shout()</code>. Make sure to output the correct string.")
         helper.test_lines(self, sct_payload, 3, 4, 5, 30)
 
     def test_Pass_no_lam(self):
@@ -369,7 +369,7 @@ def shout():
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, are you sure you assigned the correct value to <code>shout_word</code>?')
+        self.assertEqual(sct_payload['message'], 'Check your definition of <code>shout()</code>. Are you sure you assigned the correct value to <code>shout_word</code>?')
         # line info specific to test_object_after_expression!
         helper.test_lines(self, sct_payload, 3, 3, 5, 41)
 
@@ -380,7 +380,7 @@ def shout():
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'In your definition of <code>shout()</code>, are you sure you assigned the correct value to <code>shout_word</code>?')
+        self.assertEqual(sct_payload['message'], 'Check your definition of <code>shout()</code>. Are you sure you assigned the correct value to <code>shout_word</code>?')
         # line info specific to test_object_after_expression!
         helper.test_lines(self, sct_payload, 3, 3, 5, 41)
 
@@ -515,7 +515,7 @@ def shout(word):
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("In your definition of <code>shout()</code>, have you defined <code>shout_word</code> without errors?", sct_payload['message'])
+        self.assertEqual("Check your definition of <code>shout()</code>. Have you defined <code>shout_word</code> without errors?", sct_payload['message'])
 
 class TestFunctionDefinitionNonLocal(unittest.TestCase):
     def test_pass(self):
@@ -657,7 +657,7 @@ def my_fun(x, y = 4, z = ['a', 'b'], *args, **kwargs):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("In your definition of <code>my_fun()</code>, have you defined <code>k</code> without errors?", sct_payload['message'])
+        self.assertEqual("Check your definition of <code>my_fun()</code>. Have you defined <code>k</code> without errors?", sct_payload['message'])
 
     def test_fail_8(self):
         self.data["DC_CODE"] = '''
@@ -668,7 +668,7 @@ def my_fun(x, y = 4, z = ['a', 'b'], *args, **kwargs):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("In your definition of <code>my_fun()</code>, are you sure you assigned the correct value to <code>k</code>?", sct_payload['message'])
+        self.assertEqual("Check your definition of <code>my_fun()</code>. Are you sure you assigned the correct value to <code>k</code>?", sct_payload['message'])
 
     def test_fail_9(self):
         self.data["DC_CODE"] = '''

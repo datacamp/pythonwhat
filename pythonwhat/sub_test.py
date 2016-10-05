@@ -26,21 +26,18 @@ def sub_test(state, rep, closure, subtree_student=None, subtree_solution=None, i
         else:
             # TODO set child to state
             child = State.active_state
+
         if student_context is not None:
             child.student_context = student_context
         if solution_context is not None:
             child.solution_context = solution_context
         
-        closure()
+        prefix = expand_message.format(incorrect_part=incorrect_part) if expand_message else ""
+        rep.do_test(closure, prefix, subtree_student)
 
         if descend_to_child: 
             child.to_parent_state()
         State.TEST_CLOSURE_SYNTAX = False
-        if rep.failed_test:
-            if expand_message:
-                rep.feedback.message = expand_message.format(incorrect_part = incorrect_part) + rep.feedback.message
-            if not rep.feedback.line_info:
-                rep.feedback = Feedback(rep.feedback.message, subtree_student)
 
 
 from functools import wraps, partial

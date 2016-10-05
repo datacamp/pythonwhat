@@ -77,8 +77,6 @@ def test_lambda_function(index,
     c_not_called_msg = not_called_msg or \
         ("The system wants to check the %s lambda function you defined but hasn't found it." % get_ord(index))
     rep.do_test(BiggerTest(len(student_lambdas), index - 1, Feedback(c_not_called_msg)))
-    if rep.failed_test:
-        return
 
     student_lambda = student_lambdas[index - 1]
 
@@ -99,9 +97,6 @@ def test_lambda_function(index,
               solution_process=state.solution_process,
               name=fun_name)
 
-    if rep.failed_test:
-        return
-
     # sub-scts expect a module, so wrap the lambda body in a list!"
     test_body(rep=rep,
               state=state,
@@ -112,9 +107,6 @@ def test_lambda_function(index,
               args_solution=solution_lambda['args'],
               name=fun_name,
               expand_message=expand_message)
-
-    if rep.failed_test:
-        return
 
     for el in results:
         parsed = ast.parse(el).body[0].value
@@ -141,8 +133,6 @@ def test_lambda_function(index,
             ("Calling %s with arguments `%s` should result in `%s`, instead got `%s`." %
                 (fun_name, argstr, str_solution, str_student))
         rep.do_test(EqualTest(eval_solution, eval_student, Feedback(c_wrong_result_msg, student_fun)))
-        if rep.failed_test:
-            return
 
     for el in errors:
         parsed = ast.parse(el).body[0].value

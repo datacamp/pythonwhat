@@ -92,12 +92,8 @@ def test_function(name,
         raise NameError("%r not in solution environment (often enough)" % name)
 
     rep.do_test(DefinedCollTest(name, student_calls, not_called_msg))
-    if rep.failed_test:
-        return
 
     rep.do_test(BiggerTest(len(student_calls[name]), index, not_called_msg))
-    if rep.failed_test:
-        return
 
     solution_call, args_solution, keyw_solution = solution_calls[name][index]
     keyw_solution = {keyword.arg: keyword.value for keyword in keyw_solution}
@@ -319,12 +315,8 @@ def test_function_v2(name,
         raise NameError("%r not in solution environment (often enough)" % name)
 
     rep.do_test(DefinedCollTest(name, student_calls, not_called_msg))
-    if rep.failed_test:
-        return
 
     rep.do_test(BiggerTest(len(student_calls[name]), index, not_called_msg))
-    if rep.failed_test:
-        return
 
     if len(params) > 0:
 
