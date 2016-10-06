@@ -12,7 +12,8 @@ def test_if_else(index=1,
                  test=None,
                  body=None,
                  orelse=None,
-                 expand_message=True):
+                 expand_message=True,
+                 use_if_exp=False):
     """Test parts of the if statement.
 
     This test function will allow you to extract parts of a specific if statement and perform a set of tests
@@ -72,9 +73,14 @@ def test_if_else(index=1,
 
     index = index - 1
 
-    state.extract_if_calls()
-    student_ifs = state.student_if_calls
-    solution_ifs = state.solution_if_calls
+    if use_if_exp:
+        state.extract_if_exp_calls()
+        student_ifs = state.student_if_exp_calls
+        solution_ifs = state.solution_if_exp_calls
+    else:
+        state.extract_if_calls()
+        student_ifs = state.student_if_calls
+        solution_ifs = state.solution_if_calls
 
     try:
         test_student, body_student, orelse_student = student_ifs[index]
@@ -92,3 +98,6 @@ def test_if_else(index=1,
     psub_test(test, test_student, test_solution, "condition")
     psub_test(body, body_student, body_solution, "body")
     psub_test(orelse, orelse_student, orelse_solution, "else part")
+
+
+test_if_exp = partial(test_if_else, use_if_exp = True)
