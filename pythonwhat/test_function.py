@@ -402,16 +402,14 @@ def test_function_v2(name,
             rep.do_test(Test(feedback))
 
 def get_mapped_name(name, mappings):
-    mapped_name = name
-    if "." in mapped_name:
+    if "." in name:
         mappings_rev = {v: k for k, v in mappings.items()}
         els = name.split(".")
         for i in range(1, len(els)):
             front_part = ".".join(els[0:i])
             if front_part in mappings_rev.keys():
-                mapped_name = mappings_rev[front_part] + "." + ".".join(els[i:])
-                break
-    return(mapped_name)
+                return mappings_rev[front_part] + "." + ".".join(els[i:])
+    return name
 
 def bind_args(signature, arguments, keyws):
     keyws = {keyword.arg: keyword.value for keyword in keyws}
