@@ -586,7 +586,7 @@ class FunctionBodyTransformer(ast.NodeTransformer):
         return FunctionBodyTransformer.decorate(new_node, node)
 
     def visit_Return(self, node):
-        new_node = ast.copy_location(ast.Pass(), node)
+        new_node = ast.copy_location(ast.Expr(value = node.value), node)
         return FunctionBodyTransformer.decorate(new_node, node)
 
     def decorate(new_node, node):

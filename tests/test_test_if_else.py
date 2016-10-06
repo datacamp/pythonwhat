@@ -323,7 +323,7 @@ class TestIfExp(unittest.TestCase):
         self.data = {
                 "DC_SOLUTION": """
 x = 2 if True else 1
-def f(): return 4 if True else 3
+def f(): 4 if True else 3
 y = 5 if True else 4
                 """,
                 "DC_SCT": "test_if_exp(index=2, body=lambda: test_expression_result())",
@@ -338,7 +338,6 @@ y = 5 if True else 4
         self.data["DC_SCT"] = "test_function_definition('f', body=lambda: test_if_exp(1, body=lambda: test_expression_result()))"
         self.data["DC_CODE"] = "def f(): return 4 if True else 3"
         sct_payload = helper.run(self.data)
-        print(sct_payload)
         self.assertTrue(sct_payload['correct'])
 
     def test_if_exp_within_func_fail(self):
