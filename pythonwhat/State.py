@@ -1,6 +1,6 @@
 import ast
 import inspect
-from pythonwhat.parsing import FunctionParser, ObjectAccessParser, ObjectAssignmentParser, IfParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, LambdaFunctionParser, ListCompParser, DictCompParser, GeneratorExpParser, WithParser, TryExceptParser
+from pythonwhat.parsing import FunctionParser, ObjectAccessParser, ObjectAssignmentParser, IfParser, IfExpParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, LambdaFunctionParser, ListCompParser, DictCompParser, GeneratorExpParser, WithParser, TryExceptParser
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils_ast
@@ -62,6 +62,9 @@ class State(object):
 
         self.student_if_calls = None
         self.solution_if_calls = None
+
+        self.student_if_exp_calls = None
+        self.solution_if_exp_calls = None
 
         self.student_while_calls = None
         self.solution_while_calls = None
@@ -189,6 +192,17 @@ class State(object):
             ip = IfParser()
             ip.visit(self.solution_tree)
             self.solution_if_calls = ip.ifs
+
+    def extract_if_exp_calls(self):
+        if (self.student_if_exp_calls is None):
+            ip = IfExpParser()
+            ip.visit(self.student_tree)
+            self.student_if_exp_calls = ip.ifexps
+
+        if (self.solution_if_exp_calls is None):
+            ip = IfExpParser()
+            ip.visit(self.solution_tree)
+            self.solution_if_exp_calls = ip.ifexps
 
     def extract_while_calls(self):
         if (self.student_while_calls is None):

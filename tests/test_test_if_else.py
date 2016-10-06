@@ -184,6 +184,10 @@ test_if_else(index=1,
 success_msg("Nice")
             '''
         }
+        self.IF_EXP_SOLUTION = '''
+offset = 8
+x = 5 if offset > 8 else 7 if offset > 5 else round(9)
+'''
 
     def testPass(self):
         self.data["DC_CODE"] = '''
@@ -273,6 +277,75 @@ else:
         self.assertIn("Did you call <code>round()</code> with the correct arguments?", sct_payload['message'])
         # should be localized
         helper.test_lines(self, sct_payload, 8, 8, 15, 16)
+
+    def testPass_if_exp(self):
+        self.data["DC_SOLUTION"] = self.IF_EXP_SOLUTION
+        self.data["DC_SCT"] = helper.replace_test_if(self.data["DC_SCT"])
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail_if_cond_if_exp(self):
+        self.data["DC_SOLUTION"] = self.IF_EXP_SOLUTION
+        self.data["DC_CODE"] = "x = 5 if offset > 9 else 7 if offset > 5 else round(9)"
+        self.data["DC_SCT"] = helper.replace_test_if(self.data["DC_SCT"])
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Unexpected expression", sct_payload['message'])
+        #helper.test_lines(self, sct_payload, 3, 3, 4, 13)
+
+    def test_fail_if_body_if_exp(self):
+        self.data["DC_SOLUTION"] = self.IF_EXP_SOLUTION
+        self.data["DC_CODE"] = "x = 6 if offset > 8 else 7 if offset > 5 else round(9)"
+        self.data["DC_SCT"] = helper.replace_test_if(self.data["DC_SCT"])
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "incorrect_if")
+
+    def test_fail_elif_cond_if_exp(self):
+        self.data["DC_SOLUTION"] = self.IF_EXP_SOLUTION
+        self.data["DC_CODE"] = "x = 5 if offset > 8 else 7 if offset > 6 else round(9)"
+        self.data["DC_SCT"] = helper.replace_test_if(self.data["DC_SCT"])
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Unexpected expression", sct_payload['message'])
+
+    def test_fail_else_body_if_exp(self):
+        self.data["DC_SOLUTION"] = self.IF_EXP_SOLUTION
+        self.data["DC_CODE"] = "5 if offset > 8 else 7 if offset > 5 else round(10)"
+        self.data["DC_SCT"] = helper.replace_test_if(self.data["DC_SCT"])
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Did you call <code>round()</code> with the correct arguments?", sct_payload['message'])
+
+class TestIfExp(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+                "DC_SOLUTION": """
+x = 2 if True else 1
+def f(): return 4 if True else 3
+y = 5 if True else 4
+                """,
+                "DC_SCT": "test_if_exp(index=2, body=lambda: test_expression_result())",
+                "DC_CODE": "x = 2 if True else 1; y = 5 if True else 4"
+                }
+
+    def test_if_exp_skips_func_body(self):
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_if_exp_within_func(self):
+        self.data["DC_SCT"] = "test_function_definition('f', body=lambda: test_if_exp(1, body=lambda: test_expression_result()))"
+        self.data["DC_CODE"] = "def f(): return 4 if True else 3"
+        sct_payload = helper.run(self.data)
+        print(sct_payload)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_if_exp_within_func_fail(self):
+        self.data["DC_SCT"] = "test_function_definition('f', body=lambda: test_if_exp(body=lambda: test_expression_result()))"
+        self.data["DC_CODE"] = "def f(): return 'wrong' if True else 3"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
 
 if __name__ == "__main__":
     unittest.main()

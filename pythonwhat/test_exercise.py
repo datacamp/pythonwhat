@@ -14,6 +14,7 @@ from pythonwhat.test_import import test_import
 from pythonwhat.test_object import test_object
 from pythonwhat.test_correct import test_correct
 from pythonwhat.test_if_else import test_if_else
+from pythonwhat.test_if_else import test_if_exp
 from pythonwhat.test_for_loop import test_for_loop
 from pythonwhat.test_function import test_function
 from pythonwhat.test_function import test_print
