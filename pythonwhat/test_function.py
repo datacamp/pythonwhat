@@ -406,8 +406,11 @@ def get_mapped_name(name, mappings):
     if "." in mapped_name:
         mappings_rev = {v: k for k, v in mappings.items()}
         els = name.split(".")
-        if els[0] in mappings_rev.keys():
-                mapped_name = ".".join([mappings_rev[els[0]]] + els[1:])
+        for i in range(1, len(els)):
+            front_part = ".".join(els[0:i])
+            if front_part in mappings_rev.keys():
+                mapped_name = mappings_rev[front_part] + "." + ".".join(els[i:])
+                break
     return(mapped_name)
 
 def bind_args(signature, arguments, keyws):
