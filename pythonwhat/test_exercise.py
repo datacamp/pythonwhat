@@ -67,7 +67,6 @@ def test_exercise(sct,
     if not rep.failed_test:
         for test in tree.descend(): test.update_child_calls()
         try:
-            #import pdb; pdb.set_trace()
             for test in tree.crnt_node: 
                 test()
         except TestFail: pass

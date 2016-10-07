@@ -2,6 +2,8 @@ from pythonbackend.Exercise import Exercise
 from pythonbackend import utils
 import re
 
+import re
+
 def get_sct_payload(output):
     output = [out for out in output if out['type'] == 'sct']
     if (len(output) > 0):
@@ -45,3 +47,5 @@ def remove_lambdas(sct_str, count=0, with_args = False):
     if with_args: return re.sub("lambda.*?:", "", sct_str, count=count)
     else: return re.sub("lambda:", "", sct_str, count=count)
 
+def replace_test_if(sct):
+    return re.sub(r"test_if_else\(", "test_if_exp(", sct)

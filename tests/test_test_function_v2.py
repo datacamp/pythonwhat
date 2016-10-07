@@ -907,5 +907,40 @@ class TestTestPrintStepByStep(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+
+class TestTestMapping(unittest.TestCase):
+    def test_pandas(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "import pandas as pd; pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]})",
+            "DC_CODE": "import pandas as pad; pad.DataFrame({'c': [7, 8, 9], 'd': [10, 11, 12]})",
+            "DC_SCT": "test_function_v2('pandas.DataFrame', params = ['data'])"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Did you call <code>pad.DataFrame()</code> with the correct arguments?", sct_payload['message'])
+
+    def test_mpl(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "import matplotlib.pyplot as plt; plt.hist([1, 2, 3])",
+            "DC_CODE": "import matplotlib.pyplot as plttt; plttt.hist([4, 5, 6])",
+            "DC_SCT": "test_function_v2('matplotlib.pyplot.hist', params = ['x'])"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Did you call <code>plttt.hist()</code> with the correct arguments?", sct_payload['message'])
+
+    def test_numpy(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "import numpy as np; x = np.random.rand(1)",
+            "DC_CODE": "import numpy as nump; x = nump.random.rand(2)",
+            "DC_SCT": "test_function_v2('numpy.random.rand', params = ['d0'])"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Did you call <code>nump.random.rand()</code> with the correct arguments?", sct_payload['message'])
+
 if __name__ == "__main__":
     unittest.main()

@@ -302,11 +302,12 @@ class ObjectAssignmentParser(Parser):
         self.active_assignment = None
 
     def visit_Name(self, node):
-        if node.id not in self.assignments:
-            self.assignments[node.id] = [self.active_assignment]
-        else:
-            self.assignments[node.id].append(self.active_assignment)
-        self.active_node = None
+        if self.active_assignment is not None:
+            if node.id not in self.assignments:
+                self.assignments[node.id] = [self.active_assignment]
+            else:
+                self.assignments[node.id].append(self.active_assignment)
+            self.active_assignment = None
 
     def visit_Attribute(self, node):
         self.visit(node.value)
@@ -357,6 +358,48 @@ class IfParser(Parser):
             node.test,
             node.body,
             node.orelse))
+
+
+class IfExpParser(Parser):
+    """Find if structures.
+
+    A parser which inherits from the basic parser to find inline if structures.
+    Only 'top-level' if structures will be found!
+    """
+
+    def __init__(self):
+        self.ifexps = []
+
+    def visit_IfExp(self, node):
+        self.ifexps.append((
+            node.test,
+            node.body,
+            node.orelse))
+
+    def visit_BinOp(self, node):
+        self.visit(node.left)
+        self.visit(node.right)
+
+    def visit_Assign(self, node):
+        self.visit(node.value)
+
+    def visit_AugAssign(self, node):
+        self.visit(node.value)
+
+    def visit_Compare(self, node):
+        self.visit_each(node.comparators)
+
+    def visit_UnaryOp(self, node):
+        self.visit(node.operand)
+
+    def visit_Expr(self, node):
+        self.visit(node.value)
+
+    def visit_Call(self, node):
+        self.visit(node.func)
+
+    def visit_Return(self, node):
+        self.visit(node.value)
 
 
 class WhileParser(Parser):
@@ -544,7 +587,7 @@ class FunctionBodyTransformer(ast.NodeTransformer):
         return FunctionBodyTransformer.decorate(new_node, node)
 
     def visit_Return(self, node):
-        new_node = ast.copy_location(ast.Pass(), node)
+        new_node = ast.copy_location(ast.Expr(value = node.value), node)
         return FunctionBodyTransformer.decorate(new_node, node)
 
     def decorate(new_node, node):
