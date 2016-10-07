@@ -345,6 +345,27 @@ y = 5 if True else 4
         self.data["DC_CODE"] = "def f(): return 'wrong' if True else 3"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
+class TestIfExpListComp(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+                "DC_SOLUTION": """[i**2 if i> 5 else 0 for i in range(0,10)]""",
+                "DC_SCT": """
+test_list_comp(body = lambda: test_if_exp(
+                                   body=lambda: test_student_typed(r"\s*i\*\*2\s*"),
+                                   test= lambda: test_expression_result(context_vals = [6]),
+                                   orelse= lambda: test_expression_result())) """
+        }
+
+    def test_pass(self):
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail_body(self):
+        self.data["DC_CODE"] = """[i**3 if i> 5 else 0 for i in range(0,10)]"""
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
 
 if __name__ == "__main__":
     unittest.main()
