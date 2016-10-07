@@ -1,6 +1,8 @@
 import pprint as pp
 import itertools
 import inspect
+from functools import partial
+from collections import OrderedDict
 
 TEST_NAMES = [
     "test_mc",
@@ -39,7 +41,7 @@ SUB_TESTS = {
     "test_correct": ['check', 'diagnose'],
     "test_generator_exp": ['comp_iter', 'body', 'ifs'],
     "test_for_loop": ['for_iter', 'body', 'orelse'],
-    "test_try_except": ['body', 'value', 'test'],
+    "test_try_except": ['body', 'handlers', 'orelse', 'finalbody'],
     "test_while_loop": ['test', 'body', 'orelse'],
     "test_with": ['context_tests', 'body'],
     "test_function_definition": ['body'],
@@ -51,7 +53,6 @@ class Tree(object):
     def __init__(self):
         self.root = Node(name="root")
         self.crnt_node = self.root
-        self.crnt_test_name = ""
 
     @classmethod
     def str_branch(cls, node, str_func=lambda s: ""):
@@ -85,15 +86,12 @@ class Node(object):
         ba = self.data['bound_args']
         self.data['func'](*ba.args, **ba.kwargs)
 
+    def partial(self):
+        return partial(self.data['func'], **self.data['bound_args'].arguments)
+
     def update_child_calls(self):
-        # TODO can use count dict in collection lib?
-        from functools import partial
-        arg_names = set(node.arg_name for node in self.child_list if node.arg_name)
-        for name in arg_names:
-            node_dat = map(lambda x: x.data, filter(lambda n: n.arg_name == name, self.child_list))
-            args = list(map(lambda d: partial(d['func'], **d['bound_args'].arguments), node_dat))
-            args = args[0] if len(args) == 1 else args
-            self.data['bound_args'].arguments[name] = args
+        for node in filter(lambda n: len(n.arg_name), self.child_list):
+            self.data['bound_args'].arguments[node.arg_name] = node.partial()
 
     def remove_child(self, node):
         indx = self.child_list.index(node)
@@ -123,13 +121,26 @@ class Node(object):
     def __iter__(self):
         for c in self.child_list: yield c
 
+class NodeList(Node):
+    def partial(self):
+        return [node.partial() for node in self.child_list]
 
+    def update_child_calls(self):
+        pass
+
+class NodeDict(Node):
+    def partial(self):
+        return OrderedDict((node.arg_name, node.partial()) for node in self.child_list)
+
+    def update_child_calls(self):
+        pass
 
 class Probe(object):
     def __init__(self, tree, f):
         self.tree = tree
         self.f = f
         self.test_name = f.__name__
+        # TODO: auto sub_test detection
         self.sub_tests = SUB_TESTS.get(self.test_name) or []
     
     def __call__(self, *args, **kwargs):
@@ -141,30 +152,38 @@ class Probe(object):
                 bound_args = bound_args, 
                 par_names= par_names, 
                 func = self.f)
-        this_node = Node(data=data, name=self.test_name, arg_name = self.tree.crnt_test_name)
+        this_node = Node(data=data, name=self.test_name)
         self.tree.crnt_node.add_child(this_node)
 
-        # TODO pointer to child_node corresponding to argument
         da = bound_args.arguments
-        for st in self.sub_tests: 
+        for st in self.sub_tests:     # TODO: auto sub test detection
             if st in da and da[st]:
                 self.run_sub_tests(da[st], self.tree, this_node, st)
         return this_node
 
-    def run_sub_tests(self, test, tree, node, arg_name):
+    @staticmethod
+    def run_sub_tests(test, tree, node, arg_name):
         # note that I've made the strong assumption that
         # if not a function, then test is a list or tuple of them
-        if hasattr(test, '__len__'): 
-            for f in test: self.run_sub_tests(f, tree, node, arg_name)
-        elif isinstance(test, Node): node.add_child(test)
+        if isinstance(test, dict):
+            nd = NodeDict(name = "Dict", arg_name = arg_name)
+            node.add_child(nd)
+            for k, f in test.items(): Probe.run_sub_tests(f, tree, nd, k)
+        elif hasattr(test, '__len__'): 
+            nl = NodeList(name = "List", arg_name = arg_name)
+            node.add_child(nl)
+            for ii, f in enumerate(test): Probe.run_sub_tests(f, tree, nl, str(ii))
+        elif isinstance(test, Node): 
+            test.arg_name = arg_name
+            node.add_child(test)
         elif callable(test): 
-            prev_node, tree.crnt_node = tree.crnt_node, node
-            tree.crnt_test_name = arg_name
+            nl = NodeList(name = "ListDeferred", arg_name = arg_name)
+            node.add_child(nl)
+            prev_node, tree.crnt_node = tree.crnt_node, nl
             test()
             tree.crnt_node = prev_node
-            tree.crnt_test_name = ""
         elif test is not None:
-            raise Exception("Expected a function or list of functions")
+            raise Exception("Expected a function or list/dict of functions")
         
 
 
