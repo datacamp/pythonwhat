@@ -302,11 +302,12 @@ class ObjectAssignmentParser(Parser):
         self.active_assignment = None
 
     def visit_Name(self, node):
-        if node.id not in self.assignments:
-            self.assignments[node.id] = [self.active_assignment]
-        else:
-            self.assignments[node.id].append(self.active_assignment)
-        self.active_node = None
+        if self.active_assignment is not None:
+            if node.id not in self.assignments:
+                self.assignments[node.id] = [self.active_assignment]
+            else:
+                self.assignments[node.id].append(self.active_assignment)
+            self.active_assignment = None
 
     def visit_Attribute(self, node):
         self.visit(node.value)
