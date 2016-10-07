@@ -5,9 +5,9 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
 from pythonwhat import utils
 from pythonwhat.utils import get_ord, get_num
-from pythonwhat.test_function_definition import test_args, test_body
+from .test_function_definition import test_args, test_body
 from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess, ReprFail
-from .sub_test import sub_test
+from pythonwhat.sub_test import sub_test
 
 from functools import partial
 

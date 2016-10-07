@@ -5,7 +5,7 @@ from pythonwhat.Test import Test
 from pythonwhat.utils import get_ord
 from pythonwhat.Feedback import Feedback
 
-from .sub_test import sub_test
+from pythonwhat.sub_test import sub_test
 from functools import partial
 
 def test_while_loop(index=1,

@@ -5,7 +5,7 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.Test import BiggerTest, Test, DefinedCollTest
 from pythonwhat.utils import get_ord, get_num
 
-from .sub_test import sub_test
+from pythonwhat.sub_test import sub_test
 from functools import partial
 
 def test_try_except(index=1,

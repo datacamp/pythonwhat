@@ -3,7 +3,7 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import EqualTest, Test
 
-from pythonwhat.test_object import get_assignment_node
+from .test_object import get_assignment_node
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
 

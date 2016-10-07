@@ -29,8 +29,7 @@ TEST_NAMES = [
     "test_expression_result",
     "test_expression_output",
     "test_function_definition",
-    "test_object_after_expression",
-    "success_msg"
+    "test_object_after_expression"
 ]
 
 SUB_TESTS = {
@@ -170,14 +169,9 @@ class Probe(object):
 
 
 def create_test_probes(test_exercise):
-    from types import ModuleType
     tree = Tree()
-    if isinstance(test_exercise, ModuleType): 
-        all_tests = map(lambda s: getattr(test_exercise, s), TEST_NAMES)
-    else:
-        all_tests = map(lambda s: test_exercise.get(s), TEST_NAMES)
+    all_tests = [test_exercise[s] for s in TEST_NAMES]
     new_context = {f.__name__: Probe(tree, f) for f in all_tests} 
-    if not isinstance(test_exercise, ModuleType):
-        new_context.update({k:v for k,v in test_exercise.items() if k not in new_context})
+    new_context.update({k:v for k,v in test_exercise.items() if k not in new_context})
     #new_context['success_msg'] =  lambda s: s
     return tree, new_context
