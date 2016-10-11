@@ -253,6 +253,8 @@ def test_function_v2(name,
 
     index = index - 1
     eq_map = {"equal": EqualTest}
+
+    # ARG CHECKS --------------------------------------------------------------
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
     eq_fun = eq_map[eq_condition]
@@ -280,6 +282,7 @@ def test_function_v2(name,
     if len(params) != len(incorrect_msg):
         raise NameError("Inside test_function_v2, make sure that incorrect_msg has the same length as params.")
 
+    # STATE STUFF -------------------------------------------------------------
     student_process, solution_process = state.student_process, state.solution_process
 
     solution_calls = state.solution_function_calls
@@ -299,13 +302,16 @@ def test_function_v2(name,
 
     if name not in solution_calls or len(solution_calls[name]) <= index:
         raise NameError("%r not in solution environment (often enough)" % name)
-
+    # TODO: test if function name in dict of calls
     rep.do_test(DefinedCollTest(name, student_calls, not_called_msg))
 
-    rep.do_test(BiggerTest(len(student_calls[name]), index, not_called_msg))
+    # TODO: test if number of specific function calls is less than index
+    rep.do_test(BiggerTest(len(student_calls[name]), index, not_called_msg))  # TODO
 
+    # TODO pull into own function
     if len(params) > 0:
 
+        # Parse Signature -----------------------------------------------------
         try:
             sol_call, arguments, keywords = solution_calls[name][index]
             sol_sig = getSignatureInProcess(name=name, mapped_name=sol_name,
@@ -317,21 +323,22 @@ def test_function_v2(name,
             raise ValueError(("Something went wrong in matching the %s call of %s to its signature." + \
                 " You might have to manually specify or correct the function signature.") % (get_ord(index + 1), sol_name))
 
-        if len(list(set(params) - set(solution_args.keys()))) > 0:
+        # Check if params are in signature
+        if set(params) - set(solution_args.keys()):
             raise ValueError("When testing %s(), the solution call doesn't specify the listed parameters." % name)
-
-        success = None
 
         # Get all options (some function calls may be blacklisted)
         call_indices = state.get_options(name, list(range(len(student_calls[name]))), index)
 
         feedback = None
 
+        # Test all calls ------------------------------------------------------
         for call_ind in call_indices:
 
             # let's start with assuming all is good
             success = True
 
+            # Parse Signature for Submission. TODO: more info
             try:
                 student_call, arguments, keywords = student_calls[name][call_ind]
                 student_sig = getSignatureInProcess(name = name, mapped_name = stud_name,
@@ -345,13 +352,14 @@ def test_function_v2(name,
                         params_not_matched_msg = ("Something went wrong in figuring out how you specified the " + \
                             "arguments for `%s()`; have another look at your code and its output.") % stud_name
                     feedback = Feedback(params_not_matched_msg, student_call)
-                success = False
+                success = False  # TODO: does this do anything? only if last call?
                 continue
 
+            # Fail if student didn't use all params ---------------------------
             setdiff = list(set(params) - set(student_args.keys()))
-            if len(setdiff) > 0:
+            if setdiff:
                 if feedback is None:
-                    first_missing = setdiff[0]
+                    first_missing = setdiff[0]  # TODO: sets are not ordered!
                     param_ind = params.index(first_missing)
                     if params_not_specified_msg[param_ind] is None:
                         msg = "Have you specified all required arguments inside `%s()`?" % stud_name
@@ -363,7 +371,8 @@ def test_function_v2(name,
                     feedback = Feedback(msg, student_call)
                 success = False
                 continue
-
+            
+            # TEST EACH PARAM
             for ind, param in enumerate(params):
 
                 if do_eval[ind] is None:
@@ -382,6 +391,7 @@ def test_function_v2(name,
                 test = build_test(arg_student, arg_solution,
                                   student_process, solution_process,
                                   do_eval[ind], eq_fun, msg, add_more = add_more)
+                # TODO
                 test.test()
 
                 if not test.result:
@@ -398,7 +408,8 @@ def test_function_v2(name,
         if not success:
             if feedback is None:
                 feedback = Feedback("You haven't used enough appropriate calls of `%s()`." % stud_name)
-            rep.do_test(Test(feedback))
+            rep.do_test(Test(feedback))    # TODO: sub_call
+
 
 def get_mapped_name(name, mappings):
     if "." in name:
