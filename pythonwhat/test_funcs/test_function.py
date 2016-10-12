@@ -392,34 +392,37 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
     
     # TEST EACH PARAM
     for ind, param in enumerate(params):
-
-        if do_eval[ind] is None:
-            continue
-
+        if do_eval[ind] is None: continue
         arg_student = student_args[param]
         arg_solution = solution_args[param]
-        if incorrect_msg[ind] is None:
-            msg = "Did you call `%s()` with the correct arguments?" % stud_name
-            # only if value can be supplied as keyword argument, give more info:
-            if student_params[param].kind in [1, 3, 4]:
-                    msg += " The argument you specified for `%s` seems to be incorrect." % param
-        else:
-            msg = incorrect_msg[ind]
-
-        test = build_test(arg_student, arg_solution,
-                            state.student_process, state.solution_process,
-                            do_eval[ind], eq_fun, msg, add_more = add_more)
-        # TODO
-        test.test()
-
-        if not test.result:
-            # -prep feedback-
-            feedback = test.get_feedback()
-            # run subtest
-            rep.do_test(Test(feedback))
+        param_kind = student_params[param].kind
+        test_arg(param, do_eval[ind],
+                 arg_student, arg_solution, param_kind, stud_name,
+                 eq_fun, add_more,
+                 incorrect_msg[ind], state=state)
 
     # If all is still good, we have a winner!
     state.set_used(name, call_ind, index)
+
+def test_arg(param, do_eval, 
+             arg_student, arg_solution, param_kind, stud_name,
+             eq_fun, add_more,
+             incorrect_msg, state=None):
+    rep = Reporter.active_reporter
+
+    if incorrect_msg is None:
+        msg = "Did you call `%s()` with the correct arguments?" % stud_name
+        # only if value can be supplied as keyword argument, give more info:
+        if param_kind in [1, 3, 4]:
+                msg += " The argument you specified for `%s` seems to be incorrect." % param
+    else:
+        msg = incorrect_msg
+
+    test = build_test(arg_student, arg_solution,
+                        state.student_process, state.solution_process,
+                        do_eval, eq_fun, msg, add_more = add_more)
+    # TODO
+    rep.do_test(test)
 
 
 def get_mapped_name(name, mappings):
