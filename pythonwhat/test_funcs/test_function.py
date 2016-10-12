@@ -7,6 +7,7 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord, get_num
 from pythonwhat.utils_ast import extract_text_from_node
 from pythonwhat.tasks import getTreeResultInProcess, getSignatureInProcess, ReprFail
+from .test_or import test_or
 
 def test_function(name,
                   index=1,
@@ -333,82 +334,92 @@ def test_function_v2(name,
         feedback = None
 
         # Test all calls ------------------------------------------------------
-        for call_ind in call_indices:
+        from functools import partial
+        sub_tests = [partial(test_call, name, call_ind, signature, params, do_eval, solution_args, 
+                             eq_fun, add_more, index,
+                             params_not_specified_msg, params_not_matched_msg, incorrect_msg, 
+                             keywords, state=state)
+                     for call_ind in call_indices]
+        test_or(*sub_tests, state=state)
 
-            # let's start with assuming all is good
-            success = True
+        # TODO: AFAIK this was never called (and it isn't in the unit tests)
+        #if feedback is None:
+        #    feedback = Feedback("You haven't used enough appropriate calls of `%s()`." % stud_name)
+        #rep.do_test(Test(feedback))    # TODO: sub_call
 
-            # Parse Signature for Submission. TODO: more info
-            try:
-                student_call, arguments, keywords = student_calls[name][call_ind]
-                student_sig = getSignatureInProcess(name = name, mapped_name = stud_name,
-                                                    signature=signature,
-                                                    manual_sigs = state.get_manual_sigs(),
-                                                    process=student_process)
-                student_args, student_params = bind_args(signature = student_sig, arguments=arguments, keyws=keywords)
-            except:
-                if feedback is None:
-                    if not params_not_matched_msg:
-                        params_not_matched_msg = ("Something went wrong in figuring out how you specified the " + \
-                            "arguments for `%s()`; have another look at your code and its output.") % stud_name
-                    feedback = Feedback(params_not_matched_msg, student_call)
-                success = False  # TODO: does this do anything? only if last call?
-                continue
 
-            # Fail if student didn't use all params ---------------------------
-            setdiff = list(set(params) - set(student_args.keys()))
-            if setdiff:
-                if feedback is None:
-                    first_missing = setdiff[0]  # TODO: sets are not ordered!
-                    param_ind = params.index(first_missing)
-                    if params_not_specified_msg[param_ind] is None:
-                        msg = "Have you specified all required arguments inside `%s()`?" % stud_name
-                        # only if value can be supplied as keyword argument, give more info:
-                        if student_params[first_missing].kind in [1, 3, 4]:
-                            msg += " You didn't specify `%s`." % first_missing
-                    else:
-                        msg = params_not_specified_msg[param_ind]
-                    feedback = Feedback(msg, student_call)
-                success = False
-                continue
-            
-            # TEST EACH PARAM
-            for ind, param in enumerate(params):
+def test_call(name, call_ind, signature, params, do_eval, solution_args, 
+              eq_fun, add_more, index,
+              params_not_specified_msg, params_not_matched_msg, incorrect_msg, 
+              keywords,  # pulled from solution process
+              state):
+    stud_name = get_mapped_name(name, state.student_mappings)
 
-                if do_eval[ind] is None:
-                    continue
+    rep = Reporter.active_reporter
+    # Parse Signature for Submission. TODO: more info
+    try:
+        student_call, arguments, keywords = state.student_function_calls[name][call_ind]
+        student_sig = getSignatureInProcess(name = name, mapped_name = stud_name,
+                                            signature=signature,
+                                            manual_sigs = state.get_manual_sigs(),
+                                            process=state.student_process)
+        student_args, student_params = bind_args(signature = student_sig, arguments=arguments, keyws=keywords)
+    except:
+        # -prep feedback-
+        if not params_not_matched_msg:
+            params_not_matched_msg = ("Something went wrong in figuring out how you specified the " + \
+                "arguments for `%s()`; have another look at your code and its output.") % stud_name
+        feedback = Feedback(params_not_matched_msg, student_call)
+        # run subtest
+        rep.do_test(Test(feedback))    # TODO: sub_call
 
-                arg_student = student_args[param]
-                arg_solution = solution_args[param]
-                if incorrect_msg[ind] is None:
-                    msg = "Did you call `%s()` with the correct arguments?" % stud_name
-                    # only if value can be supplied as keyword argument, give more info:
-                    if student_params[param].kind in [1, 3, 4]:
-                            msg += " The argument you specified for `%s` seems to be incorrect." % param
-                else:
-                    msg = incorrect_msg[ind]
+    # Fail if student didn't use all params ---------------------------
+    setdiff = list(set(params) - set(student_args.keys()))
+    if setdiff:
+        # -prep feedback-
+        first_missing = setdiff[0]  # TODO: sets are not ordered! equiv to set.pop()?
+        param_ind = params.index(first_missing)
+        if params_not_specified_msg[param_ind] is None:
+            msg = "Have you specified all required arguments inside `%s()`?" % stud_name
+            # only if value can be supplied as keyword argument, give more info:
+            if student_params[first_missing].kind in [1, 3, 4]:
+                msg += " You didn't specify `%s`." % first_missing
+        else:
+            msg = params_not_specified_msg[param_ind]
+        feedback = Feedback(msg, student_call)
+        # run subtest
+        rep.do_test(Test(feedback))    # TODO: sub_call
+    
+    # TEST EACH PARAM
+    for ind, param in enumerate(params):
 
-                test = build_test(arg_student, arg_solution,
-                                  student_process, solution_process,
-                                  do_eval[ind], eq_fun, msg, add_more = add_more)
-                # TODO
-                test.test()
+        if do_eval[ind] is None:
+            continue
 
-                if not test.result:
-                    if feedback is None:
-                        feedback = test.get_feedback()
-                    success = False
-                    break
+        arg_student = student_args[param]
+        arg_solution = solution_args[param]
+        if incorrect_msg[ind] is None:
+            msg = "Did you call `%s()` with the correct arguments?" % stud_name
+            # only if value can be supplied as keyword argument, give more info:
+            if student_params[param].kind in [1, 3, 4]:
+                    msg += " The argument you specified for `%s` seems to be incorrect." % param
+        else:
+            msg = incorrect_msg[ind]
 
-            # If all is still good, we have a winner!
-            if success:
-                state.set_used(name, call_ind, index)
-                break
+        test = build_test(arg_student, arg_solution,
+                            state.student_process, state.solution_process,
+                            do_eval[ind], eq_fun, msg, add_more = add_more)
+        # TODO
+        test.test()
 
-        if not success:
-            if feedback is None:
-                feedback = Feedback("You haven't used enough appropriate calls of `%s()`." % stud_name)
-            rep.do_test(Test(feedback))    # TODO: sub_call
+        if not test.result:
+            # -prep feedback-
+            feedback = test.get_feedback()
+            # run subtest
+            rep.do_test(Test(feedback))
+
+    # If all is still good, we have a winner!
+    state.set_used(name, call_ind, index)
 
 
 def get_mapped_name(name, mappings):
