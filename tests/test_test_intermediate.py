@@ -218,7 +218,7 @@ success_msg("Nice! Again, feel free to play around with different values of `roo
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-    def test_Pass(self):
+    def test_Pass_no_lam(self):
         self.data["DC_SCT"] = '''
 
 msg = "You don't have to change or remove anything" # this will automatically be completed with extra info

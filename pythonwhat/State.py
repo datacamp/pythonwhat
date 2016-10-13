@@ -16,8 +16,7 @@ class State(object):
 
     """
     active_state = None
-    TEST_CLOSURE_SYNTAX = False     # flag for running a test closure (backwards compatibility)
-    TEST_TOP_LEVEL = True
+    converters = get_manual_converters()
 
     def __init__(self, **kwargs):
 
@@ -397,6 +396,4 @@ class State(object):
         State.active_state = state
 
 def set_converter(key, fundef):
-    state = State.active_state
-    state.get_converters()
-    state.converters[key] = fundef
+    State.converters[key] = fundef

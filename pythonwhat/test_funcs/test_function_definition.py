@@ -347,5 +347,5 @@ def test_body(rep, state, body,
         #      but this could always be reimplimented with callbacks
         feedback = "Check your definition of %s. " %name if expand_message else ""
 
-        sub_test(state, rep, body, subtree_student, None, expand_message=feedback)
+        sub_test(child, rep, body, subtree_student, None, expand_message=feedback)
         child.to_parent_state()

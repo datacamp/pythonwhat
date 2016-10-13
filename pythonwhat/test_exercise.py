@@ -2,14 +2,11 @@ from pythonwhat.State import State
 from pythonwhat.utils import check_str, check_dict, check_process
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import TestFail
-from pythonwhat.sub_test import state_decorator
 from pythonwhat.probe import create_test_probes
 
 # utilities for signatures
 cntxt = {}
 exec("from pythonwhat.test_funcs import *", None, cntxt)
-for t in cntxt: cntxt[t] = state_decorator(cntxt[t])
-
 
 imports = """
 from inspect import Parameter as param
@@ -68,7 +65,7 @@ def test_exercise(sct,
         for test in tree.descend(): test.update_child_calls()
         try:
             for test in tree.crnt_node: 
-                test()
+                test(state)
         except TestFail: pass
 
     return(rep.build_payload(error))

@@ -12,4 +12,4 @@ def test_correct(check, diagnose, state=None):
         sub_test(state, rep, diagnose, None, None)
         sub_test(state, rep, check, None, None)
 
-    test_or(diagnose_and_check, check)
+    test_or(diagnose_and_check, check, state=state)

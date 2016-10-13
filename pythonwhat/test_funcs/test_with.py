@@ -92,7 +92,6 @@ with open_file('...') as file:
             sub_test(state, rep, context_test, student_context, solution_context, expand_message=prepend)
 
     if body is not None:
-        body = [body] if not hasattr(body, '__len__') else body
 
         solution_res = setUpNewEnvInProcess(process = state.solution_process,
                                             context = solution_with['context'])
@@ -115,8 +114,8 @@ with open_file('...') as file:
         # feedback pasted on failed sub_test messages
         feedback = "Check the body of the %s `with` statement. " % utils.get_ord(index + 1)
         try:
-            for test in body: sub_test(state, rep, test, None, None, 
-                                       expand_message=feedback if expand_message else "")
+            sub_test(child, rep, body, None, None, 
+                     expand_message=feedback if expand_message else "")
         finally:
             if breakDownNewEnvInProcess(process = state.solution_process):
                 raise Exception("error in the solution, closing the %s with fails with: %s" %

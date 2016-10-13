@@ -53,6 +53,15 @@ SUB_TESTS = {
 
 class Tree(object):
     def __init__(self):
+        """
+        Represent a tree of nodes, by holding the currently active node.
+
+        This class is necessary to put sub-tests onto a graph, because they may
+        exist inside of function calls. By getting the currently active node
+        from the tree, Probe instances may add subtests as children on that node,
+        and update it when recursing over sub-tests.
+        
+        """
         self.root = Node(name="root")
         self.crnt_node = self.root
 
@@ -76,22 +85,29 @@ class Tree(object):
 
 class Node(object):
     def __init__(self, child_list = None, data = None, name="unnamed", arg_name=""):
+        """
+        Hold a function call with its bound arguments, along with child nodes.
+        
+        """
         self.parent = None
         self.name = name
         self.arg_name = arg_name
         self.child_list = [] if child_list is None else child_list
         self.data = {} if data is None else data
         # hacky way to add their argument name when a function of tests was given
-        self._add_child_callback = None
 
-    def __call__(self):
+    def __call__(self, state=None):
+        """Call original function with its arguments, and optional state"""
         ba = self.data['bound_args']
-        self.data['func'](*ba.args, **ba.kwargs)
+        self.data['func'](state=state, *ba.args, **ba.kwargs)
 
     def partial(self):
+        """Return partial of original function call"""
         return partial(self.data['func'], **self.data['bound_args'].arguments)
 
     def update_child_calls(self):
+        """Replace child nodes on original function call with their partials"""
+
         for node in filter(lambda n: len(n.arg_name), self.child_list):
             self.data['bound_args'].arguments[node.arg_name] = node.partial()
 
@@ -100,16 +116,12 @@ class Node(object):
         del self.child_list[indx]
         return indx
 
-    def serialize(self):
-        return [[c.serialize() for c in self.child_list], self.data]
-
     def add_child(self, child):
         # since it is a tree, there is only one parent 
         # note this means we do not allow edges between same layer units
         if child.parent: child.parent.remove_child(child)
         child.parent = self
         self.child_list.append(child)
-        if self._add_child_callback: self._add_child_callback(child)
 
     @property
     def depth(self):
@@ -146,13 +158,18 @@ class Probe(object):
         self.sub_tests = SUB_TESTS.get(self.test_name) or []
     
     def __call__(self, *args, **kwargs):
-        # st in kwargs
+        """Bind arguments to original function signature, and store in a Node
+
+        This is used to discover what tests and sub-tests the SCT would like to 
+        call, and defer them for later execution via their node instance. Node
+        instances are assembled into a tree.
+
+        """
+
         bound_args = inspect.signature(self.f).bind(*args, **kwargs)
-        par_names = list(bound_args.signature.parameters.keys())
 
         data = dict(
                 bound_args = bound_args, 
-                par_names= par_names, 
                 func = self.f)
         this_node = Node(data=data, name=self.test_name)
         self.tree.crnt_node.add_child(this_node)
@@ -166,27 +183,30 @@ class Probe(object):
     @staticmethod
     def run_sub_tests(test, tree, node, arg_name):
         # note that I've made the strong assumption that
-        # if not a function, then test is a list or tuple of them
+        # if not a function, then test is a dict, list or tuple of them
         if isinstance(test, dict):
             nd = NodeDict(name = "Dict", arg_name = arg_name)
             node.add_child(nd)
             for k, f in test.items(): Probe.run_sub_tests(f, tree, nd, k)
-        elif hasattr(test, '__len__'): 
+        elif isinstance(test, (list, tuple)): 
             nl = NodeList(name = "List", arg_name = arg_name)
             node.add_child(nl)
             for ii, f in enumerate(test): Probe.run_sub_tests(f, tree, nl, str(ii))
         elif isinstance(test, Node): 
+            # test was a lambdaless subtest call, which produced a node
+            # so need to tell it what its arg_name was on parent test
             test.arg_name = arg_name
             node.add_child(test)
         elif callable(test): 
+            # test was inside a lambda or function containing subtests
+            # since either may contain multiple subtests, we put them in a node list
             nl = NodeList(name = "ListDeferred", arg_name = arg_name)
             node.add_child(nl)
             prev_node, tree.crnt_node = tree.crnt_node, nl
             test()
             tree.crnt_node = prev_node
         elif test is not None:
-            raise Exception("Expected a function or list/dict of functions")
-        
+            raise Exception("Expected a function or list/tuple/dict of functions")
 
 
 def create_test_probes(test_exercise):
