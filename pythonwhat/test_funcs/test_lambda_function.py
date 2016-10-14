@@ -62,8 +62,6 @@ def test_lambda_function(index,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_lambda_function")
 
-    state.extract_lambda_functions()
-
     student_lambdas = state.student_lambda_functions
     solution_lambdas = state.solution_lambda_functions
 

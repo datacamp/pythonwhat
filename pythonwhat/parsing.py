@@ -651,6 +651,7 @@ class TryExceptParser(Parser):
 parser_dict = {
         "object_accesses": ObjectAccessParser,
         "object_assignments": ObjectAssignmentParser,
+        "operators": OperatorParser,
         "imports": ImportParser,
         "if_calls": IfParser,
         "if_exp_calls": IfExpParser,

@@ -1,6 +1,6 @@
 import ast
 import inspect
-from pythonwhat.parsing import FunctionParser, ObjectAccessParser, ObjectAssignmentParser, IfParser, IfExpParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, LambdaFunctionParser, ListCompParser, DictCompParser, GeneratorExpParser, WithParser, TryExceptParser, parser_dict
+from pythonwhat.parsing import FunctionParser, ObjectAccessParser, parser_dict
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils_ast
@@ -44,9 +44,6 @@ class State(object):
 
         self.converters = None
 
-        self.student_operators = None
-        self.solution_operators = None
-
         self.pre_exercise_mappings = None
         self.student_function_calls = None
         self.solution_function_calls = None
@@ -55,61 +52,11 @@ class State(object):
         self.fun_usage = None
         self.manual_sigs = None
 
-        #self.student_object_accesses = None
-        #self.student_object_assignments = None
-
-        #self.student_imports = None
-        #self.solution_imports = None
-
-        #self.student_if_calls = None
-        #self.solution_if_calls = None
-
-        #self.student_if_exp_calls = None
-        #self.solution_if_exp_calls = None
-
-        #self.student_while_calls = None
-        #self.solution_while_calls = None
-
-        #self.student_for_calls = None
-        #self.solution_for_calls = None
-
-        #self.student_function_defs = None
-        #self.solution_function_defs = None
-
-        #self.student_lambda_functions = None
-        #self.solution_lambda_functions = None
-
-        #self.student_list_comps = None
-        #self.solution_list_comps = None
-
-        #self.student_dict_comps = None
-        #self.solution_dict_comps = None
-
-        #self.student_generator_exps = None
-        #self.solution_generator_exps = None
-
-        #self.student_withs = None
-        #self.solution_withs = None
-
-        #self.student_try_excepts = None
-        #self.solution_try_excepts = None
-
     def get_converters(self):
         if self.converters is None:
             self.converters = get_manual_converters()
 
         return(self.converters)
-
-    def extract_operators(self):
-        if (self.student_operators is None):
-            op = OperatorParser()
-            op.visit(self.student_tree)
-            self.student_operators = op.out
-
-        if (self.solution_operators is None):
-            op = OperatorParser()
-            op.visit(self.solution_tree)
-            self.solution_operators = op.out
 
     def set_used(self, name, stud_index, sol_index):
         if name in self.fun_usage.keys():
@@ -131,7 +78,6 @@ class State(object):
             return stud_indices
 
     def extract_function_calls(self):
-        # TODO: can this be standardized?
         if (self.fun_usage is None):
             self.fun_usage = {}
 
@@ -165,156 +111,6 @@ class State(object):
         oap.visit(self.student_tree)
         #self.student_object_accesses = oap.out
         self.student_mappings = oap.mappings
-
-    def extract_object_assignments(self):
-        return
-        if (self.student_object_assignments is None):
-            oap = ObjectAssignmentParser()
-            oap.visit(self.student_tree)
-            self.student_object_assignments = oap.out
-
-    def extract_imports(self):
-        return
-        if (self.student_imports is None):
-            ip = ImportParser()
-            ip.visit(self.student_tree)
-            self.student_imports = ip.out
-
-        if (self.solution_imports is None):
-            ip = ImportParser()
-            ip.visit(self.solution_tree)
-            self.solution_imports = ip.out
-
-    def extract_if_calls(self):
-        return
-        if (self.student_if_calls is None):
-            ip = IfParser()
-            ip.visit(self.student_tree)
-            self.student_if_calls = ip.out
-
-        if (self.solution_if_calls is None):
-            ip = IfParser()
-            ip.visit(self.solution_tree)
-            self.solution_if_calls = ip.out
-
-    def extract_if_exp_calls(self):
-        return
-        if (self.student_if_exp_calls is None):
-            ip = IfExpParser()
-            ip.visit(self.student_tree)
-            self.student_if_exp_calls = ip.out
-
-        if (self.solution_if_exp_calls is None):
-            ip = IfExpParser()
-            ip.visit(self.solution_tree)
-            self.solution_if_exp_calls = ip.out
-
-    def extract_while_calls(self):
-        return
-        if (self.student_while_calls is None):
-            ip = WhileParser()
-            ip.visit(self.student_tree)
-            self.student_while_calls = ip.out
-
-        if (self.solution_while_calls is None):
-            ip = WhileParser()
-            ip.visit(self.solution_tree)
-            self.solution_while_calls = ip.out
-
-    def extract_for_calls(self):
-        return
-        if (self.student_for_calls is None):
-            fp = ForParser()
-            fp.visit(self.student_tree)
-            self.student_for_calls = fp.out
-
-        if (self.solution_for_calls is None):
-            fp = ForParser()
-            fp.visit(self.solution_tree)
-            self.solution_for_calls = fp.out
-
-    def extract_function_defs(self):
-        return
-        if (self.student_function_defs is None):
-            fp = FunctionDefParser()
-            fp.visit(self.student_tree)
-            self.student_function_defs = fp.out
-
-        if (self.solution_function_defs is None):
-            fp = FunctionDefParser()
-            fp.visit(self.solution_tree)
-            self.solution_function_defs = fp.out
-
-    def extract_lambda_functions(self):
-        return
-        if (self.student_lambda_functions is None):
-            lfp = LambdaFunctionParser()
-            lfp.visit(self.student_tree)
-            self.student_lambda_functions = lfp.out
-
-        if (self.solution_lambda_functions is None):
-            lfp = LambdaFunctionParser()
-            lfp.visit(self.solution_tree)
-            self.solution_lambda_functions = lfp.out
-
-    def extract_list_comps(self):
-        return
-        if self.student_list_comps is None:
-            lcp = ListCompParser()
-            lcp.visit(self.student_tree)
-            self.student_list_comps = lcp.out
-
-        if self.solution_list_comps is None:
-            lcp = ListCompParser()
-            lcp.visit(self.solution_tree)
-            self.solution_list_comps = lcp.out
-
-    def extract_dict_comps(self):
-        return
-        if self.student_dict_comps is None:
-            dcp = DictCompParser()
-            dcp.visit(self.student_tree)
-            self.student_dict_comps = dcp.out
-
-        if self.solution_dict_comps is None:
-            dcp = DictCompParser()
-            dcp.visit(self.solution_tree)
-            self.solution_dict_comps = dcp.out
-
-    def extract_generator_exps(self):
-        return
-        if self.student_generator_exps is None:
-            gep = GeneratorExpParser()
-            gep.visit(self.student_tree)
-            self.student_generator_exps = gep.out
-
-        if self.solution_dict_comps is None:
-            gep = GeneratorExpParser()
-            gep.visit(self.solution_tree)
-            self.solution_generator_exps = gep.out
-
-    def extract_withs(self):
-        return
-        if (self.student_withs is None):
-            wp = WithParser()
-            wp.visit(self.student_tree)
-            self.student_withs = wp.out
-
-        if (self.solution_withs is None):
-            wp = WithParser()
-            wp.visit(self.solution_tree)
-            self.solution_withs = wp.out
-
-    def extract_try_excepts(self):
-        return
-        if (self.student_try_excepts is None):
-            tep = TryExceptParser()
-            tep.visit(self.student_tree)
-            self.student_try_excepts = tep.out
-        if (self.solution_try_excepts is None):
-            tep = TryExceptParser()
-            tep.visit(self.solution_tree)
-            self.solution_try_excepts = tep.out
 
     def to_child_state(self, student_subtree, solution_subtree):
         """Dive into nested tree.
