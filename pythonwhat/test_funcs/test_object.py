@@ -44,45 +44,47 @@ def test_object(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object")
 
-    state.extract_object_assignments()
-    student_obj_ass = state.student_object_assignments
+    state = check_object(name, undefined_msg, do_eval=do_eval, state=state)
 
+    if do_eval:
+        is_equal(name, incorrect_msg, state)
+
+def get_assignment_node(obj_ass, name):
+    nodes = obj_ass[name] if name in obj_ass else None
+    
+    # found a single case of assigning name
+    if nodes and len(nodes) == 1: 
+        return nodes[0]
+
+# TODO: put solution_object into state
+def check_object(name, undefined_msg, do_eval=True, state=None):
+    rep = Reporter.active_reporter
     if not undefined_msg:
         undefined_msg = "Have you defined `%s`?" % name
 
-    if not incorrect_msg:
-        incorrect_msg = "The contents of `%s` aren't correct." % name
-
-    eq_map = {"equal": EqualProcessTest}
-    student_process = state.student_process
-    solution_process = state.solution_process
-
-    if eq_condition not in eq_map:
-        raise NameError("%r not a valid equality condition " % eq_condition)
-
-    if not isDefinedInProcess(name, solution_process):
+    if not isDefinedInProcess(name, state.solution_process):
         raise NameError("%r not in solution environment " % name)
 
-    rep.do_test(DefinedProcessTest(name, student_process, Feedback(undefined_msg)))
+    rep.do_test(DefinedProcessTest(name, state.student_process, Feedback(undefined_msg)))
 
     if do_eval:
-        ass_node = get_assignment_node(student_obj_ass, name)
-
-        sol_obj = getRepresentation(name, solution_process)
+        sol_obj = getRepresentation(name, state.solution_process)
         if isinstance(sol_obj, ReprFail):
             raise NameError(sol_obj.info)
 
-        rep.do_test(eq_map[eq_condition](name,
-                                         student_process,
-                                         sol_obj,
-                                         Feedback(incorrect_msg, ass_node)))
+        state.solution_object = sol_obj
 
-def get_assignment_node(student_obj_ass, name):
-    if (name not in student_obj_ass):
-        return(None)
+    return state
 
-    # For now, only pass along node if single assignment
-    if (len(student_obj_ass[name]) != 1):
-        return(None)
+def is_equal(name, incorrect_msg, state=None):
+    rep = Reporter.active_reporter
+    if not incorrect_msg:
+        incorrect_msg = "The contents of `%s` aren't correct." % name
 
-    return(student_obj_ass[name][0])
+    ass_node = get_assignment_node(state.student_object_assignments, name)
+    rep.do_test(EqualProcessTest(name,
+                                 state.student_process,
+                                 state.solution_object,
+                                 Feedback(incorrect_msg, ass_node)))
+    return state
+
