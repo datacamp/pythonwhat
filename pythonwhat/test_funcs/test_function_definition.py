@@ -208,7 +208,7 @@ def test_function_definition(name,
 
             c_wrong_output_msg = wrong_output_msg or \
                 ("Calling `%s` should output %s, instead got %s." %
-                    (call_str, format_output(output_solution), format_output(output_solution)))
+                    (call_str, format_output(output_solution), format_output(output_student)))
             rep.do_test(EqualTest(output_solution, output_student, c_wrong_output_msg))
 
     if errors is not None:
