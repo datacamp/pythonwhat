@@ -106,11 +106,11 @@ class State(object):
 
         return(self.manual_sigs)
 
-    def extract_object_accesses(self):
+    @property
+    def student_oa_mappings(self):
         oap = ObjectAccessParser()
         oap.visit(self.student_tree)
-        #self.student_object_accesses = oap.out
-        self.student_mappings = oap.mappings
+        return oap.mappings
 
     def to_child_state(self, student_subtree, solution_subtree):
         """Dive into nested tree.
@@ -203,6 +203,8 @@ class State(object):
     def set_active_state(state):
         State.active_state = state
 
+# add property methods for retrieving parser outputs
+# e.g. state.student_withs
 from functools import partial
 for k, Parser in parser_dict.items():
     def getx(self, tree_name, Parser=Parser): 
