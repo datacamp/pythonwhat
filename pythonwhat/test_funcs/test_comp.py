@@ -83,9 +83,7 @@ def test_comp(comp_type, state=None, **kwargs):
         raise ValueError("comp_type not valid")
     typestr = {'list':'list comprehension', 'dict': 'dictionary comprehension', 'gen': 'generator expression'}[comp_type]
 
-    #state = kwargs['state']
     rep = kwargs['rep']
-
     solution_comp_list = kwargs['solution_comp_list']
     student_comp_list = kwargs['student_comp_list']
     index = kwargs['index']
@@ -107,7 +105,7 @@ def test_comp(comp_type, state=None, **kwargs):
             get_ord(index), typestr)
 
     psub_test = partial(sub_test, state, rep,
-                       student_context = student_comp['target_vars'], 
+                       student_context = student_comp['target_vars'],
                        solution_context = solution_comp['target_vars'],
                        expand_message=kwargs['expand_message'] and prepend_fmt)
 
