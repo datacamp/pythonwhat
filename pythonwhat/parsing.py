@@ -86,7 +86,7 @@ class OperatorParser(Parser):
     A parser which inherits from the basic parser to find binary operators.
 
     Attributes:
-        ops (list(tuple(num, ast.BinOp, list(str)))): A list of tuples containing the linenumber, node and list of used binary operations.
+        out (list(tuple(num, ast.BinOp, list(str)))): A list of tuples containing the linenumber, node and list of used binary operations.
         level (num): A number representing the level at which the parser is parsing.
         used (list(str)): The operators that are used in the BinOp that we're handling.
     """
@@ -111,7 +111,7 @@ class OperatorParser(Parser):
         """
         Initialize the parser and its attributes.
         """
-        self.ops = []
+        self.out = []
         self.level = 0
         self.used = []
 
@@ -127,7 +127,7 @@ class OperatorParser(Parser):
 
     def visit_Num(self, node):
         if not self.level:
-            self.ops.append((  # A number can be seen as a operator on base level.
+            self.out.append((  # A number can be seen as a operator on base level.
                 node,          # When student is asked to use operators but just puts in a number instead,
                 self.used))    # this will help creating a consistent feedback message.
 
@@ -146,7 +146,7 @@ class OperatorParser(Parser):
         self.level = self.level - 1  # we don't need all the explicit nodes.
 
         if not self.level:          # We should only add the binary operations of the base level,
-            self.ops.append((       # information about nested operations is included in the used list.
+            self.out.append((       # information about nested operations is included in the used list.
                 node,
                 self.used))
             self.used = []
@@ -159,15 +159,15 @@ class ImportParser(Parser):
     """
 
     def __init__(self):
-        self.imports = {}
+        self.out = {}
 
     def visit_Import(self, node):
         for imp in node.names:
-            self.imports[imp.name] = imp.asname
+            self.out[imp.name] = imp.asname
 
     def visit_ImportFrom(self, node):
         for imp in node.names:
-            self.imports[node.module + "." + imp.name] = imp.asname
+            self.out[node.module + "." + imp.name] = imp.asname
 
 
 class FunctionParser(Parser):
@@ -257,7 +257,7 @@ class ObjectAccessParser(FunctionParser):
 
     def __init__(self):
         super().__init__()
-        self.accesses = []
+        self.out = []
 
     def visit_Call(self, node):
         for arg in node.args:
@@ -287,7 +287,7 @@ class ObjectAccessParser(FunctionParser):
         else:
             prefix = node.id
         self.current = prefix + "." + self.current if self.current else prefix
-        self.accesses.append(self.current)
+        self.out.append(self.current)
         self.current = ''
 
 class ObjectAssignmentParser(Parser):
@@ -298,15 +298,15 @@ class ObjectAssignmentParser(Parser):
     """
 
     def __init__(self):
-        self.assignments = {}
+        self.out = {}
         self.active_assignment = None
 
     def visit_Name(self, node):
         if self.active_assignment is not None:
-            if node.id not in self.assignments:
-                self.assignments[node.id] = [self.active_assignment]
+            if node.id not in self.out:
+                self.out[node.id] = [self.active_assignment]
             else:
-                self.assignments[node.id].append(self.active_assignment)
+                self.out[node.id].append(self.active_assignment)
             self.active_assignment = None
 
     def visit_Attribute(self, node):
@@ -351,10 +351,10 @@ class IfParser(Parser):
     """
 
     def __init__(self):
-        self.ifs = []
+        self.out = []
 
     def visit_If(self, node):
-        self.ifs.append((
+        self.out.append((
             node.test,
             node.body,
             node.orelse))
@@ -368,10 +368,10 @@ class IfExpParser(Parser):
     """
 
     def __init__(self):
-        self.ifexps = []
+        self.out = []
 
     def visit_IfExp(self, node):
-        self.ifexps.append((
+        self.out.append((
             node.test,
             node.body,
             node.orelse))
@@ -410,10 +410,10 @@ class WhileParser(Parser):
     """
 
     def __init__(self):
-        self.whiles = []
+        self.out = []
 
     def visit_While(self, node):
-        self.whiles.append((
+        self.out.append((
             node.test,
             node.body,
             node.orelse))
@@ -427,10 +427,10 @@ class ForParser(Parser):
     """
 
     def __init__(self):
-        self.fors = []
+        self.out = []
 
     def visit_For(self, node):
-        self.fors.append((
+        self.out.append((
             Parser.get_target_vars(node.target),
             node.iter,
             node.body,
@@ -445,14 +445,14 @@ class FunctionDefParser(Parser):
     Only 'top-level' for structures will be found!
     """
     def __init__(self):
-        self.defs = {}
+        self.out = {}
 
     def visit_FunctionDef(self, node):
         normal_args = Parser.get_arg_tuples(node.args.args, node.args.defaults)
         kwonlyargs = Parser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
         vararg = Parser.get_arg(node.args.vararg)
         kwarg = Parser.get_arg(node.args.kwarg)
-        self.defs[node.name] = {
+        self.out[node.name] = {
             "fundef": node,
             "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
             "body": FunctionBodyTransformer().visit(ast.Module(node.body)),
@@ -465,7 +465,7 @@ class LambdaFunctionParser(Parser):
     """
 
     def __init__(self):
-        self.funs = []
+        self.out = []
 
     def visit_Assign(self, node):
         self.visit(node.value)
@@ -508,7 +508,7 @@ class LambdaFunctionParser(Parser):
         kwonlyargs = Parser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
         vararg = Parser.get_arg(node.args.vararg)
         kwarg = Parser.get_arg(node.args.kwarg)
-        self.funs.append({
+        self.out.append({
             "fun": node,
             "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
             "body": node.body
@@ -517,7 +517,7 @@ class LambdaFunctionParser(Parser):
 
 class CompParser(Parser):
     def __init__(self):
-        self.comps = []
+        self.out = []
 
     def visit_Assign(self, node):
         self.visit(node.value)
@@ -535,7 +535,7 @@ class CompParser(Parser):
 
     def build_comp(self, node):
         target = node.generators[0].target
-        self.comps.append({
+        self.out.append({
                 "list_comp": node,
                 "body": node.elt,
                 "target": target,
@@ -569,7 +569,7 @@ class DictCompParser(CompParser):
     """
     def visit_DictComp(self, node):
         target = node.generators[0].target
-        self.comps.append({
+        self.out.append({
                 "list_comp": node,
                 "key": node.key,
                 "value": node.value,
@@ -601,11 +601,11 @@ class FunctionBodyTransformer(ast.NodeTransformer):
 
 class WithParser(Parser):
     def __init__(self):
-        self.withs = []
+        self.out = []
 
     def visit_With(self, node):
         items = node.items
-        self.withs.append({
+        self.out.append({
             "context": [{"context_expr" : ast.Expression(item.context_expr),
                 "optional_vars": item.optional_vars and WithParser.get_node_ids_in_list(item.optional_vars)} for item in items],
             "body": node.body,
@@ -623,7 +623,7 @@ class WithParser(Parser):
 
 class TryExceptParser(Parser):
     def __init__(self):
-        self.try_excepts = []
+        self.out = []
 
     def visit_Try(self, node):
         handlers = {}
@@ -640,7 +640,7 @@ class TryExceptParser(Parser):
                 # do nothing, don't know what to do!
                 pass
 
-        self.try_excepts.append({
+        self.out.append({
             "try_except": node,
             "body": node.body,
             "orelse": node.orelse,
@@ -648,3 +648,19 @@ class TryExceptParser(Parser):
             "handlers": handlers
         })
 
+parser_dict = {
+        "object_accesses": ObjectAccessParser,
+        "object_assignments": ObjectAssignmentParser,
+        "imports": ImportParser,
+        "if_calls": IfParser,
+        "if_exp_calls": IfExpParser,
+        "while_calls": WhileParser,
+        "for_calls": ForParser,
+        "function_defs": FunctionDefParser,
+        "lambda_functions": LambdaFunctionParser,
+        "list_comps": ListCompParser,
+        "dict_comps": DictCompParser,
+        "generator_exps": GeneratorExpParser,
+        "withs": WithParser,
+        "try_excepts": TryExceptParser
+}
