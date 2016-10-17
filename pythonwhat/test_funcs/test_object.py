@@ -56,11 +56,15 @@ def get_assignment_node(obj_ass, name):
     if nodes and len(nodes) == 1: 
         return nodes[0]
 
-# TODO: put solution_object into state
+# Check functions -------------------------------------------------------------
+
+MSG_UNDEFINED = "Have you defined `{name}`?"
+MSG_INCORRECT = "The contents of `{name}` aren't correct."
+
 def check_object(name, undefined_msg, do_eval=True, state=None):
     rep = Reporter.active_reporter
     if not undefined_msg:
-        undefined_msg = "Have you defined `%s`?" % name
+        undefined_msg = MSG_UNDEFINED.format(name=name)
 
     if not isDefinedInProcess(name, state.solution_process):
         raise NameError("%r not in solution environment " % name)
@@ -79,7 +83,7 @@ def check_object(name, undefined_msg, do_eval=True, state=None):
 def is_equal(name, incorrect_msg, state=None):
     rep = Reporter.active_reporter
     if not incorrect_msg:
-        incorrect_msg = "The contents of `%s` aren't correct." % name
+        incorrect_msg = MSG_INCORRECT.format(name=name)
 
     ass_node = get_assignment_node(state.student_object_assignments, name)
     rep.do_test(EqualProcessTest(name,

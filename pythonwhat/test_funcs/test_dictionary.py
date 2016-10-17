@@ -27,47 +27,54 @@ def test_dictionary(name,
         # check if key in dictionary
         test_key(name, key, incorrect_value_msg, key_missing_msg, sol_keys, state=state)
 
+# Check functions -------------------------------------------------------------
 
-def check_dict(name, undefined_msg, not_dictionary_msg, state=None):
+MSG_UNDEFINED = "Are you sure you defined the dictionary `{name}`?"
+MSG_NOT_INSTANCE = "`{name}` is not a dictionary."
+MSG_KEY_MISSING = "Have you specified a key `{key}` inside `{name}`?"
+MSG_INCORRECT_VAL = "Have you specified the correct value for the key `{key}` inside `{name}`?"
+
+def check_dict(name, undefined_msg, not_instance_msg, state=None):
     rep = Reporter.active_reporter
 
     # Check if defined
     if not undefined_msg:
-        undefined_msg = "Are you sure you defined the dictionary `%s`?" % name
+        undefined_msg = MSG_UNDEFINED.format(name=name)
 
-    # check but don't get solution dict representation
+    # check but don't get solution object representation
     state = check_object(name, undefined_msg, state=state)
 
-    is_dict(name, not_dictionary_msg, state=state)
+    is_instance(name, not_instance_msg, state=state)
 
     sol_keys = getKeysInProcess(name, state.solution_process)
+
     if sol_keys is None:
         raise ValueError("Something went wrong in figuring out the keys for %s in the solution process" % name)
 
     return sol_keys
 
-def is_dict(name, not_dictionary_msg, state=None):
+def is_instance(name, not_instance_msg, state=None):
     rep = Reporter.active_reporter
 
     if not isInstanceInProcess(name, state.solution_object, state.solution_process):
         raise ValueError("%r is not a dictionary in the solution environment" % name)
 
-    if not not_dictionary_msg:
-        not_dictionary_msg = "`%s` is not a dictionary." % name
-    rep.do_test(InstanceProcessTest(name, dict, state.student_process, Feedback(not_dictionary_msg)))
+    if not not_instance_msg: not_instance_msg = MSG_NOT_INSTANCE.format(name=name)
+
+    rep.do_test(InstanceProcessTest(name, dict, state.student_process, Feedback(not_instance_msg)))
 
 def has_key(name, key, key_missing_msg, sol_keys=None, state=None):
     rep = Reporter.active_reporter
 
-    if not sol_keys:
-        getKeysInProcess(name, state.solution_process)
+    if sol_keys is None:
+        sol_keys = getKeysInProcess(name, state.solution_process)
 
-    if key not in set(sol_keys):
+    if key not in sol_keys:
         raise NameError("Not all keys you specified are actually keys in %s in the solution process" % name)
 
     # check if key available
     if not key_missing_msg:
-        msg = "Have you specified a key `%s` inside `%s`?" % (str(key), name)
+        msg = MSG_KEY_MISSING.format(key=key, name=name)
     else:
         msg = key_missing_msg
     rep.do_test(DefinedCollProcessTest(name, key, state.student_process, Feedback(msg)))
@@ -82,7 +89,6 @@ def test_key(name, key, incorrect_value_msg, key_missing_msg, sol_keys=None, sta
         raise NameError("Value from %r can't be fetched from the solution process: %s" % c(name, sol_value.info))
 
     # check if value ok
-    msg = incorrect_value_msg or \
-          "Have you specified the correct value for the key `%s` inside `%s`?" % (str(key), name)
+    msg = incorrect_value_msg or MSG_INCORRECT_VAL.format(key=key, name=name)
 
     rep.do_test(EqualValueProcessTest(name, key, state.student_process, sol_value, Feedback(msg)))
