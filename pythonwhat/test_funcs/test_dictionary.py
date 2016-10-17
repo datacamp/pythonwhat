@@ -5,12 +5,17 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getKeysInProcess, getValueInProcess, ReprFail
 from .test_object import check_object
 
+MSG_UNDEFINED = "Are you sure you defined the dictionary `{name}`?"
+MSG_NOT_INSTANCE = "`{name}` is not a dictionary."
+MSG_KEY_MISSING = "Have you specified a key `{key}` inside `{name}`?"
+MSG_INCORRECT_VAL = "Have you specified the correct value for the key `{key}` inside `{name}`?"
+
 def test_dictionary(name,
                     keys=None,
-                    undefined_msg=None,
-                    not_dictionary_msg=None,
-                    key_missing_msg=None,
-                    incorrect_value_msg=None,
+                    undefined_msg=MSG_UNDEFINED,
+                    not_dictionary_msg=MSG_NOT_INSTANCE,
+                    key_missing_msg=MSG_KEY_MISSING,
+                    incorrect_value_msg=MSG_INCORRECT_VAL,
                     state=None):
     """Test the contents of a dictionary.
     """
@@ -29,22 +34,16 @@ def test_dictionary(name,
 
 # Check functions -------------------------------------------------------------
 
-MSG_UNDEFINED = "Are you sure you defined the dictionary `{name}`?"
-MSG_NOT_INSTANCE = "`{name}` is not a dictionary."
-MSG_KEY_MISSING = "Have you specified a key `{key}` inside `{name}`?"
-MSG_INCORRECT_VAL = "Have you specified the correct value for the key `{key}` inside `{name}`?"
-
 def check_dict(name, undefined_msg, not_instance_msg, state=None):
     rep = Reporter.active_reporter
 
     # Check if defined
-    if not undefined_msg:
-        undefined_msg = MSG_UNDEFINED.format(name=name)
+    undefined_msg = undefined_msg.format(name=name)
 
     # check but don't get solution object representation
     state = check_object(name, undefined_msg, state=state)
 
-    is_instance(name, not_instance_msg, state=state)
+    is_instance(name, dict, not_instance_msg, state=state)
 
     sol_keys = getKeysInProcess(name, state.solution_process)
 
@@ -53,15 +52,14 @@ def check_dict(name, undefined_msg, not_instance_msg, state=None):
 
     return sol_keys
 
-def is_instance(name, not_instance_msg, state=None):
+def is_instance(name, inst, not_instance_msg, state=None):
     rep = Reporter.active_reporter
 
-    if not isInstanceInProcess(name, state.solution_object, state.solution_process):
-        raise ValueError("%r is not a dictionary in the solution environment" % name)
+    if not isInstanceInProcess(name, inst, state.solution_process):
+        raise ValueError("%r is not a %s in the solution environment" % (name, type(inst)))
 
-    if not not_instance_msg: not_instance_msg = MSG_NOT_INSTANCE.format(name=name)
-
-    rep.do_test(InstanceProcessTest(name, dict, state.student_process, Feedback(not_instance_msg)))
+    feedback = Feedback(not_instance_msg.format(name=name))
+    rep.do_test(InstanceProcessTest(name, inst, state.student_process, feedback))
 
 def has_key(name, key, key_missing_msg, sol_keys=None, state=None):
     rep = Reporter.active_reporter
@@ -73,10 +71,7 @@ def has_key(name, key, key_missing_msg, sol_keys=None, state=None):
         raise NameError("Not all keys you specified are actually keys in %s in the solution process" % name)
 
     # check if key available
-    if not key_missing_msg:
-        msg = MSG_KEY_MISSING.format(key=key, name=name)
-    else:
-        msg = key_missing_msg
+    msg = key_missing_msg.format(key=key, name=name)
     rep.do_test(DefinedCollProcessTest(name, key, state.student_process, Feedback(msg)))
 
 def test_key(name, key, incorrect_value_msg, key_missing_msg, sol_keys=None, state=None):
@@ -89,6 +84,6 @@ def test_key(name, key, incorrect_value_msg, key_missing_msg, sol_keys=None, sta
         raise NameError("Value from %r can't be fetched from the solution process: %s" % c(name, sol_value.info))
 
     # check if value ok
-    msg = incorrect_value_msg or MSG_INCORRECT_VAL.format(key=key, name=name)
+    msg = incorrect_value_msg.format(key=key, name=name)
 
     rep.do_test(EqualValueProcessTest(name, key, state.student_process, sol_value, Feedback(msg)))
