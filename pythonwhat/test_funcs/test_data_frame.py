@@ -4,7 +4,7 @@ from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, DefinedColl
 from pythonwhat.Feedback import Feedback
 from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getColumnsInProcess, getValueInProcess, ReprFail
 from .test_object import check_object
-from .test_dictionary import is_instance, test_key
+from .test_dictionary import is_instance, test_key, has_key
 
 import pandas as pd
 
@@ -55,15 +55,3 @@ def check_df(name, undefined_msg, not_instance_msg, state=None):
 
     return sol_keys
 
-def has_key(name, key, key_missing_msg, sol_keys=None, state=None):
-    rep = Reporter.active_reporter
-
-    if sol_keys is None:
-        sol_keys = getColumnsInProcess(name, state.solution_process)
-
-    if key not in sol_keys:
-        raise NameError("Not all columns you specified are actually columns in %s in the solution process" % name)
-
-    # check if key available
-    msg = key_missing_msg.format(key=key, name=name)
-    rep.do_test(DefinedCollProcessTest(name, key, state.student_process, Feedback(msg)))

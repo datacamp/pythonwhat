@@ -2,7 +2,7 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, DefinedCollProcessTest, EqualValueProcessTest
 from pythonwhat.Feedback import Feedback
-from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getKeysInProcess, getValueInProcess, ReprFail
+from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getKeysInProcess, getValueInProcess, isDefinedCollInProcess, ReprFail
 from .test_object import check_object
 
 MSG_UNDEFINED = "Are you sure you defined the dictionary `{name}`?"
@@ -67,7 +67,8 @@ def has_key(name, key, key_missing_msg, sol_keys=None, state=None):
     if sol_keys is None:
         sol_keys = getKeysInProcess(name, state.solution_process)
 
-    if key not in sol_keys:
+    if ((sol_keys is not None and key not in sol_keys) or 
+         not isDefinedCollInProcess(name, key, state.solution_process)):
         raise NameError("Not all keys you specified are actually keys in %s in the solution process" % name)
 
     # check if key available
