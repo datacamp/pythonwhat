@@ -11,6 +11,10 @@ from pythonwhat.sub_test import sub_test
 
 from functools import partial
 
+MSG_NOT_CALLED = "The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
+MSG_INCORRECT_ITER_VARS = "Have you used the correct iterator variables in the {ordinal} {typestr}? Make sure you use the correct names!"
+MSG_INCORRECT_NUM_ITER_VARS = "Have you used {num_vars} iterator variables in the {ordinal} {typestr}?"
+MSG_INSUFFICIENT_IFS = "Have you used {num_ifs} ifs inside the {ordinal} {typestr}?"
 
 def test_list_comp(index=1,
                    not_called_msg=None,
@@ -31,7 +35,7 @@ def test_list_comp(index=1,
     state.extract_list_comps()
     student_comp_list = state.student_list_comps
     solution_comp_list = state.solution_list_comps
-    test_comp(comp_type = "list", **(locals()))
+    test_comp("list comprehension", **(locals()))
 
 def test_generator_exp(index=1,
                        not_called_msg=None,
@@ -51,7 +55,7 @@ def test_generator_exp(index=1,
     state.extract_generator_exps()
     student_comp_list = state.student_generator_exps
     solution_comp_list = state.solution_generator_exps
-    test_comp(comp_type = "gen", **(locals()))
+    test_comp("generator expression", **(locals()))
 
 
 def test_dict_comp(index=1,
@@ -74,19 +78,14 @@ def test_dict_comp(index=1,
     student_comp_list = state.student_dict_comps
     solution_comp_list = state.solution_dict_comps
 
-    test_comp(comp_type = "dict", **(locals()))
+    test_comp("dictionary comprehension", **(locals()))
 
 
-def test_comp(comp_type, state=None, **kwargs):
-
-    if comp_type not in ['list', 'dict', 'gen']:
-        raise ValueError("comp_type not valid")
-    typestr = {'list':'list comprehension', 'dict': 'dictionary comprehension', 'gen': 'generator expression'}[comp_type]
-
-    rep = kwargs['rep']
-    solution_comp_list = kwargs['solution_comp_list']
-    student_comp_list = kwargs['student_comp_list']
-    index = kwargs['index']
+def test_comp(typestr, index,
+              solution_comp_list, student_comp_list,
+              not_called_msg, insufficient_ifs_msg, incorrect_iter_vars_msg,
+              expand_message = True,
+              rep=None, state=None, **kwargs):
 
     # raise error if not enough solution comps
     try:
@@ -94,10 +93,16 @@ def test_comp(comp_type, state=None, **kwargs):
     except KeyError:
         raise NameError("There aren't %s %ss in the solution environment" % (get_num(index), typestr))
 
+    # partial args to pass to string templating
+    fmt_template = partial(str.format, 
+                            ordinal = get_ord(index), 
+                            typestr=typestr,
+                            num_ifs=len(solution_comp['ifs']),
+                            num_vars=len(solution_comp['target_vars']))
+
     # check if enough student comps
-    c_not_called_msg = kwargs['not_called_msg'] or \
-        ("The system wants to check the %s %s you defined but hasn't found it." % (get_ord(index), typestr))
-    rep.do_test(BiggerTest(len(student_comp_list), index - 1, Feedback(c_not_called_msg)))
+    _msg = fmt_template(not_called_msg or MSG_NOT_CALLED)
+    rep.do_test(BiggerTest(len(student_comp_list), index - 1, Feedback(_msg)))
 
     student_comp = student_comp_list[index - 1]
 
@@ -107,25 +112,26 @@ def test_comp(comp_type, state=None, **kwargs):
     psub_test = partial(sub_test, state, rep,
                        student_context = student_comp['target_vars'],
                        solution_context = solution_comp['target_vars'],
-                       expand_message=kwargs['expand_message'] and prepend_fmt)
+                       expand_message=expand_message and prepend_fmt)
 
     # test iterable
     psub_test(kwargs['comp_iter'], student_comp['iter'], solution_comp['iter'], "iterable part")
 
     # test iterator variable names, if required
     if kwargs['iter_vars_names']:
-        c_incorrect_iter_vars_msg = kwargs['incorrect_iter_vars_msg'] or \
-            ("Have you used the correct iterator variables in the %s %s? Make sure you use the correct names!" % (get_ord(index), typestr))
+        # message
+        _msg = fmt_template(incorrect_iter_vars_msg or MSG_INCORRECT_ITER_VARS)
+        # test
         rep.do_test(EqualTest(student_comp['target_vars'], solution_comp['target_vars'],
-            Feedback(c_incorrect_iter_vars_msg, student_comp['target'])))
+            Feedback(_msg, student_comp['target'])))
     else:
-        c_incorrect_iter_vars_msg = kwargs['incorrect_iter_vars_msg'] or \
-            ("Have you used %s iterator variables in the %s %s?" % (len(solution_comp['target_vars']), get_ord(index), typestr))
+        # message
+        _msg = fmt_template(incorrect_iter_vars_msg or MSG_INCORRECT_NUM_ITER_VARS)
+        # test
         rep.do_test(EqualTest(len(student_comp['target_vars']), len(solution_comp['target_vars']),
-            Feedback(c_incorrect_iter_vars_msg, student_comp['target'])))
+            Feedback(_msg, student_comp['target'])))
 
-
-    if comp_type in ['list', 'gen'] :
+    if typestr != "dictionary comprehension":
         psub_test(kwargs['body'], student_comp['body'], solution_comp['body'], "body")
     else :
         psub_test(kwargs['key'], student_comp['key'], solution_comp['key'], "key part")
@@ -133,11 +139,12 @@ def test_comp(comp_type, state=None, **kwargs):
 
     # test ifs, one by one
     if kwargs['ifs'] is not None:
-        ifs = [kwargs['ifs']] if not hasattr(kwargs['ifs'], '__len__') else kwargs['ifs']
-        c_insufficient_ifs_msg = kwargs['insufficient_ifs_msg'] or \
-            ("Have you used %s ifs inside the %s %s?" % (len(solution_comp['ifs']), get_ord(index), typestr))
+        ifs = kwargs['ifs']
+        # message
+        _msg = fmt_template(insufficient_ifs_msg or MSG_INSUFFICIENT_IFS)
+        # test
         rep.do_test(EqualTest(len(student_comp['ifs']), len(solution_comp['ifs']),
-            Feedback(c_insufficient_ifs_msg, student_comp['list_comp'])))
+            Feedback(_msg, student_comp['list_comp'])))
 
         if len(ifs) != len(solution_comp['ifs']):
             raise ValueError("If you specify tests for the ifs, pass a list with the same length as the number of ifs in the solution")
