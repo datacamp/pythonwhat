@@ -23,14 +23,15 @@ def test_dictionary(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_dictionary")
 
-    sol_keys = check_dict(name, undefined_msg, not_dictionary_msg, state=state)
+    check_dict(name, undefined_msg, not_dictionary_msg, state=state)
 
     # set keys or check if manual keys are valid
-    if not keys: keys = sol_keys
+    if not keys: 
+        keys = getKeysInProcess(name, state.solution_process)
 
     for key in keys:
         # check if key in dictionary
-        test_key(name, key, incorrect_value_msg, key_missing_msg, sol_keys, state=state)
+        test_key(name, key, incorrect_value_msg, key_missing_msg, state=state)
 
 # Check functions -------------------------------------------------------------
 
@@ -45,12 +46,7 @@ def check_dict(name, undefined_msg, not_instance_msg, state=None):
 
     is_instance(name, dict, not_instance_msg, state=state)
 
-    sol_keys = getKeysInProcess(name, state.solution_process)
-
-    if sol_keys is None:
-        raise ValueError("Something went wrong in figuring out the keys for %s in the solution process" % name)
-
-    return sol_keys
+    return state
 
 def is_instance(name, inst, not_instance_msg, state=None):
     rep = Reporter.active_reporter
@@ -61,24 +57,20 @@ def is_instance(name, inst, not_instance_msg, state=None):
     feedback = Feedback(not_instance_msg.format(name=name))
     rep.do_test(InstanceProcessTest(name, inst, state.student_process, feedback))
 
-def has_key(name, key, key_missing_msg, sol_keys=None, state=None):
+def has_key(name, key, key_missing_msg, state=None):
     rep = Reporter.active_reporter
 
-    if sol_keys is None:
-        sol_keys = getKeysInProcess(name, state.solution_process)
-
-    if ((sol_keys is not None and key not in sol_keys) or 
-         not isDefinedCollInProcess(name, key, state.solution_process)):
+    if not isDefinedCollInProcess(name, key, state.solution_process):
         raise NameError("Not all keys you specified are actually keys in %s in the solution process" % name)
 
     # check if key available
     msg = key_missing_msg.format(key=key, name=name)
     rep.do_test(DefinedCollProcessTest(name, key, state.student_process, Feedback(msg)))
 
-def test_key(name, key, incorrect_value_msg, key_missing_msg, sol_keys=None, state=None):
+def test_key(name, key, incorrect_value_msg, key_missing_msg, state=None):
     rep = Reporter.active_reporter
 
-    has_key(name, key, key_missing_msg, sol_keys, state=state)
+    has_key(name, key, key_missing_msg, state=state)
 
     sol_value = getValueInProcess(name, key, state.solution_process)
     if isinstance(sol_value, ReprFail):

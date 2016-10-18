@@ -26,14 +26,18 @@ def test_data_frame(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_data_frame")
 
-    sol_cols = check_df(name, undefined_msg, not_data_frame_msg, state=state)
+    check_df(name, undefined_msg, not_data_frame_msg, state=state)
+
+    sol_cols = getColumnsInProcess(name, state.solution_process)
+    if sol_cols is None:
+        raise ValueError("Something went wrong in figuring out the columns for %s in the solution process" % name)
 
     # set columns or check if manual columns are valid
     if columns is None: columns = sol_cols
 
     for col in columns:
         # check if column available
-        test_key(name, col, incorrect_msg, undefined_cols_msg, sol_cols, state=state)
+        test_key(name, col, incorrect_msg, undefined_cols_msg, state=state)
 
 # Check functions -------------------------------------------------------------
 
@@ -48,10 +52,5 @@ def check_df(name, undefined_msg, not_instance_msg, state=None):
 
     is_instance(name, pd.DataFrame, not_instance_msg, state=state)
 
-    sol_keys = getColumnsInProcess(name, state.solution_process)
-
-    if sol_keys is None:
-        raise ValueError("Something went wrong in figuring out the columns for %s in the solution process" % name)
-
-    return sol_keys
+    return state
 
