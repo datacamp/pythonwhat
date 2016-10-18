@@ -177,21 +177,21 @@ class Probe(object):
         da = bound_args.arguments
         for st in self.sub_tests:     # TODO: auto sub test detection
             if st in da and da[st]:
-                self.run_sub_tests(da[st], self.tree, this_node, st)
+                self.build_sub_test_nodes(da[st], self.tree, this_node, st)
         return this_node
 
     @staticmethod
-    def run_sub_tests(test, tree, node, arg_name):
+    def build_sub_test_nodes(test, tree, node, arg_name):
         # note that I've made the strong assumption that
         # if not a function, then test is a dict, list or tuple of them
         if isinstance(test, dict):
             nd = NodeDict(name = "Dict", arg_name = arg_name)
             node.add_child(nd)
-            for k, f in test.items(): Probe.run_sub_tests(f, tree, nd, k)
+            for k, f in test.items(): Probe.build_sub_test_nodes(f, tree, nd, k)
         elif isinstance(test, (list, tuple)): 
             nl = NodeList(name = "List", arg_name = arg_name)
             node.add_child(nl)
-            for ii, f in enumerate(test): Probe.run_sub_tests(f, tree, nl, str(ii))
+            for ii, f in enumerate(test): Probe.build_sub_test_nodes(f, tree, nl, str(ii))
         elif isinstance(test, Node): 
             # test was a lambdaless subtest call, which produced a node
             # so need to tell it what its arg_name was on parent test
@@ -209,10 +209,10 @@ class Probe(object):
             raise Exception("Expected a function or list/tuple/dict of functions")
 
 
-def create_test_probes(test_exercise):
+def create_test_probes(context):
     tree = Tree()
-    all_tests = [test_exercise[s] for s in TEST_NAMES]
+    all_tests = [context[s] for s in TEST_NAMES]
     new_context = {f.__name__: Probe(tree, f) for f in all_tests} 
-    new_context.update({k:v for k,v in test_exercise.items() if k not in new_context})
+    new_context.update({k:v for k,v in context.items() if k not in new_context})
     #new_context['success_msg'] =  lambda s: s
     return tree, new_context
