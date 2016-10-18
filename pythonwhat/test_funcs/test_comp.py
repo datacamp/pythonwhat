@@ -5,9 +5,9 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
 from pythonwhat import utils
 from pythonwhat.utils import get_ord, get_num
-from pythonwhat.test_function_definition import test_args, test_body
+from .test_function_definition import test_args, test_body
 from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess, ReprFail
-from .sub_test import sub_test
+from pythonwhat.sub_test import sub_test
 
 from functools import partial
 
@@ -20,11 +20,11 @@ def test_list_comp(index=1,
                    body=None,
                    ifs=None,
                    insufficient_ifs_msg=None,
-                   expand_message=True):
+                   expand_message=True,
+                   state=None):
     """Test list comprehension.
     """
 
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_list_comp")
 
@@ -41,10 +41,10 @@ def test_generator_exp(index=1,
                        body=None,
                        ifs=None,
                        insufficient_ifs_msg=None,
-                       expand_message=True):
+                       expand_message=True,
+                       state=None):
     """Test generator expressions
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_generator_exp")
 
@@ -63,10 +63,10 @@ def test_dict_comp(index=1,
                    value=None,
                    ifs=None,
                    insufficient_ifs_msg=None,
-                   expand_message=True):
+                   expand_message=True,
+                   state=None):
     """Test dict comprehension.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_dict_comp")
 
@@ -77,15 +77,13 @@ def test_dict_comp(index=1,
     test_comp(comp_type = "dict", **(locals()))
 
 
-def test_comp(comp_type, **kwargs):
+def test_comp(comp_type, state=None, **kwargs):
 
     if comp_type not in ['list', 'dict', 'gen']:
         raise ValueError("comp_type not valid")
     typestr = {'list':'list comprehension', 'dict': 'dictionary comprehension', 'gen': 'generator expression'}[comp_type]
 
-    state = kwargs['state']
     rep = kwargs['rep']
-
     solution_comp_list = kwargs['solution_comp_list']
     student_comp_list = kwargs['student_comp_list']
     index = kwargs['index']
@@ -107,7 +105,7 @@ def test_comp(comp_type, **kwargs):
             get_ord(index), typestr)
 
     psub_test = partial(sub_test, state, rep,
-                       student_context = student_comp['target_vars'], 
+                       student_context = student_comp['target_vars'],
                        solution_context = solution_comp['target_vars'],
                        expand_message=kwargs['expand_message'] and prepend_fmt)
 
@@ -135,13 +133,14 @@ def test_comp(comp_type, **kwargs):
 
     # test ifs, one by one
     if kwargs['ifs'] is not None:
+        ifs = [kwargs['ifs']] if not hasattr(kwargs['ifs'], '__len__') else kwargs['ifs']
         c_insufficient_ifs_msg = kwargs['insufficient_ifs_msg'] or \
             ("Have you used %s ifs inside the %s %s?" % (len(solution_comp['ifs']), get_ord(index), typestr))
         rep.do_test(EqualTest(len(student_comp['ifs']), len(solution_comp['ifs']),
             Feedback(c_insufficient_ifs_msg, student_comp['list_comp'])))
 
-        if len(kwargs['ifs']) != len(solution_comp['ifs']):
+        if len(ifs) != len(solution_comp['ifs']):
             raise ValueError("If you specify tests for the ifs, pass a list with the same length as the number of ifs in the solution")
 
-        for i, if_test in enumerate(kwargs['ifs']):
+        for i, if_test in enumerate(ifs):
             psub_test(if_test, student_comp['ifs'][i], solution_comp['ifs'][i], ("%s if") % get_ord(i + 1))

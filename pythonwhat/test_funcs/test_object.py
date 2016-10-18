@@ -9,7 +9,8 @@ def test_object(name,
                 eq_fun=None,
                 do_eval=True,
                 undefined_msg=None,
-                incorrect_msg=None):
+                incorrect_msg=None,
+                state=None):
     """Test object.
 
     The value of an object in the ending environment is compared in the student's environment and the
@@ -40,7 +41,6 @@ def test_object(name,
         | ``test_object("a")``: pass.
         | ``test_object("b")``: fail.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object")
 

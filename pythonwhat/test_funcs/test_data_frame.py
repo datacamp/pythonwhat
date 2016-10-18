@@ -11,10 +11,10 @@ def test_data_frame(name,
                     undefined_msg=None,
                     not_data_frame_msg=None,
                     undefined_cols_msg=None,
-                    incorrect_msg=None):
+                    incorrect_msg=None,
+                    state=None):
     """Test a pandas dataframe.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_data_frame")
 

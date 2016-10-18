@@ -53,6 +53,14 @@ shout( 'help' )
         self.assertEqual(sct_payload['message'], "Check your definition of <code>shout()</code>. Make sure to output the correct string.")
         helper.test_lines(self, sct_payload, 3, 4, 5, 30)
 
+    def test_Pass_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Pass()
+
+    def test_Fail_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Fail()
+
 class TestExercise2(unittest.TestCase):
 
     def setUp(self):
@@ -319,6 +327,14 @@ def to_decimal(number, base = 3):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_Fail1_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Fail1()
+
+    def test_Fail2_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Fail2()
+
 class TestExercise8(unittest.TestCase):
 
     def setUp(self):
@@ -367,6 +383,18 @@ def shout():
         self.assertEqual(sct_payload['message'], 'Check your definition of <code>shout()</code>. Are you sure you assigned the correct value to <code>shout_word</code>?')
         # line info specific to test_object_after_expression!
         helper.test_lines(self, sct_payload, 3, 3, 5, 41)
+
+    def test_Pass_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Pass()
+
+    def test_Fail1_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Fail1()
+
+    def test_Fail2_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Fail2()
 
 class TestFunctionDefintionError1(unittest.TestCase):
 

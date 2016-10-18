@@ -12,7 +12,8 @@ def test_operator(index=1,
                   do_eval=True,
                   not_found_msg=None,
                   incorrect_op_msg=None,
-                  incorrect_result_msg=None):
+                  incorrect_result_msg=None,
+                  state=None):
     """Test if operator groups match.
 
     This function compares an operator group in the student's code with the corresponding one in the solution
@@ -52,7 +53,6 @@ def test_operator(index=1,
         | ``test_operator(index = 1, incorrect_op_msg = "Use the correct operators")``: fail.
         | ``test_operator(index = 1, used = [], incorrect_result_msg = "Incorrect result")``: fail.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_operator")
 

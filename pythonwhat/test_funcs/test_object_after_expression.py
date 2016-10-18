@@ -3,7 +3,7 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import EqualTest, Test
 
-from pythonwhat.test_object import get_assignment_node
+from .test_object import get_assignment_node
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
 
@@ -17,7 +17,8 @@ def test_object_after_expression(name,
                                  incorrect_msg=None,
                                  eq_condition="equal",
                                  pre_code=None,
-                                 keep_objs_in_env=None):
+                                 keep_objs_in_env=None,
+                                 state=None):
     """Test object after expression.
 
     The code of the student is ran in the active state and the the value of the given object is
@@ -73,7 +74,6 @@ def test_object_after_expression(name,
         This SCT will pass as the value of `count` is updated identically in the body of the for loop in the
         student code and solution code.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object_after_expression")
 

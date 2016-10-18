@@ -5,15 +5,16 @@ from pythonwhat.Test import Test
 from pythonwhat.utils import get_ord
 from pythonwhat.Feedback import Feedback
 
-from .sub_test import sub_test
-from functools import partial
+from pythonwhat.sub_test import sub_test
+from functools import partial, update_wrapper
 
 def test_if_else(index=1,
                  test=None,
                  body=None,
                  orelse=None,
                  expand_message=True,
-                 use_if_exp=False):
+                 use_if_exp=False,
+                 state=None):
     """Test parts of the if statement.
 
     This test function will allow you to extract parts of a specific if statement and perform a set of tests
@@ -67,7 +68,6 @@ def test_if_else(index=1,
         This SCT will pass as `test_expression_output()` is ran on the body of the if statement and it will output
         the same thing in the solution as in the student code.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_if_else")
 
@@ -101,3 +101,6 @@ def test_if_else(index=1,
 
 
 test_if_exp = partial(test_if_else, use_if_exp = True)
+# update test_if_exp function signature (docstring, etc..)
+update_wrapper(test_if_exp, test_if_else)
+test_if_exp.__name__ = 'test_if_exp'

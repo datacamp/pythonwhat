@@ -7,6 +7,8 @@ from pythonwhat import utils
 from pythonwhat.utils import get_ord
 from pythonwhat.tasks import getTreeResultInProcess, getFunctionCallResultInProcess, getFunctionCallOutputInProcess, getFunctionCallErrorInProcess, ReprFail
 
+from pythonwhat.sub_test import sub_test
+
 
 def test_function_definition(name,
                              arg_names=True,
@@ -24,7 +26,8 @@ def test_function_definition(name,
                              wrong_output_msg=None,
                              no_error_msg=None,
                              wrong_error_msg=None,
-                             expand_message=True):
+                             expand_message=True,
+                             state=None):
     """Test a function definition.
 
     This function helps you test a function definition. Generally four things can be tested:
@@ -93,7 +96,6 @@ def test_function_definition(name,
         | ``test_function_definition('shout', args_defaults = False``
         |     ``body = lambda: test_function('print', args = []]))``: pass.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_function_definition")
 
@@ -191,16 +193,22 @@ def test_function_definition(name,
                                                             fun_name = name,
                                                             arguments = el)
 
+            def format_output(out):
+                if len(out) == 0:
+                    return "no output"
+                else:
+                    return "`%s`" % out
+
             if output_student is None:
                 c_wrong_output_msg = wrong_output_msg or \
-                    ("Calling `%s` should output `%s`, instead got an error." %
-                        (call_str, output_solution))
+                    ("Calling `%s` should output %s, instead got an error." %
+                        (call_str, format_output(output_solution)))
                 rep.do_test(Test(c_wrong_output_msg))
                 return
 
             c_wrong_output_msg = wrong_output_msg or \
-                ("Calling `%s` should output `%s`, instead got %s." %
-                    (call_str, output_solution, "no output" if len(output_student) == 0 else "`%s`" % output_student))
+                ("Calling `%s` should output %s, instead got %s." %
+                    (call_str, format_output(output_solution), format_output(output_student)))
             rep.do_test(EqualTest(output_solution, output_student, c_wrong_output_msg))
 
     if errors is not None:
@@ -345,5 +353,5 @@ def test_body(rep, state, body,
         #      but this could always be reimplimented with callbacks
         feedback = "Check your definition of %s. " %name if expand_message else ""
 
-        rep.do_test(body, feedback, fallback_ast=subtree_student)
+        sub_test(child, rep, body, subtree_student, None, expand_message=feedback)
         child.to_parent_state()

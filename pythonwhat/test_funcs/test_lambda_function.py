@@ -5,7 +5,7 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
 from pythonwhat import utils
 from pythonwhat.utils import get_ord, get_num
-from pythonwhat.test_function_definition import test_args, test_body
+from .test_function_definition import test_args, test_body
 from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess, ReprFail
 
 def test_lambda_function(index,
@@ -20,7 +20,8 @@ def test_lambda_function(index,
                          arg_defaults_msg=None,
                          wrong_result_msg=None,
                          no_error_msg=None,
-                         expand_message=True):
+                         expand_message=True,
+                         state=None):
     """Test a lambda function definition.
 
     This function helps you test a lambda function definition. Generally four things can be tested:
@@ -58,7 +59,6 @@ def test_lambda_function(index,
             will generate no extra feedback if the body test fails. Defaults to True.
     """
 
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_lambda_function")
 

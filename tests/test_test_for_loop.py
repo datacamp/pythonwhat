@@ -59,6 +59,19 @@ for i in range(10):
         # should be detailed
         helper.test_lines(self, sct_payload, 4, 4, 5, 23)
 
+    def test_Pass_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Pass()
+
+    def test_Fail_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Fail()
+        
+    def test_Fail_mix_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"], count=1)
+        self.test_Fail()
+
+
 class TestForLoop2(unittest.TestCase):
 
     def setUp(self):
@@ -100,6 +113,19 @@ for test in enumerate(areas) :
         self.assertIn("Check your code in the body of the first for loop", sct_payload['message'])
         self.assertIn("blabla", sct_payload['message'])
         helper.test_lines(self, sct_payload, 4, 4, 5, 67)
+
+    def test_Pass_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Pass()
+
+    def test_Fail_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Fail()
+
+    def test_Fail_mix_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"], count=1)
+        self.test_Fail()
+
 
 if __name__ == "__main__":
     unittest.main()

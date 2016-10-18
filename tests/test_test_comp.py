@@ -1,5 +1,4 @@
 import unittest
-import unittest
 import helper
 
 
@@ -79,6 +78,29 @@ test_list_comp(index=1,
 
     def test_pass(self):
         self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if isinstance(key, str) if isinstance(val, str)]"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_pass_no_lam(self):
+        self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if isinstance(key, str) if isinstance(val, str)]"
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_pass_mix_lam(self):
+        self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if isinstance(key, str) if isinstance(val, str)]"
+        self.data["DC_SCT"] = '''
+test_list_comp(index=1,
+               not_called_msg=None,
+               comp_iter=lambda: test_expression_result(),
+               iter_vars_names=True,
+               incorrect_iter_vars_msg=None,
+               body=test_expression_result(context_vals = ['a', 2]),
+               ifs=[test_function_v2('isinstance', params = ['obj'], do_eval = [False]),
+                    test_function_v2('isinstance', params = ['obj'], do_eval = [False])],
+               insufficient_ifs_msg=None,
+               expand_message=True)
+            '''
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
@@ -162,6 +184,13 @@ test_list_comp(index=1,
         self.assertTrue(sct_payload['correct'])
 
 
+    def test_pass_no_lam(self):
+        self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if isinstance(key, str) if isinstance(val, str)]"
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+
 class TestListCompNested(unittest.TestCase):
     def setUp(self):
         self.data = {
@@ -179,6 +208,31 @@ class TestListCompNested(unittest.TestCase):
         self.data["DC_CODE"] = "[[col for col in range(5)] for row in range(5)]"
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
+    def test_fail_no_lam(self):
+        self.data["DC_CODE"] = "[[col + 1 for col in range(5)] for row in range(5)]"
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_pass_no_lam(self):
+        self.data["DC_CODE"] = "[[col for col in range(5)] for row in range(5)]"
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_pass_mix_lam1(self):
+        self.data["DC_CODE"] = "[[col for col in range(5)] for row in range(5)]"
+        self.data["DC_SCT"] = "test_list_comp(1, body = test_list_comp(1, body = lambda: test_expression_result(context_vals = [4])))"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_pass_mix_lam2(self):
+        self.data["DC_CODE"] = "[[col for col in range(5)] for row in range(5)]"
+        self.data["DC_SCT"] = "test_list_comp(1, body = lambda: test_list_comp(1, body = test_expression_result(context_vals = [4])))"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 
 class TestListIterVars(unittest.TestCase):
     def setUp(self):
@@ -198,6 +252,7 @@ class TestListIterVars(unittest.TestCase):
         self.data["DC_CODE"] = "[a for a,b in x.items()]"
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
 
 class TestDictCompStepByStep(unittest.TestCase):
     def setUp(self):
@@ -270,6 +325,18 @@ test_dict_comp(index=1,
         self.data["DC_CODE"] = "{ el:len(el) for el in lst if isinstance(el, str)}"
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
+    def test_fail_7_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_fail_7()
+
+    def test_pass_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_pass()
+
+    def test_pass_mix_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"], count=2)
+        self.test_pass()
 
 
 class TestGeneratorFunctionStepByStep(unittest.TestCase):
@@ -345,10 +412,18 @@ test_generator_exp(index=1,
         self.assertEqual("Check your code in the second if of the first generator expression. Did you call <code>isinstance()</code> with the correct arguments?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 80, 82)
 
+    def test_fail_8_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_fail_8()
+
     def test_pass(self):
         self.data["DC_CODE"] = "(key + str(val) for key,val in x.items() if isinstance(key, str) if isinstance(val, str))"
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
+    def test_pass_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_pass()
 
 if __name__ == "__main__":
      unittest.main()

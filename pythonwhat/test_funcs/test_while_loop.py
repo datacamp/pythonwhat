@@ -5,14 +5,15 @@ from pythonwhat.Test import Test
 from pythonwhat.utils import get_ord
 from pythonwhat.Feedback import Feedback
 
-from .sub_test import sub_test
+from pythonwhat.sub_test import sub_test
 from functools import partial
 
 def test_while_loop(index=1,
                     test=None,
                     body=None,
                     orelse=None,
-                    expand_message=True):
+                    expand_message=True,
+                    state=None):
     """Test parts of the while loop.
 
     This test function will allow you to extract parts of a specific while loop and perform a set of tests
@@ -67,7 +68,6 @@ def test_while_loop(index=1,
       This SCT will evaluate to True as condition test will have thes same result in student
       and solution code and `test_exression_output()` will pass on the body code.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_while_loop")
 

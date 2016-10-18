@@ -5,7 +5,8 @@ from pythonwhat.Reporter import Reporter
 
 def test_output_contains(text,
                          pattern=True,
-                         no_output_msg=None):
+                         no_output_msg=None,
+                         state=None):
     """Test the output.
 
     Tests if the output contains a (pattern of) text.
@@ -16,7 +17,6 @@ def test_output_contains(text,
           Defaults to False.
         no_output_msg (str): feedback message to be displayed if the output is not found.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_output_contains")
 

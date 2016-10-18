@@ -13,7 +13,8 @@ def test_expression_output(extra_env=None,
                            eq_condition="equal",
                            expr_code=None,
                            pre_code=None,
-                           keep_objs_in_env=None):
+                           keep_objs_in_env=None,
+                           state=None):
     """Test output of expression.
 
     The code of the student is ran in the active state and the output it generates is
@@ -66,7 +67,6 @@ def test_expression_output(extra_env=None,
         This SCT will pass as the subexpression will output 'test 5' in both student as solution environment,
         since the extra environment sets `a` to 5.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_expression_output")
 

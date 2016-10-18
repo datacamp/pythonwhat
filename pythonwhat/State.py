@@ -16,6 +16,7 @@ class State(object):
 
     """
     active_state = None
+    converters = get_manual_converters()
 
     def __init__(self, **kwargs):
 
@@ -395,6 +396,4 @@ class State(object):
         State.active_state = state
 
 def set_converter(key, fundef):
-    state = State.active_state
-    state.get_converters()
-    state.converters[key] = fundef
+    State.converters[key] = fundef

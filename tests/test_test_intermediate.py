@@ -102,7 +102,7 @@ if area > 15 :
         self.data["DC_SCT"] = '''
 def test():
     msg = "You don't have to change or remove the first `if` statement."
-    test_expression_result({"room": "kit"}, incorrect_msg = msg)
+    test_expression_result({"room": "kit"}, incorrect_msg = msg),
     test_expression_result({"room": "not_kit"}, incorrect_msg = msg)
 
 test_if_else(index = 1, test = test)
@@ -114,6 +114,27 @@ def test():
     test_expression_result({"area": 16}, incorrect_msg = msg)
 
 test_if_else(index = 2, test = test)
+
+
+success_msg("Great! `big place!` wasn't printed, because `area > 15` is not `True`. Experiment with other values of `room` and `area` to see how the printouts change.")
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_Pass_no_lam(self):
+        self.data["DC_SCT"] = '''
+msg1 = "You don't have to change or remove the first `if` statement."
+test1 = [test_expression_result({"room": "kit"}, incorrect_msg = msg1),
+             test_expression_result({"room": "not_kit"}, incorrect_msg = msg1)]
+
+test_if_else(index = 1, test = test1)
+
+msg2 = "The second `if` statement should succeed if `area` is greater than `15`."
+test2 = [test_expression_result({"area": 14}, incorrect_msg = msg2),
+        test_expression_result({"area": 15}, incorrect_msg = msg2),
+        test_expression_result({"area": 16}, incorrect_msg = msg2)]
+
+test_if_else(index = 2, test = test2)
 
 
 success_msg("Great! `big place!` wasn't printed, because `area > 15` is not `True`. Experiment with other values of `room` and `area` to see how the printouts change.")
@@ -197,6 +218,31 @@ success_msg("Nice! Again, feel free to play around with different values of `roo
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_Pass_no_lam(self):
+        self.data["DC_SCT"] = '''
+
+msg = "You don't have to change or remove anything" # this will automatically be completed with extra info
+body1 = test_function("print", incorrect_msg = msg)
+
+test_if_else(index = 1,
+             test = [test_expression_result({"room": "kit"}, incorrect_msg = msg),
+                     test_expression_result({"room": "not_kit"}, incorrect_msg = msg)],
+             body = body1,
+             orelse = body1)
+ 
+test_msg = "The `area` should be greater than `15`" # ...
+test_if_else(index = 2,
+             test = [test_expression_result({"area": 15}, incorrect_msg = test_msg),
+                     test_expression_result({"area": 15}, incorrect_msg = test_msg),
+                     test_expression_result({"area": 16}, incorrect_msg = test_msg)],
+             body = test_function("print", incorrect_msg = 'Print out `\"big place!\"`'), 
+             orelse = test_function("print", incorrect_msg = 'Print out `\"pretty small.\"`'))
+
+success_msg("Nice! Again, feel free to play around with different values of `room` and `area` some more. Then, head over to the next exercise, where you'll take this customization one step further!")
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 class TestExercise4(unittest.TestCase):
 
     def setUp(self):
@@ -222,6 +268,14 @@ test_if_else(1, body = lambda : test_expression_output())
         '''
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
+    def test_Pass_no_lam(self):
+        self.data["DC_SCT"] = '''
+test_if_else(1, body = test_expression_output())
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 
 class TestExercise4(unittest.TestCase):
 
@@ -390,6 +444,41 @@ success_msg("Great!")
         self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Great!")
 
+    def test_Pass_no_lam(self):
+        self.data["DC_SCT"] = '''
+msg = "In the condition of your `if` part, make sure you use `dice <= 2`."
+test_if_else(1, 
+             test = [test_expression_result({"dice": i}, incorrect_msg = msg) for i in range(1,7)], 
+             expand_message = False)
+
+# check elif statements? ------
+msg = "Have another look at your `elif` part. If the dice is smaller than or equal to 5, and bigger than 2, `step` should be increased by 1."
+if2 = test_object_after_expression("step", {"step": 1}, incorrect_msg = msg)
+
+msg = "Have another look at your final `else` part. If the dice is 6, `step` should be increased by a random integer between 1 and 6, inclusive. Use `np.random.randint(1,7)`."
+pre = "import numpy as np; np.random.seed(123)"
+else2 = test_object_after_expression("step", {"step": 1}, pre_code = pre, incorrect_msg = msg)
+
+msg = "The condition of the `elif` part should be `dice <= 5`."
+else1 = [
+        test_if_else(1, 
+                    test = [test_expression_result({"dice": i}, incorrect_msg = msg) for i in range(1,7)], 
+                    expand_message = False),
+        test_if_else(1, body = if2, expand_message = False),
+        test_if_else(1, orelse = else2, expand_message = False)]
+
+
+test_if_else(1, orelse = else1, expand_message = False)
+
+msg = "Make sure you output `dice` and `step`, in this order, with two `print()` calls."
+test_expression_output(incorrect_msg = msg)
+
+success_msg("Great!")
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "Great!")
+
 
 class TestExercise7(unittest.TestCase):
 
@@ -457,11 +546,8 @@ for x in range(100) :
 
 # Print random_walk
 print(random_walk)
-            '''
-        }
-
-    def test_Pass(self):
-        self.data["DC_SCT"] = '''
+            ''',
+            "DC_SCT": '''
 msg = "Be sure to initialize `random_walk` with: `random_walk = [0]`."
 test_expression_result(expr_code = "random_walk[0]", incorrect_msg = msg)
 
@@ -495,9 +581,17 @@ test_for_loop(1,
 
 success_msg("Great!")
         '''
+        }
+
+    def test_Pass(self):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Great!")
+
+    def test_Pass_no_lam(self):
+        self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"], with_args=True)
+        self.test_Pass()
+        
 
 class TestExercise8(unittest.TestCase):
 

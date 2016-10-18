@@ -17,7 +17,8 @@ def test_function(name,
                   not_called_msg=None,
                   args_not_specified_msg=None,
                   incorrect_msg=None,
-                  add_more=False):
+                  add_more=False,
+                  state=None):
     """Test if function calls match.
 
     This function compares a function call in the student's code with the corresponding one in the solution
@@ -60,7 +61,6 @@ def test_function(name,
         | ``test_function(index = 1, incorrect_op_msg = "Use the correct operators")``: fail.
         | ``test_function(index = 1, used = [], incorrect_result_msg = "Incorrect result")``: fail.
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_function")
 
@@ -193,7 +193,8 @@ def test_print(index = 1,
                not_called_msg="Have you called `print()`?",
                params_not_matched_msg="Have you correctly called `print()`?",
                params_not_specified_msg="Have you correctly called `print()`?",
-               incorrect_msg="Have you printed out the correct object?"):
+               incorrect_msg="Have you printed out the correct object?",
+               state=None):
     test_function_v2("print",
                      index=index,
                      params=["value"],
@@ -203,7 +204,7 @@ def test_print(index = 1,
                      not_called_msg=not_called_msg,
                      params_not_matched_msg=params_not_matched_msg,
                      params_not_specified_msg=params_not_specified_msg,
-                     incorrect_msg=incorrect_msg)
+                     incorrect_msg=incorrect_msg, state=state)
     """Test print() calls
 
     Utility function to test the print() function. For arguments, check test_function_v2()
@@ -219,7 +220,8 @@ def test_function_v2(name,
                      params_not_matched_msg=None,
                      params_not_specified_msg=None,
                      incorrect_msg=None,
-                     add_more=False):
+                     add_more=False,
+                     state=None):
     """Test if function calls match (v2).
 
     This function compares a function call in the student's code with the corresponding one in the solution
@@ -247,7 +249,6 @@ def test_function_v2(name,
             don't correspond between student and solution code.
     """
 
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_function")
 
@@ -311,7 +312,7 @@ def test_function_v2(name,
             sol_call, arguments, keywords = solution_calls[name][index]
             sol_sig = getSignatureInProcess(name=name, mapped_name=sol_name,
                                             signature=signature,
-                                            manual_sigs = State.active_state.get_manual_sigs(),
+                                            manual_sigs = state.get_manual_sigs(),
                                             process=solution_process)
             solution_args, _ = bind_args(signature = sol_sig, arguments=arguments, keyws=keywords)
         except:
@@ -337,7 +338,7 @@ def test_function_v2(name,
                 student_call, arguments, keywords = student_calls[name][call_ind]
                 student_sig = getSignatureInProcess(name = name, mapped_name = stud_name,
                                                     signature=signature,
-                                                    manual_sigs = State.active_state.get_manual_sigs(),
+                                                    manual_sigs = state.get_manual_sigs(),
                                                     process=student_process)
                 student_args, student_params = bind_args(signature = student_sig, arguments=arguments, keyws=keywords)
             except:

@@ -6,7 +6,7 @@ from pythonwhat.Test import EqualTest, Test
 from pythonwhat import utils
 from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
 
-from functools import partial
+from pythonwhat.sub_test import sub_test
 
 def test_with(index,
               context_vals=False, # whether to check number of context vals
@@ -15,7 +15,8 @@ def test_with(index,
               undefined_msg=None,
               context_vals_len_msg=None,
               context_vals_msg=None,
-              expand_message=True):
+              expand_message=True,
+              state=None):
     """Test a with statement.
 with open_file('...') as bla:
 
@@ -26,7 +27,6 @@ with open_file('...') as file:
     [ ]
 
     """
-    state = State.active_state
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_with")
 
@@ -87,17 +87,9 @@ with open_file('...') as file:
                 rep.do_test(Test(Feedback(context_vals_len_msg or "In your %s `with` statement, make sure to use the correct number of context variables. It seems you defined too little."\
                         % (utils.get_ord(index + 1)), student_with['node'])))
                 return
-
             # TODO does the test about need to be in this loop?
-            # prepend message on failure
-            expand_message = feedback_fmt.format(utils.get_ord(i+1), utils.get_ord(index + 1)) if expand_message else ""
-            rep.failure_msg_stack.append(expand_message)
-
-            child = state.to_child_state(student_context, solution_context)
-            context_test()
-            child.to_parent_state()
-
-            rep.failure_msg_stack.pop()
+            prepend = feedback_fmt.format(utils.get_ord(i+1), utils.get_ord(index + 1)) if expand_message else ""
+            sub_test(state, rep, context_test, student_context, solution_context, expand_message=prepend)
 
     if body is not None:
 
@@ -122,7 +114,8 @@ with open_file('...') as file:
         # feedback pasted on failed sub_test messages
         feedback = "Check the body of the %s `with` statement. " % utils.get_ord(index + 1)
         try:
-            rep.do_test(body, prepend_on_fail = feedback if expand_message else "")
+            sub_test(child, rep, body, None, None, 
+                     expand_message=feedback if expand_message else "")
         finally:
             if breakDownNewEnvInProcess(process = state.solution_process):
                 raise Exception("error in the solution, closing the %s with fails with: %s" %
