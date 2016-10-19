@@ -171,7 +171,10 @@ class State(object):
         State.active_state = state
 
 # add property methods for retrieving parser outputs --------------------------
-# e.g. state.student_withs
+# note that this code is an alternative means of using something like..
+#   @property
+#   def student_withs(self): ...
+# when defining the State class.
 from functools import partial
 
 def getx(tree_name, Parser, ext_attr, self): 
@@ -220,7 +223,6 @@ for s in ['student', 'solution']:
 pec_prop_map = property(partial(getx, 'pre_exercise_tree', FunctionParser, 'mappings'))
 setattr(State, 'pre_exercise_mappings', pec_prop_map)
 
-    
 
 # global setters on State -----------------------------------------------------
 def set_converter(key, fundef):
