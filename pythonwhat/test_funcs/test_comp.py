@@ -15,6 +15,7 @@ MSG_NOT_CALLED = "The system wants to check the {ordinal} {typestr} you defined 
 MSG_INCORRECT_ITER_VARS = "Have you used the correct iterator variables in the {ordinal} {typestr}? Make sure you use the correct names!"
 MSG_INCORRECT_NUM_ITER_VARS = "Have you used {num_vars} iterator variables in the {ordinal} {typestr}?"
 MSG_INSUFFICIENT_IFS = "Have you used {num_ifs} ifs inside the {ordinal} {typestr}?"
+MSG_PREPEND = "Check your code in the {{incorrect_part}} of the {ordinal} {typestr}. "
 
 def test_list_comp(index=1,
                    not_called_msg=None,
@@ -106,13 +107,12 @@ def test_comp(typestr, index,
 
     student_comp = student_comp_list[index - 1]
 
-    prepend_fmt = "Check your code in the {incorrect_part} of the %s %s. "%(
-            get_ord(index), typestr)
+    prepend_fmt = MSG_PREPEND if expand_message is True else (expand_message or "")
 
     psub_test = partial(sub_test, state, rep,
                        student_context = student_comp['target_vars'],
                        solution_context = solution_comp['target_vars'],
-                       expand_message=expand_message and prepend_fmt)
+                       expand_message=expand_message and fmt_template(prepend_fmt))
 
     # test iterable
     psub_test(kwargs['comp_iter'], student_comp['iter'], solution_comp['iter'], "iterable part")
