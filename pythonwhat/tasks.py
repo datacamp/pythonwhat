@@ -6,9 +6,27 @@ import pythonwhat
 import ast
 import inspect
 import copy
+import inspect
 from pythonwhat.utils_env import set_context_vals
 from contextlib import contextmanager
+from functools import partial, wraps
 
+def process_task(f):
+    """Decorator to return partial of task function if process arg not in call"""
+    sig = inspect.signature(f)
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        # get bound arguments for call
+        bargs = sig.bind_partial(*args, **kwargs).arguments
+        # when process is specified, use to execute
+        process = bargs.get('process')
+        if process:
+            bargs['process'] = None
+            pf = partial(wrapper, *bargs.values())
+            return process.executeTask(pf)
+        # otherwise, return partialed function, that a process may be passed to
+        return f(**bargs)
+    return wrapper
 
 def get_env(ns):
     if '__env__' in ns:
@@ -32,95 +50,48 @@ def capture_output():
 ## DEBUGGING
 
 # import pythonwhat; pythonwhat.tasks.listElementsInProcess(state.student_process)
-class TaskListElements(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-    def __call__(self, shell):
-        return list(get_env(shell.user_ns).keys())
-
-def listElementsInProcess(process):
-    return process.executeTask(TaskListElements())
+@process_task
+def listElementsInProcess(process, shell):
+    return list(get_env(shell.user_ns).keys())
 
 
 # MC
-class TaskGetOption(object):
-    def __init__(self, name):
-        self.name = name
-
-    def __call__(self, shell):
-        return shell.user_ns[self.name]
-
-def getOptionFromProcess(process, name):
-    return process.executeTask(TaskGetOption(name))
+@process_task
+def getOptionFromProcess(process, name, shell):
+    return shell.user_ns[name]
 
 
 # Is a variable is defined in the process?
-class TaskIsDefined(object):
-    def __init__(self, name):
-        self.name = name
-
-    def __call__(self, shell):
-        return self.name in get_env(shell.user_ns)
-
-def isDefinedInProcess(name, process):
-    return process.executeTask(TaskIsDefined(name))
+@process_task
+def isDefinedInProcess(name, process, shell):
+    return name in get_env(shell.user_ns)
 
 # Is a variable is of a certain class in the process?
-class TaskIsInstance(object):
-    def __init__(self, name, klass):
-        self.name = name
-        self.klass = klass
-
-    def __call__(self, shell):
-        return isinstance(get_env(shell.user_ns)[self.name], self.klass)
-
-def isInstanceInProcess(name, klass, process):
-    return process.executeTask(TaskIsInstance(name, klass))
+@process_task
+def isInstanceInProcess(name, klass, process, shell):
+    return isinstance(get_env(shell.user_ns)[name], klass)
 
 
 # Get the keys() of a dictionary in the process
-class TaskGetKeys(object):
-    def __init__(self, name):
-        self.name = name
-
-    def __call__(self, shell):
+@process_task
+def getKeysInProcess(name, process, shell):
         try:
-            return list(get_env(shell.user_ns)[self.name].keys())
+            return list(get_env(shell.user_ns)[name].keys())
         except:
             return None
-
-def getKeysInProcess(name, process):
-    return process.executeTask(TaskGetKeys(name))
-
 
 # Get the columns of a Pandas data frame in the process
-class TaskGetColumns(object):
-    def __init__(self, name):
-        self.name = name
-
-    def __call__(self, shell):
+@process_task
+def getColumnsInProcess(name, process, shell):
         try:
-            return list(get_env(shell.user_ns)[self.name].columns)
+            return list(get_env(shell.user_ns)[name].columns)
         except:
             return None
 
-def getColumnsInProcess(name, process):
-    return process.executeTask(TaskGetColumns(name))
-
-
 # Is a key defined in a collection in the process?
-class TaskDefinedColl(object):
-    def __init__(self, name, key):
-        self.name = name
-        self.key = key
-
-    def __call__(self, shell):
-        return self.key in get_env(shell.user_ns)[self.name]
-
-def isDefinedCollInProcess(name, key, process):
-    return process.executeTask(TaskDefinedColl(name, key))
-
+@process_task
+def isDefinedCollInProcess(name, key, process, shell):
+    return key in get_env(shell.user_ns)[name]
 
 # Get the value linked to a key of a collection in the process
 class TaskGetValue(object):
@@ -142,8 +113,6 @@ def getValueInProcess(name, key, process):
     if res:
         res = getRepresentation(tempname, process)
     return res
-
-
 
 # Get a bytes or string representation of an object in the process
 class TaskGetClass(object):
@@ -248,20 +217,6 @@ def errored(el):
 
 
 # Get the signature of a function inside the process
-class TaskGetSignature(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-    def __call__(self, shell):
-        try:
-            return get_signature(name = self.name,
-                                 mapped_name = self.mapped_name,
-                                 signature = self.signature,
-                                 manual_sigs = self.manual_sigs,
-                                 env = get_env(shell.user_ns))
-        except:
-            return None
-
 
 def get_signature(name, mapped_name, signature, manual_sigs, env):
     if isinstance(signature, str):
@@ -307,47 +262,46 @@ def get_signature(name, mapped_name, signature, manual_sigs, env):
 
 
 # Get the signature of a function based on an object inside the process
-class TaskGetSignatureFromObj(object):
-    def __init__(self, obj_char):
-        self.obj_char = obj_char
+@process_task
+def getSignatureInProcess(name, mapped_name, signature, manual_sigs, process, shell):
+    try:
+        return get_signature(name = name,
+                                mapped_name = mapped_name,
+                                signature = signature,
+                                manual_sigs = manual_sigs,
+                                env = get_env(shell.user_ns))
+    except:
+        return None
 
-    def __call__(self, shell):
-        try:
-            return inspect.signature(eval(self.obj_char, get_env(shell.user_ns)))
-        except:
-            return None
-
-def getSignatureInProcess(process, **kwargs):
-    return process.executeTask(TaskGetSignature(**kwargs))
-
-def getSignatureFromObjInProcess(obj_char, process):
-    return process.executeTask(TaskGetSignatureFromObj(obj_char))
+@process_task
+def getSignatureFromObjInProcess(obj_char, process, shell):
+    try:
+        return inspect.signature(eval(obj_char, get_env(shell.user_ns)))
+    except:
+        return None
 
 
 
-# Get the output of a tree (with setting envs, pre_code and/er expr_code)
-class TaskGetOutput(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-    def __call__(self, shell):
-        new_env = utils.copy_env(get_env(shell.user_ns), self.keep_objs_in_env)
-        if self.extra_env is not None:
-            new_env.update(copy.deepcopy(self.extra_env))
-        set_context_vals(new_env, self.context, self.context_vals)
-        try:
-            with capture_output() as out:
-                if self.pre_code is not None:
-                    exec(self.pre_code, new_env)
-                if self.expr_code is not None:
-                    exec(self.expr_code, new_env)
-                else:
-                    exec(compile(self.tree, "<script>", "exec"), new_env)
-            return out[0].strip()
-        except:
-            return None
-
-def getOutputInProcess(process, **kwargs):
+## Get the output of a tree (with setting envs, pre_code and/er expr_code)
+@process_task
+def getOutputInProcess(tree, process, extra_env, context, context_vals, 
+                       pre_code, expr_code, keep_objs_in_env, 
+                       shell):
+    new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
+    if extra_env is not None:
+        new_env.update(copy.deepcopy(extra_env))
+    set_context_vals(new_env, context, context_vals)
+    try:
+        with capture_output() as out:
+            if pre_code is not None:
+                exec(pre_code, new_env)
+            if expr_code is not None:
+                exec(expr_code, new_env)
+            else:
+                exec(compile(tree, "<script>", "exec"), new_env)
+        return out[0].strip()
+    except:
+        return None
     return process.executeTask(TaskGetOutput(**kwargs))
 
 
@@ -439,37 +393,24 @@ def getFunctionCallResultInProcess(process, **kwargs):
     return (bytestream, strrep)
 
 # Get output of function call in process
-class TaskGetFunctionCallOutput(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-    def __call__(self, shell):
-        try:
-            with capture_output() as out:
-                get_env(shell.user_ns)[self.fun_name](*self.arguments['args'], **self.arguments['kwargs'])
-            return out[0].strip()
-        except:
-            return None
-
-def getFunctionCallOutputInProcess(process, **kwargs):
-    return process.executeTask(TaskGetFunctionCallOutput(**kwargs))
+@process_task
+def getFunctionCallOutputInProcess(fun_name, arguments, process, shell):
+    try:
+        with capture_output() as out:
+            get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
+        return out[0].strip()
+    except:
+        return None
 
 # Get error of function call in process
-class TaskGetFunctionCallError(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-    def __call__(self, shell):
-        try:
-            get_env(shell.user_ns)[self.fun_name](*self.arguments['args'], **self.arguments['kwargs'])
-        except Exception as e:
-            return e
-        else:
-            return None
-
-def getFunctionCallErrorInProcess(process, **kwargs):
-    return process.executeTask(TaskGetFunctionCallError(**kwargs))
-
+@process_task
+def getFunctionCallErrorInProcess(fun_name, arguments, process, shell):
+    try:
+        get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
+    except Exception as e:
+        return e
+    else:
+        return None
 
 
 # Get result of an expression tree in process
@@ -495,36 +436,17 @@ def getTreeResultInProcess(process, **kwargs):
 
 
 # Get error of an expression tree in process
-class TaskGetTreeError(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-    def __call__(self, shell):
-        try:
-            eval(compile(ast.Expression(self.tree), "<script>", "eval"), get_env(shell.user_ns))
-        except Exception as e:
-            return e
-        else:
-            return None
-
-def getTreeErrorInProcess(process, **kwargs):
-    return process.executeTask(TaskGetTreeError(**kwargs))
+@process_task
+def getTreeErrorInProcess(tree, process, shell):
+    try:
+        eval(compile(ast.Expression(tree), "<script>", "eval"), get_env(shell.user_ns))
+    except Exception as e:
+        return e
+    else:
+        return None
 
 
 # Stuff for test_with
-class TaskSetUpNewEnv(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-    def __call__(self, shell):
-        shell.user_ns['__env__'] = utils.copy_env(shell.user_ns)
-        try:
-            context_env, context_objs = context_env_update(self.context, shell.user_ns['__env__'])
-            shell.user_ns['__env__'].update(context_env)
-            shell.user_ns['__context_obj__'] = context_objs
-            return True
-        except Exception as e:
-            return e
 
 def context_env_update(context_list, env):
     env_update = {}
@@ -547,23 +469,18 @@ def context_env_update(context_list, env):
     return (env_update, context_objs)
 
 
-def setUpNewEnvInProcess(process, **kwargs):
-    return process.executeTask(TaskSetUpNewEnv(**kwargs))
+@process_task
+def setUpNewEnvInProcess(context, process, shell):
+    shell.user_ns['__env__'] = utils.copy_env(shell.user_ns)
+    try:
+        context_env, context_objs = context_env_update(context, shell.user_ns['__env__'])
+        shell.user_ns['__env__'].update(context_env)
+        shell.user_ns['__context_obj__'] = context_objs
+        return True
+    except Exception as e:
+        return e
 
-class TaskBreakDownNewEnv(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-    def __call__(self, shell):
-        try:
-            res = context_objs_exit(shell.user_ns['__context_obj__'])
-            del shell.user_ns['__context_obj__']
-            del shell.user_ns['__env__']
-            return res
-        except:
-            return False
-
-
+# break down environment
 def context_objs_exit(context_objs):
     got_error = False
     for context_obj in context_objs:
@@ -574,5 +491,12 @@ def context_objs_exit(context_objs):
 
     return got_error
 
-def breakDownNewEnvInProcess(process, **kwargs):
-    return process.executeTask(TaskBreakDownNewEnv(**kwargs))
+@process_task
+def breakDownNewEnvInProcess(process, shell):
+    try:
+        res = context_objs_exit(shell.user_ns['__context_obj__'])
+        del shell.user_ns['__context_obj__']
+        del shell.user_ns['__env__']
+        return res
+    except:
+        return False
