@@ -151,3 +151,20 @@ def test_comp(typestr, index,
 
         for i, if_test in enumerate(ifs):
             psub_test(if_test, student_comp['ifs'][i], solution_comp['ifs'][i], ("%s if") % get_ord(i + 1))
+
+def check_list_comp(index, state=None):
+    state.extract_list_comps()
+    student_comp_list = state.student_list_comps
+    solution_comp_list = state.solution_list_comps
+
+    try:
+        solution_comp = solution_comp_list[index - 1]
+    except KeyError:
+        raise NameError("There aren't %s %ss in the solution environment" % (get_num(index), typestr))
+
+    #state.to_child_state(
+
+def check_part(name, state=None):
+    return state.to_child_state(state.student_tree[name], state.solution_tree[name])
+
+#def 
