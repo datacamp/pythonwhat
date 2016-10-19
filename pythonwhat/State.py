@@ -44,13 +44,9 @@ class State(object):
 
         self.converters = None
 
-        self.pre_exercise_mappings = None
-        self.student_function_calls = None
-        self.solution_function_calls = None
-        self.student_mappings = None
-        self.solution_mappings = None
-        self.fun_usage = None
+        self.fun_usage = {}
         self.manual_sigs = None
+        self._parser_cache = {}
 
     def get_converters(self):
         if self.converters is None:
@@ -77,40 +73,11 @@ class State(object):
         else:
             return stud_indices
 
-    def extract_function_calls(self):
-        if (self.fun_usage is None):
-            self.fun_usage = {}
-
-        if (self.pre_exercise_mappings is None):
-            fp = FunctionParser()
-            fp.visit(self.pre_exercise_tree)
-            self.pre_exercise_mappings = fp.mappings
-
-        if (self.student_function_calls is None):
-            fp = FunctionParser()
-            fp.mappings = self.pre_exercise_mappings.copy()
-            fp.visit(self.student_tree)
-            self.student_function_calls = fp.calls
-            self.student_mappings = fp.mappings
-
-        if (self.solution_function_calls is None):
-            fp = FunctionParser()
-            fp.mappings = self.pre_exercise_mappings.copy()
-            fp.visit(self.solution_tree)
-            self.solution_function_calls = fp.calls
-            self.solution_mappings = fp.mappings
-
     def get_manual_sigs(self):
         if self.manual_sigs is None:
             self.manual_sigs = signatures.get_manual_sigs()
 
         return(self.manual_sigs)
-
-    @property
-    def student_oa_mappings(self):
-        oap = ObjectAccessParser()
-        oap.visit(self.student_tree)
-        return oap.mappings
 
     def to_child_state(self, student_subtree, solution_subtree):
         """Dive into nested tree.
@@ -203,17 +170,58 @@ class State(object):
     def set_active_state(state):
         State.active_state = state
 
-# add property methods for retrieving parser outputs
+# add property methods for retrieving parser outputs --------------------------
 # e.g. state.student_withs
 from functools import partial
-for k, Parser in parser_dict.items():
-    def getx(self, tree_name, Parser=Parser): 
+
+def getx(tree_name, Parser, ext_attr, self): 
+    """getter for Parser outputs"""
+    # return cached output if possible
+    cache_key = tree_name + Parser.__name__
+    if self._parser_cache.get(cache_key):
+        p = self._parser_cache[cache_key]
+    else:
+        # otherwise, run parser over tree
         p = Parser()
         p.visit(getattr(self, tree_name))
-        return p.out
+        # cache
+        self._parser_cache[cache_key] = p
+    return getattr(p, ext_attr)
 
-    for s in ['student', 'solution']:
-        setattr(State, s+'_'+k, property(partial(getx, tree_name = s+'_tree')))
+def get_func_map(tree_name, ext_attr, self):
+    """getter for FunctionParser outputs, uses pre_exercise_mappings"""
+    cache_key = tree_name + FunctionParser.__name__
+    if self._parser_cache.get(cache_key):
+        p = self._parser_cache[cache_key]
+    else:
+        p = FunctionParser()
+        p.mappings = self.pre_exercise_mappings.copy()
+        p.visit(getattr(self, tree_name))
+        self._parser_cache[cache_key] = p
+    return getattr(p, ext_attr)
+    
+for s in ['student', 'solution']:
+    tree_name = s+'_tree'
+    for k, Parser in parser_dict.items():
+        setattr(State, s+'_'+k, property(partial(getx, tree_name, Parser, 'out')))
 
+    # mappings from ObjectAccessParser
+    prop_oa_map = property(partial(getx, tree_name, ObjectAccessParser, 'mappings'))
+    setattr(State, s+'_oa_mappings', prop_oa_map)
+
+    # Getters for FunctionParser -----
+    # calls
+    prop_calls = property(partial(get_func_map, tree_name, 'calls'))
+    setattr(State, s+'_function_calls', prop_calls)
+    # mappings
+    prop_map = property(partial(get_func_map, tree_name, 'mappings'))
+    setattr(State, s+'_mappings', prop_map)
+
+pec_prop_map = property(partial(getx, 'pre_exercise_tree', FunctionParser, 'mappings'))
+setattr(State, 'pre_exercise_mappings', pec_prop_map)
+
+    
+
+# global setters on State -----------------------------------------------------
 def set_converter(key, fundef):
     State.converters[key] = fundef
