@@ -75,7 +75,7 @@ def test_function(name,
 
     solution_calls = state.solution_function_calls
     student_calls = state.student_function_calls
-    student_mappings = {**state.pre_exercise_mappings, **state.student_mappings}
+    student_mappings = state.student_mappings
 
     # for messaging purposes: replace with original alias or import again.
     stud_name = get_mapped_name(name, student_mappings)
