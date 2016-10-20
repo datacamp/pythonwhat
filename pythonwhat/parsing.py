@@ -536,7 +536,7 @@ class CompParser(Parser):
     def build_comp(self, node):
         target = node.generators[0].target
         self.out.append({
-                "list_comp": node,
+                "node": node,
                 "body": node.elt,
                 "target": target,
                 "target_vars": Parser.get_target_vars(target),
@@ -570,7 +570,7 @@ class DictCompParser(CompParser):
     def visit_DictComp(self, node):
         target = node.generators[0].target
         self.out.append({
-                "list_comp": node,
+                "node": node,
                 "key": node.key,
                 "value": node.value,
                 "target": target,

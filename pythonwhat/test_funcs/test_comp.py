@@ -141,7 +141,7 @@ def test_comp(typestr, index,
         _msg = fmt_template(insufficient_ifs_msg or MSG_INSUFFICIENT_IFS)
         # test
         rep.do_test(EqualTest(len(student_comp['ifs']), len(solution_comp['ifs']),
-            Feedback(_msg, student_comp['list_comp'])))
+            Feedback(_msg, student_comp['node'])))
 
         if len(ifs) != len(solution_comp['ifs']):
             raise ValueError("If you specify tests for the ifs, pass a list with the same length as the number of ifs in the solution")
@@ -149,8 +149,13 @@ def test_comp(typestr, index,
         for i, if_test in enumerate(ifs):
             psub_test(if_test, student_comp['ifs'][i], solution_comp['ifs'][i], ("%s if") % get_ord(i + 1))
 
-def check_list_comp(index, state=None):
-    state.extract_list_comps()
+def check_list_comp(index, not_called_msg, 
+                    iter_vars_names=None, incorrect_iter_vars_msg=MSG_INCORRECT_ITER_VARS,
+                    expand_message=MSG_PREPEND, 
+                    state=None):
+
+    rep = Reporter.active_reporter
+
     student_comp_list = state.student_list_comps
     solution_comp_list = state.solution_list_comps
 
@@ -159,9 +164,54 @@ def check_list_comp(index, state=None):
     except KeyError:
         raise NameError("There aren't %s %ss in the solution environment" % (get_num(index), typestr))
 
-    #state.to_child_state(
+    # partial args to pass to string templating
+    fmt_kwargs = {
+            'ordinal': get_ord(index), 
+            'typestr': typestr, 
+            'num_ifs':  len(solution_comp['ifs']), 
+            'num_vars': len(solution_comp['target_vars'])
+            }
+
+    _msg = (not_called_msg or MSG_NOT_CALLED).format(*fmt_kwargs)
+    rep.do_test(BiggerTest(len(student_comp_list), index - 1, Feedback(_msg)))
+
+    student_comp = student_comp_list[index - 1]
+
+    # test iterator variable names, if required TODO: can pull into separate function ----
+    if iter_vars_names:
+        # message
+        _msg = fmt_template(incorrect_iter_vars_msg or MSG_INCORRECT_ITER_VARS)
+        # test
+        rep.do_test(EqualTest(student_comp['target_vars'], solution_comp['target_vars'],
+            Feedback(_msg, student_comp['target'])))
+    else:
+        # message
+        _msg = fmt_template(incorrect_iter_vars_msg or MSG_INCORRECT_NUM_ITER_VARS)
+        # test
+        rep.do_test(EqualTest(len(student_comp['target_vars']), len(solution_comp['target_vars']),
+            Feedback(_msg, student_comp['target'])))
+
+    # TODO: no way to prepend a message currently, should put on state
+    return state.to_child_state(student_comp['node'], solution_comp['node'],
+                                student_comp['target_vars'], solution_comp['target_vars'],
+                                student_part = student_comp, solution_part = solution_comp,
+                                append_message={'msg': expand_messages, 'kwargs': fmt_kwargs})
 
 def check_part(name, state=None):
-    return state.to_child_state(state.student_tree[name], state.solution_tree[name])
+    return state.to_child_state(state.student_part[name], state.solution_part[name])
 
-#def 
+def check_body(state=None):
+    return check_part('body', state=state)
+
+def check_iter(state=None):
+    return check_part('iter', state=state)
+
+def check_key(state=None):
+    return check_part('key', state=state)
+
+def check_value(state=None):
+    return check_part('value', state=state)
+
+# from fn import F
+# func = ex() >> check_list_comp() >> check_body() >> test_function('mean')
+# func(state)
