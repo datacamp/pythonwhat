@@ -21,7 +21,7 @@ class Reporter(object):
         self.success_msg = "Great work!"
         self.errors_allowed = False
         self.tags = {}
-        self.failure_msg_stack = []
+        self.failure_msg = ""
         self.fallback_ast = None
         self.test_stack = []
         self.test_mode = None
@@ -49,11 +49,11 @@ class Reporter(object):
         if self.test_mode is 'or': 
             return self.test_stack.append([testobj, prepend_on_fail, fallback_ast])
 
-        self.failure_msg_stack.append(prepend_on_fail)
+        if prepend_on_fail: self.failure_msg = prepend_on_fail
         if fallback_ast: self.fallback_ast = fallback_ast
 
         if self.failed_test:
-            self.feedback.message = "".join(self.failure_msg_stack) + self.feedback.message
+            self.feedback.message = self.failure_msg + self.feedback.message
             raise TestFail
             return
         if isinstance(testobj, Test):
@@ -62,7 +62,7 @@ class Reporter(object):
             if (not result):
                 self.failed_test = True
                 self.feedback = testobj.get_feedback()
-                self.feedback.message = "".join(self.failure_msg_stack) + self.feedback.message
+                self.feedback.message = self.failure_msg + self.feedback.message
                 if not self.feedback.line_info and self.fallback_ast: 
                     self.feedback = Feedback(self.feedback.message, self.fallback_ast)
                 raise TestFail
@@ -71,7 +71,7 @@ class Reporter(object):
             result = None
             testobj()    # run function for side effects
 
-        self.failure_msg_stack.pop()
+        #self.failure_msg_stack.pop()
         return result
 
     def do_tests(self, testobjs):

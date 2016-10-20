@@ -13,17 +13,18 @@ def sub_test(state, rep, closure, subtree_student=None, subtree_solution=None, i
         return
     # otherwise, call a single test
     elif closure:
-        #import pdb; pdb.set_trace()
+        # prefix message
+        # TODO: can the line below be removed?
+        expand_message = expand_message if expand_message else ""
+        append_message = {'msg': expand_message, 'kwargs': dict(incorrect_part = incorrect_part)}
         # need to set child state if there are subtrees
         descend_to_child = subtree_student and subtree_solution
         if descend_to_child:
-            child = state.to_child_state(subtree_student, subtree_solution)
+            child = state.to_child_state(subtree_student, subtree_solution,
+                                         student_context, solution_context,
+                                         append_message = append_message)
         else:
             child = state
-
-        # change contexts
-        if student_context  is not None: child.student_context  = student_context
-        if solution_context is not None: child.solution_context = solution_context
 
         # check if it has a state argument, set if not
         pars = inspect.signature(closure).parameters
@@ -34,5 +35,7 @@ def sub_test(state, rep, closure, subtree_student=None, subtree_solution=None, i
             closure = partial(closure, state=child)
 
         # run sub test
-        prefix = expand_message.format(incorrect_part=incorrect_part) if expand_message else ""
+        prefix = child.build_message()
+        prev_msg = rep.failure_msg
         rep.do_test(closure, prefix, child.student_tree)
+        rep.failure_msg = prev_msg

@@ -18,10 +18,14 @@ class State(object):
     active_state = None
     converters = get_manual_converters()
 
-    def __init__(self, **kwargs):
+    def __init__(self, student_parts=None, solution_parts=None, messages=None, **kwargs):
 
         # Set basic fields from kwargs
         self.__dict__.update(kwargs)
+
+        self.student_parts = student_parts
+        self.solution_parts = solution_parts
+        self.messages = messages if messages else []
 
         # parse code if didn't happen yet
         if not hasattr(self, 'student_tree'):
@@ -37,10 +41,10 @@ class State(object):
             self.parent_state = None
 
         if not hasattr(self, 'student_context'):
-            self.student_context = None
+            self.student_context = []
 
         if not hasattr(self, 'solution_context'):
-            self.solution_context = None
+            self.solution_context = []
 
         self.converters = None
 
@@ -79,7 +83,13 @@ class State(object):
 
         return(self.manual_sigs)
 
-    def to_child_state(self, student_subtree, solution_subtree):
+    def build_message(self):
+        return "".join([d['msg'].format(**d['kwargs']) for d in self.messages])
+
+    def to_child_state(self, student_subtree, solution_subtree, 
+                             student_context=None, solution_context=None,
+                             student_parts=None, solution_parts=None,
+                             append_message=""):
         """Dive into nested tree.
 
         Set the current state as a state with a subtree of this syntax tree as
@@ -92,17 +102,27 @@ class State(object):
         if isinstance(solution_subtree, list):
             solution_subtree = ast.Module(solution_subtree)
 
+        if student_context is None: student_context = self.student_context.copy()
+        if solution_context is None: solution_context = self.solution_context.copy()
+        if not isinstance(append_message, dict): 
+            append_message =  {'msg': append_message, 'kwargs': {}}
+
+        messages = [*self.messages, append_message]
+
         child = State(student_code = utils_ast.extract_text_from_node(self.full_student_code, student_subtree),
                       full_student_code = self.full_student_code,
                       pre_exercise_code = self.pre_exercise_code,
-                      student_context = self.student_context,
-                      solution_context  = self.solution_context,
+                      student_context = student_context,
+                      solution_context  = solution_context,
                       student_process = self.student_process,
                       solution_process = self.solution_process,
                       raw_student_output = self.raw_student_output,
                       pre_exercise_tree = self.pre_exercise_tree,
                       student_tree = student_subtree,
                       solution_tree = solution_subtree,
+                      student_parts = student_parts,
+                      solution_parts = solution_parts,
+                      messages = messages,
                       parent_state = self)
         State.set_active_state(child)
         return(child)
