@@ -106,14 +106,12 @@ with open_file('...') as file:
             rep.do_test(Test(Feedback("In your %s `with` statement, the number of values in your context manager " + \
                 "doesn't correspond to the number of variables you're trying to assign it to." % (utils.get_ord(index + 1)), student_with['node'])))
 
-        child = state.to_child_state(student_with['body'], solution_with['body'])
-
         # TODO clean up feedback related variables a bit
         #      add line_info unit test
         # feedback pasted on failed sub_test messages
         feedback = "Check the body of the %s `with` statement. " % utils.get_ord(index + 1)
         try:
-            sub_test(child, rep, body, None, None, 
+            sub_test(state, rep, body, student_with['body'], solution_with['body'],
                      expand_message=feedback if expand_message else "")
         finally:
             if breakDownNewEnvInProcess(process = state.solution_process):
@@ -127,7 +125,6 @@ with open_file('...') as file:
                             prepend_on_fail = feedback if expand_message else "",
                             fallback_ast = student_with['body'])
 
-        child.to_parent_state()
 
 def names_as_string(names):
     if len(names) > 1:

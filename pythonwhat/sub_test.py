@@ -9,7 +9,7 @@ def sub_test(state, rep, closure, subtree_student=None, subtree_solution=None, i
     if hasattr(closure, '__len__'):
         for c in closure: 
             sub_test(state, rep, c, subtree_student, subtree_solution, incorrect_part,
-                    student_context, solution_context, expand_message)
+                     student_context, solution_context, expand_message)
         return
     # otherwise, call a single test
     elif closure:
