@@ -5,29 +5,29 @@ from pythonwhat.State import State
 
 def sub_test(state, rep, closure, subtree_student=None, subtree_solution=None, incorrect_part="",
                 student_context=None, solution_context=None, expand_message=""):
+
+    expand_message = expand_message if expand_message else ""
+    append_message = {'msg': expand_message, 'kwargs': dict(incorrect_part = incorrect_part)}
+    # checking if a child_state is even necessary...
+    if any([subtree_student, subtree_solution, student_context, solution_context, expand_message]):
+        # if subtree_student and solution are None, state will copy set the other attributes on
+        # a copy, rather than # creating a new instance
+        child = state.to_child_state(subtree_student, subtree_solution,
+                                        student_context, solution_context,
+                                        append_message = append_message)
+    else:
+        child = state
     # recurse for a list of tests
     if hasattr(closure, '__len__'):
         for c in closure: 
-            sub_test(state, rep, c, subtree_student, subtree_solution, incorrect_part,
-                     student_context, solution_context, expand_message)
+            sub_test(child, rep, c, None, None, incorrect_part, None, None)
         return
     # otherwise, call a single test
     elif closure:
         # prefix message
         # TODO: can the line below be removed?
-        expand_message = expand_message if expand_message else ""
-        append_message = {'msg': expand_message, 'kwargs': dict(incorrect_part = incorrect_part)}
         # need to set child state if there are subtrees
         descend_to_child = subtree_student and subtree_solution
-        # if subtree_student and solution are it will copy state, rather than
-        # creating a new instance
-        if subtree_student or subtree_solution or student_context or solution_context or expand_message:
-            child = state.to_child_state(subtree_student, subtree_solution,
-                                            student_context, solution_context,
-                                            append_message = append_message)
-        else:
-            child = state
-
         # check if it has a state argument, set if not
         pars = inspect.signature(closure).parameters
         no_state = lambda arg: arg.default is None and arg.name == "state"
