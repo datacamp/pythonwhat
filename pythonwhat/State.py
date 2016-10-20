@@ -203,7 +203,7 @@ def get_func_map(tree_name, ext_attr, self):
         self._parser_cache[cache_key] = p
     return getattr(p, ext_attr)
     
-# put a property getter on state for each parsed ast tree output
+# put a property getter on state for each parsed ast tree output.
 # since the getter takes only one argument, self, partial functions
 # are used to set all other arguments on getx and get_func_map
 for s in ['student', 'solution']:
