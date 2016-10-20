@@ -1,5 +1,6 @@
 import ast
 import inspect
+from copy import copy
 from pythonwhat.parsing import FunctionParser, ObjectAccessParser, parser_dict
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
@@ -108,6 +109,15 @@ class State(object):
             append_message =  {'msg': append_message, 'kwargs': {}}
 
         messages = [*self.messages, append_message]
+
+        if not (solution_subtree and student_subtree):
+            child = copy(self)
+            child.student_context = student_context
+            child.solution_context = solution_context
+            child.solution_parts = solution_parts
+            child.student_parts = student_parts
+            child.messages = messages
+            return child
 
         child = State(student_code = utils_ast.extract_text_from_node(self.full_student_code, student_subtree),
                       full_student_code = self.full_student_code,

@@ -19,10 +19,12 @@ def sub_test(state, rep, closure, subtree_student=None, subtree_solution=None, i
         append_message = {'msg': expand_message, 'kwargs': dict(incorrect_part = incorrect_part)}
         # need to set child state if there are subtrees
         descend_to_child = subtree_student and subtree_solution
-        if descend_to_child:
+        # if subtree_student and solution are it will copy state, rather than
+        # creating a new instance
+        if subtree_student or subtree_solution or student_context or solution_context or expand_message:
             child = state.to_child_state(subtree_student, subtree_solution,
-                                         student_context, solution_context,
-                                         append_message = append_message)
+                                            student_context, solution_context,
+                                            append_message = append_message)
         else:
             child = state
 
