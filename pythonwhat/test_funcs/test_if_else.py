@@ -74,11 +74,9 @@ def test_if_else(index=1,
     index = index - 1
 
     if use_if_exp:
-        state.extract_if_exp_calls()
         student_ifs = state.student_if_exp_calls
         solution_ifs = state.solution_if_exp_calls
     else:
-        state.extract_if_calls()
         student_ifs = state.student_if_calls
         solution_ifs = state.solution_if_calls
 

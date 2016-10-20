@@ -1,6 +1,6 @@
 import ast
 import inspect
-from pythonwhat.parsing import FunctionParser, ObjectAccessParser, ObjectAssignmentParser, IfParser, IfExpParser, WhileParser, ForParser, OperatorParser, ImportParser, FunctionDefParser, LambdaFunctionParser, ListCompParser, DictCompParser, GeneratorExpParser, WithParser, TryExceptParser
+from pythonwhat.parsing import FunctionParser, ObjectAccessParser, parser_dict
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils_ast
@@ -44,72 +44,15 @@ class State(object):
 
         self.converters = None
 
-        self.student_operators = None
-        self.solution_operators = None
-
-        self.pre_exercise_mappings = None
-        self.student_function_calls = None
-        self.solution_function_calls = None
-        self.student_mappings = None
-        self.solution_mappings = None
-        self.fun_usage = None
+        self.fun_usage = {}
         self.manual_sigs = None
-
-        self.student_object_accesses = None
-        self.student_object_assignments = None
-
-        self.student_imports = None
-        self.solution_imports = None
-
-        self.student_if_calls = None
-        self.solution_if_calls = None
-
-        self.student_if_exp_calls = None
-        self.solution_if_exp_calls = None
-
-        self.student_while_calls = None
-        self.solution_while_calls = None
-
-        self.student_for_calls = None
-        self.solution_for_calls = None
-
-        self.student_function_defs = None
-        self.solution_function_defs = None
-
-        self.student_lambda_functions = None
-        self.solution_lambda_functions = None
-
-        self.student_list_comps = None
-        self.solution_list_comps = None
-
-        self.student_dict_comps = None
-        self.solution_dict_comps = None
-
-        self.student_generator_exps = None
-        self.solution_generator_exps = None
-
-        self.student_withs = None
-        self.solution_withs = None
-
-        self.student_try_excepts = None
-        self.solution_try_excepts = None
+        self._parser_cache = {}
 
     def get_converters(self):
         if self.converters is None:
             self.converters = get_manual_converters()
 
         return(self.converters)
-
-    def extract_operators(self):
-        if (self.student_operators is None):
-            op = OperatorParser()
-            op.visit(self.student_tree)
-            self.student_operators = op.ops
-
-        if (self.solution_operators is None):
-            op = OperatorParser()
-            op.visit(self.solution_tree)
-            self.solution_operators = op.ops
 
     def set_used(self, name, stud_index, sol_index):
         if name in self.fun_usage.keys():
@@ -130,179 +73,11 @@ class State(object):
         else:
             return stud_indices
 
-    def extract_function_calls(self):
-        if (self.fun_usage is None):
-            self.fun_usage = {}
-
-        if (self.pre_exercise_mappings is None):
-            fp = FunctionParser()
-            fp.visit(self.pre_exercise_tree)
-            self.pre_exercise_mappings = fp.mappings
-
-        if (self.student_function_calls is None):
-            fp = FunctionParser()
-            fp.mappings = self.pre_exercise_mappings.copy()
-            fp.visit(self.student_tree)
-            self.student_function_calls = fp.calls
-            self.student_mappings = fp.mappings
-
-        if (self.solution_function_calls is None):
-            fp = FunctionParser()
-            fp.mappings = self.pre_exercise_mappings.copy()
-            fp.visit(self.solution_tree)
-            self.solution_function_calls = fp.calls
-            self.solution_mappings = fp.mappings
-
     def get_manual_sigs(self):
         if self.manual_sigs is None:
             self.manual_sigs = signatures.get_manual_sigs()
 
         return(self.manual_sigs)
-
-    def extract_object_accesses(self):
-        if (self.student_object_accesses is None):
-            oap = ObjectAccessParser()
-            oap.visit(self.student_tree)
-            self.student_object_accesses = oap.accesses
-            self.student_mappings = oap.mappings
-
-    def extract_object_assignments(self):
-        if (self.student_object_assignments is None):
-            oap = ObjectAssignmentParser()
-            oap.visit(self.student_tree)
-            self.student_object_assignments = oap.assignments
-
-    def extract_imports(self):
-        if (self.student_imports is None):
-            ip = ImportParser()
-            ip.visit(self.student_tree)
-            self.student_imports = ip.imports
-
-        if (self.solution_imports is None):
-            ip = ImportParser()
-            ip.visit(self.solution_tree)
-            self.solution_imports = ip.imports
-
-    def extract_if_calls(self):
-        if (self.student_if_calls is None):
-            ip = IfParser()
-            ip.visit(self.student_tree)
-            self.student_if_calls = ip.ifs
-
-        if (self.solution_if_calls is None):
-            ip = IfParser()
-            ip.visit(self.solution_tree)
-            self.solution_if_calls = ip.ifs
-
-    def extract_if_exp_calls(self):
-        if (self.student_if_exp_calls is None):
-            ip = IfExpParser()
-            ip.visit(self.student_tree)
-            self.student_if_exp_calls = ip.ifexps
-
-        if (self.solution_if_exp_calls is None):
-            ip = IfExpParser()
-            ip.visit(self.solution_tree)
-            self.solution_if_exp_calls = ip.ifexps
-
-    def extract_while_calls(self):
-        if (self.student_while_calls is None):
-            ip = WhileParser()
-            ip.visit(self.student_tree)
-            self.student_while_calls = ip.whiles
-
-        if (self.solution_while_calls is None):
-            ip = WhileParser()
-            ip.visit(self.solution_tree)
-            self.solution_while_calls = ip.whiles
-
-    def extract_for_calls(self):
-        if (self.student_for_calls is None):
-            fp = ForParser()
-            fp.visit(self.student_tree)
-            self.student_for_calls = fp.fors
-
-        if (self.solution_for_calls is None):
-            fp = ForParser()
-            fp.visit(self.solution_tree)
-            self.solution_for_calls = fp.fors
-
-    def extract_function_defs(self):
-        if (self.student_function_defs is None):
-            fp = FunctionDefParser()
-            fp.visit(self.student_tree)
-            self.student_function_defs = fp.defs
-
-        if (self.solution_function_defs is None):
-            fp = FunctionDefParser()
-            fp.visit(self.solution_tree)
-            self.solution_function_defs = fp.defs
-
-    def extract_lambda_functions(self):
-        if (self.student_lambda_functions is None):
-            lfp = LambdaFunctionParser()
-            lfp.visit(self.student_tree)
-            self.student_lambda_functions = lfp.funs
-
-        if (self.solution_lambda_functions is None):
-            lfp = LambdaFunctionParser()
-            lfp.visit(self.solution_tree)
-            self.solution_lambda_functions = lfp.funs
-
-    def extract_list_comps(self):
-        if self.student_list_comps is None:
-            lcp = ListCompParser()
-            lcp.visit(self.student_tree)
-            self.student_list_comps = lcp.comps
-
-        if self.solution_list_comps is None:
-            lcp = ListCompParser()
-            lcp.visit(self.solution_tree)
-            self.solution_list_comps = lcp.comps
-
-    def extract_dict_comps(self):
-        if self.student_dict_comps is None:
-            dcp = DictCompParser()
-            dcp.visit(self.student_tree)
-            self.student_dict_comps = dcp.comps
-
-        if self.solution_dict_comps is None:
-            dcp = DictCompParser()
-            dcp.visit(self.solution_tree)
-            self.solution_dict_comps = dcp.comps
-
-    def extract_generator_exps(self):
-        if self.student_generator_exps is None:
-            gep = GeneratorExpParser()
-            gep.visit(self.student_tree)
-            self.student_generator_exps = gep.comps
-
-        if self.solution_dict_comps is None:
-            gep = GeneratorExpParser()
-            gep.visit(self.solution_tree)
-            self.solution_generator_exps = gep.comps
-
-    def extract_withs(self):
-        if (self.student_withs is None):
-            wp = WithParser()
-            wp.visit(self.student_tree)
-            self.student_withs = wp.withs
-
-        if (self.solution_withs is None):
-            wp = WithParser()
-            wp.visit(self.solution_tree)
-            self.solution_withs = wp.withs
-
-    def extract_try_excepts(self):
-        if (self.student_try_excepts is None):
-            tep = TryExceptParser()
-            tep.visit(self.student_tree)
-            self.student_try_excepts = tep.try_excepts
-
-        if (self.solution_try_excepts is None):
-            tep = TryExceptParser()
-            tep.visit(self.solution_tree)
-            self.solution_try_excepts = tep.try_excepts
 
     def to_child_state(self, student_subtree, solution_subtree):
         """Dive into nested tree.
@@ -395,5 +170,60 @@ class State(object):
     def set_active_state(state):
         State.active_state = state
 
+# add property methods for retrieving parser outputs --------------------------
+# note that this code is an alternative means of using something like..
+#   @property
+#   def student_withs(self): ...
+# when defining the State class.
+from functools import partial
+
+def getx(tree_name, Parser, ext_attr, self): 
+    """getter for Parser outputs"""
+    # return cached output if possible
+    cache_key = tree_name + Parser.__name__
+    if self._parser_cache.get(cache_key):
+        p = self._parser_cache[cache_key]
+    else:
+        # otherwise, run parser over tree
+        p = Parser()
+        p.visit(getattr(self, tree_name))
+        # cache
+        self._parser_cache[cache_key] = p
+    return getattr(p, ext_attr)
+
+def get_func_map(tree_name, ext_attr, self):
+    """getter for FunctionParser outputs, uses pre_exercise_mappings"""
+    cache_key = tree_name + FunctionParser.__name__
+    if self._parser_cache.get(cache_key):
+        p = self._parser_cache[cache_key]
+    else:
+        p = FunctionParser()
+        p.mappings = self.pre_exercise_mappings.copy()
+        p.visit(getattr(self, tree_name))
+        self._parser_cache[cache_key] = p
+    return getattr(p, ext_attr)
+    
+for s in ['student', 'solution']:
+    tree_name = s+'_tree'
+    for k, Parser in parser_dict.items():
+        setattr(State, s+'_'+k, property(partial(getx, tree_name, Parser, 'out')))
+
+    # mappings from ObjectAccessParser
+    prop_oa_map = property(partial(getx, tree_name, ObjectAccessParser, 'mappings'))
+    setattr(State, s+'_oa_mappings', prop_oa_map)
+
+    # Getters for FunctionParser -----
+    # calls
+    prop_calls = property(partial(get_func_map, tree_name, 'calls'))
+    setattr(State, s+'_function_calls', prop_calls)
+    # mappings
+    prop_map = property(partial(get_func_map, tree_name, 'mappings'))
+    setattr(State, s+'_mappings', prop_map)
+
+pec_prop_map = property(partial(getx, 'pre_exercise_tree', FunctionParser, 'mappings'))
+setattr(State, 'pre_exercise_mappings', pec_prop_map)
+
+
+# global setters on State -----------------------------------------------------
 def set_converter(key, fundef):
     State.converters[key] = fundef

@@ -32,7 +32,6 @@ with open_file('...') as file:
 
     index = index - 1
 
-    state.extract_withs()
     solution_withs = state.solution_withs
     student_withs = state.student_withs
 

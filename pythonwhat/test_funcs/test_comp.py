@@ -33,7 +33,6 @@ def test_list_comp(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_list_comp")
 
-    state.extract_list_comps()
     student_comp_list = state.student_list_comps
     solution_comp_list = state.solution_list_comps
     test_comp("list comprehension", **(locals()))
@@ -53,7 +52,6 @@ def test_generator_exp(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_generator_exp")
 
-    state.extract_generator_exps()
     student_comp_list = state.student_generator_exps
     solution_comp_list = state.solution_generator_exps
     test_comp("generator expression", **(locals()))
@@ -75,7 +73,6 @@ def test_dict_comp(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_dict_comp")
 
-    state.extract_dict_comps()
     student_comp_list = state.student_dict_comps
     solution_comp_list = state.solution_dict_comps
 
