@@ -1,15 +1,10 @@
-import ast
-from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
-from pythonwhat import utils
-from pythonwhat.utils import get_ord, get_num
-from .test_function_definition import test_args, test_body
 from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess, ReprFail
-from pythonwhat.sub_test import sub_test
+from pythonwhat.utils import get_ord, get_num
+from pythonwhat.check_funcs import check_part, multi
 
-from functools import partial
 
 MSG_NOT_CALLED = "The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
 MSG_INCORRECT_ITER_VARS = "Have you used the correct iterator variables in the {ordinal} {typestr}? Make sure you use the correct names!"
@@ -134,17 +129,6 @@ def check_comp(typestr, comptype, index, not_called_msg,
                                 student_parts = student_comp, solution_parts = solution_comp,
                                 append_message={'msg': expand_message, 'kwargs': fmt_kwargs})
 
-def check_part(name, part_msg, state=None):
-    """Return child state with name part as its ast tree"""
-    if not part_msg: part_msg = name
-    child = state.to_child_state(state.student_parts[name], state.solution_parts[name])
-    # TODO this is a hack to add the part name {part} to the messages in check_comp
-    import copy
-    msg = copy.copy(child.messages[-2])
-    msg.update(kwargs = {**msg['kwargs'], 'part': part_msg})
-    child.messages[-2] = msg
-    return child
-
 def check_body(part_msg, state=None):
     return check_part('body', part_msg, state=state)
 
@@ -208,24 +192,3 @@ def has_iter_vars(incorrect_iter_vars_msg, exact_names=False, state=None):
 
     return state
 
-def multi(*args, state=None):
-    """Run multiple subtests. Return original state (for chaining)."""
-    if any(args):
-        rep = Reporter.active_reporter
-        # when input is a single list of subtests
-        args = args[0] if len(args) == 1 and hasattr(args[0], '__iter__') else args
-
-        for test in args:
-            # assume test is function needing a state argument
-            # partial state so reporter can test
-            # TODO: it seems clear the reporter doesn't need to hold state anymore
-            closure = partial(test, state=state)
-            # message from parent checks
-            prefix = state.build_message()
-            # resetting reporter message until it can be refactored
-            prev_msg = rep.failure_msg
-            rep.do_test(closure, prefix, state.student_tree)
-            rep.failure_msg = prev_msg
-
-    # return original state, so can be chained
-    return state
