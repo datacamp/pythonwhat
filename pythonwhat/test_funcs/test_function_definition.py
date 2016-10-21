@@ -334,23 +334,16 @@ def test_body(rep, state, body,
               subtree_student, subtree_solution,
               args_student, args_solution,
               name, expand_message):
-    if body is not None:
-        child = state.to_child_state(subtree_student, subtree_solution)
-        child.solution_context = [arg[0] for arg in args_solution['args']]
-        if args_solution['vararg'] is not None:
-            child.solution_context += [args_solution['vararg']]
-        if args_solution['kwarg'] is not None:
-            child.solution_context += [args_solution['kwarg']]
+    sol_context = [arg[0] for arg in args_solution['args']]
+    stu_context = [arg[0] for arg in args_student['args']]
+    for var in ['vararg', 'kwarg']:
+        if args_solution[var]: sol_context += [args_solution[var]]
+        if args_student[var] : stu_context += [args_student[var]]
 
-        child.student_context = [arg[0] for arg in args_student['args']]
-        if args_student['vararg'] is not None:
-            child.student_context += [args_student['vararg']]
-        if args_student['kwarg'] is not None:
-            child.student_context += [args_student['kwarg']]
+    # TODO modified so it didn't change original message
+    #      but this could always be reimplimented with callbacks
+    feedback = "Check your definition of %s. " %name if expand_message else ""
 
-        # TODO modified so it didn't change original message
-        #      but this could always be reimplimented with callbacks
-        feedback = "Check your definition of %s. " %name if expand_message else ""
-
-        sub_test(child, rep, body, subtree_student, None, expand_message=feedback)
-        child.to_parent_state()
+    sub_test(state, rep, body, subtree_student, subtree_solution, 
+             student_context = stu_context, solution_context = sol_context, 
+             expand_message=feedback)
