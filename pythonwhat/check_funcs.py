@@ -1,15 +1,74 @@
 from pythonwhat.Reporter import Reporter
+from pythonwhat.Test import Test
+from pythonwhat.Feedback import Feedback
+from pythonwhat.utils import get_ord
 from functools import partial
 
-def check_part(name, part_msg, state=None):
-    """Return child state with name part as its ast tree"""
-    if not part_msg: part_msg = name
-    child = state.to_child_state(state.student_parts[name], state.solution_parts[name])
+def update_prev_msg(child, part_msg):
     # TODO this is a hack to add the part name {part} to the messages in the previous check_* state
     import copy
     msg = copy.copy(child.messages[-2])
     msg.update(kwargs = {**msg['kwargs'], 'part': part_msg})
     child.messages[-2] = msg
+
+def check_part(name, part_msg, state=None):
+    """Return child state with name part as its ast tree"""
+    if not part_msg: part_msg = name
+    child = state.to_child_state(state.student_parts[name], state.solution_parts[name])
+    update_prev_msg(child, part_msg)
+    return child
+
+def check_part_index(name, index, part_msg, 
+                     missing_msg="Define more {part}.", 
+                     state=None):
+    """Return child state with indexed name part as its ast tree"""
+    # check there are enough parts for index
+    _msg = missing_msg.format(**fmt_kwargs)
+
+    if not len(state.student_parts) >= index+1: 
+        rep.do_test(Test(Feedback(_msg, state.student_tree)))
+
+    # get part at index
+    stu_part = state.student_parts[index]
+    sol_part = state.solution_parts[index]
+    
+    # create message
+    append_message = {'msg': part_msg, 
+                      'kwargs': {'part': get_ord(index+1) + " " + part_msg}
+                      }
+    # return child state
+    child = state.to_child_state(stu_part['node'], sol_part['node'],
+                                 stu_part['target_vars'], sol_part['target_vars'],
+                                 stu_part, sol_part,
+                                 append_message)
+    update_prev_msg(child, part_msg)
+    return child
+
+MSG_MISSING = "The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
+MSG_PREPEND = "Check your code in the {part} of the {ordinal} {typestr}. "
+def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PREPEND, state=None):
+    rep = Reporter.active_reporter
+    stu_out = getattr(state, 'student'+'_'+name)
+    sol_out = getattr(state, 'solution'+'_'+name)
+
+    # check if there are enough nodes for index
+    fmt_kwargs = {'ordinal': get_ord(index+1), 'typestr': typestr}
+    _msg = missing_msg.format(**fmt_kwargs)
+
+    if len(stu_out) < index+1: 
+        rep.do_test(Test(Feedback(_msg, state.student_tree)))
+
+    # get node at index
+    stu_part = stu_out[index]
+    sol_part = sol_out[index]
+
+    append_message = {'msg': expand_msg, 
+                      'kwargs': fmt_kwargs
+                      }
+    child = state.to_child_state(stu_part['node'], sol_part['node'],
+                                 stu_part.get('target_vars'), sol_part.get('target_vars'), 
+                                 stu_part, sol_part,
+                                 append_message)
     return child
 
 def multi(*args, state=None):
