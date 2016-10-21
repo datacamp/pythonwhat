@@ -87,6 +87,9 @@ class State(object):
     def build_message(self):
         return "".join([d['msg'].format(**d['kwargs']) for d in self.messages])
 
+    def update_message_keys(self, **kwargs):
+        self.messages[-1]['kwargs'].update(kwargs)
+
     def to_child_state(self, student_subtree, solution_subtree, 
                              student_context=None, solution_context=None,
                              student_parts=None, solution_parts=None,
