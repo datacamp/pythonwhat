@@ -430,12 +430,14 @@ class ForParser(Parser):
         self.out = []
 
     def visit_For(self, node):
-        self.out.append((
-            Parser.get_target_vars(node.target),
-            node.iter,
-            node.body,
-            node.orelse))
-
+        self.out.append({
+            'node': node,
+            'iter': node.iter,
+            'body': node.body,
+            'orelse': node.orelse,
+            'target': node.target,
+            'target_vars': Parser.get_target_vars(node.target)
+            })
 
 
 class FunctionDefParser(Parser):
