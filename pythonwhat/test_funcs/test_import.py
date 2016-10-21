@@ -40,8 +40,6 @@ def test_import(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_import")
 
-    state.extract_imports()
-
     student_imports = state.student_imports
     solution_imports = state.solution_imports
 

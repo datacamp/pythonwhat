@@ -64,7 +64,6 @@ def test_operator(index=1,
         raise NameError("%r not a valid equality condition " % eq_condition)
 
     # Parses through code and extracts a data structure holding all operator groups.
-    state.extract_operators()
     student_ops = state.student_operators
     solution_ops = state.solution_operators
 

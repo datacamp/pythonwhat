@@ -99,7 +99,6 @@ def test_function_definition(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_function_definition")
 
-    state.extract_function_defs()
     solution_defs = state.solution_function_defs
     student_defs = state.student_function_defs
 

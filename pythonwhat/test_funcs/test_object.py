@@ -44,7 +44,6 @@ def test_object(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object")
 
-    state.extract_object_assignments()
     student_obj_ass = state.student_object_assignments
 
     if not undefined_msg:
