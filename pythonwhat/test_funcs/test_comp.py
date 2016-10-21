@@ -28,7 +28,6 @@ def test_list_comp(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_list_comp")
 
-    state.extract_list_comps()
     student_comp_list = state.student_list_comps
     solution_comp_list = state.solution_list_comps
     test_comp(comp_type = "list", **(locals()))
@@ -48,7 +47,6 @@ def test_generator_exp(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_generator_exp")
 
-    state.extract_generator_exps()
     student_comp_list = state.student_generator_exps
     solution_comp_list = state.solution_generator_exps
     test_comp(comp_type = "gen", **(locals()))
@@ -70,7 +68,6 @@ def test_dict_comp(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_dict_comp")
 
-    state.extract_dict_comps()
     student_comp_list = state.student_dict_comps
     solution_comp_list = state.solution_dict_comps
 
@@ -83,9 +80,7 @@ def test_comp(comp_type, state=None, **kwargs):
         raise ValueError("comp_type not valid")
     typestr = {'list':'list comprehension', 'dict': 'dictionary comprehension', 'gen': 'generator expression'}[comp_type]
 
-    #state = kwargs['state']
     rep = kwargs['rep']
-
     solution_comp_list = kwargs['solution_comp_list']
     student_comp_list = kwargs['student_comp_list']
     index = kwargs['index']
@@ -107,7 +102,7 @@ def test_comp(comp_type, state=None, **kwargs):
             get_ord(index), typestr)
 
     psub_test = partial(sub_test, state, rep,
-                       student_context = student_comp['target_vars'], 
+                       student_context = student_comp['target_vars'],
                        solution_context = solution_comp['target_vars'],
                        expand_message=kwargs['expand_message'] and prepend_fmt)
 

@@ -77,7 +77,6 @@ def test_object_after_expression(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object_after_expression")
 
-    state.extract_object_assignments()
     student_obj_ass = state.student_object_assignments
 
     if not undefined_msg:
