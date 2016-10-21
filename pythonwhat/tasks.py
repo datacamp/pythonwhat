@@ -18,10 +18,12 @@ def process_task(f):
     def wrapper(*args, **kwargs):
         # get bound arguments for call
         bargs = sig.bind_partial(*args, **kwargs).arguments
-        # when process is specified, use to execute
+        # when process is specified, remove from args and use to execute
         process = bargs.get('process')
         if process:
             bargs['process'] = None
+            # partial function since shell argument may have been left
+            # unspecified, as it will be passed when the process executes
             pf = partial(wrapper, *bargs.values())
             return process.executeTask(pf)
         # otherwise, return partialed function, that a process may be passed to
