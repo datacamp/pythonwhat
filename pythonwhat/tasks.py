@@ -12,7 +12,7 @@ from contextlib import contextmanager
 from functools import partial, wraps
 
 def process_task(f):
-    """Decorator to return partial of task function if process arg not in call"""
+    """Decorator to (optionally) run function in a process."""
     sig = inspect.signature(f)
     @wraps(f)
     def wrapper(*args, **kwargs):
