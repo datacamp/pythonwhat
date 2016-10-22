@@ -26,7 +26,7 @@ def process_task(f):
             # unspecified, as it will be passed when the process executes
             pf = partial(wrapper, *bargs.values())
             return process.executeTask(pf)
-        # otherwise, return partialed function, that a process may be passed to
+        # otherwise, run original function
         return f(**bargs)
     return wrapper
 
