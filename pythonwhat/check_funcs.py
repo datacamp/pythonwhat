@@ -52,10 +52,13 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
     sol_out = getattr(state, 'solution'+'_'+name)
 
     # check if there are enough nodes for index
-    fmt_kwargs = {'ordinal': get_ord(index+1), 'typestr': typestr}
-    _msg = missing_msg.format(**fmt_kwargs)
+    fmt_kwargs = {'ordinal': get_ord(index+1) if isinstance(index, int) else "", 
+                  'typestr': typestr}
 
-    if len(stu_out) < index+1: 
+    # test if node can be indexed succesfully
+    try: stu_out[index]
+    except (KeyError, IndexError):                  # TODO comment errors
+        _msg = missing_msg.format(**fmt_kwargs)
         rep.do_test(Test(Feedback(_msg, state.student_tree)))
 
     # get node at index
@@ -89,7 +92,6 @@ def multi(*args, state=None):
             prev_msg = rep.failure_msg
             rep.do_test(closure, prefix, state.student_tree)
             rep.failure_msg = prev_msg
-
+ 
     # return original state, so can be chained
     return state
-

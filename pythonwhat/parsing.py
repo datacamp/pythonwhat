@@ -454,10 +454,17 @@ class FunctionDefParser(Parser):
         kwonlyargs = Parser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
         vararg = Parser.get_arg(node.args.vararg)
         kwarg = Parser.get_arg(node.args.kwarg)
+        # create context variables
+        target_vars = [arg[0] for arg in normal_args]
+        if vararg: target_vars.append(vararg)
+        if kwarg:  target_vars.append(kwarg)
+
+        
         self.out[node.name] = {
-            "fundef": node,
+            "node": node,
             "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
             "body": FunctionBodyTransformer().visit(ast.Module(node.body)),
+            "target_vars": target_vars
         }
 
 class LambdaFunctionParser(Parser):

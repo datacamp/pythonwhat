@@ -6,8 +6,15 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
 from pythonwhat.utils import get_ord
 from pythonwhat.tasks import getTreeResultInProcess, getFunctionCallResultInProcess, getFunctionCallOutputInProcess, getFunctionCallErrorInProcess, ReprFail
+from pythonwhat.check_funcs import check_node, check_part, multi
 
 from pythonwhat.sub_test import sub_test
+
+MSG_MISSING = "You didn't define the following function: `{typestr}()`."
+MSG_PREPEND = "Check your definition of `{typestr}()`. "
+MSG_BAD_ARG_NAME = "In your definition of {typestr}, the {ordinal} argument" "should be called `{arg_name_sol}`, instead got `{arg_name_stu}`."
+MSG_NEED_ARGS = "You should define {typestr} with {num_args_sol} arguments, instead got {num_args_stu}."
+MSG_BAD_DEFAULT = "In your definition of {typestr}, the argument `{arg_name_stu}` should have no default."
 
 
 def test_function_definition(name,
@@ -99,22 +106,14 @@ def test_function_definition(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_function_definition")
 
+    child = check_node('function_defs', name, name, MSG_MISSING, MSG_PREPEND if expand_message else "", state=state)
     solution_defs = state.solution_function_defs
     student_defs = state.student_function_defs
 
-    try:
-        solution_def = solution_defs[name]
-    except KeyError:
-        raise NameError("%s not in solution code" % name)
-
-    c_not_called_msg = not_called_msg or \
-        ("You didn't define the following function: `%s()`." %
-            name)
-    rep.do_test(DefinedCollTest(name, student_defs, c_not_called_msg))
-
+    solution_def = solution_defs[name]
     student_def = student_defs[name]
 
-    fun_def = student_def['fundef']
+    fun_def = student_def['node']
     fun_name = ("`%s()`" % name)
 
     test_args(rep=rep,
@@ -138,15 +137,15 @@ def test_function_definition(name,
                     other_args_msg=other_args_msg,
                     name=fun_name)
 
-    test_body(rep=rep,
-              state=state,
-              body=body,
-              subtree_student=student_def['body'],
-              subtree_solution=solution_def['body'],
-              args_student=student_def['args'],
-              args_solution=solution_def['args'],
-              name=fun_name,
-              expand_message=expand_message)
+    multi(body, state=check_part('body', "", child))
+#
+#    # TODO modified so it didn't change original message
+#    #      but this could always be reimplimented with callbacks
+#    feedback = "Check your definition of %s. " %name if expand_message else ""
+#
+#    sub_test(state, rep, body, subtree_student, subtree_solution, 
+#             student_context = stu_context, solution_context = sol_context, 
+#             expand_message=feedback)
 
     if results is not None:
         for el in results:
@@ -271,6 +270,7 @@ def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
     if arg_names or arg_defaults:
         nb_args_solution = len(args_solution)
         nb_args_student = len(args_student)
+        # MSG_NEED_ARGS
         c_nb_args_msg = nb_args_msg or \
             ("You should define %s with %d arguments, instead got %d." %
                 (name, nb_args_solution, nb_args_student))
@@ -281,6 +281,7 @@ def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
             arg_name_solution, arg_default_solution = args_solution[i]
             arg_name_student, arg_default_student = args_student[i]
             if arg_names:
+                # MSG_BAD_ARG_NAME
                 c_arg_names_msg = arg_names_msg or \
                     ("In your definition of %s, the %s argument should be called `%s`, instead got `%s`." %
                         (name, get_ord(i+1), arg_name_solution, arg_name_student))
@@ -290,6 +291,7 @@ def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
             if arg_defaults:
 
                 if arg_defaults_msg is None:
+                    # MSG_BAD_DEFAULT
                     if arg_default_solution is None:
                         c_arg_defaults_msg = "In your definition of %s, the argument `%s` should have no default." % (name, arg_name_student)
                     else :
