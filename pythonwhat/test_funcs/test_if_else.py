@@ -1,12 +1,10 @@
-import ast
-from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import Test
-from pythonwhat.utils import get_ord
-from pythonwhat.Feedback import Feedback
+from pythonwhat.check_funcs import check_part, check_node, multi
 
-from pythonwhat.sub_test import sub_test
 from functools import partial, update_wrapper
+
+MSG_MISSING = "The system wants to check the {ordinal} {typestr}, but it hasn't found it. Have another look at your code."
+MSG_PREPEND = "Check your code in the {part} of the {ordinal} `if` statement. "
 
 def test_if_else(index=1,
                  test=None,
@@ -71,31 +69,16 @@ def test_if_else(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_if_else")
 
-    index = index - 1
 
-    if use_if_exp:
-        student_ifs = state.student_if_exp_calls
-        solution_ifs = state.solution_if_exp_calls
-    else:
-        student_ifs = state.student_if_calls
-        solution_ifs = state.solution_if_calls
+    # get state with specific if block
+    node_name = 'if_exp_calls' if use_if_exp else 'if_calls'
+    # TODO original typestr for check_node used if rather than `if`
+    state = check_node(node_name, index-1, "if statement", MSG_MISSING, MSG_PREPEND if expand_message else "", state=state)
 
-    try:
-        test_student, body_student, orelse_student = student_ifs[index]
-    except:
-        rep.do_test(Test("The system wants to check the %s if statement, but it hasn't found it. Have another look at your code." % get_ord(index + 1)))
-        return
-
-    test_solution, body_solution, orelse_solution = solution_ifs[index]
-
-    prepend_fmt = "Check your code in the {incorrect_part} of the %s `if` statement. " %(get_ord(index + 1))
-
-    psub_test = partial(sub_test, state, rep, 
-            expand_message=expand_message and prepend_fmt)
-
-    psub_test(test, test_student, test_solution, "condition")
-    psub_test(body, body_student, body_solution, "body")
-    psub_test(orelse, orelse_student, orelse_solution, "else part")
+    # run sub tests
+    multi(test, state = check_part('test', 'condition', state))
+    multi(body, state = check_part('body', 'body', state))
+    multi(orelse, state = check_part('orelse', 'else part', state))
 
 
 test_if_exp = partial(test_if_else, use_if_exp = True)

@@ -354,27 +354,25 @@ class IfParser(Parser):
         self.out = []
 
     def visit_If(self, node):
-        self.out.append((
-            node.test,
-            node.body,
-            node.orelse))
+        self.out.append({
+            'node': node,
+            'test': node.test,
+            'body': node.body,
+            'orelse': node.orelse,
+            })
 
 
-class IfExpParser(Parser):
+class IfExpParser(IfParser):
     """Find if structures.
 
     A parser which inherits from the basic parser to find inline if structures.
     Only 'top-level' if structures will be found!
     """
 
-    def __init__(self):
-        self.out = []
+    def visit_If(self, node): return
 
     def visit_IfExp(self, node):
-        self.out.append((
-            node.test,
-            node.body,
-            node.orelse))
+        super().visit_If(node)
 
     def visit_BinOp(self, node):
         self.visit(node.left)
