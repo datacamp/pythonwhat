@@ -411,10 +411,12 @@ class WhileParser(Parser):
         self.out = []
 
     def visit_While(self, node):
-        self.out.append((
-            node.test,
-            node.body,
-            node.orelse))
+        self.out.append({
+            'node': node,
+            'test': node.test,
+            'body': node.body,
+            'orelse': node.orelse
+            })
 
 
 class ForParser(Parser):
