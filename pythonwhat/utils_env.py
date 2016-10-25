@@ -1,7 +1,7 @@
 import copy
 
 def set_context_vals(env, context, context_vals = None):
-    if context_vals is not None and context_vals is not []:
+    if context_vals is not None and context_vals:
         if len(context) > 1:
             env.update({key: value for (key, value) in zip(context, context_vals)})
         else:

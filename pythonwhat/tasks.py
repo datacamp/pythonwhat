@@ -17,17 +17,17 @@ def process_task(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         # get bound arguments for call
-        bargs = sig.bind_partial(*args, **kwargs).arguments
+        ba = sig.bind_partial(*args, **kwargs)
         # when process is specified, remove from args and use to execute
-        process = bargs.get('process')
+        process = ba.arguments.get('process')
         if process:
-            bargs['process'] = None
+            ba.arguments['process'] = None
             # partial function since shell argument may have been left
             # unspecified, as it will be passed when the process executes
-            pf = partial(wrapper, *bargs.values())
+            pf = partial(wrapper, *ba.args, **ba.kwargs)
             return process.executeTask(pf)
         # otherwise, run original function
-        return f(**bargs)
+        return f(*ba.args, **ba.kwargs)
     return wrapper
 
 def get_env(ns):
@@ -395,52 +395,52 @@ def get_rep(f):
 
 # Eval an expression tree or node (with setting envs, pre_code and/or expr_code)
 @process_task
-def taskRunEval(keep_objs_in_env, extra_env, context, context_vals,
-                pre_code, expr_code, tree,
-                process, shell, tempname='_evaluation_object_'):
+def taskRunEval(tree,
+                process, shell, 
+                keep_objs_in_env = None, extra_env = None, context=None, context_vals=None, 
+                pre_code = "", expr_code = "", name="", tempname='_evaluation_object_'):
     new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
     if extra_env is not None:
         new_env.update(copy.deepcopy(extra_env))
     set_context_vals(new_env, context, context_vals)
     try:
-        if pre_code is not None:
-            exec(pre_code, new_env)
-        if expr_code is not None:
-            get_env(shell.user_ns)[tempname] = eval(expr_code, new_env)
+        # Execute pre_code if specified
+        if pre_code: exec(pre_code, new_env)
+
+        # If no name given, the object of interest is the output of eval
+        # otherwise, we'll use name to get the object from the environment
+        if not name:
+            mode = 'eval'
+            tree = ast.Expression(tree)
         else:
-            get_env(shell.user_ns)[tempname] = eval(compile(ast.Expression(tree), "<script>", "eval"), new_env)
-        return str(get_env(shell.user_ns)[tempname])
+            mode = 'exec'
+
+        # Expression code takes precedence over tree code
+        if expr_code: code = expr_code
+        else:         code = compile(tree, "<script>", mode)
+
+        if mode == 'eval': 
+            obj = eval(code, new_env)
+        else:       
+            exec(code, new_env)
+            if name not in new_env:
+                return "undefined"
+            obj = new_env[name]
+
+        # Set object as temp variable in original environment, so we can
+        # later get its class, etc.., in order to extract it from process
+        get_env(shell.user_ns)[tempname] = obj
+        return str(obj)
+
     except:
         return None
 
 getResultInProcess = get_rep(taskRunEval)
 
-# Exec an expression tree (with setting envs, pre_code and/er expr_code) to extract info from later on
-@process_task
-def taskRunTreeExec(keep_objs_in_env, extra_env, context, context_vals,
-                pre_code, tree, name,
-                process, shell, tempname='_evaluation_object_'):
-    new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
-    if extra_env is not None:
-        new_env.update(copy.deepcopy(extra_env))
-    set_context_vals(new_env, context, context_vals)
-    try:
-        if pre_code is not None:
-            exec(pre_code, new_env)
-        exec(compile(tree, "<script>", "exec"), new_env)
-        # get_env(shell.user_ns)[name] = new_env
-    except:
-        return None
-    if name not in new_env :
-        return "undefined"
-    else :
-        obj = new_env[name]
-        get_env(shell.user_ns)[tempname] = obj
-        return str(obj)
-
-getObjectAfterExpressionInProcess = get_rep(taskRunTreeExec)
+getObjectAfterExpressionInProcess = get_rep(taskRunEval)
 
 # Run a function call in process
+# TODO: should this run the function on the original environment? what about side effects?
 @process_task
 def taskRunFunctionCall(fun_name, arguments, process, shell, tempname='_evaluation_object_'):
     try:
@@ -453,12 +453,4 @@ getFunctionCallResultInProcess = get_rep(taskRunFunctionCall)
 
 
 # Eval an expression tree in process
-@process_task
-def taskRunTreeEval(tree, process, shell, tempname='_evaluation_object_'):
-    try:
-        get_env(shell.user_ns)[tempname] = eval(compile(ast.Expression(tree), "<script>", "eval"), get_env(shell.user_ns))
-        return str(get_env(shell.user_ns)[tempname])
-    except:
-        return None
-
-getTreeResultInProcess = get_rep(taskRunTreeEval)
+getTreeResultInProcess = get_rep(taskRunEval)
