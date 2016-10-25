@@ -6,7 +6,7 @@ import pythonwhat
 import ast
 import inspect
 import copy
-import inspect
+from pickle import PicklingError
 from pythonwhat.utils_env import set_context_vals
 from contextlib import contextmanager
 from functools import partial, wraps
@@ -181,7 +181,6 @@ def getOutputInProcess(tree, process, extra_env, context, context_vals,
         return out[0].strip()
     except:
         return None
-    return process.executeTask(TaskGetOutput(**kwargs))
 
 # Get output of function call in process
 @process_task
@@ -293,26 +292,18 @@ def getValueInProcess(name, key, process):
     return res
 
 # Get a bytes or string representation of an object in the process
-class TaskGetClass(object):
-    def __init__(self, name):
-        self.name = name
+@process_task
+def getClass(name, process, shell):
+    try:
+        obj = get_env(shell.user_ns)[name]
+        obj_type = type(obj)
+        return obj_type.__module__ + "." + obj_type.__name__
+    except:
+        return None
 
-    def __call__(self, shell):
-        try:
-            obj = get_env(shell.user_ns)[self.name]
-            obj_type = type(obj)
-            return obj_type.__module__ + "." + obj_type.__name__
-        except:
-            return None
-
-
-class TaskConvert(object):
-    def __init__(self, name, converter):
-        self.name = name
-        self.converter = converter
-
-    def __call__(self, shell):
-        return dill.loads(self.converter)(get_env(shell.user_ns)[self.name])
+@process_task
+def convert(name, converter, process, shell):
+    return dill.loads(converter)(get_env(shell.user_ns)[name])
 
 # class TaskGetObject(object):
 #     def __init__(self, name):
@@ -325,26 +316,19 @@ class TaskConvert(object):
 #        else:
 #            return None
 
-class TaskGetStreamPickle(object):
-    def __init__(self, name):
-        self.name = name
+@process_task
+def getStreamPickle(name, process, shell):
+    try:
+        return pickle.dumps(get_env(shell.user_ns)[name])
+    except:
+        return None
 
-    def __call__(self, shell):
-        try:
-            return pickle.dumps(get_env(shell.user_ns)[self.name])
-        except:
-            return None
-
-
-class TaskGetStreamDill(object):
-    def __init__(self, name):
-        self.name = name
-
-    def __call__(self, shell):
-        try:
-            return dill.dumps(get_env(shell.user_ns)[self.name])
-        except:
-            return None
+@process_task
+def getStreamDill(name, process, shell):
+    try:
+        return dill.dumps(get_env(shell.user_ns)[name])
+    except:
+        return None
 
 
 class ReprFail(object):
@@ -352,156 +336,129 @@ class ReprFail(object):
         self.info = info
 
 def getRepresentation(name, process):
-    obj_class = process.executeTask(TaskGetClass(name))
+    obj_class = getClass(name, process)
     converters = pythonwhat.State.State.converters
     if obj_class in converters:
-        repres = process.executeTask(TaskConvert(name, dill.dumps(converters[obj_class])))
+        repres = convert(name, dill.dumps(converters[obj_class]), process)
         if (errored(repres)):
             repres = ReprFail("manual conversion failed")
+        else: 
+            return repres
     else:
         # first try to pickle
         try:
-            stream = process.executeTask(TaskGetStreamPickle(name))
-            fail = errored(stream) or stream is None
-        except:
-            fail = True
-
-        if not fail:
-            try:
-                repres = pickle.loads(stream)
-            except:
-                fail = True
+            stream = getStreamPickle(name, process)
+            if not errored(stream): return pickle.loads(stream)
+        except PicklingError: 
+            pass
 
         # if it failed, try to dill
-        if fail:
-            try:
-                stream = process.executeTask(TaskGetStreamDill(name))
-                fail2 = errored(stream) or stream is None
-            except:
-                fail2 = True
-
-            if fail2:
-                repres = ReprFail("dilling inside process failed for %s - write manual converter" % obj_class)
-            else :
-                try:
-                    repres = dill.loads(stream)
-                except:
-                    repres = ReprFail("undilling of bytestream failed - write manual converter")
-
-    return repres
+        try:
+            stream = getStreamDill(name, process)
+            if not errored(stream): return dill.loads(stream)
+            return ReprFail("dilling inside process failed for %s - write manual converter" % obj_class)
+        except PicklingError:
+            return ReprFail("undilling of bytestream failed - write manual converter")
 
 def errored(el):
-    return(isinstance(el, list) and 'backend-error' in str(el))
+    return el is None or (isinstance(el, list) and 'backend-error' in str(el))
 
 
+# Make wrapper for getting an object representation from process --------------
 
+def getResultFromProcess(res, tempname, process):
+    """Get a value from process, return tuple of value, res if succesful"""
+    if res not in [None, "undefined"]:
+        value = getRepresentation(tempname, process)
+        return (value, res)
+    else: 
+        return (None,  res)
 
-# Get the result of a tree (with setting envs, pre_code and/or expr_code)
-class TaskGetResult(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+# decorator to automatically get value after running process task function
+def get_rep(f):
+    sig = inspect.signature(f)
+    @wraps(f)
+    def wrapper(*args, **kwargs): 
+        # get bound arguments for call
+        ba = sig.bind_partial(*args, **kwargs)
+        ba.apply_defaults()
+        # get tempname, process arg values
+        tempname = ba.arguments['tempname']
+        process = ba.arguments['process']
+        # run process task
+        res = f(*args,**kwargs)
+        # get result from task
+        return getResultFromProcess(res, tempname, process)
+    return wrapper
 
-    def __call__(self, shell):
-        new_env = utils.copy_env(get_env(shell.user_ns), self.keep_objs_in_env)
-        if self.extra_env is not None:
-            new_env.update(copy.deepcopy(self.extra_env))
-        set_context_vals(new_env, self.context, self.context_vals)
-        try:
-            if self.pre_code is not None:
-                exec(self.pre_code, new_env)
-            if self.expr_code is not None:
-                get_env(shell.user_ns)[self.name] = eval(self.expr_code, new_env)
-            else:
-                get_env(shell.user_ns)[self.name] = eval(compile(ast.Expression(self.tree), "<script>", "eval"), new_env)
-            return str(get_env(shell.user_ns)[self.name])
-        except:
-            return None
+# General tasks to eval or exec code, with decorated counterparts -------------
 
-def getResultInProcess(process, **kwargs):
-    kwargs['name'] = "_evaluation_object_"
-    strrep = process.executeTask(TaskGetResult(**kwargs))
-    if strrep is not None:
-        value = getRepresentation(kwargs['name'], process)
-    else:
-        value = None
-    return (value, strrep)
+# Eval an expression tree or node (with setting envs, pre_code and/or expr_code)
+@process_task
+def taskRunEval(keep_objs_in_env, extra_env, context, context_vals,
+                pre_code, expr_code, tree,
+                process, shell, tempname='_evaluation_object_'):
+    new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
+    if extra_env is not None:
+        new_env.update(copy.deepcopy(extra_env))
+    set_context_vals(new_env, context, context_vals)
+    try:
+        if pre_code is not None:
+            exec(pre_code, new_env)
+        if expr_code is not None:
+            get_env(shell.user_ns)[tempname] = eval(expr_code, new_env)
+        else:
+            get_env(shell.user_ns)[tempname] = eval(compile(ast.Expression(tree), "<script>", "eval"), new_env)
+        return str(get_env(shell.user_ns)[tempname])
+    except:
+        return None
 
+getResultInProcess = get_rep(taskRunEval)
 
-# Run code (with setting envs, pre_code and/er expr_code) to extract info from later on
-class TaskRunTreeStoreEnv(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-    def __call__(self, shell):
-        new_env = utils.copy_env(get_env(shell.user_ns), self.keep_objs_in_env)
-        if self.extra_env is not None:
-            new_env.update(copy.deepcopy(self.extra_env))
-        set_context_vals(new_env, self.context, self.context_vals)
-        try:
-            if self.pre_code is not None:
-                exec(self.pre_code, new_env)
-            exec(compile(self.tree, "<script>", "exec"), new_env)
-            # get_env(shell.user_ns)[self.name] = new_env
-        except:
-            return None
-        if self.name not in new_env :
-            return "undefined"
-        else :
-            obj = new_env[self.name]
-            get_env(shell.user_ns)[self.tempname] = obj
-            return str(obj)
-
-def getObjectAfterExpressionInProcess(process, **kwargs):
-    tempname = "_evaluation_object_"
-    kwargs['tempname'] = tempname
-    strrep = process.executeTask(TaskRunTreeStoreEnv(**kwargs))
-    if strrep is None or strrep is "undefined" :
-        bytestream = None
+# Exec an expression tree (with setting envs, pre_code and/er expr_code) to extract info from later on
+@process_task
+def taskRunTreeExec(keep_objs_in_env, extra_env, context, context_vals,
+                pre_code, tree, name,
+                process, shell, tempname='_evaluation_object_'):
+    new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
+    if extra_env is not None:
+        new_env.update(copy.deepcopy(extra_env))
+    set_context_vals(new_env, context, context_vals)
+    try:
+        if pre_code is not None:
+            exec(pre_code, new_env)
+        exec(compile(tree, "<script>", "exec"), new_env)
+        # get_env(shell.user_ns)[name] = new_env
+    except:
+        return None
+    if name not in new_env :
+        return "undefined"
     else :
-        bytestream = getRepresentation(tempname, process)
-    return (bytestream, strrep)
+        obj = new_env[name]
+        get_env(shell.user_ns)[tempname] = obj
+        return str(obj)
+
+getObjectAfterExpressionInProcess = get_rep(taskRunTreeExec)
+
+# Run a function call in process
+@process_task
+def taskRunFunctionCall(fun_name, arguments, process, shell, tempname='_evaluation_object_'):
+    try:
+        get_env(shell.user_ns)[tempname] = get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
+        return str(get_env(shell.user_ns)[tempname])
+    except:
+        return None
+
+getFunctionCallResultInProcess = get_rep(taskRunFunctionCall)
 
 
-# Get result of function call in process
-class TaskGetFunctionCallResult(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+# Eval an expression tree in process
+@process_task
+def taskRunTreeEval(tree, process, shell, tempname='_evaluation_object_'):
+    try:
+        get_env(shell.user_ns)[tempname] = eval(compile(ast.Expression(tree), "<script>", "eval"), get_env(shell.user_ns))
+        return str(get_env(shell.user_ns)[tempname])
+    except:
+        return None
 
-    def __call__(self, shell):
-        try:
-            get_env(shell.user_ns)[self.name] = get_env(shell.user_ns)[self.fun_name](*self.arguments['args'], **self.arguments['kwargs'])
-            return str(get_env(shell.user_ns)[self.name])
-        except:
-            return None
-
-def getFunctionCallResultInProcess(process, **kwargs):
-    kwargs['name'] = "_evaluation_object_"
-    strrep = process.executeTask(TaskGetFunctionCallResult(**kwargs))
-    if strrep is not None:
-        bytestream = getRepresentation("_evaluation_object_", process)
-    else:
-        bytestream = None
-    return (bytestream, strrep)
-
-# Get result of an expression tree in process
-class TaskGetTreeResult(object):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-    def __call__(self, shell):
-        try:
-            get_env(shell.user_ns)[self.name] = eval(compile(ast.Expression(self.tree), "<script>", "eval"), get_env(shell.user_ns))
-            return str(get_env(shell.user_ns)[self.name])
-        except:
-            return None
-
-def getTreeResultInProcess(process, **kwargs):
-    kwargs['name'] = "_evaluation_object_"
-    strrep = process.executeTask(TaskGetTreeResult(**kwargs))
-    if strrep is not None:
-        bytestream = getRepresentation("_evaluation_object_", process)
-    else:
-        bytestream = None
-    return (bytestream, strrep)
-
-
+getTreeResultInProcess = get_rep(taskRunTreeEval)
