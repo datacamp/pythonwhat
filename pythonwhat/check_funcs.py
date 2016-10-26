@@ -4,52 +4,46 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord
 from functools import partial
 
-def update_prev_msg(child, part_msg):
-    # TODO this is a hack to add the part name {part} to the messages in the previous check_* state
-    import copy
-    msg = copy.copy(child.messages[-2])
-    msg.update(kwargs = {**msg['kwargs'], 'part': part_msg})
-    child.messages[-2] = msg
-
 def check_part(name, part_msg, state=None):
     """Return child state with name part as its ast tree"""
     if not part_msg: part_msg = name
-    child = state.to_child_state(state.student_parts[name], state.solution_parts[name])
-    update_prev_msg(child, part_msg)
+    child = state.to_child_state(state.student_parts[name], state.solution_parts[name],
+                                 append_message = {'msg': "", 'kwargs': {'part': part_msg}})
     return child
 
 def check_part_index(name, index, part_msg, 
                      missing_msg="Define more {part}.", 
                      state=None):
     """Return child state with indexed name part as its ast tree"""
-    # check there are enough parts for index
-    _msg = missing_msg.format(**fmt_kwargs)
 
-    if not len(state.student_parts) >= index+1: 
+    rep = Reporter.active_reporter
+
+    # create message
+    append_message = {'msg': "", 
+                      'kwargs': {'part': get_ord(index+1) + " " + part_msg}}
+
+    # check there are enough parts for index
+    stu_parts = state.student_parts[name]
+    try: stu_parts[index]
+    except (KeyError, IndexError): 
+        _msg = state.build_message(missing_msg, append_message['kwargs'])
         rep.do_test(Test(Feedback(_msg, state.student_tree)))
 
     # get part at index
-    stu_part = state.student_parts[index]
-    sol_part = state.solution_parts[index]
+    stu_part = state.student_parts[name][index]
+    sol_part = state.solution_parts[name][index]
     
-    # create message
-    append_message = {'msg': part_msg, 
-                      'kwargs': {'part': get_ord(index+1) + " " + part_msg}
-                      }
     # return child state
-    child = state.to_child_state(stu_part['node'], sol_part['node'],
-                                 stu_part['target_vars'], sol_part['target_vars'],
-                                 stu_part, sol_part,
-                                 append_message)
-    update_prev_msg(child, part_msg)
+    child = state.to_child_state(stu_part, sol_part,
+                                 append_message = append_message)
     return child
 
 MSG_MISSING = "The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
-MSG_PREPEND = "Check your code in the {part} of the {ordinal} {typestr}. "
+MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} {typestr}. "
 def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PREPEND, state=None):
     rep = Reporter.active_reporter
-    stu_out = getattr(state, 'student'+'_'+name)
-    sol_out = getattr(state, 'solution'+'_'+name)
+    stu_out = getattr(state, 'student_'+name)
+    sol_out = getattr(state, 'solution_'+name)
 
     # check if there are enough nodes for index
     fmt_kwargs = {'ordinal': get_ord(index+1) if isinstance(index, int) else "", 
@@ -58,7 +52,7 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
     # test if node can be indexed succesfully
     try: stu_out[index]
     except (KeyError, IndexError):                  # TODO comment errors
-        _msg = missing_msg.format(**fmt_kwargs)
+        _msg = state.build_message(missing_msg, fmt_kwargs)
         rep.do_test(Test(Feedback(_msg, state.student_tree)))
 
     # get node at index
@@ -73,6 +67,17 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
                                  stu_part, sol_part,
                                  append_message)
     return child
+
+def has_equal_part_len(name, insufficient_msg, state=None):
+    rep = Reporter.active_reporter
+    d = dict(stu_len = len(state.student_parts[name]),
+             sol_len = len(state.solution_parts[name]))
+
+    if d['stu_len'] != d['sol_len']:
+        _msg = state.build_message(insufficient_msg, d)
+        rep.do_test(Test(Feedback(_msg, state.student_tree)))
+
+    return state
 
 def multi(*args, state=None):
     """Run multiple subtests. Return original state (for chaining)."""

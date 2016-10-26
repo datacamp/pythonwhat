@@ -84,8 +84,20 @@ class State(object):
 
         return(self.manual_sigs)
 
-    def build_message(self):
-        return "".join([d['msg'].format(**d['kwargs']) for d in self.messages])
+    def build_message(self, tail="", fmt_kwargs=None):
+        if not fmt_kwargs: fmt_kwargs = {}
+        out_list = []
+        # add trailing message to msg list
+        msgs = self.messages[:] + [{'msg': tail or "", 'kwargs':fmt_kwargs}]
+        # format messages in list, by iterating over previous, current, and next message
+        for prev_d, d, next_d in zip([{}, *msgs[:-1]], msgs, [*msgs[1:], {}]):
+            out = d['msg'].format(parent = prev_d.get('kwargs'),
+                                  child = next_d.get('kwargs'),
+                                  this = d['kwargs'],
+                                  **d['kwargs'])
+            out_list.append(out)
+
+        return "".join(out_list)
 
     def update_message_keys(self, **kwargs):
         self.messages[-1]['kwargs'].update(kwargs)
