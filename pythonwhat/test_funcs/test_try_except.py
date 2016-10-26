@@ -25,8 +25,6 @@ def test_try_except(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_try_except")
 
-    state.extract_try_excepts()
-
     student_try_excepts = state.student_try_excepts
     solution_try_excepts = state.solution_try_excepts
 

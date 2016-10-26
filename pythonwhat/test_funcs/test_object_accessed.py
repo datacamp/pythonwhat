@@ -42,9 +42,8 @@ def test_object_accessed(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object_accessed")
 
-    state.extract_object_accesses()
     student_object_accesses = state.student_object_accesses
-    student_mappings = state.student_mappings
+    student_mappings = state.student_oa_mappings
 
     if not not_accessed_msg:
         stud_name = name
