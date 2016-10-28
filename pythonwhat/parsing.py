@@ -78,7 +78,32 @@ class Parser(ast.NodeVisitor):
     def get_arg_tuples(arguments, defaults):
         arguments = [arg.arg for arg in arguments]
         defaults = [None] * (len(arguments) - len(defaults)) + defaults
-        return [(arg, default) for arg, default in zip(arguments,defaults)]
+        return list(zip(arguments, defaults))
+
+    @staticmethod
+    def get_arg_parts(arguments, defaults, name=None):
+        # only difference is that it doesn't pull out arg.arg, so we can 
+        # use all the information on the arg node down the road
+        match_def = [None] * (len(arguments) - len(defaults)) + defaults
+        part_list = []
+        for _arg, _def in zip(arguments, match_def):
+            part_list.append(Parser.get_arg_part(_arg, _def))
+        return part_list
+
+    @staticmethod
+    def get_arg_part(_arg, _def, name=None):
+        if not _arg: return None
+
+        return {
+                'node': _def or _arg,
+                'arg': _arg,
+                # TODO: need to fill out
+                'type': 'default' if _def else 'positional',
+                'is_default': True if _def else False,
+                'name': name or _arg.arg,
+                'annotation': _arg.annotation
+                }
+
 
 class OperatorParser(Parser):
     """Find operations.
@@ -452,6 +477,7 @@ class FunctionDefParser(Parser):
     def visit_FunctionDef(self, node):
         normal_args = Parser.get_arg_tuples(node.args.args, node.args.defaults)
         kwonlyargs = Parser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
+        # TODO: all single args should be tuples like this
         vararg = Parser.get_arg(node.args.vararg)
         kwarg = Parser.get_arg(node.args.kwarg)
         # create context variables
@@ -459,13 +485,19 @@ class FunctionDefParser(Parser):
         if vararg: target_vars.append(vararg)
         if kwarg:  target_vars.append(kwarg)
 
+
         
         self.out[node.name] = {
             "node": node,
             "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
+            # TODO: arg is the node counterpart to target_vars
+            "arg": self.get_arg_parts(node.args.args, node.args.defaults),
+            "vararg": self.get_arg_part(node.args.vararg, None),
+            "kwarg":  self.get_arg_part(node.args.kwarg, None),
             "body": FunctionBodyTransformer().visit(ast.Module(node.body)),
             "target_vars": target_vars
         }
+
 
 class LambdaFunctionParser(Parser):
     """Find lambda functions

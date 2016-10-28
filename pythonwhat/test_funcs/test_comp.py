@@ -101,7 +101,7 @@ def test_comp(typestr, comptype, index, iter_vars_names,
         # test that ifs are same length
         has_equal_part_len('ifs', insufficient_ifs_msg, state=quiet_state)
         # test individual ifs
-        multi(if_test, state=check_part_index("ifs", i, "if", state=state))
+        multi(if_test, state=check_part_index("ifs", i, get_ord(i+1) + " if", state=state))
 
 
 def has_iter_vars(incorrect_iter_vars_msg, exact_names=False, state=None):

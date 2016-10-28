@@ -4,12 +4,34 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord
 from functools import partial
 
-def check_part(name, part_msg, state=None):
+def part_to_child(stu_part, sol_part, append_message, state):
+    # stu_part and sol_part will be accessible on all templates
+    append_message['kwargs'].update({'stu_part': stu_part, 'sol_part': sol_part})
+
+    # if the parts are dictionaries, use to deck out child state
+    if all(isinstance(p, dict) for p in [stu_part, sol_part]): 
+        return state.to_child_state(stu_part['node'], sol_part['node'],
+                                    stu_part.get('target_vars'), sol_part.get('target_vars'),
+                                    stu_part, sol_part,
+                                    append_message = append_message)
+    
+    # otherwise, assume they are just nodes
+    return state.to_child_state(stu_part, sol_part, append_message = append_message)
+
+
+def check_part(name, part_msg, state=None, missing_msg=""):
     """Return child state with name part as its ast tree"""
+    rep = Reporter.active_reporter
+
     if not part_msg: part_msg = name
-    child = state.to_child_state(state.student_parts[name], state.solution_parts[name],
-                                 append_message = {'msg': "", 'kwargs': {'part': part_msg}})
-    return child
+    append_message = {'msg': "", 'kwargs': {'part': part_msg,}}
+
+    has_part(name, missing_msg, state)
+
+    stu_part = state.student_parts[name]
+    sol_part = state.solution_parts[name]
+    
+    return part_to_child(stu_part, sol_part, append_message, state)
 
 def check_part_index(name, index, part_msg, 
                      missing_msg="Define more {part}.", 
@@ -19,8 +41,10 @@ def check_part_index(name, index, part_msg,
     rep = Reporter.active_reporter
 
     # create message
+    ordinal = "" if isinstance(index, str) else get_ord(index+1)
+
     append_message = {'msg': "", 
-                      'kwargs': {'part': get_ord(index+1) + " " + part_msg}}
+                      'kwargs': {'part': part_msg, 'index': index, 'ordinal': ordinal}}
 
     # check there are enough parts for index
     stu_parts = state.student_parts[name]
@@ -32,11 +56,9 @@ def check_part_index(name, index, part_msg,
     # get part at index
     stu_part = state.student_parts[name][index]
     sol_part = state.solution_parts[name][index]
-    
-    # return child state
-    child = state.to_child_state(stu_part, sol_part,
-                                 append_message = append_message)
-    return child
+
+    # return child state from part
+    return part_to_child(stu_part, sol_part, append_message, state)
 
 MSG_MISSING = "The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
 MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} {typestr}. "
@@ -62,11 +84,32 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
     append_message = {'msg': expand_msg, 
                       'kwargs': fmt_kwargs
                       }
-    child = state.to_child_state(stu_part['node'], sol_part['node'],
-                                 stu_part.get('target_vars'), sol_part.get('target_vars'), 
-                                 stu_part, sol_part,
-                                 append_message)
-    return child
+
+    return part_to_child(stu_part, sol_part, append_message, state)
+
+def has_part(name, msg, state):
+    rep = Reporter.active_reporter
+    d = {'sol_part': state.solution_parts,
+         'stu_part': state.student_parts}
+
+    if not d['stu_part'][name] is not None:
+        _msg = state.build_message(msg, d)
+        rep.do_test(Test(Feedback(_msg, state.student_tree)))
+
+    return state
+
+
+def has_equal_part(name, msg, state):
+    rep = Reporter.active_reporter
+    d = {'stu_part': state.student_parts,
+         'sol_part': state.solution_parts}
+
+    if d['stu_part'][name] != d['sol_part'][name]:
+        _msg = state.build_message(msg, d)
+        rep.do_test(Test(Feedback(_msg, state.student_tree)))
+
+    return state
+
 
 def has_equal_part_len(name, insufficient_msg, state=None):
     rep = Reporter.active_reporter
@@ -78,6 +121,28 @@ def has_equal_part_len(name, insufficient_msg, state=None):
         rep.do_test(Test(Feedback(_msg, state.student_tree)))
 
     return state
+
+def has_equal_value(msg, state=None):
+    from pythonwhat.tasks import getTreeResultInProcess
+    from pythonwhat.Test import EqualTest
+    rep = Reporter.active_reporter
+    eval_solution, str_solution = getTreeResultInProcess(tree = state.solution_tree,
+                                                        process = state.solution_process)
+    #if str_solution is None:
+    #    raise ValueError("Evaluating a default argument in the solution environment raised an error")
+    #if isinstance(eval_solution, ReprFail):
+    #    raise ValueError("Couldn't figure out the value of a default argument: " + eval_solution.info)
+
+    eval_student, str_student = getTreeResultInProcess(tree = state.student_tree, 
+                                                    process = state.student_process)
+
+    _msg = state.build_message(msg, {'stu_part': state.student_parts, 'sol_part': state.solution_parts})
+    feedback = Feedback(_msg, state.student_tree)
+    if str_student is None:
+        rep.do_test(Test(feedback))
+    else :
+        rep.do_test(EqualTest(eval_student, eval_solution, feedback))
+
 
 def multi(*args, state=None):
     """Run multiple subtests. Return original state (for chaining)."""
