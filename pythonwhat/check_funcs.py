@@ -3,6 +3,7 @@ from pythonwhat.Test import Test
 from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord
 from functools import partial
+import copy
 
 def part_to_child(stu_part, sol_part, append_message, state):
     # stu_part and sol_part will be accessible on all templates
@@ -26,7 +27,7 @@ def check_part(name, part_msg, state=None, missing_msg=""):
     if not part_msg: part_msg = name
     append_message = {'msg': "", 'kwargs': {'part': part_msg,}}
 
-    has_part(name, missing_msg, state)
+    has_part(name, missing_msg, state, append_message['kwargs'])
 
     stu_part = state.student_parts[name]
     sol_part = state.solution_parts[name]
@@ -87,10 +88,12 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
 
     return part_to_child(stu_part, sol_part, append_message, state)
 
-def has_part(name, msg, state):
+def has_part(name, msg, state=None, fmt_kwargs=None):
     rep = Reporter.active_reporter
     d = {'sol_part': state.solution_parts,
-         'stu_part': state.student_parts}
+         'stu_part': state.student_parts,
+         **fmt_kwargs
+         }
 
     if not d['stu_part'][name] is not None:
         _msg = state.build_message(msg, d)
@@ -102,7 +105,8 @@ def has_part(name, msg, state):
 def has_equal_part(name, msg, state):
     rep = Reporter.active_reporter
     d = {'stu_part': state.student_parts,
-         'sol_part': state.solution_parts}
+         'sol_part': state.solution_parts,
+         'name': name}
 
     if d['stu_part'][name] != d['sol_part'][name]:
         _msg = state.build_message(msg, d)
@@ -165,3 +169,10 @@ def multi(*args, state=None):
  
     # return original state, so can be chained
     return state
+
+def quiet(n = 0, state=None):
+    """Turn off prepended messages. Defaults to turning all off."""
+    cpy = copy.copy(state)
+    hushed = [{**m, 'msg': ""} for m in cpy.messages]
+    cpy.messages = hushed
+    return cpy

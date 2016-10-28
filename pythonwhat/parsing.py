@@ -665,24 +665,28 @@ class TryExceptParser(Parser):
         handlers = {}
 
         for handler in node.handlers:
-            if handler.type is None:
-                handlers['all'] = handler
-            elif isinstance(handler.type, ast.Name):
-                handlers[handler.type.id] = handler
-            elif isinstance(handler.type, ast.Tuple):
+            if isinstance(handler.type, ast.Tuple):
+                # of form -- except TypeError, KeyError
                 for el in handler.type.elts:
-                    handlers[el.id] = handler
+                    handlers[el.id] = self.parse_handler(handler)
             else:
-                # do nothing, don't know what to do!
-                pass
+                # either general handler, or single error handler
+                k = 'all' if not handler.type else handler.type.id
+                handlers[k] = self.parse_handler(handler)
 
         self.out.append({
-            "try_except": node,
+            "node": node,
             "body": node.body,
-            "orelse": node.orelse,
-            "finalbody": node.finalbody,
+            "orelse": node.orelse or None,
+            "finalbody": node.finalbody or None,
             "handlers": handlers
         })
+
+    @staticmethod
+    def parse_handler(handler): return {
+                'node': handler.body,
+                'target_vars': handler.name
+                }
 
 parser_dict = {
         "object_accesses": ObjectAccessParser,
