@@ -475,25 +475,28 @@ class FunctionDefParser(Parser):
         self.out = {}
 
     def visit_FunctionDef(self, node):
-        normal_args = Parser.get_arg_tuples(node.args.args, node.args.defaults)
-        kwonlyargs = Parser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
+        self.out[node.name] = self.parse_node(node)
+
+
+    @classmethod
+    def parse_node(cls, node):
+        normal_args = cls.get_arg_tuples(node.args.args, node.args.defaults)
+        kwonlyargs = cls.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
         # TODO: all single args should be tuples like this
-        vararg = Parser.get_arg(node.args.vararg)
-        kwarg = Parser.get_arg(node.args.kwarg)
+        vararg = cls.get_arg(node.args.vararg)
+        kwarg =  cls.get_arg(node.args.kwarg)
         # create context variables
         target_vars = [arg[0] for arg in normal_args]
         if vararg: target_vars.append(vararg)
         if kwarg:  target_vars.append(kwarg)
-
-
         
-        self.out[node.name] = {
+        return {
             "node": node,
             "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
             # TODO: arg is the node counterpart to target_vars
-            "arg": self.get_arg_parts(node.args.args, node.args.defaults),
-            "vararg": self.get_arg_part(node.args.vararg, None),
-            "kwarg":  self.get_arg_part(node.args.kwarg, None),
+            "arg": cls.get_arg_parts(node.args.args, node.args.defaults),
+            "vararg": cls.get_arg_part(node.args.vararg, None),
+            "kwarg":  cls.get_arg_part(node.args.kwarg, None),
             "body": FunctionBodyTransformer().visit(ast.Module(node.body)),
             "target_vars": target_vars
         }
@@ -545,15 +548,7 @@ class LambdaFunctionParser(Parser):
         self.visit_each(node.finalbody)
 
     def visit_Lambda(self, node):
-        normal_args = Parser.get_arg_tuples(node.args.args, node.args.defaults)
-        kwonlyargs = Parser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
-        vararg = Parser.get_arg(node.args.vararg)
-        kwarg = Parser.get_arg(node.args.kwarg)
-        self.out.append({
-            "fun": node,
-            "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
-            "body": node.body
-        })
+        self.out.append(FunctionDefParser.parse_node(node))
 
 
 class CompParser(Parser):

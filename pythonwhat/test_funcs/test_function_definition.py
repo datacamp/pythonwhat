@@ -9,14 +9,15 @@ from pythonwhat.tasks import getTreeResultInProcess, getFunctionCallResultInProc
 from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_part, has_equal_part_len, has_equal_part, has_equal_value
 
 from pythonwhat.sub_test import sub_test
+from functools import partial
 
-MSG_MISSING = "You didn't define the following function: `{typestr}()`."
-MSG_PREPEND = "Check your definition of `{typestr}()`. "
+MSG_MISSING = "You didn't define the following function: {typestr}."
+MSG_PREPEND = "Check your definition of {typestr}. "
 
-MSG_NUM_ARGS = "You should define `{parent[typestr]}()` with {sol_len} arguments, instead got {stu_len}."
+MSG_NUM_ARGS = "You should define {parent[typestr]} with {sol_len} arguments, instead got {stu_len}."
 
-MSG_PREPEND_ARG = "In your definition of `{typestr}()`, " 
-MSG_BAD_ARG_NAME = "the {parent[part]} should be called `{sol_part[name]}`, instead got `{stu_part[name]}`."
+MSG_PREPEND_ARG = "In your definition of {typestr}, " 
+MSG_BAD_ARG_NAME = "the {parent[ordinal]} {parent[part]} should be called `{sol_part[name]}`, instead got `{stu_part[name]}`."
 MSG_BAD_DEFAULT = "the {parent[part]} `{stu_part[name]}` should have no default."
 MSG_INC_DEFAULT = "the {parent[part]} `{stu_part[name]}` does not have the correct default."
 
@@ -115,36 +116,19 @@ def test_function_definition(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_function_definition")
 
-    child = check_node('function_defs', name, name, MSG_MISSING, MSG_PREPEND if expand_message else "", state=state)
+    # what the function will be referred to as
+    typestr = "`{}()`".format(name)
+    get_func_child = partial(check_node, 'function_defs', name, typestr, not_called_msg or MSG_MISSING, state=state)
+    child =  get_func_child(expand_msg = MSG_PREPEND if expand_message else "")
 
     # make a temporary child state, to reflect that there were two types of 
     # messages prepended in the original function
-    quiet_child = check_node('function_defs', name, name, MSG_MISSING, "", state=state)
-    prep_child2 = check_node('function_defs', name, name, MSG_MISSING, MSG_PREPEND_ARG, state=state)
+    quiet_child = get_func_child(expand_msg = "")
+    prep_child2 = get_func_child(expand_msg = MSG_PREPEND_ARG)
 
-    if arg_names or arg_defaults:
-        has_equal_part_len('arg', nb_args_msg or MSG_NUM_ARGS, state=quiet_child)
-
-        for ii in range(len(child.solution_parts['arg'])):
-            arg_state = check_part_index('arg', ii, 'argument', "NO MISSING MSG", state=prep_child2)
-            # test exact name
-            has_equal_part('name', MSG_BAD_ARG_NAME, arg_state)
-            # test defaults
-            if arg_defaults:
-                # test whether is default
-                has_equal_part('is_default', MSG_BAD_DEFAULT, arg_state)
-                # test default value, use if to prevent running a process no default
-                if arg_state.solution_parts['is_default']:
-                    has_equal_value(MSG_INC_DEFAULT, arg_state)
-
-        # test *args and **kwargs
-        if child.solution_parts['vararg']:
-            vararg = check_part('vararg', "", missing_msg = MSG_NO_VARARG, state = prep_child2)
-            has_equal_part('name', MSG_VARARG_NAME, vararg)
-        
-        if child.solution_parts['kwarg']:
-            kwarg = check_part('kwarg', "", missing_msg = MSG_NO_KWARGS, state = prep_child2)
-            has_equal_part('name', MSG_KWARG_NAME, kwarg)
+    test_args(arg_names, arg_defaults, 
+              nb_args_msg, arg_names_msg, arg_defaults_msg,
+              prep_child2, quiet_child)
 
     multi(body, state=check_part('body', "", child))
 
@@ -276,90 +260,33 @@ def fix_format(arguments):
 
     return(arguments)
 
-def test_args(rep, arg_names, arg_defaults, args_student, args_solution,
-              fun_def, nb_args_msg, arg_names_msg, arg_defaults_msg,
-              student_process, solution_process, name):
-
+def test_args(arg_names, arg_defaults, 
+              nb_args_msg, arg_names_msg, arg_defaults_msg, 
+              child, quiet_child):
     if arg_names or arg_defaults:
-        nb_args_solution = len(args_solution)
-        nb_args_student = len(args_student)
-        # MSG_NEED_ARGS
-        c_nb_args_msg = nb_args_msg or \
-            ("You should define %s with %d arguments, instead got %d." %
-                (name, nb_args_solution, nb_args_student))
+        # test number of args
+        has_equal_part_len('arg', nb_args_msg or MSG_NUM_ARGS, state=quiet_child)
 
-        rep.do_test(EqualTest(nb_args_solution, nb_args_student, Feedback(c_nb_args_msg, fun_def)))
-        #
-
-        for i in range(nb_args_solution):
-            arg_name_solution, arg_default_solution = args_solution[i]
-            arg_name_student, arg_default_student = args_student[i]
-            if arg_names:
-                # MSG_BAD_ARG_NAME
-                c_arg_names_msg = arg_names_msg or \
-                    ("In your definition of %s, the %s argument should be called `%s`, instead got `%s`." %
-                        (name, get_ord(i+1), arg_name_solution, arg_name_student))
-                rep.do_test(
-                    EqualTest(arg_name_solution, arg_name_student, Feedback(c_arg_names_msg, fun_def)))
+        # iterate over each arg, testing name and default
+        for ii in range(len(child.solution_parts['arg'])):
+            # get argument state
+            arg_state = check_part_index('arg', ii, 'argument', "NO MISSING MSG", state=child)
+            # test exact name
+            has_equal_part('name', arg_names_msg or MSG_BAD_ARG_NAME, arg_state)
 
             if arg_defaults:
+                # test whether is default
+                has_equal_part('is_default', arg_defaults_msg or MSG_BAD_DEFAULT, arg_state)
+                # test default value, use if to prevent running a process no default
+                if arg_state.solution_parts['is_default']:
+                    has_equal_value(arg_defaults_msg or MSG_INC_DEFAULT, arg_state)
 
-                if arg_defaults_msg is None:
-                    # MSG_BAD_DEFAULT
-                    if arg_default_solution is None:
-                        c_arg_defaults_msg = "In your definition of %s, the argument `%s` should have no default." % (name, arg_name_student)
-                    else :
-                        c_arg_defaults_msg = "In your definition of %s, the argument `%s` does not have the correct default." % (name, arg_name_student)
-                else :
-                    c_arg_defaults_msg = arg_defaults_msg
+        # test *args and **kwargs
+        if child.solution_parts['vararg']:
+            vararg = check_part('vararg', "", missing_msg = MSG_NO_VARARG, state = child)
+            has_equal_part('name', MSG_VARARG_NAME, vararg)
+        
+        if child.solution_parts['kwarg']:
+            kwarg = check_part('kwarg', "", missing_msg = MSG_NO_KWARGS, state = child)
+            has_equal_part('name', MSG_KWARG_NAME, kwarg)
 
-                if arg_default_solution is None:
-                    if arg_default_student is not None:
-                        #rep.do_test(Test(Feedback(c_arg_defaults_msg, arg_default_student)))
-                        return
-                else:
-                    if arg_default_student is None:
-                        #rep.do_test(Test(Feedback(c_arg_defaults_msg, fun_def)))
-                        return
-                    else:
-                        eval_solution, str_solution = getTreeResultInProcess(tree = arg_default_solution, process = solution_process)
-                        if str_solution is None:
-                            raise ValueError("Evaluating a default argument in the solution environment raised an error")
-                        if isinstance(eval_solution, ReprFail):
-                            raise ValueError("Couldn't figure out the value of a default argument: " + eval_solution.info)
-
-                        eval_student, str_student = getTreeResultInProcess(tree = arg_default_student, process = student_process)
-                        if str_student is None:
-                            rep.do_test(Test(Feedback(c_arg_defaults_msg, arg_default_student)))
-                        else :
-                            rep.do_test(EqualTest(eval_student, eval_solution, Feedback(c_arg_defaults_msg, arg_default_student)))
-
-
-def test_other_args(rep, arg_names, args_student, args_solution, fun_def, other_args_msg, name):
-    if arg_names:
-        patt = "In your definition of %s, have you specified an argument to take a `*` argument and named it `%s`?"
-        if args_solution['vararg'] is not None:
-            c_other_args_msg = other_args_msg or (patt % (name, args_solution['vararg']))
-            rep.do_test(EqualTest(args_solution['vararg'], args_student['vararg'], Feedback(c_other_args_msg, fun_def)))
-        patt = "In your definition of %s, have you specified an argument to take a `**` argument and named it `%s`?"
-        if args_solution['kwarg'] is not None:
-            c_other_args_msg = other_args_msg or (patt % (name, args_solution['kwarg']))
-            rep.do_test(EqualTest(args_solution['kwarg'], args_student['kwarg'], Feedback(c_other_args_msg, fun_def)))
-
-def test_body(rep, state, body,
-              subtree_student, subtree_solution,
-              args_student, args_solution,
-              name, expand_message):
-    sol_context = [arg[0] for arg in args_solution['args']]
-    stu_context = [arg[0] for arg in args_student['args']]
-    for var in ['vararg', 'kwarg']:
-        if args_solution[var]: sol_context += [args_solution[var]]
-        if args_student[var] : stu_context += [args_student[var]]
-
-    # TODO modified so it didn't change original message
-    #      but this could always be reimplimented with callbacks
-    feedback = "Check your definition of %s. " %name if expand_message else ""
-
-    sub_test(state, rep, body, subtree_student, subtree_solution, 
-             student_context = stu_context, solution_context = sol_context, 
-             expand_message=feedback)
