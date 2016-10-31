@@ -107,7 +107,9 @@ def test_comp(typestr, comptype, index, iter_vars_names,
 def has_iter_vars(incorrect_iter_vars_msg, exact_names=False, state=None):
     rep = Reporter.active_reporter
     # get parts for testing from state
-    stu_vars, sol_vars = state.student_parts['target_vars'], state.solution_parts['target_vars']
+    # TODO: this could be rewritten to use check_part_index -> has_equal_part, etc..
+    stu_vars = state.student_parts['_target_vars']
+    sol_vars = state.solution_parts['_target_vars']
     stu_target = state.student_parts['target']
 
     # variables exposed to messages

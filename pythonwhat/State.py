@@ -118,8 +118,8 @@ class State(object):
         if isinstance(solution_subtree, list):
             solution_subtree = ast.Module(solution_subtree)
 
-        if student_context is None: student_context = self.student_context.copy()
-        if solution_context is None: solution_context = self.solution_context.copy()
+        if student_context is None: student_context = copy(self.student_context)
+        if solution_context is None: solution_context = copy(self.solution_context)
         if not isinstance(append_message, dict): 
             append_message =  {'msg': append_message, 'kwargs': {}}
 

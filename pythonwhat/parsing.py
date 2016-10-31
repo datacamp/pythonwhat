@@ -1,4 +1,5 @@
 import ast
+from collections.abc import Sequence, Set
 
 """
 This file handles the parsing of the student and solution code. Generally, an abstract syntax tree
@@ -11,7 +12,26 @@ as well as some extra documentation:
     https://greentreesnakes.readthedocs.org/en/latest/
 """
 
+class TargetVars(Sequence, Set):
+    def __init__(self, target_vars):
+        # for now, make immutable
+        self.target_vars = tuple(target_vars)
 
+    def __getitem__(self, key):
+        return self.target_vars[key]
+
+    def __len__(self):
+        return len(self.target_vars)
+
+    def __str__(self):
+        """Format target vars for printing"""
+        tv = self.target_vars
+
+        if not tv: return ""
+        elif len(tv) == 1: return self.target_vars[0]
+        elif len(tv) >  1: return str(self.target_vars)
+
+        
 class Parser(ast.NodeVisitor):
     """Basic parser.
 
@@ -60,12 +80,11 @@ class Parser(ast.NodeVisitor):
 
     @staticmethod
     def get_target_vars(target):
-        if isinstance(target, ast.Name):
-            return [target.id]
-        elif isinstance(target, ast.Tuple):
-            return [name.id for name in target.elts]
-        else:
-            return []
+        if isinstance(target, ast.Name):    tv = [target.id]
+        elif isinstance(target, ast.Tuple): tv = [name.id for name in target.elts]
+        else: tv = []
+
+        return TargetVars(tv)
 
     @staticmethod
     def get_arg(el):
@@ -455,13 +474,13 @@ class ForParser(Parser):
         self.out = []
 
     def visit_For(self, node):
+        tv = Parser.get_target_vars(node.target)
         self.out.append({
             'node': node,
             'iter': node.iter,
-            'body': node.body,
-            'orelse': node.orelse,
+            'body': {'node': node.body, 'target_vars': tv},
+            'orelse': {'node': node.orelse, 'target_vars': tv},
             'target': node.target,
-            'target_vars': Parser.get_target_vars(node.target)
             })
 
 
@@ -497,8 +516,7 @@ class FunctionDefParser(Parser):
             "arg": cls.get_arg_parts(node.args.args, node.args.defaults),
             "vararg": cls.get_arg_part(node.args.vararg, None),
             "kwarg":  cls.get_arg_part(node.args.kwarg, None),
-            "body": FunctionBodyTransformer().visit(ast.Module(node.body)),
-            "target_vars": target_vars
+            "body": {'node': FunctionBodyTransformer().visit(ast.Module(node.body)), 'target_vars': target_vars}
         }
 
 
@@ -571,13 +589,17 @@ class CompParser(Parser):
 
     def build_comp(self, node):
         target = node.generators[0].target
+        tv = Parser.get_target_vars(target)
+        ifs = node.generators[0].ifs
         self.out.append({
                 "node": node,
-                "body": node.elt,
+                "body": {'node': node.elt, 'target_vars': tv},
                 "target": target,
-                "target_vars": Parser.get_target_vars(target),
                 "iter": node.generators[0].iter,
-                "ifs": node.generators[0].ifs
+                "ifs":  [{'node': ifnode, 'target_vars': tv} for ifnode in ifs],
+                # TODO: 'private' _target_vars, since it shouldn't be set when selecting node,
+                #       see remarks in test_list_comp on rewriting
+                "_target_vars": tv
             })
 
 class ListCompParser(CompParser):
@@ -605,14 +627,18 @@ class DictCompParser(CompParser):
     """
     def visit_DictComp(self, node):
         target = node.generators[0].target
+        tv = Parser.get_target_vars(target)
+        ifs = node.generators[0].ifs
         self.out.append({
                 "node": node,
-                "key": node.key,
-                "value": node.value,
+                "key": {'node': node.key, 'target_vars': tv},
+                "value": {'node': node.value, 'target_vars': tv},
                 "target": target,
-                "target_vars": Parser.get_target_vars(target),
                 "iter": node.generators[0].iter,
-                "ifs": node.generators[0].ifs
+                "ifs": [{'node': ifnode, 'target_vars': tv} for ifnode in ifs],
+                # TODO: 'private' _target_vars, since it shouldn't be set when selecting node,
+                #       see remarks in test_list_comp on rewriting
+                "_target_vars": tv
             })
 
 
@@ -641,21 +667,20 @@ class WithParser(Parser):
 
     def visit_With(self, node):
         items = node.items
-        self.out.append({
-            "context": [{"context_expr" : ast.Expression(item.context_expr),
-                "optional_vars": item.optional_vars and WithParser.get_node_ids_in_list(item.optional_vars)} for item in items],
-            "body": node.body,
-            "node": node
-        })
+        context = [
+            {"node" : ast.Expression(item.context_expr),
+                "target_vars": self.get_target_vars(item.optional_vars) } 
+            for item in items]
 
-    def get_node_ids_in_list(node):
-        if isinstance(node, ast.Name):
-            node_ids = [node.id]
-        elif isinstance(node, ast.Tuple):
-            node_ids = [name.id for name in node.elts]
-        else:
-            node_ids = []
-        return node_ids
+        body_tv = []
+        for c in context: body_tv.extend(c['target_vars'])
+
+        self.out.append({
+            "context": context,
+            "body": node.body, #{'node': node.body, 'target_vars': TargetVars(body_tv)},
+            "node": node,
+            "n_vars": len(items)
+        })
 
 class TryExceptParser(Parser):
     def __init__(self):
@@ -679,7 +704,7 @@ class TryExceptParser(Parser):
             "body": node.body,
             "orelse": node.orelse or None,
             "finalbody": node.finalbody or None,
-            "handlers": handlers
+            "handlers": handlers,
         })
 
     @staticmethod

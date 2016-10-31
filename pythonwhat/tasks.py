@@ -220,11 +220,11 @@ def context_env_update(context_list, env):
     context_objs = []
     for context in context_list:
         context_obj = eval(
-            compile(context['context_expr'], '<context_eval>', 'eval'),
+            compile(context['node'], '<context_eval>', 'eval'),
             env)
         context_objs.append(context_obj)
         context_obj_init = context_obj.__enter__()
-        context_keys = context['optional_vars']
+        context_keys = context['target_vars']
         if context_keys is None:
             continue
         elif len(context_keys) == 1:

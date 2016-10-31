@@ -20,12 +20,12 @@ def part_to_child(stu_part, sol_part, append_message, state):
     return state.to_child_state(stu_part, sol_part, append_message = append_message)
 
 
-def check_part(name, part_msg, state=None, missing_msg=""):
+def check_part(name, part_msg, state=None, missing_msg="", expand_msg=""):
     """Return child state with name part as its ast tree"""
     rep = Reporter.active_reporter
 
     if not part_msg: part_msg = name
-    append_message = {'msg': "", 'kwargs': {'part': part_msg,}}
+    append_message = {'msg': expand_msg, 'kwargs': {'part': part_msg,}}
 
     has_part(name, missing_msg, state, append_message['kwargs'])
 
@@ -36,7 +36,7 @@ def check_part(name, part_msg, state=None, missing_msg=""):
 
 def check_part_index(name, index, part_msg, 
                      missing_msg="Define more {part}.", 
-                     state=None):
+                     state=None, expand_msg=""):
     """Return child state with indexed name part as its ast tree"""
 
     rep = Reporter.active_reporter
@@ -44,7 +44,7 @@ def check_part_index(name, index, part_msg,
     # create message
     ordinal = "" if isinstance(index, str) else get_ord(index+1)
 
-    append_message = {'msg': "", 
+    append_message = {'msg': expand_msg, 
                       'kwargs': {'part': part_msg, 'index': index, 'ordinal': ordinal}}
 
     # check there are enough parts for index
