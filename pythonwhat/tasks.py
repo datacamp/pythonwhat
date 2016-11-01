@@ -215,55 +215,52 @@ def getTreeErrorInProcess(tree, process, shell):
 
 # Stuff for test_with
 
+from contextlib import ExitStack
 def context_env_update(context_list, env):
+    es = ExitStack()
     env_update = {}
-    context_objs = []
     for context in context_list:
-        context_obj = eval(
-            compile(context['node'], '<context_eval>', 'eval'),
+        cm = eval(
+            compile(ast.Expression(context['node']), '<context_eval>', 'eval'),
             env)
-        context_objs.append(context_obj)
-        context_obj_init = context_obj.__enter__()
+        cm_init = es.enter_context(cm)
         context_keys = context['target_vars']
         if not context_keys:
             continue
         elif len(context_keys) == 1:
             k = list(context_keys.keys())[0]
-            env_update[k] = context_obj_init
+            env_update[k] = cm_init
         else:
-            assert len(context_keys) == len(context_obj_init)
-            for (context_key, current_obj) in zip(context_keys, context_obj_init):
+            assert len(context_keys) == len(cm_init)
+            for (context_key, current_obj) in zip(context_keys, cm_init):
                 env_update[context_key] = current_obj
-    return (env_update, context_objs)
+    return env_update, es
 
 
 @process_task
 def setUpNewEnvInProcess(context, process, shell):
     shell.user_ns['__env__'] = utils.copy_env(shell.user_ns)
     try:
-        context_env, context_objs = context_env_update(context, shell.user_ns['__env__'])
+        context_env, es = context_env_update(context, shell.user_ns['__env__'])
         shell.user_ns['__env__'].update(context_env)
-        shell.user_ns['__context_obj__'] = context_objs
+        shell.user_ns['__exit_stack__'] = es
         return True
     except Exception as e:
         return e
 
 # break down environment
-def context_objs_exit(context_objs):
-    got_error = False
-    for context_obj in context_objs:
-        try:
-            context_obj.__exit__(*([None]*3))
-        except Exception as e:
-            got_error = e
-
-    return got_error
+def context_objs_exit(es):
+    try:
+        es.close()
+        return False
+    except Exception as e:
+        return e
 
 @process_task
 def breakDownNewEnvInProcess(process, shell):
     try:
-        res = context_objs_exit(shell.user_ns['__context_obj__'])
-        del shell.user_ns['__context_obj__']
+        res = context_objs_exit(shell.user_ns['__exit_stack__'])
+        del shell.user_ns['__exit_stack__']
         del shell.user_ns['__env__']
         return res
     except:
