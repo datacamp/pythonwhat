@@ -127,18 +127,18 @@ def has_equal_part_len(name, insufficient_msg, state=None):
     return state
 
 def has_equal_value(msg, state=None):
-    from pythonwhat.tasks import getTreeResultInProcess
+    from pythonwhat.tasks import getResultInProcess
     from pythonwhat.Test import EqualTest
     rep = Reporter.active_reporter
-    eval_solution, str_solution = getTreeResultInProcess(tree = state.solution_tree,
-                                                        process = state.solution_process)
+    eval_solution, str_solution = getResultInProcess(tree = state.solution_tree,
+                                                     process = state.solution_process)
     #if str_solution is None:
     #    raise ValueError("Evaluating a default argument in the solution environment raised an error")
     #if isinstance(eval_solution, ReprFail):
     #    raise ValueError("Couldn't figure out the value of a default argument: " + eval_solution.info)
 
-    eval_student, str_student = getTreeResultInProcess(tree = state.student_tree, 
-                                                    process = state.student_process)
+    eval_student, str_student = getResultInProcess(tree = state.student_tree, 
+                                                   process = state.student_process)
 
     _msg = state.build_message(msg, {'stu_part': state.student_parts, 'sol_part': state.solution_parts})
     feedback = Feedback(_msg, state.student_tree)
@@ -176,3 +176,12 @@ def quiet(n = 0, state=None):
     hushed = [{**m, 'msg': ""} for m in cpy.messages]
     cpy.messages = hushed
     return cpy
+
+def with_context(*args, state=None):
+    pass
+    # set context
+    # with ExitStack:
+    #     setup contexts...
+    #     multi(*args, state=state)
+    #
+    return state

@@ -6,7 +6,7 @@ from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
 from pythonwhat import utils
 from pythonwhat.utils import get_ord, get_num
 from .test_function_definition import test_args
-from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess, ReprFail
+from pythonwhat.tasks import getResultInProcess, getTreeErrorInProcess, ReprFail
 
 from pythonwhat.check_funcs import check_node, multi, check_part
 from functools import partial
@@ -97,14 +97,14 @@ def test_lambda_function(index,
         argstr = el.replace('lam', '')
 
         parsed.func = solution_fun
-        eval_solution, str_solution = getTreeResultInProcess(process = state.solution_process, tree = parsed)
+        eval_solution, str_solution = getResultInProcess(process = state.solution_process, tree = parsed)
         if str_solution is None:
             raise ValueError("Calling %s for arguments %s in the solution process resulted in an error" % (fun_name, argstr))
         if isinstance(eval_solution, ReprFail):
             raise ValueError("Can't get the result of calling %s for arguments %s: %s" % (fun_name, arg_str, eval_solution.info))
 
         parsed.func = student_fun
-        eval_student, str_student = getTreeResultInProcess(process = state.student_process, tree = parsed)
+        eval_student, str_student = getResultInProcess(process = state.student_process, tree = parsed)
 
         if str_student is None:
             c_wrong_result_msg = wrong_result_msg or \

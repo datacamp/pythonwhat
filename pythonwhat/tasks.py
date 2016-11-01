@@ -225,10 +225,11 @@ def context_env_update(context_list, env):
         context_objs.append(context_obj)
         context_obj_init = context_obj.__enter__()
         context_keys = context['target_vars']
-        if context_keys is None:
+        if not context_keys:
             continue
         elif len(context_keys) == 1:
-            env_update[context_keys[0]] = context_obj_init
+            k = list(context_keys.keys())[0]
+            env_update[k] = context_obj_init
         else:
             assert len(context_keys) == len(context_obj_init)
             for (context_key, current_obj) in zip(context_keys, context_obj_init):
@@ -437,8 +438,6 @@ def taskRunEval(tree,
 
 getResultInProcess = get_rep(taskRunEval)
 
-getObjectAfterExpressionInProcess = get_rep(taskRunEval)
-
 # Run a function call in process
 # TODO: should this run the function on the original environment? what about side effects?
 @process_task
@@ -450,7 +449,3 @@ def taskRunFunctionCall(fun_name, arguments, process, shell, tempname='_evaluati
         return None
 
 getFunctionCallResultInProcess = get_rep(taskRunFunctionCall)
-
-
-# Eval an expression tree in process
-getTreeResultInProcess = get_rep(taskRunEval)

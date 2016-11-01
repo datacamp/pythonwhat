@@ -1,5 +1,8 @@
 import ast
-from collections.abc import Sequence, Set
+from collections.abc import Sequence, Mapping
+from collections import OrderedDict
+from contextlib import ExitStack
+from functools import wraps
 
 """
 This file handles the parsing of the student and solution code. Generally, an abstract syntax tree
@@ -12,24 +15,52 @@ as well as some extra documentation:
     https://greentreesnakes.readthedocs.org/en/latest/
 """
 
-class TargetVars(Sequence, Set):
-    def __init__(self, target_vars):
-        # for now, make immutable
-        self.target_vars = tuple(target_vars)
+# TODO: will be used for with context variables
+#class TargetDefault:
+#    def __init__(self, targets, expr, is_with=True):
+#        self.targets = targets
+#        self.expr = expr
+#        self.is_with = self.is_with
+#    def __call__(self, env):
+#        exec(mod, env)
+#        yield
+#
+#    @staticmethod
+#    def create_assignment(target, expr):
+#        mod = ast.Module([ 
+#            ast.Assign(targets=[target], value=expr) 
+#            ])
+#        ast.fix_missing_locations(mod)
+#        return mod
+#
+#    @staticmethod
+#    def as_context(f):
+#        self.
+#        pass
 
-    def __getitem__(self, key):
-        return self.target_vars[key]
+class EmptyTargetVar: pass
 
-    def __len__(self):
-        return len(self.target_vars)
+class TargetVars(OrderedDict):
+    # TODO: shouldn't use mutable methods inherited from OrderedDict
+    #       can either delete, wrap, or avoid them
+    EMPTY = EmptyTargetVar
+
+    def __init__(self, target_vars=None):
+        # if only self, make a copy
+        if target_vars is None: super().__init__(self)
+        else:
+            super().__init__([(v, self.EMPTY) for v in target_vars])
 
     def __str__(self):
         """Format target vars for printing"""
-        tv = self.target_vars
 
-        if not tv: return ""
-        elif len(tv) == 1: return self.target_vars[0]
-        elif len(tv) >  1: return str(self.target_vars)
+        if len(self) >  1: return "({})".format(", ".join(self.keys()))
+        else: return "".join(self.keys())
+
+    def update(self, *args, **kwargs):
+        cpy = self.copy()
+        super(self.__class__, cpy).update(*args, **kwargs)
+        return cpy
 
         
 class Parser(ast.NodeVisitor):

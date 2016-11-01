@@ -1,11 +1,8 @@
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
-from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
-from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess, ReprFail
-from pythonwhat.utils import get_ord, get_num
+from pythonwhat.Test import EqualTest
+from pythonwhat.utils import get_ord
 from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_equal_part_len
-import copy
-
 
 MSG_NOT_CALLED = "The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
 MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} {typestr}. "
