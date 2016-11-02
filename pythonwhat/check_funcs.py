@@ -177,11 +177,34 @@ def quiet(n = 0, state=None):
     cpy.messages = hushed
     return cpy
 
+from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
 def with_context(*args, state=None):
-    pass
-    # set context
-    # with ExitStack:
-    #     setup contexts...
-    #     multi(*args, state=state)
-    #
+    # set up context in processes
+    solution_res = setUpNewEnvInProcess(process = state.solution_process,
+                                        context = state.solution_parts['with_items'])
+    if isinstance(solution_res, Exception):
+        raise Exception("error in the solution, running test_with() on with %d: %s" % (index - 1, str(solution_res)))
+
+    student_res = setUpNewEnvInProcess(process = state.student_process,
+                                       context = state.student_parts['with_items'])
+    if isinstance(student_res, AttributeError):
+        rep.do_test(Test(Feedback("In your %s `with` statement, you're not using a correct context manager." % (get_ord(index)), child.student_tree)))
+
+    if isinstance(student_res, (AssertionError, ValueError, TypeError)):
+        rep.do_test(Test(Feedback("In your %s `with` statement, the number of values in your context manager " + \
+            "doesn't correspond to the number of variables you're trying to assign it to." % (get_ord(index)), child.student_tree)))
+
+    # run subtests  
+    try: multi(*args, state=state)
+    finally:
+        # exit context
+        if breakDownNewEnvInProcess(process = state.solution_process):
+            raise Exception("error in the solution, closing the %s with fails with: %s" %
+                (get_ord(index), close_solution_context))
+
+        if breakDownNewEnvInProcess(process = state.student_process):
+
+            rep.do_test(Test(Feedback("Your %s `with` statement can not be closed off correctly, you're " + \
+                            "not using the context manager correctly." % (get_ord(index)), state.student_tree)),
+                        fallback_ast = state.student_tree)
     return state

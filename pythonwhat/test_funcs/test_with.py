@@ -3,7 +3,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import EqualTest, Test
 from pythonwhat import utils
 from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
-from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, quiet, has_equal_part
+from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, quiet, has_equal_part, with_context
 
 from functools import partial
 
@@ -70,29 +70,4 @@ with open_file('...') as file:
     if body is not None:
         body_state = check_part('body', 'body', state=child2)
 
-        solution_res = setUpNewEnvInProcess(process = body_state.solution_process,
-                                            context = child.solution_parts['context'])
-        if isinstance(solution_res, Exception):
-            raise Exception("error in the solution, running test_with() on with %d: %s" % (index - 1, str(solution_res)))
-
-        student_res = setUpNewEnvInProcess(process = state.student_process,
-                                           context = child.student_parts['context'])
-        if isinstance(student_res, AttributeError):
-            rep.do_test(Test(Feedback("In your %s `with` statement, you're not using a correct context manager." % (utils.get_ord(index)), child.student_tree)))
-
-        if isinstance(student_res, (AssertionError, ValueError, TypeError)):
-            rep.do_test(Test(Feedback("In your %s `with` statement, the number of values in your context manager " + \
-                "doesn't correspond to the number of variables you're trying to assign it to." % (utils.get_ord(index)), child.student_tree)))
-
-        try:
-            multi(body, state=body_state)
-        finally:
-            if breakDownNewEnvInProcess(process = state.solution_process):
-                raise Exception("error in the solution, closing the %s with fails with: %s" %
-                    (utils.get_ord(index), close_solution_context))
-
-            if breakDownNewEnvInProcess(process = state.student_process):
-
-                rep.do_test(Test(Feedback("Your %s `with` statement can not be closed off correctly, you're " + \
-                                "not using the context manager correctly." % (utils.get_ord(index)), child.student_tree)),
-                            fallback_ast = body_state.student_tree)
+        with_context(body, state=body_state)

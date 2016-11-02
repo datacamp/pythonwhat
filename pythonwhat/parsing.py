@@ -699,16 +699,18 @@ class WithParser(Parser):
     def visit_With(self, node):
         items = node.items
         context = [
-            {"node" : ast.Expression(item.context_expr),
-                "target_vars": self.get_target_vars(item.optional_vars) } 
+            {"node" : item.context_expr,
+             "target_vars": self.get_target_vars(item.optional_vars),
+             "with_items": item
+                } 
             for item in items]
 
-        body_tv = []
-        for c in context: body_tv.extend(c['target_vars'])
+        #body_tv = []
+        #for c in context: body_tv.extend(c['target_vars'])
 
         self.out.append({
             "context": context,
-            "body": node.body, #{'node': node.body, 'target_vars': TargetVars(body_tv)},
+            "body": {'node': node.body, 'with_items': items},
             "node": node,
             "n_vars": len(items)
         })

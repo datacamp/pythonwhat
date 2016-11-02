@@ -7,7 +7,7 @@ import ast
 import inspect
 import copy
 from pickle import PicklingError
-from pythonwhat.utils_env import set_context_vals
+from pythonwhat.utils_env import set_context_vals, assign_from_ast
 from contextlib import contextmanager
 from functools import partial, wraps
 
@@ -218,31 +218,25 @@ def getTreeErrorInProcess(tree, process, shell):
 from contextlib import ExitStack
 def context_env_update(context_list, env):
     es = ExitStack()
-    env_update = {}
-    for context in context_list:
-        cm = eval(
-            compile(ast.Expression(context['node']), '<context_eval>', 'eval'),
-            env)
-        cm_init = es.enter_context(cm)
-        context_keys = context['target_vars']
-        if not context_keys:
-            continue
-        elif len(context_keys) == 1:
-            k = list(context_keys.keys())[0]
-            env_update[k] = cm_init
-        else:
-            assert len(context_keys) == len(cm_init)
-            for (context_key, current_obj) in zip(context_keys, cm_init):
-                env_update[context_key] = current_obj
-    return env_update, es
+    for item in context_list:
+        # create context manager and enter
+        tmp_name = '__pw_cm'
+        cm_code = compile(ast.Expression(item.context_expr), '<context_eval>', 'eval')
+        env[tmp_name] = es.enter_context(eval(cm_code, env))
+
+        # assign to its optional_vars in separte dict
+        if item.optional_vars:
+            code = assign_from_ast(item.optional_vars, tmp_name)
+            exec(code, env)
+
+    return es
 
 
 @process_task
 def setUpNewEnvInProcess(context, process, shell):
     shell.user_ns['__env__'] = utils.copy_env(shell.user_ns)
     try:
-        context_env, es = context_env_update(context, shell.user_ns['__env__'])
-        shell.user_ns['__env__'].update(context_env)
+        es = context_env_update(context, shell.user_ns['__env__'])
         shell.user_ns['__exit_stack__'] = es
         return True
     except Exception as e:
@@ -254,6 +248,7 @@ def context_objs_exit(es):
         es.close()
         return False
     except Exception as e:
+        raise e
         return e
 
 @process_task
