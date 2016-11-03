@@ -126,6 +126,47 @@ for test in enumerate(areas) :
         self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"], count=1)
         self.test_Fail()
 
+    def test_Pass_spec(self):
+        self.data["DC_SCT"] = '''
+SPEC2 = True
+msg = "loopinggonewrong"
+Ex().check_for_call(0)\
+    .check_iter()\
+    .multi(test_function("enumerate", incorrect_msg=msg))
+
+#test_for_loop(1, for_iter=lambda msg=msg: test_function("enumerate", incorrect_msg = msg))
+
+#msg = "blabla"
+#test_for_loop(1, body=lambda msg=msg: test_expression_output(incorrect_msg = msg, context_vals = [2, "test"]))
+success_msg("Well done!")
+'''
+        self.test_Pass()
+
+#class TestForLoopNested(unittest.TestCase):
+#
+#    def setUp(self):
+#        self.data = {
+#            "DC_PEC": '',
+#            "DC_SOLUTION": '''
+#for ii in range(1, 2):
+#    for jj in list(range(ii)):
+#        x = sum([ii,jj])
+#            ''',
+#            "DC_SCT": '''
+#test_for_loop(body=
+#    test_for_loop(body=
+#        test_expression_result(context_vals=[1, 2], incorrect_msg="wronginnerfor")
+#        ))
+#
+#success_msg("Well done!")
+#        '''
+#        }
+#
+#    def test_Pass(self):
+#        self.data["DC_CODE"] = self.data['DC_SOLUTION']
+#        sct_payload = helper.run(self.data)
+#        self.assertTrue(sct_payload['correct'])
+
 
 if __name__ == "__main__":
     unittest.main()

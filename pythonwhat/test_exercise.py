@@ -3,6 +3,8 @@ from pythonwhat.utils import check_str, check_dict, check_process
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import TestFail
 from pythonwhat.probe import create_test_probes
+from pythonwhat.check_syntax import Chain
+from functools import partial
 
 # utilities for signatures
 cntxt = {}
@@ -57,9 +59,14 @@ def test_exercise(sct,
     State.set_active_state(state)
     State.TEST_TOP_LEVEL = True
     
+    cntxt['Ex'] = partial(Chain, state)
     tree, sct_cntxt = create_test_probes(cntxt)
     exec(sct, sct_cntxt)
 
+    # TODO: temporary trigger to run new spec unit tests until I
+    #       remove old style tests that are included in new style
+    #       syntax from the tree
+    if sct_cntxt.get('SPEC2'): return rep.build_payload(error)
     # check if no fails yet (can be because of syntax and indentation errors)
     if not rep.failed_test:
         for test in tree.descend(): test.update_child_calls()
