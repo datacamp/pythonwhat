@@ -17,7 +17,10 @@ def assign_from_ast(node, expr):
     
 
 def set_context_vals(env, context, context_vals = None):
+    crnt_ctx = context.context
+    env.update(**crnt_ctx.defined_items())
+    # support old test_* functions with context_val arguments
     if context_vals:
-        if len(context) == 1 != len(context_vals): context_vals = [context_vals]
+        if len(crnt_ctx) == 1 != len(context_vals): context_vals = [context_vals]
 
-        env.update({key: value for (key, value) in zip(context, context_vals)})
+        env.update({key: value for (key, value) in zip(crnt_ctx, context_vals)})

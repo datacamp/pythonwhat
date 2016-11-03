@@ -15,41 +15,20 @@ as well as some extra documentation:
     https://greentreesnakes.readthedocs.org/en/latest/
 """
 
-# TODO: will be used for with context variables
-#class TargetDefault:
-#    def __init__(self, targets, expr, is_with=True):
-#        self.targets = targets
-#        self.expr = expr
-#        self.is_with = self.is_with
-#    def __call__(self, env):
-#        exec(mod, env)
-#        yield
-#
-#    @staticmethod
-#    def create_assignment(target, expr):
-#        mod = ast.Module([ 
-#            ast.Assign(targets=[target], value=expr) 
-#            ])
-#        ast.fix_missing_locations(mod)
-#        return mod
-#
-#    @staticmethod
-#    def as_context(f):
-#        self.
-#        pass
-
 class EmptyTargetVar: pass
 
 class TargetVars(OrderedDict):
     # TODO: shouldn't use mutable methods inherited from OrderedDict
     #       can either delete, wrap, or avoid them
-    EMPTY = EmptyTargetVar
+    EMPTY = EmptyTargetVar()
 
-    def __init__(self, target_vars=None):
-        # if only self, make a copy
-        if target_vars is None: super().__init__(self)
-        else:
+    def __init__(self, target_vars=tuple(), is_empty=True):
+        if is_empty:
+            # list of [arg1, arg2, ...] -> {arg1: EMPTY, arg2: EMPTY, ...}
             super().__init__([(v, self.EMPTY) for v in target_vars])
+        elif target_vars:
+            # instantiate like normal ordered Dict
+            super().__init__(target_vars)
 
     def __str__(self):
         """Format target vars for printing"""
@@ -61,6 +40,9 @@ class TargetVars(OrderedDict):
         cpy = self.copy()
         super(self.__class__, cpy).update(*args, **kwargs)
         return cpy
+
+    def defined_items(self):
+        return self.__class__([(k, v) for k,v in self.items() if v is self.EMPTY], is_empty=False)
 
         
 class Parser(ast.NodeVisitor):
@@ -547,7 +529,7 @@ class FunctionDefParser(Parser):
             "arg": cls.get_arg_parts(node.args.args, node.args.defaults),
             "vararg": cls.get_arg_part(node.args.vararg, None),
             "kwarg":  cls.get_arg_part(node.args.kwarg, None),
-            "body": {'node': FunctionBodyTransformer().visit(ast.Module(node.body)), 'target_vars': target_vars}
+            "body": {'node': FunctionBodyTransformer().visit(ast.Module(node.body)), 'target_vars': TargetVars(target_vars)}
         }
 
 
@@ -743,7 +725,7 @@ class TryExceptParser(Parser):
     @staticmethod
     def parse_handler(handler): return {
                 'node': handler.body,
-                'target_vars': handler.name
+                'target_vars': TargetVars([handler.name])
                 }
 
 parser_dict = {

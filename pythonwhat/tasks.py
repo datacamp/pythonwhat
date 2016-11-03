@@ -169,7 +169,8 @@ def getOutputInProcess(tree, process, extra_env, context, context_vals,
     new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
     if extra_env is not None:
         new_env.update(copy.deepcopy(extra_env))
-    set_context_vals(new_env, context, context_vals)
+    if context is not None:
+        set_context_vals(new_env, context, context_vals)
     try:
         with capture_output() as out:
             if pre_code is not None:
@@ -395,7 +396,8 @@ def taskRunEval(tree,
     new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
     if extra_env is not None:
         new_env.update(copy.deepcopy(extra_env))
-    set_context_vals(new_env, context, context_vals)
+    if context is not None: 
+        set_context_vals(new_env, context, context_vals)
     try:
         # Execute pre_code if specified
         if pre_code: exec(pre_code, new_env)

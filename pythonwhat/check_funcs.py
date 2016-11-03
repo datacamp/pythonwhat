@@ -208,3 +208,20 @@ def with_context(*args, state=None):
                             "not using the context manager correctly." % (get_ord(index)), state.student_tree)),
                         fallback_ast = state.student_tree)
     return state
+
+def set_context(*args, state=None, **kwargs):
+    stu_crnt = state.student_context.context
+    sol_crnt = state.solution_context.context
+    # set args specified by pos ----
+    upd_stu = stu_crnt.update(dict(zip(sol_crnt.keys(), args)))
+    upd_sol = sol_crnt.update(dict(zip(stu_crnt.keys(), args)))
+
+    # set args specified by keyword ----
+    out_sol = upd_sol.update(kwargs)
+    # need to match keys in kwargs with corresponding keys in stu context
+    # in case they used, e.g., different loop variable names
+    match_keys = dict(zip(sol_crnt.keys(), stu_crnt.keys()))
+    out_stu = upd_stu.update({match_keys[k]: v for k,v in kwargs.items()})
+
+    state.to_child_state(student_subtree = None, solution_subtree = None,
+                         student_context = out_stu, solution_context = out_sol)

@@ -1,12 +1,35 @@
 import ast
 import inspect
 from copy import copy
-from pythonwhat.parsing import FunctionParser, ObjectAccessParser, parser_dict
+from pythonwhat.parsing import TargetVars, FunctionParser, ObjectAccessParser, parser_dict
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils_ast
 from pythonwhat import signatures
 from pythonwhat.converters import get_manual_converters
+from collections.abc import Mapping
+from itertools import chain
+
+class Context(Mapping):
+    def __init__(self, context=None, prev=None):
+        self.context = context if context else TargetVars()
+        self.prev = prev if prev else {}
+
+        self._items = {**self.prev, **self.context.defined_items()}
+
+    def update_ctx(self, new_ctx):
+        upd_prev = {**self.prev, **self.context.defined_items()}
+        return self.__class__(new_ctx, upd_prev)
+
+    def __getitem__(self, x):
+        return self._items[x]
+
+    def __iter__(self):
+        return iter(self._items)
+
+    def __len__(self):
+        return len(self._items)
+
 
 class State(object):
     """State of the SCT environment.
@@ -19,7 +42,10 @@ class State(object):
     active_state = None
     converters = get_manual_converters()
 
-    def __init__(self, student_parts=None, solution_parts=None, messages=None, **kwargs):
+    def __init__(self, 
+                 student_context=None, solution_context=None,
+                 student_parts=None, solution_parts=None, messages=None, 
+                 **kwargs):
 
         # Set basic fields from kwargs
         self.__dict__.update(kwargs)
@@ -41,11 +67,8 @@ class State(object):
         if not hasattr(self, 'parent_state'):
             self.parent_state = None
 
-        if not hasattr(self, 'student_context'):
-            self.student_context = []
-
-        if not hasattr(self, 'solution_context'):
-            self.solution_context = []
+        self.student_context  = Context(student_context)  if student_context is None else student_context
+        self.solution_context = Context(solution_context) if solution_context is None else solution_context
 
         self.converters = None
 
@@ -99,8 +122,12 @@ class State(object):
 
         return "".join(out_list)
 
-    def update_message_keys(self, **kwargs):
-        self.messages[-1]['kwargs'].update(kwargs)
+    @staticmethod
+    def update_context(old_ctx, new_targets):
+        # context is a tuple of old, new. Updates old and returns fresh tuple.
+        collapsed = {}
+        for ctx in old_ctx: collapsed.update(ctx)
+        return (collapsed, new_targets)
 
     def to_child_state(self, student_subtree, solution_subtree, 
                              student_context=None, solution_context=None,
@@ -118,8 +145,17 @@ class State(object):
         if isinstance(solution_subtree, list):
             solution_subtree = ast.Module(solution_subtree)
 
-        if student_context is None: student_context = copy(self.student_context)
-        if solution_context is None: solution_context = copy(self.solution_context)
+        # get new contexts
+        if solution_context is not None: 
+            solution_context = self.solution_context.update_ctx(solution_context)
+        else:
+            solution_context = self.solution_context
+
+        if student_context  is not None: 
+            student_context  = self.student_context.update_ctx(student_context)
+        else:
+            student_context = self.student_context
+
         if not isinstance(append_message, dict): 
             append_message =  {'msg': append_message, 'kwargs': {}}
 
