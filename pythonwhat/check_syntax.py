@@ -21,3 +21,6 @@ class Chain:
         self._state = self._crnt_sct(state=self._state, *args, **kwargs)
         assert isinstance(self._state, State)
         return self
+
+def Ex():
+    return Chain(State.active_state)

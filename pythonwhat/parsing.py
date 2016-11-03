@@ -42,7 +42,7 @@ class TargetVars(OrderedDict):
         return cpy
 
     def defined_items(self):
-        return self.__class__([(k, v) for k,v in self.items() if v is self.EMPTY], is_empty=False)
+        return self.__class__([(k, v) for k,v in self.items() if v is not self.EMPTY], is_empty=False)
 
         
 class Parser(ast.NodeVisitor):

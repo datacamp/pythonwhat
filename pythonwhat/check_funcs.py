@@ -223,5 +223,6 @@ def set_context(*args, state=None, **kwargs):
     match_keys = dict(zip(sol_crnt.keys(), stu_crnt.keys()))
     out_stu = upd_stu.update({match_keys[k]: v for k,v in kwargs.items()})
 
-    state.to_child_state(student_subtree = None, solution_subtree = None,
-                         student_context = out_stu, solution_context = out_sol)
+    return state.to_child_state(student_subtree = None, solution_subtree = None,
+                                student_context = out_stu, solution_context = out_sol)
+
