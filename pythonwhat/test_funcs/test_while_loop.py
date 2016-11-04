@@ -67,7 +67,7 @@ def test_while_loop(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_while_loop")
 
-    state = check_node('while_calls', index-1, "`while` loops", MSG_MISSING, MSG_PREPEND if expand_message else "", state=state)
+    state = check_node('whiles', index-1, "`while` loops", MSG_MISSING, MSG_PREPEND if expand_message else "", state=state)
 
     multi(test, state = check_part('test', 'condition', state))
     multi(body, state = check_part('body', 'body', state))

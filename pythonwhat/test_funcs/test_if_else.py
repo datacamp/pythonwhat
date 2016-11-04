@@ -71,7 +71,7 @@ def test_if_else(index=1,
 
 
     # get state with specific if block
-    node_name = 'if_exp_calls' if use_if_exp else 'if_calls'
+    node_name = 'if_exps' if use_if_exp else 'ifs'
     # TODO original typestr for check_node used if rather than `if`
     state = check_node(node_name, index-1, "if statement", MSG_MISSING, MSG_PREPEND if expand_message else "", state=state)
 

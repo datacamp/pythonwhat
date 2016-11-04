@@ -11,8 +11,8 @@ __PART_WRAPPERS__ = {
         'key' : 'key part',
         'value': 'value part',
         'orelse': 'else part',
-        'vararg': '(changeme) vararg part',
-        'kwarg':  '(changeme) kwarg part',
+        'vararg': 'vararg part',
+        'kwarg':  ' kwarg part',
         'test': 'condition' 
         }
 
@@ -26,13 +26,13 @@ __NODE_WRAPPERS__ = {
         'list_comp': 'list comprehension',
         'generator_exp': 'generator expression',
         'dict_comp': 'dictionary comprehension',
-        'for_call': 'for statement',
+        'for_loop': 'for statement',
         'function_def': 'function definition',
-        'if_exp_call': 'if expression',
-        'if_call': 'if statement',
+        'if_exp': 'if expression',
+        'if': 'if statement',
         'lambda_function': 'lambda function',
         'try_except': 'try statement',
-        'while_call': 'while statement',
+        'while': 'while statement',
         'with': 'with statement'
         }
 

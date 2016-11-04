@@ -130,7 +130,7 @@ for test in enumerate(areas) :
         self.data["DC_SCT"] = '''
 SPEC2 = True
 msg = "loopinggonewrong"
-forl = Ex().check_for_call(0)
+forl = Ex().check_for_loop(0)
 
 forl.check_iter()\
     .multi(test_function("enumerate", incorrect_msg=msg))
@@ -155,10 +155,10 @@ for ii in range(1, 2):
             ''',
             "DC_SCT": '''
 
-Ex().check_for_call(0)\
+Ex().check_for_loop(0)\
     .check_body()\
     .set_context(ii=1)\
-        .check_for_call(0)\
+        .check_for_loop(0)\
         .check_body()\
         .set_context(jj=2)\
         .multi(test_function('sum', incorrect_msg="wronginnerfor"))

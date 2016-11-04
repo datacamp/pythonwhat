@@ -64,7 +64,7 @@ def test_for_loop(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_for_loop")
 
-    state = check_node('for_calls', index-1, "`for` loops", MSG_MISSING, MSG_PREPEND, state=state)
+    state = check_node('for_loops', index-1, "`for` loops", MSG_MISSING, MSG_PREPEND, state=state)
 
     # TODO for_iter is a level up, so shouldn't have targets set, but this is done is check_node
     multi(for_iter, state = check_part('iter', 'sequence part', state))
