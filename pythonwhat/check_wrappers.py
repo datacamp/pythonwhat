@@ -1,6 +1,7 @@
 from pythonwhat.check_funcs import check_part, check_part_index, check_node
 from pythonwhat import check_funcs
 from pythonwhat.State import State
+from pythonwhat.probe import Node
 from functools import partial, wraps
 import inspect
 
@@ -53,6 +54,18 @@ def state_dec(f):
     
     return wrapper
 
+def multi_dec(f):
+    """Decorator for multi to remove nodes for original test functions from root node"""
+
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        args = args[0] if len(args) == 1 and hasattr(args[0], '__iter__') else args
+        for arg in args:
+            if isinstance(arg, Node) and arg.parent.name is 'root':
+                arg.parent.remove_child(arg)
+                arg.update_child_calls()
+        return f(*args, **kwargs)
+    return wrapper
 
 scts = {}
 
@@ -66,6 +79,8 @@ for k, v in __PART_INDEX_WRAPPERS__.items():
 for k, v in __NODE_WRAPPERS__.items():
     scts['check_'+k] = state_dec(partial(check_node, k+'s', typestr=v))
 
-for k in ['multi', 'set_context', 'has_equal_value']:
+for k in ['set_context', 'has_equal_value', 'extend']:
     scts[k] = state_dec(getattr(check_funcs, k))
 
+
+scts['multi'] = multi_dec(state_dec((check_funcs.multi)))

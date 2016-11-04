@@ -127,16 +127,16 @@ def has_equal_part_len(name, insufficient_msg, state=None):
     return state
 
 def has_equal_value(msg, state=None):
-    from pythonwhat.tasks import getResultInProcess
+    from pythonwhat.tasks import getResultInProcess, ReprFail
     from pythonwhat.Test import EqualTest
     rep = Reporter.active_reporter
     eval_solution, str_solution = getResultInProcess(tree = state.solution_tree,
                                                      context = state.solution_context,
                                                      process = state.solution_process)
-    #if str_solution is None:
-    #    raise ValueError("Evaluating a default argument in the solution environment raised an error")
-    #if isinstance(eval_solution, ReprFail):
-    #    raise ValueError("Couldn't figure out the value of a default argument: " + eval_solution.info)
+    if str_solution is None:
+        raise ValueError("Evaluating a default argument in the solution environment raised an error")
+    if isinstance(eval_solution, ReprFail):
+        raise ValueError("Couldn't figure out the value of a default argument: " + eval_solution.info)
 
     eval_student, str_student = getResultInProcess(tree = state.student_tree, 
                                                    context = state.student_context,
@@ -149,6 +149,16 @@ def has_equal_value(msg, state=None):
     else :
         rep.do_test(EqualTest(eval_student, eval_solution, feedback))
 
+    return state
+
+def extend(*args, state=None):
+    """Run multiple subtests in sequence, each using the output state of the previous."""
+
+    # when input is a single list of subtests
+    args = args[0] if len(args) == 1 and hasattr(args[0], '__iter__') else args
+
+    for test in args: state = test(state=state)  # run tests sequentially
+    return state                                 # return final state for chaining
 
 def multi(*args, state=None):
     """Run multiple subtests. Return original state (for chaining)."""

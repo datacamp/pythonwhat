@@ -62,19 +62,14 @@ def test_exercise(sct,
     State.TEST_TOP_LEVEL = True
     
     tree, sct_cntxt = create_test_probes(cntxt)
-    exec(sct, sct_cntxt)
 
-    # TODO: temporary trigger to run new spec unit tests until I
-    #       remove old style tests that are included in new style
-    #       syntax from the tree
-    if sct_cntxt.get('SPEC2'): return rep.build_payload(error)
-    # check if no fails yet (can be because of syntax and indentation errors)
-    if not rep.failed_test:
-        for test in tree.descend(): test.update_child_calls()
-        try:
+    try:
+        exec(sct, sct_cntxt)
+        if not rep.failed_test:
+            for test in tree.descend(): test.update_child_calls()
             for test in tree.crnt_node: 
                 test(state)
-        except TestFail: pass
+    except TestFail: pass
 
     return(rep.build_payload(error))
 

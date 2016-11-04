@@ -155,7 +155,6 @@ for ii in range(1, 2):
             ''',
             "DC_SCT": '''
 
-SPEC2 = True
 Ex().check_for_call(0)\
     .check_body()\
     .set_context(ii=1)\
