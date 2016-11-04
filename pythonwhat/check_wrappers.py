@@ -66,6 +66,6 @@ for k, v in __PART_INDEX_WRAPPERS__.items():
 for k, v in __NODE_WRAPPERS__.items():
     scts['check_'+k] = state_dec(partial(check_node, k+'s', typestr=v))
 
-for k in ['multi', 'set_context']:
-    scts[k] = getattr(check_funcs, k)
+for k in ['multi', 'set_context', 'has_equal_value']:
+    scts[k] = state_dec(getattr(check_funcs, k))
 

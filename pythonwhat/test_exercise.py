@@ -4,6 +4,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import TestFail
 from pythonwhat.probe import create_test_probes
 from functools import partial
+from pythonwhat.check_syntax import Chain
 
 # utilities for signatures
 cntxt = {}
@@ -13,7 +14,7 @@ imports = """
 from inspect import Parameter as param
 from pythonwhat.signatures import sig_from_params, sig_from_obj
 from pythonwhat.State import set_converter
-from pythonwhat.check_syntax import Ex
+from pythonwhat.check_syntax import F, Ex
 """
 exec(imports, None, cntxt)
 
@@ -57,6 +58,7 @@ def test_exercise(sct,
         raw_student_output = check_str(raw_student_output))
 
     State.set_active_state(state)
+    State.root_state = state
     State.TEST_TOP_LEVEL = True
     
     tree, sct_cntxt = create_test_probes(cntxt)

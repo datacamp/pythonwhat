@@ -1,6 +1,6 @@
 from pythonwhat.check_wrappers import scts
 from pythonwhat.State import State
-from functools import partial
+from functools import partial, reduce, wraps
 import copy
 
 class Chain:
@@ -22,5 +22,18 @@ class Chain:
         assert isinstance(self._state, State)
         return self
 
+class F(Chain):
+    def __init__(self, stack = None):
+        self._crnt_sct = None
+        self._stack = [] if stack is None else stack
+
+    def __call__(self, *args, **kwargs):
+        if not self._crnt_sct:
+            state = kwargs.get('state') or args[0]
+            return reduce(lambda s, f: f(state=s), self._stack, state)
+        else:
+            pf = self._crnt_sct(*args, **kwargs)
+            return self.__class__(self._stack + [pf])
+
 def Ex():
-    return Chain(State.active_state)
+    return Chain(State.root_state)
