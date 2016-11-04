@@ -99,6 +99,25 @@ Ex().check_with(1).check_body().with_context(for_test)
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_Fail1_spec2(self):
+        self.data["DC_SCT"] = '''
+Ex().check_with(0).check_body().with_context([test_function('print', index = i+1) for i in range(3)])
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Check the body of the first <code>with</code> statement.", sct_payload['message'])
+        # line info should be specific to test_function
+        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
+
+    def test_Pass1_spec2_no_ctx(self):
+        self.data["DC_SCT"] = '''
+# since the print func is being tested w/o SCTs setting any variables, don't need with_context
+for_test = test_for_loop(1, body = test_if_else(1, body = test_function('print')))
+Ex().check_with(1).check_body().multi(for_test)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 
 class TestExercise2(unittest.TestCase):
 
