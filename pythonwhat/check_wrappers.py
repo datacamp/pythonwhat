@@ -59,7 +59,7 @@ def multi_dec(f):
 
     @wraps(f)
     def wrapper(*args, **kwargs):
-        args = args[0] if len(args) == 1 and hasattr(args[0], '__iter__') else args
+        args = args[0] if len(args) == 1 and isinstance(args[0], (list, tuple)) else args
         for arg in args:
             if isinstance(arg, Node) and arg.parent.name is 'root':
                 arg.parent.remove_child(arg)
@@ -83,4 +83,5 @@ for k in ['set_context', 'has_equal_value', 'extend']:
     scts[k] = state_dec(getattr(check_funcs, k))
 
 
-scts['multi'] = multi_dec(state_dec((check_funcs.multi)))
+scts['multi'] = multi_dec(state_dec(check_funcs.multi))
+scts['with_context'] = multi_dec(state_dec(check_funcs.with_context))

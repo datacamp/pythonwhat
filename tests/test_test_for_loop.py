@@ -161,9 +161,7 @@ Ex().check_for_call(0)\
         .check_for_call(0)\
         .check_body()\
         .set_context(jj=2)\
-        .multi(test_expression_result(incorrect_msg="wronginnerfor"))
-
-success_msg("Well done!")
+        .multi(test_function('sum', incorrect_msg="wronginnerfor"))
         '''
         }
 
@@ -172,6 +170,15 @@ success_msg("Well done!")
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_Fail(self):
+        self.data["DC_CODE"] = '''
+for ii in range(1, 2):
+    for jj in list(range(ii)):
+        x = sum([ii+1,jj])
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn('wronginnerfor', sct_payload['message'])
 
 if __name__ == "__main__":
     unittest.main()

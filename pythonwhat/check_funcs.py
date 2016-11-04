@@ -165,7 +165,7 @@ def multi(*args, state=None):
     if any(args):
         rep = Reporter.active_reporter
         # when input is a single list of subtests
-        args = args[0] if len(args) == 1 and hasattr(args[0], '__iter__') else args
+        args = args[0] if len(args) == 1 and isinstance(args[0], (list, tuple)) else args
 
         for test in args:
             # assume test is function needing a state argument

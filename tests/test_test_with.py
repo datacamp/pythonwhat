@@ -91,6 +91,15 @@ success_msg("Nice work!")
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_Pass1_spec2(self):
+        self.data["DC_SCT"] = '''
+for_test = test_for_loop(1, body = test_if_else(1, body = test_function('print')))
+Ex().check_with(1).check_body().with_context(for_test)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+
 class TestExercise2(unittest.TestCase):
 
     def setUp(self):
