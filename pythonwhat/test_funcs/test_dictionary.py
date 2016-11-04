@@ -56,7 +56,7 @@ def test_dictionary(name,
         rep.do_test(DefinedCollProcessTest(name, key, student_process, Feedback(msg)))
 
 
-        sol_value = getValueInProcess(name, key, solution_process)
+        sol_value, sol_str = getValueInProcess(name, key, solution_process)
         if isinstance(sol_value, ReprFail):
             raise NameError("Value from %r can't be fetched from the solution process: %s" % c(name, sol_value.info))
 

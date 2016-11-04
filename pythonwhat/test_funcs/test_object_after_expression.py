@@ -7,7 +7,7 @@ from .test_object import get_assignment_node
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
 
-from pythonwhat.tasks import getResultInProcess
+from pythonwhat.tasks import getResultInProcess, UndefinedValue
 
 
 def test_object_after_expression(name,
@@ -111,7 +111,7 @@ def test_object_after_expression(name,
     if str_solution is None:
         raise ValueError("Running the expression in the solution environment caused an error.")
 
-    if str_student == "undefined" or str_student is None:
+    if isinstance(str_student, UndefinedValue) or str_student is None:
         rep.do_test(Test(undefined_msg))
         return
 
