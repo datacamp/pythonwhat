@@ -3,8 +3,8 @@ from pythonwhat.utils import check_str, check_dict, check_process
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import TestFail
 from pythonwhat.probe import create_test_probes
+from pythonwhat.check_syntax import spec_2_context
 from functools import partial
-from pythonwhat.check_syntax import Chain
 
 # utilities for signatures
 cntxt = {}
@@ -14,6 +14,7 @@ imports = """
 from inspect import Parameter as param
 from pythonwhat.signatures import sig_from_params, sig_from_obj
 from pythonwhat.State import set_converter
+# spec v2 functions
 from pythonwhat.check_syntax import F, Ex
 """
 exec(imports, None, cntxt)
@@ -62,6 +63,7 @@ def test_exercise(sct,
     State.TEST_TOP_LEVEL = True
     
     tree, sct_cntxt = create_test_probes(cntxt)
+    sct_cntxt.update(spec_2_context)
 
     try:
         exec(sct, sct_cntxt)
