@@ -131,6 +131,7 @@ def has_equal_value(msg, state=None):
     from pythonwhat.Test import EqualTest
     rep = Reporter.active_reporter
     eval_solution, str_solution = getResultInProcess(tree = state.solution_tree,
+                                                     context = state.solution_context,
                                                      process = state.solution_process)
     #if str_solution is None:
     #    raise ValueError("Evaluating a default argument in the solution environment raised an error")
@@ -138,6 +139,7 @@ def has_equal_value(msg, state=None):
     #    raise ValueError("Couldn't figure out the value of a default argument: " + eval_solution.info)
 
     eval_student, str_student = getResultInProcess(tree = state.student_tree, 
+                                                   context = state.student_context,
                                                    process = state.student_process)
 
     _msg = state.build_message(msg, {'stu_part': state.student_parts, 'sol_part': state.solution_parts})
