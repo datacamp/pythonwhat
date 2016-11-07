@@ -39,7 +39,6 @@ class State(object):
     after that.
 
     """
-    active_state = None
     converters = get_manual_converters()
 
     def __init__(self, 
@@ -122,13 +121,6 @@ class State(object):
 
         return "".join(out_list)
 
-    @staticmethod
-    def update_context(old_ctx, new_targets):
-        # context is a tuple of old, new. Updates old and returns fresh tuple.
-        collapsed = {}
-        for ctx in old_ctx: collapsed.update(ctx)
-        return (collapsed, new_targets)
-
     def to_child_state(self, student_subtree, solution_subtree, 
                              student_context=None, solution_context=None,
                              student_parts=None, solution_parts=None,
@@ -162,13 +154,9 @@ class State(object):
         messages = [*self.messages, append_message]
 
         if not (solution_subtree and student_subtree):
-            child = copy(self)
-            child.student_context = student_context
-            child.solution_context = solution_context
-            child.solution_parts = solution_parts
-            child.student_parts = student_parts
-            child.messages = messages
-            return child
+            return self.update(student_context = student_context, solution_context = solution_context,
+                               student_parts = student_parts, solution_parts = solution_parts,
+                               messages = messages)
 
         child = State(student_code = utils_ast.extract_text_from_node(self.full_student_code, student_subtree),
                       full_student_code = self.full_student_code,
@@ -185,13 +173,14 @@ class State(object):
                       solution_parts = solution_parts,
                       messages = messages,
                       parent_state = self)
-        State.set_active_state(child)
         return(child)
 
-    def to_parent_state(self):
-        if (self.parent_state):
-            State.set_active_state(self.parent_state)
-
+    def update(self, **kwargs):
+        """Return a copy of set, setting kwargs as attributes"""
+        child = copy(self)
+        for k, v in kwargs.items():
+            setattr(child, k, v)
+        return child
 
     @staticmethod
     def parse_ext(x):
@@ -246,10 +235,6 @@ class State(object):
                 res = False
 
         return(res)
-
-    @staticmethod
-    def set_active_state(state):
-        State.active_state = state
 
 # add property methods for retrieving parser outputs --------------------------
 # note that this code is an alternative means of using something like..

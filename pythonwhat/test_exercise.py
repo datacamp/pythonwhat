@@ -58,9 +58,7 @@ def test_exercise(sct,
         solution_process = check_process(solution_process),
         raw_student_output = check_str(raw_student_output))
 
-    State.set_active_state(state)
     State.root_state = state
-    State.TEST_TOP_LEVEL = True
     
     tree, sct_cntxt = create_test_probes(cntxt)
     sct_cntxt.update(spec_2_context)
