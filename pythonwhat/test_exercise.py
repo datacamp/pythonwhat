@@ -64,10 +64,9 @@ def test_exercise(sct,
     sct_cntxt.update(spec_2_context)
 
     try:
-        exec(sct, sct_cntxt)
         if not rep.failed_test:
-            for test in tree.descend(): test.update_child_calls()
-            for test in tree.crnt_node: 
+            exec(sct, sct_cntxt)         # Spec v2 tests run immediately
+            for test in tree.crnt_node:  # Spec v1 tests run after
                 test(state)
     except TestFail: pass
 

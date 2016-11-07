@@ -100,11 +100,10 @@ Ex().check_list_comp(0).check_body().has_equal_value('unequal')
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
 
-    @unittest.expectedFailure
     def test_spec_run_order(self):
         self.data["DC_CODE"] = '''[aa for aa in range(2)]'''
         self.data["DC_SCT"]  =  '''
-test_list_comp(body=test_expression_result(extra_env={'aa': 2}, incorrect_msg = 'spec1'))
+Ex().test_list_comp(body=test_expression_result(extra_env={'aa': 2}, incorrect_msg = 'spec1'))
 Ex().check_list_comp(0).check_body().set_context(aa=2).has_equal_value('spec2')
 '''
         sct_payload = helper.run(self.data)

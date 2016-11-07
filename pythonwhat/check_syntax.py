@@ -1,9 +1,13 @@
 from pythonwhat.check_wrappers import scts
 from pythonwhat.State import State
-from pythonwhat.probe import Node
+from pythonwhat.probe import Node, Probe, TEST_NAMES
+from pythonwhat import test_funcs
 from functools import partial, reduce, wraps
 import inspect
 import copy
+
+# TODO: could define scts for check_wrappers at the module level
+ATTR_SCTS = scts.copy()
 
 def multi_dec(f):
     """Decorator for multi to remove nodes for original test functions from root node"""
@@ -43,12 +47,12 @@ class Chain:
         self._crnt_sct = None
 
     def __getattr__(self, attr):
-        if attr not in scts: raise AttributeError("No SCT named %s"%attr)
+        if attr not in ATTR_SCTS: raise AttributeError("No SCT named %s"%attr)
         else:
             # make a copy to return, 
             # in case someone does: a = chain.a; b = chain.b
             chain = copy.copy(self)
-            chain._crnt_sct = scts[attr]
+            chain._crnt_sct = ATTR_SCTS[attr]
             return chain
 
     def __call__(self, *args, **kwargs):
@@ -78,8 +82,14 @@ class F(Chain):
 def Ex():
     return Chain(State.root_state)
 
-# Prepare scts ----------------------
+# Prepare SCTs that may be chained attributes ----------------------
+# decorate functions that may try to run test_* function nodes as subtests
+# so they remove those nodes from the tree
 for k in ['multi', 'with_context']:
-    scts[k] = multi_dec(scts[k])
+    ATTR_SCTS[k] = multi_dec(ATTR_SCTS[k])
+# allow test_* functions as chained attributes
+for k in TEST_NAMES:
+    ATTR_SCTS[k] = Probe(tree = None, f = getattr(test_funcs, k), eval_on_call=True)
 
+# Prepare check_funcs to be used alone (e.g. test = check_with().check_body())
 spec_2_context = {k : state_dec(v) for k, v in scts.items()}

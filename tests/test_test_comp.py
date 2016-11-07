@@ -104,6 +104,12 @@ test_list_comp(index=1,
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_pass_exchain(self):
+        self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if isinstance(key, str) if isinstance(val, str)]"
+        self.data["DC_SCT"] = "Ex().\\" + helper.remove_lambdas(self.data["DC_SCT"])
+        
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
 class TestListCompStepByStepCustom(unittest.TestCase):
 

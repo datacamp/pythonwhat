@@ -71,6 +71,10 @@ for i in range(10):
         self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"], count=1)
         self.test_Fail()
 
+    def test_Pass_exchain(self):
+        self.data["DC_SCT"] = "Ex().\\" + helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Pass()
+
 
 class TestForLoop2(unittest.TestCase):
 
