@@ -359,5 +359,29 @@ success_msg("NICE WORK!!!!")
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+class TestDestructuring(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '''
+class A:
+    def __enter__(self): return [1,2, 3]
+    def __exit__(self, *args, **kwargs): return
+            ''',
+            "DC_SOLUTION": '''
+with A() as (one, *others):
+    print(one)
+    print(others)
+''',
+            "DC_SCT": '''
+test_with(1, body=[test_function('print'), test_function('print')])
+'''
+        }
+                
+    def test_pass(self):
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+
 if __name__ == "__main__":
     unittest.main()

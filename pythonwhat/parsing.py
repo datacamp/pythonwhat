@@ -99,8 +99,11 @@ class Parser(ast.NodeVisitor):
 
     @staticmethod
     def get_target_vars(target):
-        if isinstance(target, ast.Name):    tv = [target.id]
-        elif isinstance(target, ast.Tuple): tv = [name.id for name in target.elts]
+        get_id = lambda n: n.id if not isinstance(n, ast.Starred) else n.value.id
+        if isinstance(target, (ast.Name, ast.Starred)):    
+            tv = [get_id(target)]
+        elif isinstance(target, ast.Tuple): 
+            tv = [get_id(node) for node in target.elts]
         else: tv = []
 
         return TargetVars(tv)
