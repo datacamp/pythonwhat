@@ -9,7 +9,7 @@ from functools import partial
 
 MSG_MISSING = "Define more `with` statements."
 MSG_PREPEND = "In your {ordinal} {typestr}, "
-MSG_PREPEND2 = "Check the {child[part]} in the {ordinal} `with` statement. "
+MSG_PREPEND2 = "Check the {child[part]} of the {ordinal} `with` statement. "
 MSG_NUM_CTXT = "make sure to use the correct number of context variables. It seems you defined too many."
 MSG_NUM_CTXT2 = "make sure to use the correct number of context variables. It seems you defined too little."
 MSG_CTXT_NAMES = "make sure to use the correct context variable names. Was expecting `{sol_part[target_vars]}` but got `{stu_part[target_vars]}`."
@@ -37,8 +37,10 @@ with open_file('...') as file:
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_with")
 
-    child = check_node('withs', index-1, "`with` statement", MSG_MISSING, MSG_PREPEND, state = state)
-    child2 = check_node('withs', index-1, "`with` statement", MSG_MISSING, MSG_PREPEND2, state = state)
+    check_with = partial(check_node, 'withs', index-1, "`with` statement", MSG_MISSING, state=state)
+
+    child =  check_with(MSG_PREPEND  if expand_message else "")
+    child2 = check_with(MSG_PREPEND2 if expand_message else "")
     quiet_child = quiet(1, child)
 
     if context_vals:

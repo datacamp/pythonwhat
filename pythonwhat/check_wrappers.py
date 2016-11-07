@@ -30,8 +30,8 @@ __NODE_WRAPPERS__ = {
         'if': 'if statement',
         'lambda_function': 'lambda function',
         'try_except': 'try statement',
-        'while': 'while statement',
-        'with': 'with statement'
+        'while': '`while` loop',
+        'with': '`with` statement'
         }
 
 scts = {}

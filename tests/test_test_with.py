@@ -105,7 +105,7 @@ Ex().check_with(0).check_body().with_context([test_function('print', index = i+1
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check the body of the first <code>with</code> statement.", sct_payload['message'])
+        self.assertIn("Check your code in the body of the first <code>with</code> statement.", sct_payload['message'])
         # line info should be specific to test_function
         helper.test_lines(self, sct_payload, 6, 6, 11, 16)
 
@@ -250,7 +250,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check the second context in the second <code>with</code> statement. Did you call <code>open()</code> with the correct arguments? The first argument seems to be incorrect.")
+        self.assertEqual(sct_payload['message'], "Check the second context of the second <code>with</code> statement. Did you call <code>open()</code> with the correct arguments? The first argument seems to be incorrect.")
         helper.test_lines(self, sct_payload, 12, 12, 46, 60)
 
 class TestExercise4(unittest.TestCase):

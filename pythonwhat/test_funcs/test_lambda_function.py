@@ -77,7 +77,7 @@ def test_lambda_function(index,
     # make a temporary child states, to reflect that there were two types of 
     # messages prepended in the original function
     quiet_child = get_func_child(expand_msg = "")
-    prep_child2 = get_func_child(expand_msg =  MSG_PREPEND_ARG)
+    prep_child2 = get_func_child(expand_msg =  MSG_PREPEND_ARG if expand_message else "")
 
     test_args(arg_names, arg_defaults, 
               nb_args_msg, arg_names_msg, arg_defaults_msg, 
