@@ -17,31 +17,37 @@ as well as some extra documentation:
 
 class EmptyTargetVar: pass
 
-class TargetVars(OrderedDict):
-    # TODO: shouldn't use mutable methods inherited from OrderedDict
-    #       can either delete, wrap, or avoid them
+class TargetVars(Mapping):
+    """Immutable ordered mapping from target variables to their values."""
+
     EMPTY = EmptyTargetVar()
 
     def __init__(self, target_vars=tuple(), is_empty=True):
-        if is_empty:
-            # list of [arg1, arg2, ...] -> {arg1: EMPTY, arg2: EMPTY, ...}
-            super().__init__([(v, self.EMPTY) for v in target_vars])
-        elif target_vars:
-            # instantiate like normal ordered Dict
-            super().__init__(target_vars)
+        if is_empty: 
+            target_vars = [(v, self.EMPTY) for v in target_vars]
 
-    def __str__(self):
-        """Format target vars for printing"""
+        self._od = OrderedDict(target_vars)
 
-        if len(self) >  1: return "({})".format(", ".join(self.keys()))
-        else: return "".join(self.keys())
+    # getitem, len, iter wrap OrderedDict behavior
+    def __getitem__(self, k): return self._od.__getitem__(k)
+    def __len__(self):        return self._od.__len__()
+    def __iter__(self):       return self._od.__iter__()
 
     def update(self, *args, **kwargs):
         cpy = self.copy()
-        super(self.__class__, cpy).update(*args, **kwargs)
+        cpy._od.update(*args, **kwargs)
         return cpy
 
+    def copy(self):
+        return self.__class__(self._od)
+
+    def __str__(self):
+        """Format target vars for printing"""
+        if len(self) >  1: return "({})".format(", ".join(self._od.keys()))
+        else: return "".join(self._od.keys())
+
     def defined_items(self):
+        """Return copy of instance, omitting entries that are EMPTY"""
         return self.__class__([(k, v) for k,v in self.items() if v is not self.EMPTY], is_empty=False)
 
         
