@@ -392,16 +392,7 @@ def taskRunFunctionCall(fun_name, arguments, process, shell, tempname='_evaluati
         return None
 
 getFunctionCallResultInProcess = get_rep(taskRunFunctionCall)
-
-# Get output of function call in process
-@process_task
-def getFunctionCallOutputInProcess(fun_name, arguments, process, shell):
-    try:
-        with capture_output() as out:
-            get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
-        return out[0].strip()
-    except:
-        return None
+getFunctionCallOutputInProcess = partial(get_output, taskRunFunctionCall)
 
 # Get error of function call in process
 @process_task
