@@ -321,6 +321,11 @@ def get_output(f, process, shell, *args, **kwargs):
     if res is not None: 
         return out[0].strip()
 
+@process_task
+def get_error(f, process, shell, *args, **kwargs):
+    res = f(*args, process=process, shell=shell, **kwargs)
+    return res if instance(f, Exception) else None
+
 # General tasks to eval or exec code, with decorated counterparts -------------
 
 # Eval an expression tree or node (with setting envs, pre_code and/or expr_code)
@@ -373,11 +378,8 @@ getOutputInProcess = partial(get_output, taskRunEval)
 # Get the value linked to a key of a collection in the process
 @process_task
 def taskGetValue(name, key, process, shell, tempname='_evaluation_object_'):
-    try:
-        get_env(shell.user_ns)[tempname] = get_env(shell.user_ns)[name][key]
-        return True
-    except:
-        return None
+    get_env(shell.user_ns)[tempname] = get_env(shell.user_ns)[name][key]
+    return True
 
 getValueInProcess = get_rep(taskGetValue)
 
@@ -385,14 +387,12 @@ getValueInProcess = get_rep(taskGetValue)
 # TODO: should this run the function on the original environment? what about side effects?
 @process_task
 def taskRunFunctionCall(fun_name, arguments, process, shell, tempname='_evaluation_object_'):
-    try:
-        get_env(shell.user_ns)[tempname] = get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
-        return str(get_env(shell.user_ns)[tempname])
-    except:
-        return None
+    get_env(shell.user_ns)[tempname] = get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
+    return str(get_env(shell.user_ns)[tempname])
 
 getFunctionCallResultInProcess = get_rep(taskRunFunctionCall)
 getFunctionCallOutputInProcess = partial(get_output, taskRunFunctionCall)
+#getFunctionCallErrorInProcess = partial(get_error, taskRunFunctionCall)
 
 # Get error of function call in process
 @process_task
