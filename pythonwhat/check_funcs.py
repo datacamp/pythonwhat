@@ -164,6 +164,7 @@ def multi(*args, state=None):
     """Run multiple subtests. Return original state (for chaining)."""
     if any(args):
         rep = Reporter.active_reporter
+        
         # when input is a single list of subtests
         args = args[0] if len(args) == 1 and isinstance(args[0], (list, tuple)) else args
 
