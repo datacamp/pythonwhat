@@ -14,6 +14,7 @@ def part_to_child(stu_part, sol_part, append_message, state):
         return state.to_child_state(stu_part['node'], sol_part['node'],
                                     stu_part.get('target_vars'), sol_part.get('target_vars'),
                                     stu_part, sol_part,
+                                    highlight = stu_part.get('highlight'), 
                                     append_message = append_message)
     
     # otherwise, assume they are just nodes
@@ -52,7 +53,7 @@ def check_part_index(name, index, part_msg,
     try: stu_parts[index]
     except (KeyError, IndexError): 
         _msg = state.build_message(missing_msg, append_message['kwargs'])
-        rep.do_test(Test(Feedback(_msg, state.student_tree)))
+        rep.do_test(Test(Feedback(_msg, state.highlight)))
 
     # get part at index
     stu_part = state.student_parts[name][index]
@@ -76,7 +77,7 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
     try: stu_out[index]
     except (KeyError, IndexError):                  # TODO comment errors
         _msg = state.build_message(missing_msg, fmt_kwargs)
-        rep.do_test(Test(Feedback(_msg, state.student_tree)))
+        rep.do_test(Test(Feedback(_msg, state.highlight)))
 
     # get node at index
     stu_part = stu_out[index]
@@ -97,7 +98,7 @@ def has_part(name, msg, state=None, fmt_kwargs=None):
 
     if not d['stu_part'][name] is not None:
         _msg = state.build_message(msg, d)
-        rep.do_test(Test(Feedback(_msg, state.student_tree)))
+        rep.do_test(Test(Feedback(_msg, state.highlight)))
 
     return state
 
@@ -110,7 +111,7 @@ def has_equal_part(name, msg, state):
 
     if d['stu_part'][name] != d['sol_part'][name]:
         _msg = state.build_message(msg, d)
-        rep.do_test(Test(Feedback(_msg, state.student_tree)))
+        rep.do_test(Test(Feedback(_msg, state.highlight)))
 
     return state
 
@@ -122,7 +123,7 @@ def has_equal_part_len(name, insufficient_msg, state=None):
 
     if d['stu_len'] != d['sol_len']:
         _msg = state.build_message(insufficient_msg, d)
-        rep.do_test(Test(Feedback(_msg, state.student_tree)))
+        rep.do_test(Test(Feedback(_msg, state.highlight)))
 
     return state
 
@@ -143,10 +144,10 @@ def has_equal_value(msg, state=None):
                                                    process = state.student_process)
 
     _msg = state.build_message(msg, {'stu_part': state.student_parts, 'sol_part': state.solution_parts})
-    feedback = Feedback(_msg, state.student_tree)
+    feedback = Feedback(_msg, state.highlight)
     if str_student is None:
         rep.do_test(Test(feedback))
-    else :
+    else:
         rep.do_test(EqualTest(eval_student, eval_solution, feedback))
 
     return state
@@ -177,7 +178,7 @@ def multi(*args, state=None):
             prefix = state.build_message()
             # resetting reporter message until it can be refactored
             prev_msg = rep.failure_msg
-            rep.do_test(closure, prefix, state.student_tree)
+            rep.do_test(closure, prefix, state.highlight)
             rep.failure_msg = prev_msg
  
     # return original state, so can be chained
@@ -201,11 +202,11 @@ def with_context(*args, state=None):
     student_res = setUpNewEnvInProcess(process = state.student_process,
                                        context = state.student_parts['with_items'])
     if isinstance(student_res, AttributeError):
-        rep.do_test(Test(Feedback("In your %s `with` statement, you're not using a correct context manager." % (get_ord(index)), child.student_tree)))
+        rep.do_test(Test(Feedback("In your %s `with` statement, you're not using a correct context manager." % (get_ord(index)), child.highlight)))
 
     if isinstance(student_res, (AssertionError, ValueError, TypeError)):
         rep.do_test(Test(Feedback("In your %s `with` statement, the number of values in your context manager " + \
-            "doesn't correspond to the number of variables you're trying to assign it to." % (get_ord(index)), child.student_tree)))
+            "doesn't correspond to the number of variables you're trying to assign it to." % (get_ord(index)), child.highlight)))
 
     # run subtests  
     try: multi(*args, state=state)
@@ -218,8 +219,8 @@ def with_context(*args, state=None):
         if breakDownNewEnvInProcess(process = state.student_process):
 
             rep.do_test(Test(Feedback("Your %s `with` statement can not be closed off correctly, you're " + \
-                            "not using the context manager correctly." % (get_ord(index)), state.student_tree)),
-                        fallback_ast = state.student_tree)
+                            "not using the context manager correctly." % (get_ord(index)), state.highlight)),
+                        fallback_ast = state.highlight)
     return state
 
 def set_context(*args, state=None, **kwargs):

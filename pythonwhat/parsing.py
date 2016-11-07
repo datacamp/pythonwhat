@@ -132,6 +132,7 @@ class Parser(ast.NodeVisitor):
     def get_arg_part(_arg, _def, name=None):
         if not _arg: return None
 
+        # part uses default highlighting, so will highlight "node" entry
         return {
                 'node': _def or _arg,
                 'arg': _arg,
@@ -535,7 +536,8 @@ class FunctionDefParser(Parser):
             "arg": cls.get_arg_parts(node.args.args, node.args.defaults),
             "vararg": cls.get_arg_part(node.args.vararg, None),
             "kwarg":  cls.get_arg_part(node.args.kwarg, None),
-            "body": {'node': FunctionBodyTransformer().visit(ast.Module(node.body)), 'target_vars': TargetVars(target_vars)}
+            "body": {'node': FunctionBodyTransformer().visit(ast.Module(node.body)), 
+                     'target_vars': TargetVars(target_vars)}
         }
 
 
@@ -689,7 +691,8 @@ class WithParser(Parser):
         context = [
             {"node" : item.context_expr,
              "target_vars": self.get_target_vars(item.optional_vars),
-             "with_items": item
+             "with_items": item,
+             "highlight": node
                 } 
             for item in items]
 

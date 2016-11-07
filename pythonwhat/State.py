@@ -43,7 +43,8 @@ class State(object):
 
     def __init__(self, 
                  student_context=None, solution_context=None,
-                 student_parts=None, solution_parts=None, messages=None, 
+                 student_parts=None, solution_parts=None, 
+                 highlight = None, messages=None, 
                  **kwargs):
 
         # Set basic fields from kwargs
@@ -68,6 +69,8 @@ class State(object):
 
         self.student_context  = Context(student_context)  if student_context is None else student_context
         self.solution_context = Context(solution_context) if solution_context is None else solution_context
+
+        self.highlight = self.student_tree if highlight is None else highlight
 
         self.converters = None
 
@@ -124,6 +127,7 @@ class State(object):
     def to_child_state(self, student_subtree, solution_subtree, 
                              student_context=None, solution_context=None,
                              student_parts=None, solution_parts=None,
+                             highlight = None,
                              append_message=""):
         """Dive into nested tree.
 
@@ -156,7 +160,7 @@ class State(object):
         if not (solution_subtree and student_subtree):
             return self.update(student_context = student_context, solution_context = solution_context,
                                student_parts = student_parts, solution_parts = solution_parts,
-                               messages = messages)
+                               highlight = highlight, messages = messages)
 
         child = State(student_code = utils_ast.extract_text_from_node(self.full_student_code, student_subtree),
                       full_student_code = self.full_student_code,
@@ -171,6 +175,7 @@ class State(object):
                       solution_tree = solution_subtree,
                       student_parts = student_parts,
                       solution_parts = solution_parts,
+                      highlight = highlight,
                       messages = messages,
                       parent_state = self)
         return(child)
