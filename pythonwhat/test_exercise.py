@@ -59,7 +59,8 @@ def test_exercise(sct,
         raw_student_output = check_str(raw_student_output))
 
     State.root_state = state
-    
+
+    # Populate sct context with 'old' functions (in terms of probes) and check functions.
     tree, sct_cntxt = create_test_probes(cntxt)
     sct_cntxt.update(spec_2_context)
 

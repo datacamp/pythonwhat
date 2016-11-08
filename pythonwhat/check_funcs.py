@@ -10,13 +10,13 @@ def part_to_child(stu_part, sol_part, append_message, state):
     append_message['kwargs'].update({'stu_part': stu_part, 'sol_part': sol_part})
 
     # if the parts are dictionaries, use to deck out child state
-    if all(isinstance(p, dict) for p in [stu_part, sol_part]): 
+    if all(isinstance(p, dict) for p in [stu_part, sol_part]):
         return state.to_child_state(stu_part['node'], sol_part['node'],
                                     stu_part.get('target_vars'), sol_part.get('target_vars'),
                                     stu_part, sol_part,
-                                    highlight = stu_part.get('highlight'), 
+                                    highlight = stu_part.get('highlight'),
                                     append_message = append_message)
-    
+
     # otherwise, assume they are just nodes
     return state.to_child_state(stu_part, sol_part, append_message = append_message)
 
@@ -32,11 +32,11 @@ def check_part(name, part_msg, state=None, missing_msg="", expand_msg=""):
 
     stu_part = state.student_parts[name]
     sol_part = state.solution_parts[name]
-    
+
     return part_to_child(stu_part, sol_part, append_message, state)
 
-def check_part_index(name, index, part_msg, 
-                     missing_msg="Define more {part}.", 
+def check_part_index(name, index, part_msg,
+                     missing_msg="Define more {part}.",
                      state=None, expand_msg=""):
     """Return child state with indexed name part as its ast tree"""
 
@@ -45,13 +45,13 @@ def check_part_index(name, index, part_msg,
     # create message
     ordinal = "" if isinstance(index, str) else get_ord(index+1)
 
-    append_message = {'msg': expand_msg, 
+    append_message = {'msg': expand_msg,
                       'kwargs': {'part': part_msg, 'index': index, 'ordinal': ordinal}}
 
     # check there are enough parts for index
     stu_parts = state.student_parts[name]
     try: stu_parts[index]
-    except (KeyError, IndexError): 
+    except (KeyError, IndexError):
         _msg = state.build_message(missing_msg, append_message['kwargs'])
         rep.do_test(Test(Feedback(_msg, state.highlight)))
 
@@ -70,7 +70,7 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
     sol_out = getattr(state, 'solution_'+name)
 
     # check if there are enough nodes for index
-    fmt_kwargs = {'ordinal': get_ord(index+1) if isinstance(index, int) else "", 
+    fmt_kwargs = {'ordinal': get_ord(index+1) if isinstance(index, int) else "",
                   'typestr': typestr}
 
     # test if node can be indexed succesfully
@@ -83,7 +83,7 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
     stu_part = stu_out[index]
     sol_part = sol_out[index]
 
-    append_message = {'msg': expand_msg, 
+    append_message = {'msg': expand_msg,
                       'kwargs': fmt_kwargs
                       }
 
@@ -139,7 +139,7 @@ def has_equal_value(msg, state=None):
     if isinstance(eval_solution, ReprFail):
         raise ValueError("Couldn't figure out the value of a default argument: " + eval_solution.info)
 
-    eval_student, str_student = getResultInProcess(tree = state.student_tree, 
+    eval_student, str_student = getResultInProcess(tree = state.student_tree,
                                                    context = state.student_context,
                                                    process = state.student_process)
 
@@ -165,7 +165,7 @@ def multi(*args, state=None):
     """Run multiple subtests. Return original state (for chaining)."""
     if any(args):
         rep = Reporter.active_reporter
-        
+
         # when input is a single list of subtests
         args = args[0] if len(args) == 1 and isinstance(args[0], (list, tuple)) else args
 
@@ -180,7 +180,7 @@ def multi(*args, state=None):
             prev_msg = rep.failure_msg
             rep.do_test(closure, prefix, state.highlight)
             rep.failure_msg = prev_msg
- 
+
     # return original state, so can be chained
     return state
 
@@ -208,8 +208,9 @@ def with_context(*args, state=None):
         rep.do_test(Test(Feedback("In your %s `with` statement, the number of values in your context manager " + \
             "doesn't correspond to the number of variables you're trying to assign it to." % (get_ord(index)), child.highlight)))
 
-    # run subtests  
-    try: multi(*args, state=state)
+    # run subtests
+    try:
+        multi(*args, state=state)
     finally:
         # exit context
         if breakDownNewEnvInProcess(process = state.solution_process):
