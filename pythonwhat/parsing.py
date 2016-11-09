@@ -1,4 +1,8 @@
 import ast
+from collections.abc import Sequence, Mapping
+from collections import OrderedDict
+from contextlib import ExitStack
+from functools import wraps
 
 """
 This file handles the parsing of the student and solution code. Generally, an abstract syntax tree
@@ -11,7 +15,42 @@ as well as some extra documentation:
     https://greentreesnakes.readthedocs.org/en/latest/
 """
 
+class EmptyTargetVar: pass
 
+class TargetVars(Mapping):
+    """Immutable ordered mapping from target variables to their values."""
+
+    EMPTY = EmptyTargetVar()
+
+    def __init__(self, target_vars=tuple(), is_empty=True):
+        if is_empty: 
+            target_vars = [(v, self.EMPTY) for v in target_vars]
+
+        self._od = OrderedDict(target_vars)
+
+    # getitem, len, iter wrap OrderedDict behavior
+    def __getitem__(self, k): return self._od.__getitem__(k)
+    def __len__(self):        return self._od.__len__()
+    def __iter__(self):       return self._od.__iter__()
+
+    def update(self, *args, **kwargs):
+        cpy = self.copy()
+        cpy._od.update(*args, **kwargs)
+        return cpy
+
+    def copy(self):
+        return self.__class__(self._od)
+
+    def __str__(self):
+        """Format target vars for printing"""
+        if len(self) >  1: return "({})".format(", ".join(self._od.keys()))
+        else: return "".join(self._od.keys())
+
+    def defined_items(self):
+        """Return copy of instance, omitting entries that are EMPTY"""
+        return self.__class__([(k, v) for k,v in self.items() if v is not self.EMPTY], is_empty=False)
+
+        
 class Parser(ast.NodeVisitor):
     """Basic parser.
 
@@ -60,12 +99,14 @@ class Parser(ast.NodeVisitor):
 
     @staticmethod
     def get_target_vars(target):
-        if isinstance(target, ast.Name):
-            return [target.id]
-        elif isinstance(target, ast.Tuple):
-            return [name.id for name in target.elts]
-        else:
-            return []
+        get_id = lambda n: n.id if not isinstance(n, ast.Starred) else n.value.id
+        if isinstance(target, (ast.Name, ast.Starred)):    
+            tv = [get_id(target)]
+        elif isinstance(target, ast.Tuple): 
+            tv = [get_id(node) for node in target.elts]
+        else: tv = []
+
+        return TargetVars(tv)
 
     @staticmethod
     def get_arg(el):
@@ -78,7 +119,33 @@ class Parser(ast.NodeVisitor):
     def get_arg_tuples(arguments, defaults):
         arguments = [arg.arg for arg in arguments]
         defaults = [None] * (len(arguments) - len(defaults)) + defaults
-        return [(arg, default) for arg, default in zip(arguments,defaults)]
+        return list(zip(arguments, defaults))
+
+    @staticmethod
+    def get_arg_parts(arguments, defaults, name=None):
+        # only difference is that it doesn't pull out arg.arg, so we can 
+        # use all the information on the arg node down the road
+        match_def = [None] * (len(arguments) - len(defaults)) + defaults
+        part_list = []
+        for _arg, _def in zip(arguments, match_def):
+            part_list.append(Parser.get_arg_part(_arg, _def))
+        return part_list
+
+    @staticmethod
+    def get_arg_part(_arg, _def, name=None):
+        if not _arg: return None
+
+        # part uses default highlighting, so will highlight "node" entry
+        return {
+                'node': _def or _arg,
+                'arg': _arg,
+                # TODO: need to fill out
+                'type': 'default' if _def else 'positional',
+                'is_default': True if _def else False,
+                'name': name or _arg.arg,
+                'annotation': _arg.annotation
+                }
+
 
 class OperatorParser(Parser):
     """Find operations.
@@ -354,27 +421,25 @@ class IfParser(Parser):
         self.out = []
 
     def visit_If(self, node):
-        self.out.append((
-            node.test,
-            node.body,
-            node.orelse))
+        self.out.append({
+            'node': node,
+            'test': node.test,
+            'body': node.body,
+            'orelse': node.orelse,
+            })
 
 
-class IfExpParser(Parser):
+class IfExpParser(IfParser):
     """Find if structures.
 
     A parser which inherits from the basic parser to find inline if structures.
     Only 'top-level' if structures will be found!
     """
 
-    def __init__(self):
-        self.out = []
+    def visit_If(self, node): return
 
     def visit_IfExp(self, node):
-        self.out.append((
-            node.test,
-            node.body,
-            node.orelse))
+        super().visit_If(node)
 
     def visit_BinOp(self, node):
         self.visit(node.left)
@@ -413,10 +478,12 @@ class WhileParser(Parser):
         self.out = []
 
     def visit_While(self, node):
-        self.out.append((
-            node.test,
-            node.body,
-            node.orelse))
+        self.out.append({
+            'node': node,
+            'test': node.test,
+            'body': node.body,
+            'orelse': node.orelse
+            })
 
 
 class ForParser(Parser):
@@ -430,12 +497,14 @@ class ForParser(Parser):
         self.out = []
 
     def visit_For(self, node):
-        self.out.append((
-            Parser.get_target_vars(node.target),
-            node.iter,
-            node.body,
-            node.orelse))
-
+        tv = Parser.get_target_vars(node.target)
+        self.out.append({
+            'node': node,
+            'iter': node.iter,
+            'body': {'node': node.body, 'target_vars': tv},
+            'orelse': {'node': node.orelse, 'target_vars': tv},
+            'target': node.target,
+            })
 
 
 class FunctionDefParser(Parser):
@@ -448,15 +517,32 @@ class FunctionDefParser(Parser):
         self.out = {}
 
     def visit_FunctionDef(self, node):
-        normal_args = Parser.get_arg_tuples(node.args.args, node.args.defaults)
-        kwonlyargs = Parser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
-        vararg = Parser.get_arg(node.args.vararg)
-        kwarg = Parser.get_arg(node.args.kwarg)
-        self.out[node.name] = {
-            "fundef": node,
+        self.out[node.name] = self.parse_node(node)
+
+
+    @classmethod
+    def parse_node(cls, node):
+        normal_args = cls.get_arg_tuples(node.args.args, node.args.defaults)
+        kwonlyargs = cls.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
+        # TODO: all single args should be tuples like this
+        vararg = cls.get_arg(node.args.vararg)
+        kwarg =  cls.get_arg(node.args.kwarg)
+        # create context variables
+        target_vars = [arg[0] for arg in normal_args]
+        if vararg: target_vars.append(vararg)
+        if kwarg:  target_vars.append(kwarg)
+        
+        return {
+            "node": node,
             "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
-            "body": FunctionBodyTransformer().visit(ast.Module(node.body)),
+            # TODO: arg is the node counterpart to target_vars
+            "arg": cls.get_arg_parts(node.args.args, node.args.defaults),
+            "vararg": cls.get_arg_part(node.args.vararg, None),
+            "kwarg":  cls.get_arg_part(node.args.kwarg, None),
+            "body": {'node': FunctionBodyTransformer().visit(ast.Module(node.body)), 
+                     'target_vars': TargetVars(target_vars)}
         }
+
 
 class LambdaFunctionParser(Parser):
     """Find lambda functions
@@ -504,15 +590,7 @@ class LambdaFunctionParser(Parser):
         self.visit_each(node.finalbody)
 
     def visit_Lambda(self, node):
-        normal_args = Parser.get_arg_tuples(node.args.args, node.args.defaults)
-        kwonlyargs = Parser.get_arg_tuples(node.args.kwonlyargs, node.args.kw_defaults)
-        vararg = Parser.get_arg(node.args.vararg)
-        kwarg = Parser.get_arg(node.args.kwarg)
-        self.out.append({
-            "fun": node,
-            "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
-            "body": node.body
-        })
+        self.out.append(FunctionDefParser.parse_node(node))
 
 
 class CompParser(Parser):
@@ -535,13 +613,17 @@ class CompParser(Parser):
 
     def build_comp(self, node):
         target = node.generators[0].target
+        tv = Parser.get_target_vars(target)
+        ifs = node.generators[0].ifs
         self.out.append({
-                "list_comp": node,
-                "body": node.elt,
+                "node": node,
+                "body": {'node': node.elt, 'target_vars': tv},
                 "target": target,
-                "target_vars": Parser.get_target_vars(target),
                 "iter": node.generators[0].iter,
-                "ifs": node.generators[0].ifs
+                "ifs":  [{'node': ifnode, 'target_vars': tv} for ifnode in ifs],
+                # TODO: 'private' _target_vars, since it shouldn't be set when selecting node,
+                #       see remarks in test_list_comp on rewriting
+                "_target_vars": tv
             })
 
 class ListCompParser(CompParser):
@@ -569,14 +651,18 @@ class DictCompParser(CompParser):
     """
     def visit_DictComp(self, node):
         target = node.generators[0].target
+        tv = Parser.get_target_vars(target)
+        ifs = node.generators[0].ifs
         self.out.append({
-                "list_comp": node,
-                "key": node.key,
-                "value": node.value,
+                "node": node,
+                "key": {'node': node.key, 'target_vars': tv},
+                "value": {'node': node.value, 'target_vars': tv},
                 "target": target,
-                "target_vars": Parser.get_target_vars(target),
                 "iter": node.generators[0].iter,
-                "ifs": node.generators[0].ifs
+                "ifs": [{'node': ifnode, 'target_vars': tv} for ifnode in ifs],
+                # TODO: 'private' _target_vars, since it shouldn't be set when selecting node,
+                #       see remarks in test_list_comp on rewriting
+                "_target_vars": tv
             })
 
 
@@ -605,21 +691,23 @@ class WithParser(Parser):
 
     def visit_With(self, node):
         items = node.items
-        self.out.append({
-            "context": [{"context_expr" : ast.Expression(item.context_expr),
-                "optional_vars": item.optional_vars and WithParser.get_node_ids_in_list(item.optional_vars)} for item in items],
-            "body": node.body,
-            "node": node
-        })
+        context = [
+            {"node" : item.context_expr,
+             "target_vars": self.get_target_vars(item.optional_vars),
+             "with_items": item,
+             "highlight": node
+                } 
+            for item in items]
 
-    def get_node_ids_in_list(node):
-        if isinstance(node, ast.Name):
-            node_ids = [node.id]
-        elif isinstance(node, ast.Tuple):
-            node_ids = [name.id for name in node.elts]
-        else:
-            node_ids = []
-        return node_ids
+        #body_tv = []
+        #for c in context: body_tv.extend(c['target_vars'])
+
+        self.out.append({
+            "context": context,
+            "body": {'node': node.body, 'with_items': items},
+            "node": node,
+            "n_vars": len(items)
+        })
 
 class TryExceptParser(Parser):
     def __init__(self):
@@ -629,34 +717,38 @@ class TryExceptParser(Parser):
         handlers = {}
 
         for handler in node.handlers:
-            if handler.type is None:
-                handlers['all'] = handler
-            elif isinstance(handler.type, ast.Name):
-                handlers[handler.type.id] = handler
-            elif isinstance(handler.type, ast.Tuple):
+            if isinstance(handler.type, ast.Tuple):
+                # of form -- except TypeError, KeyError
                 for el in handler.type.elts:
-                    handlers[el.id] = handler
+                    handlers[el.id] = self.parse_handler(handler)
             else:
-                # do nothing, don't know what to do!
-                pass
+                # either general handler, or single error handler
+                k = 'all' if not handler.type else handler.type.id
+                handlers[k] = self.parse_handler(handler)
 
         self.out.append({
-            "try_except": node,
+            "node": node,
             "body": node.body,
-            "orelse": node.orelse,
-            "finalbody": node.finalbody,
-            "handlers": handlers
+            "orelse": node.orelse or None,
+            "finalbody": node.finalbody or None,
+            "handlers": handlers,
         })
+
+    @staticmethod
+    def parse_handler(handler): return {
+                'node': handler.body,
+                'target_vars': TargetVars([handler.name])
+                }
 
 parser_dict = {
         "object_accesses": ObjectAccessParser,
         "object_assignments": ObjectAssignmentParser,
         "operators": OperatorParser,
         "imports": ImportParser,
-        "if_calls": IfParser,
-        "if_exp_calls": IfExpParser,
-        "while_calls": WhileParser,
-        "for_calls": ForParser,
+        "ifs": IfParser,
+        "if_exps": IfExpParser,
+        "whiles": WhileParser,
+        "for_loops": ForParser,
         "function_defs": FunctionDefParser,
         "lambda_functions": LambdaFunctionParser,
         "list_comps": ListCompParser,

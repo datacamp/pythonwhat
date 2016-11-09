@@ -136,6 +136,7 @@ class TestTestObjectEqualityChallenges(unittest.TestCase):
             "DC_SCT": "test_object('mat')"
         }
         sct_payload = helper.run(self.data)
+        print(sct_payload)
         self.assertTrue(sct_payload['correct'])
 
 

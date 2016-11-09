@@ -1,16 +1,15 @@
-import ast
-from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
-from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
-from pythonwhat import utils
-from pythonwhat.utils import get_ord, get_num
-from .test_function_definition import test_args, test_body
-from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess, ReprFail
-from pythonwhat.sub_test import sub_test
+from pythonwhat.Test import EqualTest
+from pythonwhat.utils import get_ord
+from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_equal_part_len
 
-from functools import partial
+MSG_NOT_CALLED = "The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
+MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} {typestr}. "
 
+MSG_INCORRECT_ITER_VARS = "Have you used the correct iterator variables in the {parent[ordinal]} {parent[typestr]}? Make sure you use the correct names!"
+MSG_INCORRECT_NUM_ITER_VARS = "Have you used {num_vars} iterator variables in the {parent[ordinal]} {parent[typestr]}?"
+MSG_INSUFFICIENT_IFS = "Have you used {sol_len} ifs inside the {parent[ordinal]} {parent[typestr]}?"
 
 def test_list_comp(index=1,
                    not_called_msg=None,
@@ -28,9 +27,7 @@ def test_list_comp(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_list_comp")
 
-    student_comp_list = state.student_list_comps
-    solution_comp_list = state.solution_list_comps
-    test_comp(comp_type = "list", **(locals()))
+    test_comp("list comprehension", 'list_comps', **(locals()))
 
 def test_generator_exp(index=1,
                        not_called_msg=None,
@@ -47,9 +44,7 @@ def test_generator_exp(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_generator_exp")
 
-    student_comp_list = state.student_generator_exps
-    solution_comp_list = state.solution_generator_exps
-    test_comp(comp_type = "gen", **(locals()))
+    test_comp("generator expression", 'generator_exps', **(locals()))
 
 
 def test_dict_comp(index=1,
@@ -68,76 +63,67 @@ def test_dict_comp(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_dict_comp")
 
-    student_comp_list = state.student_dict_comps
-    solution_comp_list = state.solution_dict_comps
-
-    test_comp(comp_type = "dict", **(locals()))
+    test_comp("dictionary comprehension", 'dict_comps', **(locals()))
 
 
-def test_comp(comp_type, state=None, **kwargs):
+def test_comp(typestr, comptype, index, iter_vars_names,
+              not_called_msg, insufficient_ifs_msg, incorrect_iter_vars_msg,
+              comp_iter, ifs, key=None, body=None, value=None,
+              expand_message = True,
+              rep=None, state=None):
 
-    if comp_type not in ['list', 'dict', 'gen']:
-        raise ValueError("comp_type not valid")
-    typestr = {'list':'list comprehension', 'dict': 'dictionary comprehension', 'gen': 'generator expression'}[comp_type]
+    # if true, set expand_message to default (for backwards compatibility)
+    expand_message = MSG_PREPEND if expand_message is True else (expand_message or "")
+    # make sure other messages are set to default if None
+    if insufficient_ifs_msg is None: insufficient_ifs_msg = MSG_INSUFFICIENT_IFS
+    if not_called_msg is None: not_called_msg = MSG_NOT_CALLED
 
-    rep = kwargs['rep']
-    solution_comp_list = kwargs['solution_comp_list']
-    student_comp_list = kwargs['student_comp_list']
-    index = kwargs['index']
+    # TODO MSG: function was not consistent with prepending, so use state w/o expand_message
+    quiet_state = check_node(comptype, index-1, typestr, not_called_msg, "", state)
 
-    # raise error if not enough solution comps
-    try:
-        solution_comp = solution_comp_list[index - 1]
-    except KeyError:
-        raise NameError("There aren't %s %ss in the solution environment" % (get_num(index), typestr))
+    # get comprehension
+    state = check_node(comptype, index-1, typestr, not_called_msg, expand_message, state)
 
-    # check if enough student comps
-    c_not_called_msg = kwargs['not_called_msg'] or \
-        ("The system wants to check the %s %s you defined but hasn't found it." % (get_ord(index), typestr))
-    rep.do_test(BiggerTest(len(student_comp_list), index - 1, Feedback(c_not_called_msg)))
+    # test comprehension iter and its variable names (or number of variables)
+    if comp_iter: multi(comp_iter, state=check_part("iter", "iterable part", state))
+    has_iter_vars(incorrect_iter_vars_msg, iter_vars_names, state=quiet_state)
 
-    student_comp = student_comp_list[index - 1]
+    # test the main expressions.
+    if body:   multi(body,  state=check_part("body", "body", state))        # list and gen comp
+    if key:    multi(key,   state=check_part("key", "key part", state))     # dict comp
+    if value:  multi(value, state=check_part("value", "value part", state)) # ""
 
-    prepend_fmt = "Check your code in the {incorrect_part} of the %s %s. "%(
-            get_ord(index), typestr)
+    # test a list of ifs. each entry corresponds to a filter in the comprehension.
+    for i, if_test in enumerate(ifs or []):
+        # test that ifs are same length
+        has_equal_part_len('ifs', insufficient_ifs_msg, state=quiet_state)
+        # test individual ifs
+        multi(if_test, state=check_part_index("ifs", i, get_ord(i+1) + " if", state=state))
 
-    psub_test = partial(sub_test, state, rep,
-                       student_context = student_comp['target_vars'],
-                       solution_context = solution_comp['target_vars'],
-                       expand_message=kwargs['expand_message'] and prepend_fmt)
 
-    # test iterable
-    psub_test(kwargs['comp_iter'], student_comp['iter'], solution_comp['iter'], "iterable part")
+def has_iter_vars(incorrect_iter_vars_msg, exact_names=False, state=None):
+    rep = Reporter.active_reporter
+    # get parts for testing from state
+    # TODO: this could be rewritten to use check_part_index -> has_equal_part, etc..
+    stu_vars = state.student_parts['_target_vars']
+    sol_vars = state.solution_parts['_target_vars']
+    stu_target = state.student_parts['target']
 
-    # test iterator variable names, if required
-    if kwargs['iter_vars_names']:
-        c_incorrect_iter_vars_msg = kwargs['incorrect_iter_vars_msg'] or \
-            ("Have you used the correct iterator variables in the %s %s? Make sure you use the correct names!" % (get_ord(index), typestr))
-        rep.do_test(EqualTest(student_comp['target_vars'], solution_comp['target_vars'],
-            Feedback(c_incorrect_iter_vars_msg, student_comp['target'])))
+    # variables exposed to messages
+    d = { 'stu_vars': stu_vars, 
+          'sol_vars': sol_vars, 
+          'num_vars': len(sol_vars)}
+
+    if exact_names:
+        # message for wrong iter var names
+        _msg = state.build_message(incorrect_iter_vars_msg or MSG_INCORRECT_ITER_VARS, d)
+        # test
+        rep.do_test(EqualTest(stu_vars, sol_vars, Feedback(_msg, stu_target)))
     else:
-        c_incorrect_iter_vars_msg = kwargs['incorrect_iter_vars_msg'] or \
-            ("Have you used %s iterator variables in the %s %s?" % (len(solution_comp['target_vars']), get_ord(index), typestr))
-        rep.do_test(EqualTest(len(student_comp['target_vars']), len(solution_comp['target_vars']),
-            Feedback(c_incorrect_iter_vars_msg, student_comp['target'])))
+        # message for wrong number of iter vars
+        _msg = state.build_message(incorrect_iter_vars_msg or MSG_INCORRECT_NUM_ITER_VARS, d)
+        # test
+        rep.do_test(EqualTest(len(stu_vars), len(sol_vars), Feedback(_msg, stu_target)))
 
+    return state
 
-    if comp_type in ['list', 'gen'] :
-        psub_test(kwargs['body'], student_comp['body'], solution_comp['body'], "body")
-    else :
-        psub_test(kwargs['key'], student_comp['key'], solution_comp['key'], "key part")
-        psub_test(kwargs['value'], student_comp['value'], solution_comp['value'], "value part")
-
-    # test ifs, one by one
-    if kwargs['ifs'] is not None:
-        ifs = [kwargs['ifs']] if not hasattr(kwargs['ifs'], '__len__') else kwargs['ifs']
-        c_insufficient_ifs_msg = kwargs['insufficient_ifs_msg'] or \
-            ("Have you used %s ifs inside the %s %s?" % (len(solution_comp['ifs']), get_ord(index), typestr))
-        rep.do_test(EqualTest(len(student_comp['ifs']), len(solution_comp['ifs']),
-            Feedback(c_insufficient_ifs_msg, student_comp['list_comp'])))
-
-        if len(ifs) != len(solution_comp['ifs']):
-            raise ValueError("If you specify tests for the ifs, pass a list with the same length as the number of ifs in the solution")
-
-        for i, if_test in enumerate(ifs):
-            psub_test(if_test, student_comp['ifs'][i], solution_comp['ifs'][i], ("%s if") % get_ord(i + 1))

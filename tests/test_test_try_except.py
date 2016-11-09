@@ -38,6 +38,8 @@ test_try_except(index = 1,
             '''
         }
 
+        self.SCT_NO_LAM = helper.remove_lambdas(self.data['DC_SCT'])
+
     def test_fail_01(self):
         self.data["DC_CODE"] = ""
         sct_payload = helper.run(self.data)
@@ -249,6 +251,31 @@ finally:
         self.data["DC_CODE"] = self.data["DC_SOLUTION"]
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
+    def test_fail_01_no_lam(self):
+        self.data["DC_SCT"] = self.SCT_NO_LAM
+        self.test_fail_01()
+
+    def test_fail_04_no_lam(self):
+        self.data["DC_SCT"] = self.SCT_NO_LAM
+        self.test_fail_04()
+
+    def test_fail_14_no_lam(self):
+        self.data["DC_SCT"] = self.SCT_NO_LAM
+        self.test_fail_14()
+
+    def test_pass_no_lam(self):
+        self.data["DC_SCT"] = self.SCT_NO_LAM
+        self.test_pass()
+
+    def test_fail_01_exchain(self):
+        self.data["DC_SCT"] = self.SCT_NO_LAM.replace('test_try_except', 'Ex().test_try_except')
+        self.test_fail_01()
+
+    def test_pass_exchain(self):
+        self.data["DC_SCT"] = self.SCT_NO_LAM.replace('test_try_except', 'Ex().test_try_except')
+        self.test_pass()
+
 
 
 if __name__ == "__main__":

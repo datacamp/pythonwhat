@@ -104,6 +104,12 @@ test_list_comp(index=1,
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_pass_exchain(self):
+        self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if isinstance(key, str) if isinstance(val, str)]"
+        self.data["DC_SCT"] = "Ex().\\" + helper.remove_lambdas(self.data["DC_SCT"])
+        
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
 class TestListCompStepByStepCustom(unittest.TestCase):
 
@@ -252,6 +258,44 @@ class TestListIterVars(unittest.TestCase):
         self.data["DC_CODE"] = "[a for a,b in x.items()]"
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
+
+class TestListDestructuring(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "x = {'a':1, 'b':2}",
+            "DC_SOLUTION": "[key for key, value in x.items()]",
+            "DC_SCT": "test_list_comp(1, body=test_expression_result(context_vals=[(1,2)]), iter_vars_names=False)"
+        }
+
+    @unittest.expectedFailure
+    def test_pass_destructuring1(self):
+        # TODO: fails because context_vals set by simple iteration and for reason below
+        self.data["DC_CODE"] = "[a[0] for *a in x.items()]"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_pass_destructuring2(self):
+        self.data["DC_CODE"] = "[a for *a, b in x.items()]"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_pass_destructuring3(self):
+        self.data["DC_CODE"] = "[b for b, *a in x.items()]"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    @unittest.expectedFailure
+    def test_pass_destructuring4(self):
+        # TODO: fails because it tests for exact same number of iter vars
+        self.data["DC_CODE"] = "[k for k, v, *a in x.items()]"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail_destructuring(self):
+        self.data["DC_CODE"] = "[a for k, v, *a in x.items()]"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
 
 
 class TestDictCompStepByStep(unittest.TestCase):

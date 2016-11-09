@@ -8,7 +8,7 @@ def sig_from_params(*args):
 
 def sig_from_obj(obj_char):
   return getSignatureFromObjInProcess(obj_char,
-    pythonwhat.State.State.active_state.solution_process)
+    pythonwhat.State.State.root_state.solution_process)
 
 def get_manual_sigs():
     manual_sigs = {

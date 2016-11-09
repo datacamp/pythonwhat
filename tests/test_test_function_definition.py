@@ -123,7 +123,7 @@ test_function_definition('shout')
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        helper.test_lines(self, sct_payload, 2, 5, 1, 23)
+        helper.test_lines(self, sct_payload, 2, 2, 13, 16)
 
     def test_Pass1(self):
         self.data["DC_SCT"] = '''

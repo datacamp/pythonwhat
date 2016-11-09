@@ -1,11 +1,35 @@
 import ast
 import inspect
-from pythonwhat.parsing import FunctionParser, ObjectAccessParser, parser_dict
+from copy import copy
+from pythonwhat.parsing import TargetVars, FunctionParser, ObjectAccessParser, parser_dict
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils_ast
 from pythonwhat import signatures
 from pythonwhat.converters import get_manual_converters
+from collections.abc import Mapping
+from itertools import chain
+
+class Context(Mapping):
+    def __init__(self, context=None, prev=None):
+        self.context = context if context else TargetVars()
+        self.prev = prev if prev else {}
+
+        self._items = {**self.prev, **self.context.defined_items()}
+
+    def update_ctx(self, new_ctx):
+        upd_prev = {**self.prev, **self.context.defined_items()}
+        return self.__class__(new_ctx, upd_prev)
+
+    def __getitem__(self, x):
+        return self._items[x]
+
+    def __iter__(self):
+        return iter(self._items)
+
+    def __len__(self):
+        return len(self._items)
+
 
 class State(object):
     """State of the SCT environment.
@@ -15,13 +39,20 @@ class State(object):
     after that.
 
     """
-    active_state = None
     converters = get_manual_converters()
 
-    def __init__(self, **kwargs):
+    def __init__(self, 
+                 student_context=None, solution_context=None,
+                 student_parts=None, solution_parts=None, 
+                 highlight = None, messages=None, 
+                 **kwargs):
 
         # Set basic fields from kwargs
         self.__dict__.update(kwargs)
+
+        self.student_parts = student_parts
+        self.solution_parts = solution_parts
+        self.messages = messages if messages else []
 
         # parse code if didn't happen yet
         if not hasattr(self, 'student_tree'):
@@ -36,11 +67,10 @@ class State(object):
         if not hasattr(self, 'parent_state'):
             self.parent_state = None
 
-        if not hasattr(self, 'student_context'):
-            self.student_context = None
+        self.student_context  = Context(student_context)  if student_context is None else student_context
+        self.solution_context = Context(solution_context) if solution_context is None else solution_context
 
-        if not hasattr(self, 'solution_context'):
-            self.solution_context = None
+        self.highlight = self.student_tree if highlight is None else highlight
 
         self.converters = None
 
@@ -79,7 +109,26 @@ class State(object):
 
         return(self.manual_sigs)
 
-    def to_child_state(self, student_subtree, solution_subtree):
+    def build_message(self, tail="", fmt_kwargs=None):
+        if not fmt_kwargs: fmt_kwargs = {}
+        out_list = []
+        # add trailing message to msg list
+        msgs = self.messages[:] + [{'msg': tail or "", 'kwargs':fmt_kwargs}]
+        # format messages in list, by iterating over previous, current, and next message
+        for prev_d, d, next_d in zip([{}, *msgs[:-1]], msgs, [*msgs[1:], {}]):
+            out = d['msg'].format(parent = prev_d.get('kwargs'),
+                                  child = next_d.get('kwargs'),
+                                  this = d['kwargs'],
+                                  **d['kwargs'])
+            out_list.append(out)
+
+        return "".join(out_list)
+
+    def to_child_state(self, student_subtree, solution_subtree, 
+                             student_context=None, solution_context=None,
+                             student_parts=None, solution_parts=None,
+                             highlight = None,
+                             append_message=""):
         """Dive into nested tree.
 
         Set the current state as a state with a subtree of this syntax tree as
@@ -92,25 +141,51 @@ class State(object):
         if isinstance(solution_subtree, list):
             solution_subtree = ast.Module(solution_subtree)
 
+        # get new contexts
+        if solution_context is not None: 
+            solution_context = self.solution_context.update_ctx(solution_context)
+        else:
+            solution_context = self.solution_context
+
+        if student_context  is not None: 
+            student_context  = self.student_context.update_ctx(student_context)
+        else:
+            student_context = self.student_context
+
+        if not isinstance(append_message, dict): 
+            append_message =  {'msg': append_message, 'kwargs': {}}
+
+        messages = [*self.messages, append_message]
+
+        if not (solution_subtree and student_subtree):
+            return self.update(student_context = student_context, solution_context = solution_context,
+                               student_parts = student_parts, solution_parts = solution_parts,
+                               highlight = highlight, messages = messages)
+
         child = State(student_code = utils_ast.extract_text_from_node(self.full_student_code, student_subtree),
                       full_student_code = self.full_student_code,
                       pre_exercise_code = self.pre_exercise_code,
-                      student_context = self.student_context,
-                      solution_context  = self.solution_context,
+                      student_context = student_context,
+                      solution_context  = solution_context,
                       student_process = self.student_process,
                       solution_process = self.solution_process,
                       raw_student_output = self.raw_student_output,
                       pre_exercise_tree = self.pre_exercise_tree,
                       student_tree = student_subtree,
                       solution_tree = solution_subtree,
+                      student_parts = student_parts,
+                      solution_parts = solution_parts,
+                      highlight = highlight,
+                      messages = messages,
                       parent_state = self)
-        State.set_active_state(child)
         return(child)
 
-    def to_parent_state(self):
-        if (self.parent_state):
-            State.set_active_state(self.parent_state)
-
+    def update(self, **kwargs):
+        """Return a copy of set, setting kwargs as attributes"""
+        child = copy(self)
+        for k, v in kwargs.items():
+            setattr(child, k, v)
+        return child
 
     @staticmethod
     def parse_ext(x):
@@ -165,10 +240,6 @@ class State(object):
                 res = False
 
         return(res)
-
-    @staticmethod
-    def set_active_state(state):
-        State.active_state = state
 
 # add property methods for retrieving parser outputs --------------------------
 # note that this code is an alternative means of using something like..

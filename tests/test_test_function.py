@@ -166,6 +166,13 @@ print(d)
 print(type(d))
 '''
         }
+        self.CODE_FAIL = '''
+import pickle
+with open('data.p','rb') as file:
+        d = pickle.load('something_else')
+print(d)
+print(type(d))
+            '''
 
     def test_Pass(self):
         self.data["DC_SCT"] = '''
@@ -190,13 +197,7 @@ success_msg("Awesome!")
         self.assertTrue(sct_payload['correct'])
 
     def test_Fail(self):
-        self.data["DC_CODE"] = '''
-import pickle
-with open('data.p','rb') as file:
-        d = pickle.load('something_else')
-print(d)
-print(type(d))
-            '''
+        self.data["DC_CODE"] = self.CODE_FAIL
         self.data["DC_SCT"] = '''
 import_msg = "Did you import `pickle` correctly?"
 test_import("pickle", same_as = True, not_imported_msg = import_msg, incorrect_as_msg = import_msg)
@@ -219,13 +220,7 @@ test_function("print", index = 1, incorrect_msg = type_msg)
         self.assertEqual(sct_payload['message'], 'Check the body of the first <code>with</code> statement. Did you call <code>pickle.load()</code> with the correct arguments? The first argument seems to be incorrect.')
 
     def  test_Fail_no_lam(self):
-        self.data["DC_CODE"] = '''
-import pickle
-with open('data.p','rb') as file:
-        d = pickle.load('something_else')
-print(d)
-print(type(d))
-            '''
+        self.data["DC_CODE"] = self.CODE_FAIL
         self.data["DC_SCT"] = '''
 import_msg = "Did you import `pickle` correctly?"
 test_import("pickle", same_as = True, not_imported_msg = import_msg, incorrect_as_msg = import_msg)
@@ -237,6 +232,24 @@ test_with(
         body = [test_function("pickle.load", do_eval = False), test_object("d")]
 )
 test_function("print", index = 1)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], 'Check the body of the first <code>with</code> statement. Did you call <code>pickle.load()</code> with the correct arguments? The first argument seems to be incorrect.')
+
+    def  test_Fail_exchain(self):
+        self.data["DC_CODE"] = self.CODE_FAIL
+        self.data["DC_SCT"] = '''
+import_msg = "Did you import `pickle` correctly?"
+Ex().test_import("pickle", same_as = True, not_imported_msg = import_msg, incorrect_as_msg = import_msg)
+Ex().test_with(
+        1,
+        context_vals = True,
+        context_tests = test_function("open"),
+        ### NOTE the functions are in the list w/o lambdas below
+        body = [test_function("pickle.load", do_eval = False), test_object("d")]
+)
+Ex().test_function("print", index = 1)
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])

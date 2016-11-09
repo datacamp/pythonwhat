@@ -94,12 +94,22 @@ class Node(object):
         self.arg_name = arg_name
         self.child_list = [] if child_list is None else child_list
         self.data = {} if data is None else data
+        self.updated = False
         # hacky way to add their argument name when a function of tests was given
 
     def __call__(self, state=None):
         """Call original function with its arguments, and optional state"""
         ba = self.data['bound_args']
-        self.data['func'](state=state, *ba.args, **ba.kwargs)
+        if state:
+            self.data['func'](state=state, *ba.args, **ba.kwargs)
+            return state
+        else:
+            self.data['func'](*ba.args, **ba.kwargs)
+            ba.apply_defaults()
+            return ba.arguments['state']
+
+    def __iter__(self):
+        return iter(self.child_list)
 
     def partial(self):
         """Return partial of original function call"""
@@ -110,6 +120,7 @@ class Node(object):
 
         for node in filter(lambda n: len(n.arg_name), self.child_list):
             self.data['bound_args'].arguments[node.arg_name] = node.partial()
+        self.updated = True
 
     def remove_child(self, node):
         indx = self.child_list.index(node)
@@ -122,6 +133,14 @@ class Node(object):
         if child.parent: child.parent.remove_child(child)
         child.parent = self
         self.child_list.append(child)
+
+    def descend(self, include_me=True):
+        """Descend depth first into all child nodes"""
+        if include_me: yield self
+
+        for child in self.child_list:
+            yield child
+            yield from child.descend()
 
     @property
     def depth(self):
@@ -150,10 +169,11 @@ class NodeDict(Node):
         pass
 
 class Probe(object):
-    def __init__(self, tree, f):
+    def __init__(self, tree, f, eval_on_call=False):
         self.tree = tree
         self.f = f
         self.test_name = f.__name__
+        self.eval_on_call = eval_on_call
         # TODO: auto sub_test detection
         self.sub_tests = SUB_TESTS.get(self.test_name) or []
     
@@ -172,13 +192,23 @@ class Probe(object):
                 bound_args = bound_args, 
                 func = self.f)
         this_node = Node(data=data, name=self.test_name)
-        self.tree.crnt_node.add_child(this_node)
+        if self.tree is not None:
+            self.tree.crnt_node.add_child(this_node)
 
+        # First pass to set up branches off node
         da = bound_args.arguments
         for st in self.sub_tests:     # TODO: auto sub test detection
             if st in da and da[st]:
                 self.build_sub_test_nodes(da[st], self.tree, this_node, st)
-        return this_node
+        # Second pass to build node and all its children into a subtest
+        for n in this_node.descend(include_me=True):
+            if n.updated:         # already built, e.g. node used multiple times
+                continue
+            else:
+                n.update_child_calls()
+        
+        if self.eval_on_call: return this_node()
+        else:                 return this_node
 
     @staticmethod
     def build_sub_test_nodes(test, tree, node, arg_name):
@@ -202,9 +232,12 @@ class Probe(object):
             # since either may contain multiple subtests, we put them in a node list
             nl = NodeList(name = "ListDeferred", arg_name = arg_name)
             node.add_child(nl)
-            prev_node, tree.crnt_node = tree.crnt_node, nl
-            test()
-            tree.crnt_node = prev_node
+            if tree is not None:
+                prev_node, tree.crnt_node = tree.crnt_node, nl
+                test()
+                tree.crnt_node = prev_node
+            else:
+                test()
         elif test is not None:
             raise Exception("Expected a function or list/tuple/dict of functions")
 

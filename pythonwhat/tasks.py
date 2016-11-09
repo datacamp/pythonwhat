@@ -7,9 +7,9 @@ import ast
 import inspect
 import copy
 from pickle import PicklingError
-from pythonwhat.utils_env import set_context_vals
+from pythonwhat.utils_env import set_context_vals, assign_from_ast
 from contextlib import contextmanager
-from functools import partial, wraps
+from functools import partial, wraps, update_wrapper
 
 def process_task(f):
     """Decorator to (optionally) run function in a process."""
@@ -161,135 +161,56 @@ def getSignatureFromObjInProcess(obj_char, process, shell):
 
 
 
-## Get the output of a tree (with setting envs, pre_code and/er expr_code)
-@process_task
-def getOutputInProcess(tree, process, extra_env, context, context_vals, 
-                       pre_code, expr_code, keep_objs_in_env, 
-                       shell):
-    new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
-    if extra_env is not None:
-        new_env.update(copy.deepcopy(extra_env))
-    set_context_vals(new_env, context, context_vals)
-    try:
-        with capture_output() as out:
-            if pre_code is not None:
-                exec(pre_code, new_env)
-            if expr_code is not None:
-                exec(expr_code, new_env)
-            else:
-                exec(compile(tree, "<script>", "exec"), new_env)
-        return out[0].strip()
-    except:
-        return None
-
-# Get output of function call in process
-@process_task
-def getFunctionCallOutputInProcess(fun_name, arguments, process, shell):
-    try:
-        with capture_output() as out:
-            get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
-        return out[0].strip()
-    except:
-        return None
-
-# Get error of function call in process
-@process_task
-def getFunctionCallErrorInProcess(fun_name, arguments, process, shell):
-    try:
-        get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
-    except Exception as e:
-        return e
-    else:
-        return None
-
-# Get error of an expression tree in process
-@process_task
-def getTreeErrorInProcess(tree, process, shell):
-    try:
-        eval(compile(ast.Expression(tree), "<script>", "eval"), get_env(shell.user_ns))
-    except Exception as e:
-        return e
-    else:
-        return None
-
 
 # Stuff for test_with
 
+from contextlib import ExitStack
 def context_env_update(context_list, env):
-    env_update = {}
-    context_objs = []
-    for context in context_list:
-        context_obj = eval(
-            compile(context['context_expr'], '<context_eval>', 'eval'),
-            env)
-        context_objs.append(context_obj)
-        context_obj_init = context_obj.__enter__()
-        context_keys = context['optional_vars']
-        if context_keys is None:
-            continue
-        elif len(context_keys) == 1:
-            env_update[context_keys[0]] = context_obj_init
-        else:
-            assert len(context_keys) == len(context_obj_init)
-            for (context_key, current_obj) in zip(context_keys, context_obj_init):
-                env_update[context_key] = current_obj
-    return (env_update, context_objs)
+    es = ExitStack()
+    for item in context_list:
+        # create context manager and enter
+        tmp_name = '__pw_cm'
+        cm_code = compile(ast.Expression(item.context_expr), '<context_eval>', 'eval')
+        env[tmp_name] = es.enter_context(eval(cm_code, env))
+
+        # assign to its optional_vars in separte dict
+        if item.optional_vars:
+            code = assign_from_ast(item.optional_vars, tmp_name)
+            exec(code, env)
+
+    return es
 
 
 @process_task
 def setUpNewEnvInProcess(context, process, shell):
     shell.user_ns['__env__'] = utils.copy_env(shell.user_ns)
     try:
-        context_env, context_objs = context_env_update(context, shell.user_ns['__env__'])
-        shell.user_ns['__env__'].update(context_env)
-        shell.user_ns['__context_obj__'] = context_objs
+        es = context_env_update(context, shell.user_ns['__env__'])
+        shell.user_ns['__exit_stack__'] = es
         return True
     except Exception as e:
         return e
 
 # break down environment
-def context_objs_exit(context_objs):
-    got_error = False
-    for context_obj in context_objs:
-        try:
-            context_obj.__exit__(*([None]*3))
-        except Exception as e:
-            got_error = e
-
-    return got_error
+def context_objs_exit(es):
+    try:
+        es.close()
+        return False
+    except Exception as e:
+        raise e
+        return e
 
 @process_task
 def breakDownNewEnvInProcess(process, shell):
     try:
-        res = context_objs_exit(shell.user_ns['__context_obj__'])
-        del shell.user_ns['__context_obj__']
+        res = context_objs_exit(shell.user_ns['__exit_stack__'])
+        del shell.user_ns['__exit_stack__']
         del shell.user_ns['__env__']
         return res
     except:
         return False
 
 # Tasks that may need to serialize across processes ===========================
-
-# Get the value linked to a key of a collection in the process
-class TaskGetValue(object):
-    def __init__(self, name, key, tempname):
-        self.name = name
-        self.key = key
-        self.tempname = tempname
-
-    def __call__(self, shell):
-        try:
-            get_env(shell.user_ns)[self.tempname] = get_env(shell.user_ns)[self.name][self.key]
-            return True
-        except:
-            return None
-
-def getValueInProcess(name, key, process):
-    tempname = "_evaluation_object_"
-    res = process.executeTask(TaskGetValue(name, key, tempname))
-    if res:
-        res = getRepresentation(tempname, process)
-    return res
 
 # Get a bytes or string representation of an object in the process
 @process_task
@@ -365,10 +286,11 @@ def errored(el):
 
 
 # Make wrapper for getting an object representation from process --------------
+class UndefinedValue: pass
 
 def getResultFromProcess(res, tempname, process):
     """Get a value from process, return tuple of value, res if succesful"""
-    if res not in [None, "undefined"]:
+    if res is not None and not isinstance(res, UndefinedValue):
         value = getRepresentation(tempname, process)
         return (value, res)
     else: 
@@ -391,6 +313,14 @@ def get_rep(f):
         return getResultFromProcess(res, tempname, process)
     return wrapper
 
+## Get the output of a tree (with setting envs, pre_code and/er expr_code)
+@process_task
+def get_output(f, process, shell, *args, **kwargs):
+    with capture_output() as out:
+        res = f(*args, process=process, shell=shell, **kwargs)
+    if res is not None: 
+        return out[0].strip()
+
 # General tasks to eval or exec code, with decorated counterparts -------------
 
 # Eval an expression tree or node (with setting envs, pre_code and/or expr_code)
@@ -398,18 +328,19 @@ def get_rep(f):
 def taskRunEval(tree,
                 process, shell, 
                 keep_objs_in_env = None, extra_env = None, context=None, context_vals=None, 
-                pre_code = "", expr_code = "", name="", tempname='_evaluation_object_'):
+                pre_code = "", expr_code = "", name="", tempname='_evaluation_object_', do_exec=False):
     new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
     if extra_env is not None:
         new_env.update(copy.deepcopy(extra_env))
-    set_context_vals(new_env, context, context_vals)
-    try:
+    if context is not None: 
+        set_context_vals(new_env, context, context_vals)
+    try: 
         # Execute pre_code if specified
         if pre_code: exec(pre_code, new_env)
 
         # If no name given, the object of interest is the output of eval
         # otherwise, we'll use name to get the object from the environment
-        if not name:
+        if not (name or do_exec):
             mode = 'eval'
             tree = ast.Expression(tree)
         else:
@@ -423,9 +354,10 @@ def taskRunEval(tree,
             obj = eval(code, new_env)
         else:       
             exec(code, new_env)
-            if name not in new_env:
-                return "undefined"
-            obj = new_env[name]
+            if name:
+                if name not in new_env: return UndefinedValue()
+                obj = new_env[name]
+            else: obj = "exec only"
 
         # Set object as temp variable in original environment, so we can
         # later get its class, etc.., in order to extract it from process
@@ -436,8 +368,18 @@ def taskRunEval(tree,
         return None
 
 getResultInProcess = get_rep(taskRunEval)
+getOutputInProcess = partial(get_output, taskRunEval)
 
-getObjectAfterExpressionInProcess = get_rep(taskRunEval)
+# Get the value linked to a key of a collection in the process
+@process_task
+def taskGetValue(name, key, process, shell, tempname='_evaluation_object_'):
+    try:
+        get_env(shell.user_ns)[tempname] = get_env(shell.user_ns)[name][key]
+        return True
+    except:
+        return None
+
+getValueInProcess = get_rep(taskGetValue)
 
 # Run a function call in process
 # TODO: should this run the function on the original environment? what about side effects?
@@ -450,7 +392,25 @@ def taskRunFunctionCall(fun_name, arguments, process, shell, tempname='_evaluati
         return None
 
 getFunctionCallResultInProcess = get_rep(taskRunFunctionCall)
+getFunctionCallOutputInProcess = partial(get_output, taskRunFunctionCall)
 
+# Get error of function call in process
+@process_task
+def getFunctionCallErrorInProcess(fun_name, arguments, process, shell):
+    try:
+        get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
+    except Exception as e:
+        return e
+    else:
+        return None
 
-# Eval an expression tree in process
-getTreeResultInProcess = get_rep(taskRunEval)
+# Get error of an expression tree in process
+@process_task
+def getTreeErrorInProcess(tree, process, shell):
+    try:
+        eval(compile(ast.Expression(tree), "<script>", "eval"), get_env(shell.user_ns))
+    except Exception as e:
+        return e
+    else:
+        return None
+

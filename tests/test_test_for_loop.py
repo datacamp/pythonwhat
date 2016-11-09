@@ -71,6 +71,10 @@ for i in range(10):
         self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"], count=1)
         self.test_Fail()
 
+    def test_Pass_exchain(self):
+        self.data["DC_SCT"] = "Ex().\\" + helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Pass()
+
 
 class TestForLoop2(unittest.TestCase):
 
@@ -126,6 +130,59 @@ for test in enumerate(areas) :
         self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"], count=1)
         self.test_Fail()
 
+    def test_Pass_spec(self):
+        self.data["DC_SCT"] = '''
+SPEC2 = True
+msg = "loopinggonewrong"
+forl = Ex().check_for_loop(0)
+
+forl.check_iter()\
+    .multi(test_function("enumerate", incorrect_msg=msg))
+
+msg = "blabla"
+forl.check_body()\
+    .multi(test_expression_output(incorrect_msg = msg, context_vals = [2, "test"]))
+
+success_msg("Well done!")
+'''
+        self.test_Pass()
+
+class TestForLoopNested(unittest.TestCase):
+
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '',
+            "DC_SOLUTION": '''
+for ii in range(1, 2):
+    for jj in list(range(ii)):
+        x = sum([ii,jj])
+            ''',
+            "DC_SCT": '''
+
+Ex().check_for_loop(0)\
+    .check_body()\
+    .set_context(ii=1)\
+        .check_for_loop(0)\
+        .check_body()\
+        .set_context(jj=2)\
+        .multi(test_function('sum', incorrect_msg="wronginnerfor"))
+        '''
+        }
+
+    def test_Pass(self):
+        self.data["DC_CODE"] = self.data['DC_SOLUTION'].replace('ii', 'aa').replace('jj', 'bb')
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_Fail(self):
+        self.data["DC_CODE"] = '''
+for ii in range(1, 2):
+    for jj in list(range(ii)):
+        x = sum([ii+1,jj])
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn('wronginnerfor', sct_payload['message'])
 
 if __name__ == "__main__":
     unittest.main()

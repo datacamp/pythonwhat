@@ -1,12 +1,8 @@
-import ast
-from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import Test
-from pythonwhat.utils import get_ord
-from pythonwhat.Feedback import Feedback
+from pythonwhat.check_funcs import check_part, check_node, multi
 
-from pythonwhat.sub_test import sub_test
-from functools import partial
+MSG_MISSING = "Define more {typestr}."
+MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} while loop. "
 
 def test_while_loop(index=1,
                     test=None,
@@ -71,23 +67,8 @@ def test_while_loop(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_while_loop")
 
-    index = index - 1
+    state = check_node('whiles', index-1, "`while` loops", MSG_MISSING, MSG_PREPEND if expand_message else "", state=state)
 
-    student_whiles = state.student_while_calls
-    solution_whiles = state.solution_while_calls
-
-    try:
-        test_student, body_student, orelse_student = student_whiles[index]
-    except:
-        rep.do_test(Test("Define more `while` loops."))
-        return
-
-    test_solution, body_solution, orelse_solution = solution_whiles[index]
-
-    prepend_fmt = "Check your code in the {incorrect_part} of the %s while loop. " % (get_ord(index + 1))
-
-    psub_test = partial(sub_test, state, rep, expand_message=expand_message and prepend_fmt)
-
-    psub_test(test, test_student, test_solution, "condition")
-    psub_test(body, body_student, body_solution, "body")
-    psub_test(orelse, orelse_student, orelse_solution, "else part")
+    multi(test, state = check_part('test', 'condition', state))
+    multi(body, state = check_part('body', 'body', state))
+    multi(orelse, state = check_part('orelse', 'else part', state))

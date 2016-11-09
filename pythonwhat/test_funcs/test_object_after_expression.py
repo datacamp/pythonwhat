@@ -7,7 +7,7 @@ from .test_object import get_assignment_node
 from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
 
-from pythonwhat.tasks import getObjectAfterExpressionInProcess
+from pythonwhat.tasks import getResultInProcess, UndefinedValue
 
 
 def test_object_after_expression(name,
@@ -90,28 +90,28 @@ def test_object_after_expression(name,
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
 
-    eval_student, str_student = getObjectAfterExpressionInProcess(tree = state.student_tree,
-                                                                  name = name,
-                                                                  process = state.student_process,
-                                                                  extra_env = extra_env,
-                                                                  context = state.student_context,
-                                                                  context_vals = context_vals,
-                                                                  pre_code = pre_code,
-                                                                  keep_objs_in_env = keep_objs_in_env)
+    eval_student, str_student = getResultInProcess(tree = state.student_tree,
+                                                   name = name,
+                                                   process = state.student_process,
+                                                   extra_env = extra_env,
+                                                   context = state.student_context,
+                                                   context_vals = context_vals,
+                                                   pre_code = pre_code,
+                                                   keep_objs_in_env = keep_objs_in_env)
 
-    eval_solution, str_solution = getObjectAfterExpressionInProcess(tree = state.solution_tree,
-                                                                    name = name,
-                                                                    process = state.solution_process,
-                                                                    extra_env = extra_env,
-                                                                    context = state.solution_context,
-                                                                    context_vals = context_vals,
-                                                                    pre_code = pre_code,
-                                                                    keep_objs_in_env = keep_objs_in_env)
+    eval_solution, str_solution = getResultInProcess(tree = state.solution_tree, 
+                                                     name = name,
+                                                     process = state.solution_process,
+                                                     extra_env = extra_env,
+                                                     context = state.solution_context,
+                                                     context_vals = context_vals,
+                                                     pre_code = pre_code,
+                                                     keep_objs_in_env = keep_objs_in_env)
 
     if str_solution is None:
         raise ValueError("Running the expression in the solution environment caused an error.")
 
-    if str_student == "undefined" or str_student is None:
+    if isinstance(str_student, UndefinedValue) or str_student is None:
         rep.do_test(Test(undefined_msg))
         return
 
