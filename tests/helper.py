@@ -2,8 +2,6 @@ from pythonbackend.Exercise import Exercise
 from pythonbackend import utils
 import re
 
-import re
-
 def get_sct_payload(output):
     output = [out for out in output if out['type'] == 'sct']
     if (len(output) > 0):
