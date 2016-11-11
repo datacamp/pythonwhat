@@ -258,7 +258,7 @@ class ReprFail(object):
 
 def getRepresentation(name, process):
     obj_class = getClass(name, process)
-    converters = pythonwhat.State.State.converters
+    converters = pythonwhat.State.State.root_state.converters
     if obj_class in converters:
         repres = convert(name, dill.dumps(converters[obj_class]), process)
         if (errored(repres)):
