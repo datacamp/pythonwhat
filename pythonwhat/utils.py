@@ -35,20 +35,12 @@ def copy_env(env, keep_objs=None):
     mutableTypes = (tuple, list, dict)
     # One list comprehension to filter list. Might need some cleaning, but it
     # works
-    update_env = {
-        key: copy.deepcopy(value) for key,
-        value in env.items() if not (
-            key.startswith("_") or isinstance(
-                value,
-                ModuleType) or key in [
-                'In',
-                'Out',
-                'get_ipython',
-                'quit',
-                'exit']) and (
-                    key in keep_objs or isinstance(
-                        value,
-                        mutableTypes))}
+    ipy_ignore = ['In', 'Out', 'get_ipython', 'quit', 'exit']
+    update_env = { key: copy.deepcopy(value) 
+            for key, value in env.items() 
+            if  not any((key.startswith("_"), isinstance(value, ModuleType), key in ipy_ignore))
+                and ( key in keep_objs or isinstance( value, mutableTypes) )
+             }
     updated_env = dict(env)
     updated_env.update(update_env)
     return(updated_env)
