@@ -39,8 +39,6 @@ class State(object):
     after that.
 
     """
-    converters = get_manual_converters()
-
     def __init__(self, 
                  student_context=None, solution_context=None,
                  student_parts=None, solution_parts=None, 
@@ -72,17 +70,11 @@ class State(object):
 
         self.highlight = self.student_tree if highlight is None else highlight
 
-        self.converters = None
+        self.converters = get_manual_converters()    # accessed only from root state
 
         self.fun_usage = {}
         self.manual_sigs = None
         self._parser_cache = {}
-
-    def get_converters(self):
-        if self.converters is None:
-            self.converters = get_manual_converters()
-
-        return(self.converters)
 
     def set_used(self, name, stud_index, sol_index):
         if name in self.fun_usage.keys():
@@ -300,4 +292,5 @@ setattr(State, 'pre_exercise_mappings', pec_prop_map)
 
 # global setters on State -----------------------------------------------------
 def set_converter(key, fundef):
-    State.converters[key] = fundef
+    # note that root state is set on the State class in test_exercise
+    State.root_state.converters[key] = fundef
