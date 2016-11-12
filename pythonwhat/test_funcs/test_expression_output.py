@@ -82,7 +82,8 @@ def test_expression_output(extra_env=None,
                                      context_vals = context_vals,
                                      pre_code = pre_code,
                                      expr_code = expr_code,
-                                     keep_objs_in_env = keep_objs_in_env)
+                                     keep_objs_in_env = keep_objs_in_env,
+                                     do_exec=True)
 
     out_solution = getOutputInProcess(tree = state.solution_tree,
                                       process = state.solution_process,
@@ -91,7 +92,8 @@ def test_expression_output(extra_env=None,
                                       context_vals = context_vals,
                                       pre_code = pre_code,
                                       expr_code = expr_code,
-                                      keep_objs_in_env = keep_objs_in_env)
+                                      keep_objs_in_env = keep_objs_in_env,
+                                      do_exec=True)
 
     if out_solution is None:
         raise ValueError("test_expression_output raised error in solution process")

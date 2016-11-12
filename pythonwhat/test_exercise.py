@@ -3,6 +3,8 @@ from pythonwhat.utils import check_str, check_dict, check_process
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import TestFail
 from pythonwhat.probe import create_test_probes
+from pythonwhat.check_syntax import spec_2_context
+from functools import partial
 
 # utilities for signatures
 cntxt = {}
@@ -12,6 +14,8 @@ imports = """
 from inspect import Parameter as param
 from pythonwhat.signatures import sig_from_params, sig_from_obj
 from pythonwhat.State import set_converter
+# spec v2 functions
+from pythonwhat.check_syntax import F, Ex
 """
 exec(imports, None, cntxt)
 
@@ -54,19 +58,18 @@ def test_exercise(sct,
         solution_process = check_process(solution_process),
         raw_student_output = check_str(raw_student_output))
 
-    State.set_active_state(state)
-    State.TEST_TOP_LEVEL = True
-    
-    tree, sct_cntxt = create_test_probes(cntxt)
-    exec(sct, sct_cntxt)
+    State.root_state = state
 
-    # check if no fails yet (can be because of syntax and indentation errors)
-    if not rep.failed_test:
-        for test in tree.descend(): test.update_child_calls()
-        try:
-            for test in tree.crnt_node: 
+    # Populate sct context with 'old' functions (in terms of probes) and check functions.
+    tree, sct_cntxt = create_test_probes(cntxt)
+    sct_cntxt.update(spec_2_context)
+
+    try:
+        if not rep.failed_test:
+            exec(sct, sct_cntxt)         # Spec v2 tests run immediately
+            for test in tree.crnt_node:  # Spec v1 tests run after
                 test(state)
-        except TestFail: pass
+    except TestFail: pass
 
     return(rep.build_payload(error))
 

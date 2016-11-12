@@ -1,12 +1,10 @@
-import ast
-from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Feedback import Feedback
-from pythonwhat.Test import BiggerTest, Test, DefinedCollTest
-from pythonwhat.utils import get_ord, get_num
-
-from pythonwhat.sub_test import sub_test
+from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, quiet
 from functools import partial
+
+MSG_MISSING = "The system wants to check the {ordinal} try-except block you defined but hasn't found it."
+MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} {typestr}. "
+MSG_MISSING_PART  = "Have you included a {part} in your {parent[ordinal]} {parent[typestr]}?"
 
 def test_try_except(index=1,
                     not_called_msg=None,
@@ -25,64 +23,32 @@ def test_try_except(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_try_except")
 
-    student_try_excepts = state.student_try_excepts
-    solution_try_excepts = state.solution_try_excepts
+    # TODO: alternatively, could have missing_msg not use prepended messages
+    #       then we wouldn't have to run check_part twice for everything
+    child = check_node('try_excepts', index-1, "try-except block", MSG_MISSING, MSG_PREPEND, state)
+    quiet_child = quiet(1, state=child)
 
-    # raise error if not enough solution_try_excepts
-    try:
-        solution_try_except = solution_try_excepts[index - 1]
-    except KeyError:
-        raise NameError("There aren't %s try-except blocks in the solution code" % get_num(index))
+    multi(body, state=check_part("body", "body", child))       # subtests
 
-    # check if enough student_lambdas
-    c_not_called_msg = not_called_msg or \
-        ("The system wants to check the %s try-except block you defined but hasn't found it." % get_ord(index))
-    rep.do_test(BiggerTest(len(student_try_excepts), index - 1, Feedback(c_not_called_msg)))
-
-    student_try_except = student_try_excepts[index - 1]
-
-    prepend_fmt = "Check your code in the {incorrect_part} of the %s try-except block. " % (get_ord(index))
-
-    psub_test = partial(sub_test, state, rep, 
-            expand_message = expand_message and prepend_fmt)
-
-    psub_test(body, student_try_except['body'], solution_try_except['body'], "body")
-
+    # handler tests
     for key,value in handlers.items():
-        if key == 'all':
-            patt = "general"
-        else:
-            patt = "`%s`" % key
-        incorrect_part = "%s `except` block" % patt
-        try:
-            solution_except = solution_try_except['handlers'][key]
-        except:
-            raise ValueError("Make sure that you actually specify a %s in your solution code." % incorrect_part)
+        incorrect_part = "{} `except` block".format('general' if key == 'all' else "`%s`"%key)
 
-        c_except_missing_msg = except_missing_msg or \
-            ("Have you included a %s in your %s try-except block?" % (incorrect_part, get_ord(index)))
+        # run to see if index exists, since the message depends on using the quiet child :o
+        check_handler = partial(check_part_index, 'handlers', key, incorrect_part, MSG_MISSING_PART)
 
-        rep.do_test(DefinedCollTest(key, student_try_except['handlers'],
-            Feedback(c_except_missing_msg, student_try_except['try_except'])))
+        check_handler(state=quiet_child)                       # exists
+        multi(value, state=check_handler(state=child))         # subtests
 
-        student_except = student_try_except['handlers'][key]
+    # test orelse and finalbody
+    check = partial(check_part, missing_msg = MSG_MISSING_PART)
 
-        psub_test(value, student_except.body, solution_except.body, incorrect_part, student_except.name, solution_except.name)
+    # test orelse 
+    if child.solution_parts['orelse']:
+        check('orelse', "`else` part", quiet_child)                         # exists
+        multi(orelse, state=check('orelse', "`else` part", child))          # subtests
 
-    def test_part(el, incorrect_part, missing_msg, test):
-        if len(solution_try_except[el]) == 0:
-            raise ValueError("Make sure that you actually specify a %s in your solution code" % incorrect_part)
-
-        c_missing_msg = missing_msg or \
-            ("Have you included a %s in your %s try-except block?" % (incorrect_part, get_ord(index)))
-        if len(student_try_except[el]) == 0:
-            rep.do_test(Test(Feedback(c_missing_msg, student_try_except['try_except'])))
-            return
-
-        psub_test(test, student_try_except[el], solution_try_except[el], incorrect_part)
-
-    if orelse is not None:
-        test_part("orelse", "`else` part", orelse_missing_msg, orelse)
-
-    if finalbody is not None:
-        test_part("finalbody", "`finally` part", finalbody_missing_msg, finalbody)
+    # test orelse 
+    if child.solution_parts['finalbody']:
+        check('finalbody', "`finally` part", quiet_child)                   # exists
+        multi(finalbody, state=check('finalbody', "`finally` part", child)) # subtests

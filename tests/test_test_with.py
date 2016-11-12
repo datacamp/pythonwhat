@@ -91,6 +91,34 @@ success_msg("Nice work!")
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_Pass1_spec2(self):
+        self.data["DC_SCT"] = '''
+for_test = test_for_loop(1, body = test_if_else(1, body = test_function('print')))
+Ex().check_with(1).check_body().with_context(for_test)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_Fail1_spec2(self):
+        self.data["DC_SCT"] = '''
+Ex().check_with(0).check_body().with_context([test_function('print', index = i+1) for i in range(3)])
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Check your code in the body of the first <code>with</code> statement.", sct_payload['message'])
+        # line info should be specific to test_function
+        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
+
+    def test_Pass1_spec2_no_ctx(self):
+        self.data["DC_SCT"] = '''
+# since the print func is being tested w/o SCTs setting any variables, don't need with_context
+for_test = test_for_loop(1, body = test_if_else(1, body = test_function('print')))
+Ex().check_with(1).check_body().multi(for_test)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+
 class TestExercise2(unittest.TestCase):
 
     def setUp(self):
@@ -222,7 +250,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check the second context in the second <code>with</code> statement. Did you call <code>open()</code> with the correct arguments? The first argument seems to be incorrect.")
+        self.assertEqual(sct_payload['message'], "Check the second context of the second <code>with</code> statement. Did you call <code>open()</code> with the correct arguments? The first argument seems to be incorrect.")
         helper.test_lines(self, sct_payload, 12, 12, 46, 60)
 
 class TestExercise4(unittest.TestCase):
@@ -330,6 +358,30 @@ success_msg("NICE WORK!!!!")
         '''
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
+class TestDestructuring(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '''
+class A:
+    def __enter__(self): return [1,2, 3]
+    def __exit__(self, *args, **kwargs): return
+            ''',
+            "DC_SOLUTION": '''
+with A() as (one, *others):
+    print(one)
+    print(others)
+''',
+            "DC_SCT": '''
+test_with(1, body=[test_function('print'), test_function('print')])
+'''
+        }
+                
+    def test_pass(self):
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 
 if __name__ == "__main__":
     unittest.main()

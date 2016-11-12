@@ -1,12 +1,10 @@
-import ast
-from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import Test
-from pythonwhat.utils import get_ord
-from pythonwhat.Feedback import Feedback
-from pythonwhat.sub_test import sub_test
+from pythonwhat.check_funcs import check_part, check_node, multi
 
 from functools import partial
+
+MSG_MISSING = "Define more {typestr}."
+MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} for loop. "
 
 def test_for_loop(index=1,
                   for_iter=None,
@@ -66,24 +64,10 @@ def test_for_loop(index=1,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_for_loop")
 
-    index = index - 1
+    state = check_node('for_loops', index-1, "`for` loops", MSG_MISSING, MSG_PREPEND, state=state)
 
-    student_fors = state.student_for_calls
-    solution_fors = state.solution_for_calls
+    # TODO for_iter is a level up, so shouldn't have targets set, but this is done is check_node
+    multi(for_iter, state = check_part('iter', 'sequence part', state))
+    multi(body,     state = check_part('body', 'body', state))
+    multi(orelse,   state = check_part('orelse', 'else part', state))
 
-    try:
-        target_student, for_iter_student, body_student, orelse_student = student_fors[index]
-    except:
-        rep.do_test(Test("Define more `for` loops."))
-        return
-
-    target_solution, for_iter_solution, body_solution, orelse_solution = solution_fors[index]
-
-    prepend_fmt = "Check your code in the {incorrect_part} of the %s for loop. " %(get_ord(index + 1))
-
-    psub_test = partial(sub_test, state, rep, 
-            expand_message=expand_message and prepend_fmt)
-
-    psub_test(for_iter, for_iter_student, for_iter_solution, "sequence part")
-    psub_test(body, body_student, body_solution, "body", target_student, target_solution)
-    psub_test(orelse, orelse_student, orelse_solution, "else part", target_student, target_solution)

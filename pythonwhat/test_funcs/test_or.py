@@ -1,7 +1,6 @@
-from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.sub_test import sub_test
 from pythonwhat.Test import TestFail
+from pythonwhat.check_funcs import multi
 
 def test_or(*tests, state=None):
     rep = Reporter.active_reporter
@@ -17,7 +16,7 @@ def test_or(*tests, state=None):
     first_message = None
     for test in tests: 
         try: 
-            sub_test(state, rep, test, None, None)
+            multi(test, state=state)
             success = True
         except TestFail as e:
             if not first_message: first_message = rep.feedback.message 

@@ -181,7 +181,7 @@ class EqualValueProcessTest(Test):
         self.sol_value = sol_value
 
     def specific_test(self):
-        stud_value = getValueInProcess(self.name, self.key, self.student_process)
+        stud_value, stud_str = getValueInProcess(self.name, self.key, self.student_process)
         if isinstance(stud_value, ReprFail):
             self.result = False
         else:

@@ -1,6 +1,6 @@
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.sub_test import sub_test
+from pythonwhat.check_funcs import multi
 
 from .test_or import test_or
 
@@ -8,8 +8,9 @@ def test_correct(check, diagnose, state=None):
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_correct")
 
-    def diagnose_and_check():
-        sub_test(state, rep, diagnose, None, None)
-        sub_test(state, rep, check, None, None)
+    def diagnose_and_check(state=None):
+        # use multi twice, since diagnose and check may be lists of tests
+        multi(diagnose, state=state)
+        multi(check, state=state)
 
     test_or(diagnose_and_check, check, state=state)

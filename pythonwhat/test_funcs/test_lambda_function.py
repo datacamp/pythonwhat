@@ -5,8 +5,15 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
 from pythonwhat import utils
 from pythonwhat.utils import get_ord, get_num
-from .test_function_definition import test_args, test_body
-from pythonwhat.tasks import getTreeResultInProcess, getTreeErrorInProcess, ReprFail
+from .test_function_definition import test_args
+from pythonwhat.tasks import getResultInProcess, getTreeErrorInProcess, ReprFail
+
+from pythonwhat.check_funcs import check_node, multi, check_part
+from functools import partial
+
+MSG_MISSING = "The system wants to check {typestr} you defined but hasn't found it."
+MSG_PREPEND = "Check your definition of {typestr}. "
+MSG_PREPEND_ARG = "In your definition of {typestr}, "
 
 def test_lambda_function(index,
                          arg_names=True,
@@ -62,63 +69,42 @@ def test_lambda_function(index,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_lambda_function")
 
-    student_lambdas = state.student_lambda_functions
-    solution_lambdas = state.solution_lambda_functions
+    # what the lambda will be referred to as
+    typestr = "the {} lambda function".format(get_ord(index))
+    get_func_child = partial(check_node, 'lambda_functions', index-1, typestr, not_called_msg or MSG_MISSING, state=state)
+    child = get_func_child(expand_msg = MSG_PREPEND if expand_message else "")
 
-    # raise error if not enough solution_lambdas
-    try:
-        solution_lambda = solution_lambdas[index - 1]
-    except KeyError:
-        raise NameError("There aren't %s lambda functions in the solution environment" % get_num(index))
+    # make a temporary child states, to reflect that there were two types of 
+    # messages prepended in the original function
+    quiet_child = get_func_child(expand_msg = "")
+    prep_child2 = get_func_child(expand_msg =  MSG_PREPEND_ARG if expand_message else "")
 
-    # check if enough student_lambdas
-    c_not_called_msg = not_called_msg or \
-        ("The system wants to check the %s lambda function you defined but hasn't found it." % get_ord(index))
-    rep.do_test(BiggerTest(len(student_lambdas), index - 1, Feedback(c_not_called_msg)))
+    test_args(arg_names, arg_defaults, 
+              nb_args_msg, arg_names_msg, arg_defaults_msg, 
+              prep_child2, quiet_child)
 
-    student_lambda = student_lambdas[index - 1]
+    multi(body, state=check_part('body', "", child))
 
-    student_fun = student_lambda['fun']
-    solution_fun = solution_lambda['fun']
+    # Refactor me -------------------------------------------------------------
+
+    student_fun  = state.student_lambda_functions[index-1]['node']
+    solution_fun = state.solution_lambda_functions[index-1]['node']
 
     fun_name = "the %s lambda function" % get_ord(index)
-    test_args(rep=rep,
-              arg_names=arg_names,
-              arg_defaults=arg_defaults,
-              args_student=student_lambda['args']['args'],
-              args_solution=solution_lambda['args']['args'],
-              fun_def=student_fun,
-              nb_args_msg=nb_args_msg,
-              arg_names_msg=arg_names_msg,
-              arg_defaults_msg=arg_defaults_msg,
-              student_process=state.student_process,
-              solution_process=state.solution_process,
-              name=fun_name)
-
-    # sub-scts expect a module, so wrap the lambda body in a list!"
-    test_body(rep=rep,
-              state=state,
-              body=body,
-              subtree_student=student_lambda['body'],
-              subtree_solution=solution_lambda['body'],
-              args_student=student_lambda['args'],
-              args_solution=solution_lambda['args'],
-              name=fun_name,
-              expand_message=expand_message)
 
     for el in results:
         parsed = ast.parse(el).body[0].value
         argstr = el.replace('lam', '')
 
         parsed.func = solution_fun
-        eval_solution, str_solution = getTreeResultInProcess(process = state.solution_process, tree = parsed)
+        eval_solution, str_solution = getResultInProcess(process = state.solution_process, tree = parsed)
         if str_solution is None:
             raise ValueError("Calling %s for arguments %s in the solution process resulted in an error" % (fun_name, argstr))
         if isinstance(eval_solution, ReprFail):
             raise ValueError("Can't get the result of calling %s for arguments %s: %s" % (fun_name, arg_str, eval_solution.info))
 
         parsed.func = student_fun
-        eval_student, str_student = getTreeResultInProcess(process = state.student_process, tree = parsed)
+        eval_student, str_student = getResultInProcess(process = state.student_process, tree = parsed)
 
         if str_student is None:
             c_wrong_result_msg = wrong_result_msg or \
