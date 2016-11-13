@@ -245,7 +245,8 @@ class FunctionParser(Parser):
     """
 
     def __init__(self):
-        self.current = ''
+        self.gen_name = ''
+        self.raw_name = ''
         self.mappings = {}
         self.calls = {}
         self.call_lookup_active = False
@@ -275,10 +276,7 @@ class FunctionParser(Parser):
 
     def visit_ImportFrom(self, node):
         for imp in node.names:
-            if imp.asname is not None:
-                self.mappings[imp.asname] = node.module + "." + imp.name
-            else:
-                self.mappings[imp.name] = node.module + "." + imp.name
+            self.mappings[imp.asname or imp.name] = node.module + "." + imp.name
 
     def visit_Expr(self, node):
         self.visit(node.value)
@@ -290,13 +288,14 @@ class FunctionParser(Parser):
             self.call_lookup_active = True
             self.visit(node.func) # Need to visit func to start recording the current function name.
 
-            if self.current:
-                if (self.current not in self.calls):
-                    self.calls[self.current] = []
+            if self.gen_name:
+                if (self.gen_name not in self.calls):
+                    self.calls[self.gen_name] = []
 
-                self.calls[self.current].append((node, node.args, node.keywords))
+                self.calls[self.gen_name].append(self.get_call_part(node))
+                #self.calls[self.current].append((node, node.args, node.keywords))
 
-            self.current = ''
+            self.gen_name = self.raw_name = ""
             self.call_lookup_active = False
 
             # dive deeper in func, args and keywords
@@ -308,13 +307,23 @@ class FunctionParser(Parser):
             for key in node.keywords:
                 self.visit(key.value)
 
-
     def visit_Attribute(self, node):
         self.visit(node.value)  # Go deeper for the package/module names!
-        self.current += "." + node.attr  # Add the function name
+        self.gen_name += "." + node.attr  # Add the function name
+        self.raw_name += "." + node.attr
 
     def visit_Name(self, node):
-        self.current = (node.id if not node.id in self.mappings else self.mappings[node.id])
+        self.gen_name = self.mappings.get(node.id) or node.id
+        self.raw_name = node.id
+    
+    def get_call_part(self, node):
+        return {'node': node,
+                'args': node.args,
+                'keywords': node.keywords,
+                'name': self.raw_name,
+                '_spec1': (node, node.args, node.keywords, self.raw_name)
+                }
+
 
 class ObjectAccessParser(FunctionParser):
     """Find object accesses
@@ -343,19 +352,19 @@ class ObjectAccessParser(FunctionParser):
 
     def visit_Attribute(self, node):
         # if already a chain, prepend, else initialize self.current
-        self.current = node.attr + "." + self.current if self.current else node.attr
+        self.gen_name = node.attr + "." + self.gen_name if self.gen_name else node.attr
+        self.raw_name = node.attr + "." + self.raw_name if self.raw_name else node.attr
         self.visit(node.value)
 
     def visit_Name(self, node):
         # if name refers to an import, replace
-        prefix = None
-        if node.id in self.mappings:
-            prefix = self.mappings[node.id]
-        else:
-            prefix = node.id
-        self.current = prefix + "." + self.current if self.current else prefix
-        self.out.append(self.current)
-        self.current = ''
+        prefix = self.mappings.get(node.id) or node.id
+
+        self.gen_name = prefix  + "." + self.gen_name if self.gen_name else prefix
+        self.raw_name = node.id + "." + self.raw_name if self.raw_name else node.id
+
+        self.out.append(self.gen_name)
+        self.gen_name = self.raw_name = ""
 
 class ObjectAssignmentParser(Parser):
     """Find object assignmnts

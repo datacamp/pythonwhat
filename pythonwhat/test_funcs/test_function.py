@@ -95,7 +95,7 @@ def test_function(name,
 
     rep.do_test(BiggerTest(len(student_calls[name]), index, not_called_msg))
 
-    solution_call, args_solution, keyw_solution = solution_calls[name][index]
+    solution_call, args_solution, keyw_solution, sol_name = solution_calls[name][index]['_spec1']
     keyw_solution = {keyword.arg: keyword.value for keyword in keyw_solution}
 
 
@@ -115,7 +115,7 @@ def test_function(name,
         feedback = None
 
         for call_ind in call_indices:
-            student_call, args_student, keyw_student = student_calls[name][call_ind]
+            student_call, args_student, keyw_student, stud_name = student_calls[name][call_ind]['_spec1']
             keyw_student = {keyword.arg: keyword.value for keyword in keyw_student}
 
             success = True
@@ -292,7 +292,7 @@ def test_function_v2(name,
     solution_mappings = state.solution_mappings
 
     stud_name = get_mapped_name(name, student_mappings)
-    sol_name = get_mapped_name(name, solution_mappings)
+    #sol_name = get_mapped_name(name, solution_mappings)
 
     if not_called_msg is None:
         if index == 0:
@@ -314,7 +314,7 @@ def test_function_v2(name,
 
         # Parse Signature -----------------------------------------------------
         try:
-            sol_call, arguments, keywords = solution_calls[name][index]
+            sol_call, arguments, keywords, sol_name = solution_calls[name][index]['_spec1']
             sol_sig = getSignatureInProcess(name=name, mapped_name=sol_name,
                                             signature=signature,
                                             manual_sigs = state.get_manual_sigs(),
@@ -353,12 +353,12 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
               params_not_specified_msg, params_not_matched_msg, incorrect_msg, 
               keywords,  # pulled from solution process
               state):
-    stud_name = get_mapped_name(name, state.student_mappings)
+    #stud_name = get_mapped_name(name, state.student_mappings)
 
     rep = Reporter.active_reporter
     # Parse Signature for Submission. TODO: more info
     try:
-        student_call, arguments, keywords = state.student_function_calls[name][call_ind]
+        student_call, arguments, keywords, stud_name = state.student_function_calls[name][call_ind]['_spec1']
         student_sig = getSignatureInProcess(name = name, mapped_name = stud_name,
                                             signature=signature,
                                             manual_sigs = state.get_manual_sigs(),
@@ -426,13 +426,10 @@ def test_arg(param, do_eval,
 
 
 def get_mapped_name(name, mappings):
+    # get name by splitting on periods
     if "." in name:
-        mappings_rev = {v: k for k, v in mappings.items()}
-        els = name.split(".")
-        for i in range(1, len(els)):
-            front_part = ".".join(els[0:i])
-            if front_part in mappings_rev.keys():
-                return mappings_rev[front_part] + "." + ".".join(els[i:])
+        for orig, full_name in mappings.items():
+            if name.startswith(full_name): return name.replace(full_name, orig)
     return name
 
 def bind_args(signature, arguments, keyws):
