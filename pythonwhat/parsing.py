@@ -318,11 +318,32 @@ class FunctionParser(Parser):
     
     def get_call_part(self, node):
         return {'node': node,
-                'args': node.args,
-                'keywords': node.keywords,
+                'pos_args': map(self.get_pos_arg_part, node.args),
+                'keywords': map(self.get_kw_arg_part, node.keywords),
                 'name': self.raw_name,
                 '_spec1': (node, node.args, node.keywords, self.raw_name)
                 }
+
+    def get_pos_arg_part(self, arg):
+        is_star = isinstance(arg, ast.Starred)
+        return {
+                'node': arg if not is_star else arg.value,
+                'highlight': arg,
+                'type': 'argument',
+                'is_starred': is_star,
+                'name': None
+                }
+
+    def get_kw_arg_part(self, arg):
+        is_kwarg = arg.arg is None
+        return {
+                'node': arg.value,
+                'highlight': arg,
+                'type': 'keyword',
+                'is_kwarg': is_kwarg,
+                'name': arg.arg
+                }
+
 
 
 class ObjectAccessParser(FunctionParser):
