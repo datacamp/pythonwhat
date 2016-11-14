@@ -57,7 +57,6 @@ class Chain:
 
     def __call__(self, *args, **kwargs):
         self._state = self._crnt_sct(state=self._state, *args, **kwargs)
-        assert isinstance(self._state, State)
         return self
 
 class F(Chain):
