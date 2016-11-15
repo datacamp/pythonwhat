@@ -374,6 +374,7 @@ def taskRunEval(tree,
 
 getResultInProcess = get_rep(taskRunEval)
 getOutputInProcess = partial(get_output, taskRunEval)
+getErrorInProcess = partial(get_error, taskRunEval)
 
 # Get the value linked to a key of a collection in the process
 @process_task
@@ -396,24 +397,3 @@ def taskRunFunctionCall(fun_name, arguments, process, shell, tempname='_evaluati
 getFunctionCallResultInProcess = get_rep(taskRunFunctionCall)
 getFunctionCallOutputInProcess = partial(get_output, taskRunFunctionCall)
 getFunctionCallErrorInProcess = partial(get_error, taskRunFunctionCall)
-
-# Get error of function call in process
-#@process_task
-#def getFunctionCallErrorInProcess(fun_name, arguments, process, shell):
-#    try:
-#        get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
-#    except Exception as e:
-#        return e
-#    else:
-#        return None
-
-# Get error of an expression tree in process
-@process_task
-def getTreeErrorInProcess(tree, process, shell):
-    try:
-        eval(compile(ast.Expression(tree), "<script>", "eval"), get_env(shell.user_ns))
-    except Exception as e:
-        return e
-    else:
-        return None
-

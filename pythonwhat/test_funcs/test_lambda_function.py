@@ -6,7 +6,7 @@ from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
 from pythonwhat import utils
 from pythonwhat.utils import get_ord, get_num
 from .test_function_definition import test_args
-from pythonwhat.tasks import getResultInProcess, getTreeErrorInProcess, ReprFail
+from pythonwhat.tasks import getResultInProcess, getErrorInProcess, ReprFail
 
 from pythonwhat.check_funcs import check_node, multi, check_part
 from functools import partial
@@ -123,12 +123,12 @@ def test_lambda_function(index,
         argstr = el.replace('lam', '')
 
         parsed.func = solution_fun
-        error_solution = getTreeErrorInProcess(process = state.solution_process, tree = parsed)
+        error_solution = getErrorInProcess(process = state.solution_process, tree = parsed)
         if error_solution is None:
             raise ValueError("Calling %s with arguments %s did not generate an error in the solution environment." % (fun_name, argstr))
 
         parsed.func = student_fun
-        error_student = getTreeErrorInProcess(process = state.student_process, tree = parsed)
+        error_student = getErrorInProcess(process = state.student_process, tree = parsed)
 
         if error_student is None:
             feedback_msg = no_error_msg or ("Calling %s with the arguments `%s` doesn't result in an error, but it should!" % (fun_name, argstr))
