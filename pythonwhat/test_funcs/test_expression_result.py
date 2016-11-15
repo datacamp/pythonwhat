@@ -103,7 +103,7 @@ def test_expression_result(extra_env=None,
                                                    keep_objs_in_env = keep_objs_in_env)
 
 
-    if str_student is None:
+    if isinstance(str_student, Exception):
         rep.do_test(Test(error_msg or "Running an expression in the student process caused an error"))
         return
 

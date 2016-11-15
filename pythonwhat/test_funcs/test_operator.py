@@ -112,7 +112,7 @@ def test_operator(index=1,
 
         # Compare the evaluated operation groups
         if incorrect_result_msg is None:
-            if str_student is None:
+            if isinstance(str_student, Exception):
                 stud_patt = "an error"
             else:
                 stud_patt = "`%s`" % utils.shorten_str(str_student)

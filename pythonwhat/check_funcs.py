@@ -145,7 +145,7 @@ def has_equal_value(msg, state=None):
 
     _msg = state.build_message(msg, {'stu_part': state.student_parts, 'sol_part': state.solution_parts})
     feedback = Feedback(_msg, state.highlight)
-    if str_student is None:
+    if isinstance(str_student, Exception):
         rep.do_test(Test(feedback))
     else:
         rep.do_test(EqualTest(eval_student, eval_solution, feedback))

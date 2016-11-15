@@ -290,7 +290,7 @@ class UndefinedValue: pass
 
 def getResultFromProcess(res, tempname, process):
     """Get a value from process, return tuple of value, res if succesful"""
-    if res is not None and not isinstance(res, UndefinedValue):
+    if not isinstance(res, (UndefinedValue, Exception)):
         value = getRepresentation(tempname, process)
         return (value, res)
     else: 
@@ -318,13 +318,13 @@ def get_rep(f):
 def get_output(f, process, shell, *args, **kwargs):
     with capture_output() as out:
         res = f(*args, process=process, shell=shell, **kwargs)
-    if res is not None: 
-        return out[0].strip()
+
+    return out[0].strip() if not isinstance(res, Exception) else res
 
 @process_task
-def get_error(f, process, shell, *args, **kwargs):
-    res = f(*args, process=process, shell=shell, **kwargs)
-    return res if instance(f, Exception) else None
+def get_error(f, *args, **kwargs):
+    res = f(*args, **kwargs)
+    return res if isinstance(res, Exception) else None
 
 # General tasks to eval or exec code, with decorated counterparts -------------
 
@@ -369,8 +369,8 @@ def taskRunEval(tree,
         get_env(shell.user_ns)[tempname] = obj
         return str(obj)
 
-    except:
-        return None
+    except Exception as e: 
+        return e
 
 getResultInProcess = get_rep(taskRunEval)
 getOutputInProcess = partial(get_output, taskRunEval)
@@ -387,22 +387,25 @@ getValueInProcess = get_rep(taskGetValue)
 # TODO: should this run the function on the original environment? what about side effects?
 @process_task
 def taskRunFunctionCall(fun_name, arguments, process, shell, tempname='_evaluation_object_'):
-    get_env(shell.user_ns)[tempname] = get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
-    return str(get_env(shell.user_ns)[tempname])
+    try:
+        get_env(shell.user_ns)[tempname] = get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
+        return str(get_env(shell.user_ns)[tempname])
+    except Exception as e:
+        return e
 
 getFunctionCallResultInProcess = get_rep(taskRunFunctionCall)
 getFunctionCallOutputInProcess = partial(get_output, taskRunFunctionCall)
-#getFunctionCallErrorInProcess = partial(get_error, taskRunFunctionCall)
+getFunctionCallErrorInProcess = partial(get_error, taskRunFunctionCall)
 
 # Get error of function call in process
-@process_task
-def getFunctionCallErrorInProcess(fun_name, arguments, process, shell):
-    try:
-        get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
-    except Exception as e:
-        return e
-    else:
-        return None
+#@process_task
+#def getFunctionCallErrorInProcess(fun_name, arguments, process, shell):
+#    try:
+#        get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
+#    except Exception as e:
+#        return e
+#    else:
+#        return None
 
 # Get error of an expression tree in process
 @process_task

@@ -111,7 +111,7 @@ def test_object_after_expression(name,
     if str_solution is None:
         raise ValueError("Running the expression in the solution environment caused an error.")
 
-    if isinstance(str_student, UndefinedValue) or str_student is None:
+    if isinstance(str_student, (UndefinedValue, Exception)):
         rep.do_test(Test(undefined_msg))
         return
 

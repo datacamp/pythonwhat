@@ -426,7 +426,7 @@ def build_test(stud, sol, student_process, solution_process, do_eval, eq_fun, fe
             raise ValueError("Couldn't figure out the argument: " + eval_solution.info)
 
         eval_student, str_student = getResultInProcess(tree = stud, process = student_process)
-        if str_student is None:
+        if isinstance(str_student, Exception):
             got_error = True
 
         # The (eval_student, ) part is important, because when eval_student is a tuple, we don't want

@@ -106,7 +106,7 @@ def test_lambda_function(index,
         parsed.func = student_fun
         eval_student, str_student = getResultInProcess(process = state.student_process, tree = parsed)
 
-        if str_student is None:
+        if isinstance(str_student, Exception):
             c_wrong_result_msg = wrong_result_msg or \
                 ("Calling the %s with arguments `%s` should result in `%s`, instead got an error." %
                     (fun_name, argstr, str_solution))

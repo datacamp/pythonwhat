@@ -160,7 +160,7 @@ def test_function_definition(name,
                                                                        fun_name = name,
                                                                        arguments = el)
 
-            if str_student is None:
+            if isinstance(str_student, Exception):
                 c_wrong_result_msg = wrong_result_msg or \
                     ("Calling `%s` should result in `%s`, instead got an error." %
                         (call_str, str_solution))
