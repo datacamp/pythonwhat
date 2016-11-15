@@ -9,8 +9,8 @@ __PART_WRAPPERS__ = {
         'key' : 'key part',
         'value': 'value part',
         'orelse': 'else part',
-        'vararg': 'vararg part',
-        'kwarg':  ' kwarg part',
+        #'vararg': 'vararg part',
+        #'kwarg':  ' kwarg part',
         'test': 'condition' 
         }
 
@@ -46,6 +46,6 @@ for k, v in __PART_INDEX_WRAPPERS__.items():
 for k, v in __NODE_WRAPPERS__.items():
     scts['check_'+k] = partial(check_node, k+'s', typestr=v)
 
-for k in ['set_context', 'has_equal_value', 'extend', 'multi', 'with_context']:
+for k in ['set_context', 'has_equal_value', 'extend', 'multi', 'with_context', 'check_arg', 'has_equal_part']:
     scts[k] = getattr(check_funcs, k)
 

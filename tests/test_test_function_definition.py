@@ -688,6 +688,101 @@ def my_fun(x, y = 4, z = ['a', 'b'], *args, **kwargs):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+class TestFunctionSpec2(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+def my_fun(x, y = 4, z = ('a', 'b'), *args, **kwargs):
+    return [x, y, *z, *args]
+            ''',
+            "DC_SCT": '''
+varnames = ['x', 'y', 'z', '*args', '**kwargs']
+test_names = [check_arg(name).has_equal_part('name', 'bad%s'%name) for name in varnames]
+Ex().check_function_def('my_fun').multi(test_names)
+            '''}
+
+        self.SCT_KW = "Ex().check_function_def('my_fun').check_arg('x').has_equal_part('name', 'badx')"
+        self.SCT_POS = "Ex().check_function_def('my_fun').check_arg(0).has_equal_part('name', 'badx')"
+        self.SCT_CHECK_ONE = "Ex().check_function_def('my_fun').check_arg(1)"
+        self.SCT_CHECK_Y = "Ex().check_function_def('my_fun').check_arg('y')"
+        self.SCT_CHECK_X = "Ex().check_function_def('my_fun').check_arg('x')"
+
+    def test_pass_kw(self):
+        self.data['DC_CODE'] = self.data['DC_SOLUTION']
+        self.data['DC_SCT'] = self.SCT_KW
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail_kw(self):
+        self.data['DC_CODE'] = self.data['DC_SOLUTION'].replace('x', 'x2')
+        self.data['DC_SCT'] = self.SCT_KW
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_pass_pos(self):
+        self.data['DC_CODE'] = self.data['DC_SOLUTION']
+        self.data['DC_SCT'] = self.SCT_POS
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail_pos(self):
+        self.data['DC_CODE'] = self.data['DC_SOLUTION'].replace('x', 'x2')
+        self.data['DC_SCT'] = self.SCT_POS
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_fail_pos_is_default(self):
+        self.data['DC_CODE'] = self.data['DC_SOLUTION'].replace('y = 4', 'y')
+        self.data['DC_SCT'] = self.SCT_CHECK_ONE + ".has_equal_part('is_default', 'baddefault')"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_fail_kw_is_default(self):
+        self.data['DC_CODE'] = self.data['DC_SOLUTION'].replace('y = 4', 'y')
+        self.data['DC_SCT'] = self.SCT_CHECK_Y + ".has_equal_part('is_default', 'baddefault')"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_pass_equal_value(self):
+        self.data['DC_CODE'] = self.data['DC_SOLUTION']
+        self.data['DC_SCT'] = self.SCT_CHECK_Y + ".has_equal_value('unequal values')"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail_equal_value(self):
+        self.data['DC_CODE'] = self.data['DC_SOLUTION'].replace('y = 4', 'y = 2')
+        self.data['DC_SCT'] = self.SCT_CHECK_Y + ".has_equal_value('unequal values')"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    @unittest.skip("Tries to evaluate ast tree but gets None when no default")
+    def test_check_value_when_no_default(self):
+        self.data['DC_CODE'] = self.data['DC_SOLUTION']
+        self.data['DC_SCT'] = self.SCT_CHECK_X + ".has_equal_value('unequal values')"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    @unittest.skip("TODO: fix message building in multi")
+    def test_pass_multi(self):
+        self.data['DC_CODE'] = self.data['DC_SOLUTION']
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    @unittest.skip("TODO: fix message building in multi")
+    def test_fail_multi(self):
+        self.data['DC_CODE'] = self.data['DC_SOLUTION'].replace('x', 'x2')
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+class TestLambdaFunctionSpec2(TestFunctionSpec2):
+    def setUp(self):
+        super().setUp()
+        self.data['DC_SOLUTION'] = "lambda x, y = 4, z = ('a', 'b'), *args, **kwargs: [x, y, *z, *args]"
+        for attr in ['SCT_KW', 'SCT_POS', 'SCT_CHECK_ONE', 'SCT_CHECK_Y', 'SCT_CHECK_X']:
+            lam_sct = getattr(self, attr).replace("check_function_def('my_fun')", 'check_lambda_function(0)')
+            setattr(self, attr, lam_sct)
+
 if __name__ == "__main__":
     unittest.main()
 
