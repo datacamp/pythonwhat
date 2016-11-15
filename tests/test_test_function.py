@@ -599,6 +599,9 @@ test_function("print", index = 2)
 test_function("print", index = 3)
             '''
         }
+        self.DC_SCT_SPEC2 = '''
+Ex().check_function("print", 0).check_arg(0).has_equal_value()
+        '''
     def test_multiple_1(self):
         self.data["DC_CODE"] = 'print("abc")'
         sct_payload = helper.run(self.data)

@@ -96,7 +96,10 @@ def has_part(name, msg, state=None, fmt_kwargs=None):
          **fmt_kwargs
          }
 
-    if not d['stu_part'][name] is not None:
+    try: 
+        part = state.student_parts[name]
+        if part is None: raise KeyError
+    except (KeyError, IndexError):
         _msg = state.build_message(msg, d)
         rep.do_test(Test(Feedback(_msg, state.highlight)))
 
@@ -241,3 +244,9 @@ def set_context(*args, state=None, **kwargs):
     return state.to_child_state(student_subtree = None, solution_subtree = None,
                                 student_context = out_stu, solution_context = out_sol)
 
+
+def check_arg(name, missing_msg='check the argument `{part}`, ', state=None):
+    if name in ['*args', '**kwargs']:
+        return check_part(name, name, state=state, missing_msg = missing_msg)
+    else: 
+        return check_part_index('args', name, name, state=state, missing_msg = missing_msg)

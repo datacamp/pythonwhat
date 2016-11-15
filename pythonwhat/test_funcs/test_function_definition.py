@@ -1,10 +1,5 @@
-import ast
-from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import DefinedCollTest, EqualTest, Test, InstanceTest
-from pythonwhat.Feedback import Feedback
-from pythonwhat import utils
-from pythonwhat.utils import get_ord
 from pythonwhat.tasks import getFunctionCallResultInProcess, getFunctionCallOutputInProcess, getFunctionCallErrorInProcess, ReprFail
 from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_part, has_equal_part_len, has_equal_part, has_equal_value
 
@@ -20,8 +15,8 @@ MSG_BAD_ARG_NAME = "the {parent[ordinal]} {parent[part]} should be called `{sol_
 MSG_BAD_DEFAULT = "the {parent[part]} `{stu_part[name]}` should have no default."
 MSG_INC_DEFAULT = "the {parent[part]} `{stu_part[name]}` does not have the correct default."
 
-MSG_NO_VARARG = "have you specified an argument to take a `*` argument and named it `{sol_part[vararg][name]}`?"
-MSG_NO_KWARGS = "have you specified an argument to take a `**` argument and named it `{sol_part[kwarg][name]}`?"
+MSG_NO_VARARG = "have you specified an argument to take a `*` argument and named it `{sol_part[*args][name]}`?"
+MSG_NO_KWARGS = "have you specified an argument to take a `**` argument and named it `{sol_part[**kwargs][name]}`?"
 MSG_VARARG_NAME = "have you specified an argument to take a `*` argument and named it `{sol_part[name]}`?"
 MSG_KWARG_NAME = "have you specified an argument to take a `**` argument and named it `{sol_part[name]}`?"
 
@@ -264,12 +259,12 @@ def test_args(arg_names, arg_defaults,
               child, quiet_child):
     if arg_names or arg_defaults:
         # test number of args
-        has_equal_part_len('arg', nb_args_msg or MSG_NUM_ARGS, state=quiet_child)
+        has_equal_part_len('_spec1_args', nb_args_msg or MSG_NUM_ARGS, state=quiet_child)
 
         # iterate over each arg, testing name and default
-        for ii in range(len(child.solution_parts['arg'])):
+        for ii in range(len(child.solution_parts['_spec1_args'])):
             # get argument state
-            arg_state = check_part_index('arg', ii, 'argument', "NO MISSING MSG", state=child)
+            arg_state = check_part_index('_spec1_args', ii, 'argument', "NO MISSING MSG", state=child)
             # test exact name
             has_equal_part('name', arg_names_msg or MSG_BAD_ARG_NAME, arg_state)
 
@@ -281,11 +276,11 @@ def test_args(arg_names, arg_defaults,
                     has_equal_value(arg_defaults_msg or MSG_INC_DEFAULT, arg_state)
 
         # test *args and **kwargs
-        if child.solution_parts['vararg']:
-            vararg = check_part('vararg', "", missing_msg = MSG_NO_VARARG, state = child)
+        if child.solution_parts['*args']:
+            vararg = check_part('*args', "", missing_msg = MSG_NO_VARARG, state = child)
             has_equal_part('name', MSG_VARARG_NAME, vararg)
         
-        if child.solution_parts['kwarg']:
-            kwarg = check_part('kwarg', "", missing_msg = MSG_NO_KWARGS, state = child)
+        if child.solution_parts['**kwargs']:
+            kwarg = check_part('**kwargs', "", missing_msg = MSG_NO_KWARGS, state = child)
             has_equal_part('name', MSG_KWARG_NAME, kwarg)
 

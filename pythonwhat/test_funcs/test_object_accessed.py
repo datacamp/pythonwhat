@@ -48,11 +48,8 @@ def test_object_accessed(name,
     if not not_accessed_msg:
         stud_name = name
         if "." in stud_name:
-            student_mappings_rev = {v: k for k, v in student_mappings.items()}
-            els = name.split(".")
-            front_part = ".".join(els[0:-1])
-            if front_part in student_mappings_rev.keys():
-                stud_name = student_mappings_rev[front_part] + "." + els[-1]
+            for orig, full_name in student_mappings.items():
+                if name.startswith(full_name): stud_name = name.replace(full_name, orig)
 
         add = " at least %s" % pythonwhat.utils.get_times(times) if times > 1 else ""
         not_accessed_msg = "Have you accessed `%s`%s?" % (stud_name, add)
