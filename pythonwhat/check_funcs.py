@@ -257,7 +257,12 @@ def check_arg(name, missing_msg='check the argument `{part}`, ', state=None):
 from pythonwhat.tasks import evalCalls, funcCalls, ReprFail
 import ast
 
-
+call_warnings = {
+        'value': 'in the solution process resulted in an error',
+        'error': 'did not generate an error in the solution environment',
+        'output': 'IDK'
+        }
+"Calling %s with arguments %s did not generate an error in the solution environment."
 # TODO: test string syntax with check_function_def
 #       test argument syntax with check_lambda
 #       implement for error and output
@@ -284,8 +289,9 @@ def call(args, test='value', incorrect_msg=None, error_msg=None, state=None, arg
     # Run for Solution --------------------------------------------------------
     eval_sol, str_sol = run_call(args, state.solution_parts['node'], state.solution_process, get_func)
 
-    if str_sol is None:
-        raise ValueError("Calling %s for arguments %s in the solution process resulted in an error" % (argstr, args))
+    if test != 'error' and isinstance(str_sol, Exception):
+        _msg_prefix = "Calling %s for arguments %s " % (argstr, args)
+        raise ValueError(_msg_prefix + call_warnings[test])
         #raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
     if isinstance(eval_sol, ReprFail):
         raise ValueError("Can't get the result of calling %s for arguments %s: %s" % (argstr, args, eval_sol.info))
@@ -297,7 +303,7 @@ def call(args, test='value', incorrect_msg=None, error_msg=None, state=None, arg
     # error
     fmt_kwargs = {'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu}
     stu_node = state.student_parts['node']
-    if isinstance(str_stu, Exception):
+    if test != 'error' and isinstance(str_stu, Exception):
         _msg = state.build_message(error_msg, fmt_kwargs)
         rep.do_test(Test(Feedback(_msg, stu_node)))
 

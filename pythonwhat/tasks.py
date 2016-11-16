@@ -313,7 +313,7 @@ def get_output(f, process, shell, *args, **kwargs):
 @process_task
 def get_error(f, *args, **kwargs):
     res = f(*args, **kwargs)
-    return res if isinstance(res, Exception) else None
+    return (str(res), res) if isinstance(res, Exception) else (None, res)
 
 # General tasks to eval or exec code, with decorated counterparts -------------
 

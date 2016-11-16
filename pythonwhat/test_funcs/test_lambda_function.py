@@ -17,7 +17,7 @@ MSG_PREPEND_ARG = "In your definition of {typestr}, "
 
 MSG_RES_ERROR = "Calling it with arguments `{argstr}` should result in `{str_sol}`, instead got an error."
 MSG_RES_INCORRECT = "Calling it with arguments `{argstr}` should result in `{str_sol}`, instead got `{str_stu}`."
-
+MSG_ERR_WRONG = "Calling it with arguments `{argstr}` doesn't result in an error, but it should!"
 def test_lambda_function(index,
                          arg_names=True,
                          arg_defaults=True,
@@ -104,18 +104,22 @@ def test_lambda_function(index,
              state = child)
 
     for el in errors:
-        parsed = ast.parse(el).body[0].value
         argstr = el.replace('lam', '')
+        call(el, 'error',
+             incorrect_msg = no_error_msg or MSG_ERR_WRONG, 
+             argstr = argstr,
+             state = child)
 
-        parsed.func = solution_fun
-        error_solution = getErrorInProcess(process = state.solution_process, tree = parsed)
-        if error_solution is None:
-            raise ValueError("Calling %s with arguments %s did not generate an error in the solution environment." % (fun_name, argstr))
 
-        parsed.func = student_fun
-        error_student = getErrorInProcess(process = state.student_process, tree = parsed)
+        #parsed.func = solution_fun
+        #error_solution = getErrorInProcess(process = state.solution_process, tree = parsed)
+        #if error_solution is None:
+        #    raise ValueError("Calling %s with arguments %s did not generate an error in the solution environment." % (fun_name, argstr))
 
-        if error_student is None:
-            feedback_msg = no_error_msg or ("Calling %s with the arguments `%s` doesn't result in an error, but it should!" % (fun_name, argstr))
-            rep.do_test(Test(Feedback(feedback_msg, student_fun)))
+        #parsed.func = student_fun
+        #error_student = getErrorInProcess(process = state.student_process, tree = parsed)
+
+        #if error_student is None:
+        #    feedback_msg = no_error_msg or ("Calling %s with the arguments `%s` doesn't result in an error, but it should!" % (fun_name, argstr))
+        #    rep.do_test(Test(Feedback(feedback_msg, student_fun)))
 
