@@ -107,6 +107,7 @@ def test_lambda_function(index,
         argstr = el.replace('lam', '')
         call(el, 'error',
              incorrect_msg = no_error_msg or MSG_ERR_WRONG, 
+             error_msg = no_error_msg or MSG_ERR_WRONG,
              argstr = argstr,
              state = child)
 

@@ -289,7 +289,7 @@ def call(args, test='value', incorrect_msg=None, error_msg=None, state=None, arg
     # Run for Solution --------------------------------------------------------
     eval_sol, str_sol = run_call(args, state.solution_parts['node'], state.solution_process, get_func)
 
-    if test != 'error' and isinstance(str_sol, Exception):
+    if (test == 'error') ^ isinstance(str_sol, Exception):
         _msg_prefix = "Calling %s for arguments %s " % (argstr, args)
         raise ValueError(_msg_prefix + call_warnings[test])
         #raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
@@ -300,10 +300,10 @@ def call(args, test='value', incorrect_msg=None, error_msg=None, state=None, arg
     # Run for Submission ------------------------------------------------------
     eval_stu, str_stu = run_call(args, state.student_parts['node'], state.student_process, get_func)
 
-    # error
+    # either error test and no error, or vice-versa
     fmt_kwargs = {'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu}
     stu_node = state.student_parts['node']
-    if test != 'error' and isinstance(str_stu, Exception):
+    if (test == 'error') ^ isinstance(str_stu, Exception):
         _msg = state.build_message(error_msg, fmt_kwargs)
         rep.do_test(Test(Feedback(_msg, stu_node)))
 

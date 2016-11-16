@@ -210,6 +210,9 @@ def is_equal(x, y):
             elif objs_are(x, y, [pd.Series]):
                 pd.util.testing.assert_series_equal(x, y)
                 return True
+            elif objs_are(x, y, [Exception]):
+                assert type(x) == type(y) and str(x) == str(y)
+                return True
             else:
                 return x == y
 

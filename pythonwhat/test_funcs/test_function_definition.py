@@ -20,9 +20,13 @@ MSG_NO_KWARGS = "have you specified an argument to take a `**` argument and name
 MSG_VARARG_NAME = "have you specified an argument to take a `*` argument and named it `{sol_part[name]}`?"
 MSG_KWARG_NAME = "have you specified an argument to take a `**` argument and named it `{sol_part[name]}`?"
 
+# TODO some need to reference the eval rather than str
 MSG_RES_ERROR = "Calling `{argstr}` should result in `{str_sol}`, instead got an error."
 MSG_RES_INCORRECT = "Calling `{argstr}` should result in `{str_sol}`, instead got `{str_stu}`."
-
+MSG_ERR_NONE = "Calling `{argstr}` doesn't result in an error, but it should!"
+MSG_ERR_INCORRECT = "Calling `{argstr}` should result in a `{str_sol}`, instead got a `{str_stu}`."
+MSG_OUT_ERROR = "Calling `{argstr}` should output `{str_sol}`, instead got an error."
+MSG_OUT_INCORRECT = "Calling `{argstr}` should output `{str_sol}`, instead got `{str_stu}`."
 
 def test_function_definition(name,
                              arg_names=True,
@@ -151,86 +155,74 @@ def test_function_definition(name,
                  argstr = name + stringify(el),
                  state = quiet_child)
 
-#            eval_solution, str_solution = getFunctionCallResultInProcess(process = state.solution_process,
-#                                                                         fun_name = name,
-#                                                                         arguments = el)
-#            if str_solution is None:
-#                raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
-#            if isinstance(eval_solution, ReprFail):
-#                raise ValueError("Something went wrong in figuring out the result of " + call_str + ": " + eval_solution.info)
-#
-#            eval_student, str_student = getFunctionCallResultInProcess(process = state.student_process,
-#                                                                       fun_name = name,
-#                                                                       arguments = el)
-#
-#            if isinstance(str_student, Exception):
-#                c_wrong_result_msg = wrong_result_msg or \
-#                    ("Calling `%s` should result in `%s`, instead got an error." %
-#                        (call_str, str_solution))
-#                rep.do_test(Test(c_wrong_result_msg))
-#                return
-#
-#            c_wrong_result_msg = wrong_result_msg or \
-#                ("Calling `%s` should result in `%s`, instead got `%s`." %
-#                    (call_str, str_solution, str_student))
-#            rep.do_test(EqualTest(eval_solution, eval_student, c_wrong_result_msg))
-
     if outputs is not None:
         for el in outputs:
             el = fix_format(el)
-            call_str = name + stringify(el)
-            output_solution = getFunctionCallOutputInProcess(process = state.solution_process,
-                                                             fun_name = name,
-                                                             arguments = el)
+            call(el, 'output',
+                 incorrect_msg = wrong_output_msg or MSG_OUT_INCORRECT,
+                 error_msg = wrong_output_msg or MSG_OUT_ERROR,
+                 argstr = name + stringify(el),
+                 state = quiet_child)
 
-            if output_solution is None:
-                raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
+            #call_str = name + stringify(el)
+            #output_solution = getFunctionCallOutputInProcess(process = state.solution_process,
+            #                                                 fun_name = name,
+            #                                                 arguments = el)
 
-            output_student = getFunctionCallOutputInProcess(process = state.student_process,
-                                                            fun_name = name,
-                                                            arguments = el)
+            #if output_solution is None:
+            #    raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
 
-            def format_output(out):
-                if len(out) == 0:
-                    return "no output"
-                else:
-                    return "`%s`" % out
+            #output_student = getFunctionCallOutputInProcess(process = state.student_process,
+            #                                                fun_name = name,
+            #                                                arguments = el)
 
-            if output_student is None:
-                c_wrong_output_msg = wrong_output_msg or \
-                    ("Calling `%s` should output %s, instead got an error." %
-                        (call_str, format_output(output_solution)))
-                rep.do_test(Test(c_wrong_output_msg))
-                return
+            #def format_output(out):
+            #    if len(out) == 0:
+            #        return "no output"
+            #    else:
+            #        return "`%s`" % out
 
-            c_wrong_output_msg = wrong_output_msg or \
-                ("Calling `%s` should output %s, instead got %s." %
-                    (call_str, format_output(output_solution), format_output(output_student)))
-            rep.do_test(EqualTest(output_solution, output_student, c_wrong_output_msg))
+            #if output_student is None:
+            #    c_wrong_output_msg = wrong_output_msg or \
+            #        ("Calling `%s` should output %s, instead got an error." %
+            #            (call_str, format_output(output_solution)))
+            #    rep.do_test(Test(c_wrong_output_msg))
+            #    return
+
+            #c_wrong_output_msg = wrong_output_msg or \
+            #    ("Calling `%s` should output %s, instead got %s." %
+            #        (call_str, format_output(output_solution), format_output(output_student)))
+            #rep.do_test(EqualTest(output_solution, output_student, c_wrong_output_msg))
 
     if errors is not None:
         for el in errors:
             el = fix_format(el)
-            call_str = name + stringify(el)
-            error_solution = getFunctionCallErrorInProcess(process = state.solution_process,
-                                                           fun_name = name,
-                                                           arguments = el)
+            call(el, 'error',
+                    incorrect_msg = wrong_error_msg or MSG_ERR_INCORRECT,
+                    error_msg = no_error_msg or MSG_ERR_NONE,
+                    argstr = name + stringify(el),
+                    state = quiet_child)
 
-            if error_solution is None:
-                raise ValueError("Calling %s did not generate an error in the solution environment." % call_str)
+            #call_str = name + stringify(el)
+            #error_solution = getFunctionCallErrorInProcess(process = state.solution_process,
+            #                                               fun_name = name,
+            #                                               arguments = el)
 
-            error_student = getFunctionCallErrorInProcess(process = state.student_process,
-                                                          fun_name = name,
-                                                          arguments = el)
+            #if error_solution is None:
+            #    raise ValueError("Calling %s did not generate an error in the solution environment." % call_str)
 
-            if error_student is None:
-                feedback_msg = no_error_msg or ("Calling `%s` doesn't result in an error, but it should!" % call_str)
-                rep.do_test(Test(feedback_msg))
-                return
+            #error_student = getFunctionCallErrorInProcess(process = state.student_process,
+            #                                              fun_name = name,
+            #                                              arguments = el)
 
-            feedback_msg = wrong_error_msg or ("Calling `%s` should result in a `%s`, instead got a `%s`." % \
-                (call_str, error_solution.__class__.__name__, error_student.__class__.__name__))
-            rep.do_test(InstanceTest(error_student, error_solution.__class__, feedback_msg))
+            #if error_student is None:
+            #    feedback_msg = no_error_msg or ("Calling `%s` doesn't result in an error, but it should!" % call_str)
+            #    rep.do_test(Test(feedback_msg))
+            #    return
+
+            #feedback_msg = wrong_error_msg or ("Calling `%s` should result in a `%s`, instead got a `%s`." % \
+            #    (call_str, error_solution.__class__.__name__, error_student.__class__.__name__))
+            #rep.do_test(InstanceTest(error_student, error_solution.__class__, feedback_msg))
 
 
 def stringify(arguments):

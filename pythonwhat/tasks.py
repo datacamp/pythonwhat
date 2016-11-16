@@ -308,12 +308,12 @@ def get_output(f, process, shell, *args, **kwargs):
     with capture_output() as out:
         res = f(*args, process=process, shell=shell, **kwargs)
 
-    return out[0].strip() if not isinstance(res, Exception) else res
+    return (out[0].strip(), res) if not isinstance(res, Exception) else (None, res)
 
 @process_task
 def get_error(f, *args, **kwargs):
     res = f(*args, **kwargs)
-    return (str(res), res) if isinstance(res, Exception) else (None, res)
+    return (res, res) if isinstance(res, Exception) else (None, res)
 
 # General tasks to eval or exec code, with decorated counterparts -------------
 
