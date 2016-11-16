@@ -1,5 +1,5 @@
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import Test
+from pythonwhat.Test import Test, EqualTest
 from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord
 from functools import partial
@@ -250,3 +250,57 @@ def check_arg(name, missing_msg='check the argument `{part}`, ', state=None):
         return check_part(name, name, state=state, missing_msg = missing_msg)
     else: 
         return check_part_index('args', name, name, state=state, missing_msg = missing_msg)
+
+
+# CALL CHECK ==================================================================
+
+from pythonwhat.tasks import evalCalls, funcCalls, ReprFail
+import ast
+
+
+# TODO: test string syntax with check_function_def
+#       test argument syntax with check_lambda
+#       implement for error and output
+def run_call(args, node, process, get_func):
+    # TODO: why is the lambda node always inside an expr?
+    func_expr = getattr(node, 'name', node)    # either func name or lambda expr value
+    if isinstance(args, str):
+        parsed = ast.parse(args).body[0].value
+        parsed.func = func_expr
+        return get_func(process = process, tree = parsed)
+    else:
+        # TODO: need to use expr_code because for func def name is just a string
+        #       however, this may cause issues with running lambda expressions
+        return get_func(process = process, tree=None, expr_code = func_expr, call = args)
+        
+
+def call(args, test='value', incorrect_msg=None, error_msg=None, state=None, argstr='the Xth lambda function'):
+    rep = Reporter.active_reporter
+    test_type = ('value', 'output', 'error')
+
+    # TODO hardcoded lambda description for now
+    get_func = evalCalls[test]
+
+    # Run for Solution --------------------------------------------------------
+    eval_sol, str_sol = run_call(args, state.solution_parts['node'], state.solution_process, get_func)
+
+    if str_sol is None:
+        raise ValueError("Calling %s for arguments %s in the solution process resulted in an error" % (argstr, args))
+        #raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
+    if isinstance(eval_sol, ReprFail):
+        raise ValueError("Can't get the result of calling %s for arguments %s: %s" % (argstr, args, eval_sol.info))
+        #raise ValueError("Something went wrong in figuring out the result of " + call_str + ": " + eval_sol.info)
+
+    # Run for Submission ------------------------------------------------------
+    eval_stu, str_stu = run_call(args, state.student_parts['node'], state.student_process, get_func)
+
+    # error
+    fmt_kwargs = {'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu}
+    stu_node = state.student_parts['node']
+    if isinstance(str_stu, Exception):
+        _msg = state.build_message(error_msg, fmt_kwargs)
+        rep.do_test(Test(Feedback(_msg, stu_node)))
+
+    # incorrect result
+    _msg = state.build_message(incorrect_msg, fmt_kwargs)
+    rep.do_test(EqualTest(eval_sol, eval_stu, Feedback(_msg, stu_node)))

@@ -8,12 +8,15 @@ from pythonwhat.utils import get_ord, get_num
 from .test_function_definition import test_args
 from pythonwhat.tasks import getResultInProcess, getErrorInProcess, ReprFail
 
-from pythonwhat.check_funcs import check_node, multi, check_part
+from pythonwhat.check_funcs import check_node, multi, check_part, call
 from functools import partial
 
 MSG_MISSING = "The system wants to check {typestr} you defined but hasn't found it."
 MSG_PREPEND = "Check your definition of {typestr}. "
 MSG_PREPEND_ARG = "In your definition of {typestr}, "
+
+MSG_RES_ERROR = "Calling it with arguments `{argstr}` should result in `{str_sol}`, instead got an error."
+MSG_RES_INCORRECT = "Calling it with arguments `{argstr}` should result in `{str_sol}`, instead got `{str_stu}`."
 
 def test_lambda_function(index,
                          arg_names=True,
@@ -93,30 +96,12 @@ def test_lambda_function(index,
     fun_name = "the %s lambda function" % get_ord(index)
 
     for el in results:
-        parsed = ast.parse(el).body[0].value
         argstr = el.replace('lam', '')
-
-        parsed.func = solution_fun
-        eval_solution, str_solution = getResultInProcess(process = state.solution_process, tree = parsed)
-        if str_solution is None:
-            raise ValueError("Calling %s for arguments %s in the solution process resulted in an error" % (fun_name, argstr))
-        if isinstance(eval_solution, ReprFail):
-            raise ValueError("Can't get the result of calling %s for arguments %s: %s" % (fun_name, arg_str, eval_solution.info))
-
-        parsed.func = student_fun
-        eval_student, str_student = getResultInProcess(process = state.student_process, tree = parsed)
-
-        if isinstance(str_student, Exception):
-            c_wrong_result_msg = wrong_result_msg or \
-                ("Calling the %s with arguments `%s` should result in `%s`, instead got an error." %
-                    (fun_name, argstr, str_solution))
-            rep.do_test(Test(Feedback(c_wrong_result_msg, student_fun)))
-            return
-
-        c_wrong_result_msg = wrong_result_msg or \
-            ("Calling %s with arguments `%s` should result in `%s`, instead got `%s`." %
-                (fun_name, argstr, str_solution, str_student))
-        rep.do_test(EqualTest(eval_solution, eval_student, Feedback(c_wrong_result_msg, student_fun)))
+        call(el, 
+             incorrect_msg = wrong_result_msg or MSG_RES_INCORRECT, 
+             error_msg = wrong_result_msg or MSG_RES_ERROR,
+             argstr = argstr,
+             state = child)
 
     for el in errors:
         parsed = ast.parse(el).body[0].value

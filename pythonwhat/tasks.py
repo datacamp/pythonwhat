@@ -226,17 +226,6 @@ def getClass(name, process, shell):
 def convert(name, converter, process, shell):
     return dill.loads(converter)(get_env(shell.user_ns)[name])
 
-# class TaskGetObject(object):
-#     def __init__(self, name):
-#         self.name = name
-
-#     def __call__(self, shell):
-#         obj = get_env(shell.user_ns)[self.name]
-#         #if dill.pickles(obj):
-#         return obj
-#        else:
-#            return None
-
 @process_task
 def getStreamPickle(name, process, shell):
     try:
@@ -333,7 +322,8 @@ def get_error(f, *args, **kwargs):
 def taskRunEval(tree,
                 process, shell, 
                 keep_objs_in_env = None, extra_env = None, context=None, context_vals=None, 
-                pre_code = "", expr_code = "", name="", tempname='_evaluation_object_', do_exec=False):
+                pre_code = "", expr_code = "", name="", tempname='_evaluation_object_', do_exec=False, 
+                call=None):
     new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
     if extra_env is not None:
         new_env.update(copy.deepcopy(extra_env))
@@ -363,6 +353,10 @@ def taskRunEval(tree,
                 if name not in new_env: return UndefinedValue()
                 obj = new_env[name]
             else: obj = "exec only"
+
+        # call object if dict with args and kwargs was passed
+        if call is not None:
+            obj = obj(*call['args'], **call['kwargs'])
 
         # Set object as temp variable in original environment, so we can
         # later get its class, etc.., in order to extract it from process
@@ -397,3 +391,14 @@ def taskRunFunctionCall(fun_name, arguments, process, shell, tempname='_evaluati
 getFunctionCallResultInProcess = get_rep(taskRunFunctionCall)
 getFunctionCallOutputInProcess = partial(get_output, taskRunFunctionCall)
 getFunctionCallErrorInProcess = partial(get_error, taskRunFunctionCall)
+
+evalCalls = {'value':  getResultInProcess,
+             'output': getOutputInProcess,
+             'error':  getErrorInProcess}
+
+funcCalls = evalCalls
+#{'value':  getFunctionCallResultInProcess,
+#             'output': getFunctionCallOutputInProcess,
+#             'error':  getFunctionCallErrorInProcess}
+
+

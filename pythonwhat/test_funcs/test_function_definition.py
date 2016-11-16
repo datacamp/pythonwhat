@@ -1,7 +1,7 @@
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import DefinedCollTest, EqualTest, Test, InstanceTest
 from pythonwhat.tasks import getFunctionCallResultInProcess, getFunctionCallOutputInProcess, getFunctionCallErrorInProcess, ReprFail
-from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_part, has_equal_part_len, has_equal_part, has_equal_value
+from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_part, has_equal_part_len, has_equal_part, has_equal_value, call
 
 from functools import partial
 
@@ -19,6 +19,9 @@ MSG_NO_VARARG = "have you specified an argument to take a `*` argument and named
 MSG_NO_KWARGS = "have you specified an argument to take a `**` argument and named it `{sol_part[**kwargs][name]}`?"
 MSG_VARARG_NAME = "have you specified an argument to take a `*` argument and named it `{sol_part[name]}`?"
 MSG_KWARG_NAME = "have you specified an argument to take a `**` argument and named it `{sol_part[name]}`?"
+
+MSG_RES_ERROR = "Calling `{argstr}` should result in `{str_sol}`, instead got an error."
+MSG_RES_INCORRECT = "Calling `{argstr}` should result in `{str_sol}`, instead got `{str_stu}`."
 
 
 def test_function_definition(name,
@@ -141,31 +144,36 @@ def test_function_definition(name,
     if results is not None:
         for el in results:
             el = fix_format(el)
-            call_str = name + stringify(el)
 
-            eval_solution, str_solution = getFunctionCallResultInProcess(process = state.solution_process,
-                                                                         fun_name = name,
-                                                                         arguments = el)
-            if str_solution is None:
-                raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
-            if isinstance(eval_solution, ReprFail):
-                raise ValueError("Something went wrong in figuring out the result of " + call_str + ": " + eval_solution.info)
+            call(el,
+                 incorrect_msg = MSG_RES_INCORRECT,
+                 error_msg = MSG_RES_ERROR,
+                 argstr = name + stringify(el),
+                 state = quiet_child)
 
-            eval_student, str_student = getFunctionCallResultInProcess(process = state.student_process,
-                                                                       fun_name = name,
-                                                                       arguments = el)
-
-            if isinstance(str_student, Exception):
-                c_wrong_result_msg = wrong_result_msg or \
-                    ("Calling `%s` should result in `%s`, instead got an error." %
-                        (call_str, str_solution))
-                rep.do_test(Test(c_wrong_result_msg))
-                return
-
-            c_wrong_result_msg = wrong_result_msg or \
-                ("Calling `%s` should result in `%s`, instead got `%s`." %
-                    (call_str, str_solution, str_student))
-            rep.do_test(EqualTest(eval_solution, eval_student, c_wrong_result_msg))
+#            eval_solution, str_solution = getFunctionCallResultInProcess(process = state.solution_process,
+#                                                                         fun_name = name,
+#                                                                         arguments = el)
+#            if str_solution is None:
+#                raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
+#            if isinstance(eval_solution, ReprFail):
+#                raise ValueError("Something went wrong in figuring out the result of " + call_str + ": " + eval_solution.info)
+#
+#            eval_student, str_student = getFunctionCallResultInProcess(process = state.student_process,
+#                                                                       fun_name = name,
+#                                                                       arguments = el)
+#
+#            if isinstance(str_student, Exception):
+#                c_wrong_result_msg = wrong_result_msg or \
+#                    ("Calling `%s` should result in `%s`, instead got an error." %
+#                        (call_str, str_solution))
+#                rep.do_test(Test(c_wrong_result_msg))
+#                return
+#
+#            c_wrong_result_msg = wrong_result_msg or \
+#                ("Calling `%s` should result in `%s`, instead got `%s`." %
+#                    (call_str, str_solution, str_student))
+#            rep.do_test(EqualTest(eval_solution, eval_student, c_wrong_result_msg))
 
     if outputs is not None:
         for el in outputs:

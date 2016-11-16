@@ -595,6 +595,7 @@ class FunctionDefParser(Parser):
         
         return {
             "node": node,
+            "name": getattr(node, 'name', None),
             "args": IndexedDict([ (p['name'], p) for p in all_args if p is not None]),
             # TODO: arg is the node counterpart to target_vars
             "_spec1_args": args,
