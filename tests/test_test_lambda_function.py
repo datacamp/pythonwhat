@@ -54,14 +54,14 @@ test_lambda_function(1,
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 1: word * echo + 1"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Calling the the first lambda function with arguments <code>('test', 2)</code> should result in <code>testtest</code>, instead got an error.")
+        self.assertEqual(sct_payload['message'], "Check your definition of the first lambda function. Calling it with arguments <code>('test', 2)</code> should result in <code>testtest</code>, instead got an error.")
         helper.test_lines(self, sct_payload, 1, 1, 13, 50)
 
     def test_fail_7(self):
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 1: word * echo * 2"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Calling the first lambda function with arguments <code>('test', 2)</code> should result in <code>testtest</code>, instead got <code>testtesttesttest</code>.")
+        self.assertEqual(sct_payload['message'], "Check your definition of the first lambda function. Calling it with arguments <code>('test', 2)</code> should result in <code>testtest</code>, instead got <code>testtesttesttest</code>.")
         helper.test_lines(self, sct_payload, 1, 1, 13, 50)
 
     def test_fail_8(self):
