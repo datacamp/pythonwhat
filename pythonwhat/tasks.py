@@ -308,7 +308,12 @@ def get_output(f, process, shell, *args, **kwargs):
     with capture_output() as out:
         res = f(*args, process=process, shell=shell, **kwargs)
 
-    return (out[0].strip(), res) if not isinstance(res, Exception) else (None, res)
+    out_str = out[0].strip()
+    if not isinstance(res, Exception):
+        str_rep = out_str or "no output"
+        return (out_str, str_rep) 
+    else:
+        return (None, res)
 
 @process_task
 def get_error(f, *args, **kwargs):
@@ -377,28 +382,4 @@ def taskGetValue(name, key, process, shell, tempname='_evaluation_object_'):
     return True
 
 getValueInProcess = get_rep(taskGetValue)
-
-# Run a function call in process
-# TODO: should this run the function on the original environment? what about side effects?
-@process_task
-def taskRunFunctionCall(fun_name, arguments, process, shell, tempname='_evaluation_object_'):
-    try:
-        get_env(shell.user_ns)[tempname] = get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
-        return str(get_env(shell.user_ns)[tempname])
-    except Exception as e:
-        return e
-
-getFunctionCallResultInProcess = get_rep(taskRunFunctionCall)
-getFunctionCallOutputInProcess = partial(get_output, taskRunFunctionCall)
-getFunctionCallErrorInProcess = partial(get_error, taskRunFunctionCall)
-
-evalCalls = {'value':  getResultInProcess,
-             'output': getOutputInProcess,
-             'error':  getErrorInProcess}
-
-funcCalls = evalCalls
-#{'value':  getFunctionCallResultInProcess,
-#             'output': getFunctionCallOutputInProcess,
-#             'error':  getFunctionCallErrorInProcess}
-
 

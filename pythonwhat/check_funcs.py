@@ -254,8 +254,12 @@ def check_arg(name, missing_msg='check the argument `{part}`, ', state=None):
 
 # CALL CHECK ==================================================================
 
-from pythonwhat.tasks import evalCalls, funcCalls, ReprFail
+from pythonwhat.tasks import getResultInProcess, getOutputInProcess, getErrorInProcess, ReprFail
 import ast
+
+evalCalls = {'value':  getResultInProcess,
+             'output': getOutputInProcess,
+             'error':  getErrorInProcess}
 
 call_warnings = {
         'value': 'in the solution process resulted in an error',
@@ -279,11 +283,14 @@ def run_call(args, node, process, get_func):
         return get_func(process = process, tree=None, expr_code = func_expr, call = args)
         
 
-def call(args, test='value', incorrect_msg=None, error_msg=None, state=None, argstr='the Xth lambda function'):
+def call(args, test='value', incorrect_msg=None, error_msg=None, 
+         extra_env = None, pre_code=None, expr_code=None, keep_objs_in_env=None,
+         # TODO hardcoded lambda description for now
+         argstr='the Xth lambda function',
+         state=None):
     rep = Reporter.active_reporter
     test_type = ('value', 'output', 'error')
 
-    # TODO hardcoded lambda description for now
     get_func = evalCalls[test]
 
     # Run for Solution --------------------------------------------------------
@@ -292,16 +299,15 @@ def call(args, test='value', incorrect_msg=None, error_msg=None, state=None, arg
     if (test == 'error') ^ isinstance(str_sol, Exception):
         _msg_prefix = "Calling %s for arguments %s " % (argstr, args)
         raise ValueError(_msg_prefix + call_warnings[test])
-        #raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
+
     if isinstance(eval_sol, ReprFail):
         raise ValueError("Can't get the result of calling %s for arguments %s: %s" % (argstr, args, eval_sol.info))
-        #raise ValueError("Something went wrong in figuring out the result of " + call_str + ": " + eval_sol.info)
 
     # Run for Submission ------------------------------------------------------
     eval_stu, str_stu = run_call(args, state.student_parts['node'], state.student_process, get_func)
+    fmt_kwargs = {'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu}
 
     # either error test and no error, or vice-versa
-    fmt_kwargs = {'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu}
     stu_node = state.student_parts['node']
     if (test == 'error') ^ isinstance(str_stu, Exception):
         _msg = state.build_message(error_msg, fmt_kwargs)

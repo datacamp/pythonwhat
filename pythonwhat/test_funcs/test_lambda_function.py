@@ -1,13 +1,6 @@
-import ast
-from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Feedback import Feedback
-from pythonwhat.Test import Test, BiggerTest, EqualTest, InstanceTest
-from pythonwhat import utils
-from pythonwhat.utils import get_ord, get_num
 from .test_function_definition import test_args
-from pythonwhat.tasks import getResultInProcess, getErrorInProcess, ReprFail
-
+from pythonwhat.utils import get_ord
 from pythonwhat.check_funcs import check_node, multi, check_part, call
 from functools import partial
 
@@ -88,7 +81,7 @@ def test_lambda_function(index,
 
     multi(body, state=check_part('body', "", child))
 
-    # Refactor me -------------------------------------------------------------
+    # Test function calls -----------------------------------------------------
 
     student_fun  = state.student_lambda_functions[index-1]['node']
     solution_fun = state.solution_lambda_functions[index-1]['node']
@@ -110,17 +103,3 @@ def test_lambda_function(index,
              error_msg = no_error_msg or MSG_ERR_WRONG,
              argstr = argstr,
              state = child)
-
-
-        #parsed.func = solution_fun
-        #error_solution = getErrorInProcess(process = state.solution_process, tree = parsed)
-        #if error_solution is None:
-        #    raise ValueError("Calling %s with arguments %s did not generate an error in the solution environment." % (fun_name, argstr))
-
-        #parsed.func = student_fun
-        #error_student = getErrorInProcess(process = state.student_process, tree = parsed)
-
-        #if error_student is None:
-        #    feedback_msg = no_error_msg or ("Calling %s with the arguments `%s` doesn't result in an error, but it should!" % (fun_name, argstr))
-        #    rep.do_test(Test(Feedback(feedback_msg, student_fun)))
-
