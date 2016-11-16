@@ -68,7 +68,7 @@ test_lambda_function(1,
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 1: word * int(echo)"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Calling the first lambda function with the arguments <code>('a', '2')</code> doesn't result in an error, but it should!")
+        self.assertEqual(sct_payload['message'], "Check your definition of the first lambda function. Calling it with arguments <code>('a', '2')</code> doesn't result in an error, but it should!")
         helper.test_lines(self, sct_payload, 1, 1, 13, 51)
 
     def test_pass(self):
