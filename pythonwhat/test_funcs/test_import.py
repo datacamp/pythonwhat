@@ -20,22 +20,24 @@ def test_import(name,
         incorrect_as_msg (str): feedback message if the alias is wrong.
 
 
-    Examples:
-        Student code
+    :Example:
 
-        | ``import numpy as np``
-        | ``import pandas as pa``
+        Student code::
 
-        Solution code
+            import numpy as np
+            import pandas as pa
 
-        | ``import numpy as np``
-        | ``import pandas as pd``
+        Solution code::
 
-        SCT
+            import numpy as np
+            import pandas as pd
 
-        | ``test_import("numpy")``: pass.
-        | ``test_import("pandas")``: fail.
-        | ``test_import("pandas", same_as = False)``: pass.
+        SCT::
+
+            test_import("numpy")  # pass
+            test_import("pandas") # fail
+            test_import("pandas", same_as = False) # pass
+
     """
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_import")

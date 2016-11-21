@@ -17,12 +17,12 @@ def test_for_loop(index=1,
     This test function will allow you to extract parts of a specific for loop and perform a set of tests
     specifically on these parts. A for loop consists of two parts: the sequence, `for_iter`, which is the
     values over which are looped, and the `body`. A for loop can have a else part as well, `orelse`, but
-    this is almost never used.
+    this is almost never used.::
 
-        | ``for i in range(10):``
-        |     ``print(i)``
+        for i in range(10):
+            print(i)
 
-    Has `range(10)` as the sequence and `print(i)` as the body.
+    Has :code:`range(10)` as the sequence and :code:`print(i)` as the body.
 
     Args:
       index (int): index of the function call to be checked. Defaults to 1.
@@ -38,28 +38,28 @@ def test_for_loop(index=1,
         It should be passed as a lambda expression or a function. The functions that are ran should
         be other pythonwhat test functions, and they will be tested specifically on only the else part of
         the for loop.
-      expand_message (bool): if true, feedback messages will be expanded with `in the ___ of the for loop on
-        line ___`. Defaults to True. If False, `test_for_loop()` will generate no extra feedback.
+      expand_message (bool): if true, feedback messages will be expanded with :code:`in the ___ of the for loop on
+        line ___`. Defaults to True. If False, :code:`test_for_loop()` will generate no extra feedback.
 
-    Examples:
-        Student code
+    :Example:
+        Student code::
 
-        | ``for i in range(10):``
-        |       ``print(i)``
+            for i in range(10):
+                print(i)
 
-        Solution code
+        Solution code::
 
-        | ``for n in range(10):``
-        |     ``print(n)``
+            for n in range(10):
+                print(n)
 
-        SCT
+        SCT::
 
-        | ``test_for_loop(1,``
-        |     ``for_iter = lamdba: test_function("range"),``
-        |     ``body = lambda: test_expression_output(context_val = [5])``
+            test_for_loop(1,
+                for_iter = test_function("range"),
+                body = test_expression_output(context_val = [5])
 
-        This SCT will evaluate to True as the function `"range"` is used in the sequence and the function
-        `test_exression_output()` will pass on the body code.
+        This SCT will evaluate to True as the function :code:`range` is used in the sequence and the function
+        :code:`test_exression_output()` will pass on the body code.
     """
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_for_loop")

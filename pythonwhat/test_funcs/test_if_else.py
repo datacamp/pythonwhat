@@ -16,16 +16,16 @@ def test_if_else(index=1,
     """Test parts of the if statement.
 
     This test function will allow you to extract parts of a specific if statement and perform a set of tests
-    specifically on these parts. A for loop consists of three potential parts: the condition test, `test`,
-    which specifies the condition of the if statement, the `body`, which is what's executed if the condition is
-    True and a else part, `orelse`, which will be executed if the condition is not True.
+    specifically on these parts. A for loop consists of three potential parts: the condition test, :code:`test`,
+    which specifies the condition of the if statement, the :code:`body`, which is what's executed if the condition is
+    True and a else part, :code:`orelse`, which will be executed if the condition is not True.::
 
-        | ``if 5 == 3:``
-        |     ``print("success")``
-        | ``else:``
-        |     ``print("fail")``
+        if 5 == 3:
+            print("success")
+        else:
+            print("fail")
 
-    Has `5 == 3` as the condition test, `print("success")` as the body and `print("fail")` as the else part.
+    Has :code:`5 == 3` as the condition test, :code:`print("success")` as the body and :code:`print("fail")` as the else part.
 
     Args:
       index (int): index of the function call to be checked. Defaults to 1.
@@ -41,29 +41,31 @@ def test_if_else(index=1,
         It should be passed as a lambda expression or a function definition. The functions that are ran should
         be other pythonwhat test functions, and they will be tested specifically on only the else part of
         the if statement.
-      expand_message (bool): if true, feedback messages will be expanded with `in the ___ of the if statement on
-        line ___`. Defaults to True. If False, `test_if_else()` will generate no extra feedback.
+      expand_message (bool): if true, feedback messages will be expanded with :code:`in the ___ of the if statement on
+        line ___`. Defaults to True. If False, :code:`test_if_else()` will generate no extra feedback.
 
-    Examples:
-        Student code
+    :Example:
 
-        | ``a = 12``
-        | ``if a > 3:``
-        |     ``print('test %d' % a)``
+        Student code::
 
-        Solution code
+            a = 12
+            if a > 3:
+                print('test %d' % a)
 
-        | ``a = 4``
-        | ``if a > 3:``
-        |     ``print('test %d' % a)``
+        Solution code::
 
-        SCT
+            a = 4
+            if a > 3:
+                print('test %d' % a)
 
-        | ``test_if_else(1,``
-        |     ``body = lambda: test_expression_output(extra_env = { 'a': 5 }``
-        |         ``incorrect_msg = "Print out the correct things"))``
+        SCT::
 
-        This SCT will pass as `test_expression_output()` is ran on the body of the if statement and it will output
+            test_if_else(1,
+                body = test_expression_output(
+                        extra_env = { 'a': 5 }
+                        incorrect_msg = "Print out the correct things"))
+
+        This SCT will pass as :code:`test_expression_output()` is ran on the body of the if statement and it will output
         the same thing in the solution as in the student code.
     """
     rep = Reporter.active_reporter

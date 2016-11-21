@@ -41,25 +41,26 @@ def test_function(name,
         incorrect_msg (str): feedback message if the arguments of the function in the solution doesn't match
           the one of the student.
 
-    Examples:
-        Student code
+    :Example:
 
-        | ``import numpy as np``
-        | ``np.mean([1,2,3])``
-        | ``np.std([2,3,4])``
+        Student code::
 
-        Solution code
+            import numpy as np
+            np.mean([1,2,3])
+            np.std([2,3,4])
 
-        | ``import numpy``
-        | ``numpy.mean([1,2,3], axis = 0)``
-        | ``numpy.std([4,5,6])``
+        Solution code::
 
-        SCT
+            import numpy
+            numpy.mean([1,2,3], axis = 0)
+            numpy.std([4,5,6])
 
-        | ``test_function("numpy.mean", index = 1, keywords = [])``: pass.
-        | ``test_function("numpy.mean", index = 1)``: fail.
-        | ``test_function(index = 1, incorrect_op_msg = "Use the correct operators")``: fail.
-        | ``test_function(index = 1, used = [], incorrect_result_msg = "Incorrect result")``: fail.
+        SCT::
+
+            test_function("numpy.mean", index = 1, keywords = []) # pass
+            test_function("numpy.mean", index = 1)                # fail
+            test_function(index = 1, incorrect_op_msg = "Use the correct operators")       # fail
+            test_function(index = 1, used = [], incorrect_result_msg = "Incorrect result") # fail
     """
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_function")

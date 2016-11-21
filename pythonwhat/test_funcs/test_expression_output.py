@@ -45,27 +45,28 @@ def test_expression_output(extra_env=None,
           the expression is evaluated. All primitive types are copied automatically, other objects have to
           be passed explicitely.
 
-    Examples:
-        Student code
+    :Example:
+        Student code::
 
-        |    ``a = 12``
-        |    ``if a > 3:``
-        |        ``print('test %d' % a)``
+            a = 12
+            if a > 3:
+                print('test %d' % a)
 
-        Soltuion code
+        Soltuion code::
 
-        |   ``a = 4``
-        |   ``if a > 3:``
-        |       ``print('test %d' % a)``
+            a = 4
+            if a > 3:
+                print('test %d' % a)
 
-        SCT
+        SCT::
 
-        |   ``test_if_else(1,``
-        |       ``body = lambda: test_expression_output(extra_env = { 'a': 5 },``
-        |           ``incorrect_msg = "Print out the correct things"))``
+            test_if_else(1,
+                body = test_expression_output(
+                        extra_env = { 'a': 5 },
+                        incorrect_msg = "Print out the correct things"))
 
-        This SCT will pass as the subexpression will output 'test 5' in both student as solution environment,
-        since the extra environment sets `a` to 5.
+        This SCT will set :code:`a` to five, and run the body in both environments (:code:`print('test %d' %a)` in both cases).
+        Since the they print the same output, the test will pass.
     """
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_expression_output")

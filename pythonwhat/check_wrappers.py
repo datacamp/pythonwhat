@@ -27,7 +27,7 @@ __NODE_WRAPPERS__ = {
         'for_loop': 'for statement',
         'function_def': 'function definition',
         'if_exp': 'if expression',
-        'if': 'if statement',
+        'if_else': 'if statement',
         'lambda_function': 'lambda function',
         'try_except': 'try statement',
         'while': '`while` loop',
