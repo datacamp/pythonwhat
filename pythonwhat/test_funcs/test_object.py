@@ -25,21 +25,29 @@ def test_object(name,
         incorrect_msg (str): feedback message if the value of the object in the solution environment doesn't match
           the one in the student environment.
 
-    Examples:
-        Student code
+    :Example:
 
-        | ``a = 1``
-        | ``b = 5``
+        Student code::
 
-        Solution code
+            a = 1
+            b = 5
 
-        | ``a = 1``
-        | ``b = 2``
+        Solution code::
 
-        SCT
+            a = 1
+            b = 2
 
-        | ``test_object("a")``: pass.
-        | ``test_object("b")``: fail.
+        SCT::
+
+            test_object("a") # pass
+            test_object("b") # fail
+
+        Note that the student code below would fail both tests::
+
+            a = 1
+            b = 2
+            a = 3 # incorrect final value of a
+
     """
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object")

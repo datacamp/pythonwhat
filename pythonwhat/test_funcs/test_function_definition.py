@@ -52,6 +52,7 @@ def test_function_definition(name,
         3) The return value with a certain input
         4) The output value with a certain input
         5) Whether certain inputs generate an error and what type of error
+
     Custom feedback messages can be set for all these parts, default messages are generated
     automatically if none are set.
 
@@ -86,31 +87,34 @@ def test_function_definition(name,
             body test will be preceded by 'In your definition of ___, '. If False, `test_function_definition()`
             will generate no extra feedback if the body test fails. Defaults to True.
 
-    Examples:
-        Student code
+    :Example:
 
-        | ``def shout( word, times = 3):``
-        |     ``shout_word = not_word + '???'``
-        |     ``print( shout_word )``
-        |     ``return word * times``
+        Student code::
 
-        Solution code
+            def shout( word, times = 3):
+                shout_word = not_word + '???'
+                print( shout_word )
+                return word * times
 
-        | ``def shout( word = 'help', times = 3 ):``
-        |     ``shout_word = word + '!!!'``
-        |     ``print( shout_word )``
-        |     ``return word * times``
+        Solution code::
 
-        SCT
+            def shout( word = 'help', times = 3 ):
+                shout_word = word + '!!!'
+                print( shout_word )
+                return word * times
 
-        | ``test_function_definition('shout')``: fail.
-        | ``test_function_definition('shout', arg_defaults = False)``: pass.
-        | ``test_function_definition('shout', arg_defaults = False,``
-        |     ``outputs = [('help')])``: fail.
-        | ``test_function_definition('shout', arg_defaults = False,``
-        |     ``results = [('help', 2)])``: pass.
-        | ``test_function_definition('shout', args_defaults = False``
-        |     ``body = lambda: test_function('print', args = []]))``: pass.
+        SCT::
+
+            test_function_definition('shout')                          # fail
+            test_function_definition('shout', arg_defaults = False)    # pass
+            test_function_definition('shout', arg_defaults = False,    # fail
+                                            outputs = [('help')])    
+
+            test_function_definition('shout', arg_defaults = False,    # pass
+                                            results = [('help', 2)]) 
+
+            test_function_definition('shout', args_defaults = False    # pass
+                    body = test_function('print', args = []]))
     """
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_function_definition")

@@ -36,6 +36,7 @@ def test_lambda_function(index,
         2) The body of the functions (does it output correctly, are the correct functions used)
         3) The return value with a certain input
         4) Whether certain inputs generate an error
+
     Custom feedback messages can be set for all these parts, default messages are generated
     automatically if none are set.
 
@@ -62,7 +63,7 @@ def test_lambda_function(index,
         wrong_result_msg (str): message if one of the tested function calls' result did not match.
         no_error_msg (str): message if one of the tested function calls' result did not generate an error.
         expand_message (bool): only relevant if there is a body test. If True, feedback messages defined in the
-            body test will be preceded by 'In your definition of ___, '. If False, `test_function_definition()`
+            body test will be preceded by 'In your definition of ___, '. If False, :code:`test_function_definition()`
             will generate no extra feedback if the body test fails. Defaults to True.
     """
 

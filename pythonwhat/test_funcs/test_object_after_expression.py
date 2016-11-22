@@ -51,25 +51,26 @@ def test_object_after_expression(name,
           the expression is evaluated. All primitive types are copied automatically, other objects have to
           be passed explicitely.
 
-    Examples:
-      Student code
+    :Example:
 
-        | ``count = 1``
-        | ``for i in range(100):``
-        |     ``count = count + i``
+        Student code::
 
-        Solution code
+            count = 1
+            for i in range(100):
+                count = count + i
 
-        | ``count = 15``
-        | ``for n in range(30):``
-        |     ``count = count + n``
+        Solution code::
 
-        SCT
+            count = 15
+            for n in range(30):
+                count = count + n
 
-        | ``test_for_loop(1,``
-        |     ``body = lambda: test_object_after_expression("count",``
-        |         ``extra_env = { 'count': 20 },``
-        |         ``contex_vals = [ 10 ])``
+        SCT::
+
+            test_for_loop(1,
+                body = test_object_after_expression("count",
+                        extra_env = { 'count': 20 },
+                        contex_vals = [ 10 ])
 
         This SCT will pass as the value of `count` is updated identically in the body of the for loop in the
         student code and solution code.

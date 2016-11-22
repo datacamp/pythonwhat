@@ -46,29 +46,30 @@ def test_expression_result(extra_env=None,
           be passed explicitely.
         error_msg (str): Message to override the default error message that is thrown if the expression resulted in an error.
 
-    Examples:
-        Student code
+    :Example:
+        Student code::
 
-        | ``a = 12``
-        | ``if a > 3:``
-        |     ``print('test %d' % a)``
+            a = 12
+            if a > 3:
+                print('test %d' % a)
 
-        Solution code
+        Solution code::
 
-        | ``a = 4``
-        | ``b = 5``
-        | ``if (a + 1) > (b - 1):``
-        |     ``print('test %d' % a)``
+            a = 4
+            b = 5
+            if (a + 1) > (b - 1):
+                print('test %d' % a)
 
-        SCT
+        SCT::
 
-        | ``test_if_else(1,``
-        |     ``test = lambda: test_expression_result(extra_env = { 'a': 3 }``
-        |         ``incorrect_msg = "Test if `a` > 3"))``
+            test_if_else(1,
+                test = test_expression_result(
+                        extra_env = { 'a': 3 }
+                        incorrect_msg = "Test if `a` > 3"))
 
-        This SCT will pass as the condition in the student's code (`a > 3`) will evaluate to the
-        same value as the code in the solution code (`(a + 1) > (b - 1)`), with value of `a` set
-        to `3`.
+        This SCT will pass as the condition in the student's code (:code:`a > 3`) will evaluate to the
+        same value as the code in the solution code (:code:`(a + 1) > (b - 1)`), with value of :code:`a` set
+        to :code:`3`.
 
     """
     rep = Reporter.active_reporter

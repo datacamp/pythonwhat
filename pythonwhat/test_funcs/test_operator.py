@@ -35,23 +35,25 @@ def test_operator(index=1,
         incorrect_result_msg (str): Feedback message if the operator group evaluates to the wrong result in
           the student's code.
 
-    Examples:
-        Student code
+    :Example:
 
-        | ``1 + 5 * (3+5)``
-        | ``1 + 1 * 238``
+        Student code::
 
-        Solution code
+            1 + 5 * (3+5)
+            1 + 1 * 238
 
-        | ``3.1415 + 5``
-        | ``1 + 238``
+        Solution code::
 
-        SCT
+            3.1415 + 5
+            1 + 238
 
-        | ``test_operator(index = 2, used = ["+"])``: pass.
-        | ``test_operator(index = 2)``: fail.
-        | ``test_operator(index = 1, incorrect_op_msg = "Use the correct operators")``: fail.
-        | ``test_operator(index = 1, used = [], incorrect_result_msg = "Incorrect result")``: fail.
+        SCT::
+
+            test_operator(index = 2, used = ["+"]) # pass
+            test_operator(index = 2) # fail
+            test_operator(index = 1, incorrect_op_msg = "Use the correct operators") # fail
+            test_operator(index = 1, used = [], incorrect_result_msg = "Incorrect result") # fail
+
     """
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_operator")
