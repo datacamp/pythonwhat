@@ -130,30 +130,6 @@ def has_equal_part_len(name, insufficient_msg, state=None):
 
     return state
 
-def has_equal_value(msg, state=None):
-    from pythonwhat.tasks import getResultInProcess, ReprFail
-    from pythonwhat.Test import EqualTest
-    rep = Reporter.active_reporter
-    eval_solution, str_solution = getResultInProcess(tree = state.solution_tree,
-                                                     context = state.solution_context,
-                                                     process = state.solution_process)
-    if isinstance(str_solution, Exception):
-        raise ValueError("Evaluating a default argument in the solution environment raised an error")
-    if isinstance(eval_solution, ReprFail):
-        raise ValueError("Couldn't figure out the value of a default argument: " + eval_solution.info)
-
-    eval_student, str_student = getResultInProcess(tree = state.student_tree,
-                                                   context = state.student_context,
-                                                   process = state.student_process)
-
-    _msg = state.build_message(msg, {'stu_part': state.student_parts, 'sol_part': state.solution_parts})
-    feedback = Feedback(_msg, state.highlight)
-    if isinstance(str_student, Exception):
-        rep.do_test(Test(feedback))
-    else:
-        rep.do_test(EqualTest(eval_student, eval_solution, feedback))
-
-    return state
 
 def extend(*args, state=None):
     """Run multiple subtests in sequence, each using the output state of the previous."""
@@ -178,11 +154,11 @@ def multi(*args, state=None):
             # TODO: it seems clear the reporter doesn't need to hold state anymore
             closure = partial(test, state=state)
             # message from parent checks
-            prefix = state.build_message()
-            # resetting reporter message until it can be refactored
-            prev_msg = rep.failure_msg
-            rep.do_test(closure, prefix, state.highlight)
-            rep.failure_msg = prev_msg
+            #prefix = state.build_message()
+            ## resetting reporter message until it can be refactored
+            #prev_msg = rep.failure_msg
+            rep.do_test(closure, "", state.highlight)
+            #rep.failure_msg = prev_msg
 
     # return original state, so can be chained
     return state
@@ -346,8 +322,12 @@ def call(args,
     return state
 
 # Expression tests ------------------------------------------------------------
+from pythonwhat.tasks import ReprFail, UndefinedValue
+from pythonwhat.Test import EqualTest
+from pythonwhat import utils
 def has_expr(incorrect_msg,
              error_msg="Running an expression in the student process caused an issue",
+             undefined_msg="Have you defined `{name}` without errors?",
              extra_env=None,
              context_vals=None,
              expr_code=None,
@@ -356,9 +336,6 @@ def has_expr(incorrect_msg,
              name=None,
              state=None,
              test=None):
-    from pythonwhat.tasks import ReprFail
-    from pythonwhat.Test import EqualTest
-    from pythonwhat import utils
     rep = Reporter.active_reporter
 
     get_func = partial(evalCalls[test], 
@@ -384,16 +361,23 @@ def has_expr(incorrect_msg,
                                  context = state.student_context)
 
     # kwargs ---
-    fmt_kwargs = {'stu_part': state.student_parts, 'sol_part': state.solution_parts}
+    fmt_kwargs = {'stu_part': state.student_parts, 'sol_part': state.solution_parts, 'name': name}
     fmt_kwargs['stu_eval'] = utils.shorten_str(str(eval_stu))
     fmt_kwargs['sol_eval'] = utils.shorten_str(str(eval_sol))
 
     # tests ---
+    # error in process
     if (test == 'error') ^ isinstance(str_stu, Exception):
         _msg = state.build_message(error_msg, fmt_kwargs)
         feedback = Feedback(_msg, state.highlight)
         rep.do_test(Test(feedback))
 
+    # name is undefined after running expression
+    if isinstance(str_stu, UndefinedValue):
+        _msg = state.build_message(undefined_msg, fmt_kwargs)
+        rep.do_test(Test(Feedback(_msg, state.highlight)))
+
+    # test equality of results
     _msg = state.build_message(incorrect_msg, fmt_kwargs)
     rep.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, state.highlight)))
 
