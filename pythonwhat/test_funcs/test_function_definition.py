@@ -1,5 +1,5 @@
 from pythonwhat.Reporter import Reporter
-from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_part, has_equal_part_len, has_equal_part, has_equal_value, call
+from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_part, has_equal_part_len, has_equal_part, has_equal_value, call, fix_format
 
 from functools import partial
 
@@ -174,20 +174,6 @@ def stringify(arguments):
         else :
             return "(" + ", ".join([vararg, kwarg]) + ")"
 
-
-def fix_format(arguments):
-    if isinstance(arguments, str):
-        arguments = (arguments, )
-    if isinstance(arguments, tuple):
-        arguments = list(arguments)
-
-    if isinstance(arguments, list):
-        arguments = {'args': arguments, 'kwargs': {}}
-
-    if not isinstance(arguments, dict) or 'args' not in arguments or 'kwargs' not in arguments:
-        raise ValueError("Wrong format of arguments in 'results', 'outputs' or 'errors'; either a list, or a dictionary with names args (a list) and kwargs (a dict)")
-
-    return(arguments)
 
 def test_args(arg_names, arg_defaults, 
               nb_args_msg, arg_names_msg, arg_defaults_msg, 

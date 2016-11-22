@@ -137,7 +137,7 @@ def has_equal_value(msg, state=None):
     eval_solution, str_solution = getResultInProcess(tree = state.solution_tree,
                                                      context = state.solution_context,
                                                      process = state.solution_process)
-    if str_solution is None:
+    if isinstance(str_solution, Exception):
         raise ValueError("Evaluating a default argument in the solution environment raised an error")
     if isinstance(eval_solution, ReprFail):
         raise ValueError("Couldn't figure out the value of a default argument: " + eval_solution.info)
@@ -264,37 +264,63 @@ evalCalls = {'value':  getResultInProcess,
 call_warnings = {
         'value': 'in the solution process resulted in an error',
         'error': 'did not generate an error in the solution environment',
-        'output': 'IDK'
+        'output': 'in the solution process resulted in an error'
         }
-"Calling %s with arguments %s did not generate an error in the solution environment."
+
+def fix_format(arguments):
+    if isinstance(arguments, str):
+        arguments = (arguments, )
+    if isinstance(arguments, tuple):
+        arguments = list(arguments)
+
+    if isinstance(arguments, list):
+        arguments = {'args': arguments, 'kwargs': {}}
+
+    if not isinstance(arguments, dict) or 'args' not in arguments or 'kwargs' not in arguments:
+        raise ValueError("Wrong format of arguments in 'results', 'outputs' or 'errors'; either a list, or a dictionary with names args (a list) and kwargs (a dict)")
+
+    return(arguments)
+
 # TODO: test string syntax with check_function_def
 #       test argument syntax with check_lambda
 #       implement for error and output
-def run_call(args, node, process, get_func):
-    # TODO: why is the lambda node always inside an expr?
-    func_expr = getattr(node, 'name', node)    # either func name or lambda expr value
+def run_call(args, node, process, get_func, **kwargs):
+    # Get function expression
+    if isinstance(node, ast.FunctionDef):                     # function name
+        func_expr = ast.Name(id=node.name, ctx=ast.Load())
+    elif isinstance(node, ast.Lambda):                        # lambda body expr
+        func_expr = node
+    else: raise TypeError("Only function definition or lambda may be called")
+
+    # args is a call string or argument list/dict
     if isinstance(args, str):
         parsed = ast.parse(args).body[0].value
         parsed.func = func_expr
-        return get_func(process = process, tree = parsed)
+        ast.fix_missing_locations(parsed)
+        return get_func(process = process, tree = parsed, **kwargs)
     else:
-        # TODO: need to use expr_code because for func def name is just a string
-        #       however, this may cause issues with running lambda expressions
-        return get_func(process = process, tree=None, expr_code = func_expr, call = args)
+        # e.g. list -> {args: [...], kwargs: {}} 
+        fmt_args = fix_format(args)           
+        ast.fix_missing_locations(func_expr)
+        return get_func(process = process, tree=func_expr, call = fmt_args, **kwargs)
         
 
-def call(args, test='value', incorrect_msg=None, error_msg=None, 
-         extra_env = None, pre_code=None, expr_code=None, keep_objs_in_env=None,
+MSG_CALL_INCORRECT = "Calling it should result in {str_sol}, instead got {str_sol}"
+MSG_CALL_ERROR     = "Calling it should result in {str_sol}, instead got an error"
+def call(args, 
+         test='value', 
+         incorrect_msg=MSG_CALL_INCORRECT, 
+         error_msg=MSG_CALL_ERROR, 
          # TODO hardcoded lambda description for now
          argstr='the Xth lambda function',
-         state=None):
+         state=None, **kwargs):
     rep = Reporter.active_reporter
     test_type = ('value', 'output', 'error')
 
     get_func = evalCalls[test]
 
     # Run for Solution --------------------------------------------------------
-    eval_sol, str_sol = run_call(args, state.solution_parts['node'], state.solution_process, get_func)
+    eval_sol, str_sol = run_call(args, state.solution_parts['node'], state.solution_process, get_func, **kwargs)
 
     if (test == 'error') ^ isinstance(str_sol, Exception):
         _msg_prefix = "Calling %s for arguments %s " % (argstr, args)
@@ -304,8 +330,8 @@ def call(args, test='value', incorrect_msg=None, error_msg=None,
         raise ValueError("Can't get the result of calling %s for arguments %s: %s" % (argstr, args, eval_sol.info))
 
     # Run for Submission ------------------------------------------------------
-    eval_stu, str_stu = run_call(args, state.student_parts['node'], state.student_process, get_func)
-    fmt_kwargs = {'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu}
+    eval_stu, str_stu = run_call(args, state.student_parts['node'], state.student_process, get_func, **kwargs)
+    fmt_kwargs = {'part': argstr, 'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu}
 
     # either error test and no error, or vice-versa
     stu_node = state.student_parts['node']
@@ -316,3 +342,5 @@ def call(args, test='value', incorrect_msg=None, error_msg=None,
     # incorrect result
     _msg = state.build_message(incorrect_msg, fmt_kwargs)
     rep.do_test(EqualTest(eval_sol, eval_stu, Feedback(_msg, stu_node)))
+
+    return state
