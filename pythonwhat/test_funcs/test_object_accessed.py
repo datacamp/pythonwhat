@@ -59,5 +59,6 @@ def test_object_accessed(name,
     # hack: add a dot and do a match on the name with the dot,
     # to make sure you're not matching substrings
     student_hits = [c for c in student_object_accesses if name + "." in c + "."]
-    rep.do_test(BiggerTest(len(student_hits) + 1, times, not_accessed_msg))
+    _msg = state.build_message(not_accessed_msg)
+    rep.do_test(BiggerTest(len(student_hits) + 1, times, _msg))
 

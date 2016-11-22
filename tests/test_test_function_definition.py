@@ -82,9 +82,9 @@ shout( 'help' )
         self.data["DC_SCT"] = """Ex().check_function_def("shout").check_body().set_context(word="help").test_expression_output()"""
         self.test_Pass()
 
+    @unittest.skip("TODO: spec2 prepended messages")
     def test_Fail_spec2(self):
-        # note: multi has to wrap test_expression_output, or it won't prepend the previous check's message
-        self.data["DC_SCT"] = """Ex().check_function_def("shout").check_body().set_context(word="help").multi(test_expression_output(incorrect_msg='Make sure to output the correct string.'))"""
+        self.data["DC_SCT"] = """Ex().check_function_def("shout").check_body().set_context(word="help").test_expression_output(incorrect_msg='Make sure to output the correct string.')"""
         self.test_Fail()
 
 class TestExercise2(unittest.TestCase):
@@ -721,13 +721,14 @@ class TestFunctionSpec2(unittest.TestCase):
             "DC_SOLUTION": '''
 def my_fun(x, y = 4, z = ('a', 'b'), *args, **kwargs):
     return [x, y, *z, *args]
-            ''',
-            "DC_SCT": '''
+            '''
+            }
+
+        self.MULTI_SCT = """
 varnames = ['x', 'y', 'z', '*args', '**kwargs']
 test_names = [check_arg(name).has_equal_part('name', 'bad%s'%name) for name in varnames]
 Ex().check_function_def('my_fun').multi(test_names)
-            '''}
-
+"""
         self.SCT_CHECK = "Ex().check_function_def('my_fun')"
         self.SCT_KW = "Ex().check_function_def('my_fun').check_arg('x').has_equal_part('name', 'badx')"
         self.SCT_POS = "Ex().check_function_def('my_fun').check_arg(0).has_equal_part('name', 'badx')"
@@ -790,19 +791,19 @@ Ex().check_function_def('my_fun').multi(test_names)
         self.data['DC_SCT'] = self.SCT_CHECK_X + ".has_equal_value('unequal values')"
         self.assertTrue(self.when_code_is_sol())
 
-    @unittest.skip("TODO: fix message building in multi")
     def test_pass_multi(self):
+        self.data['DC_SCT'] = self.MULTI_SCT
         self.assertTrue(self.when_code_is_sol())
 
-    @unittest.skip("TODO: fix message building in multi")
     def test_fail_multi(self):
+        self.data['DC_SCT'] = self.MULTI_SCT
         self.assertFalse(self.when_replace('x', 'x2'))
 
 class TestLambdaFunctionSpec2(TestFunctionSpec2):
     def setUp(self):
         super().setUp()
         self.data['DC_SOLUTION'] = "lambda x, y = 4, z = ('a', 'b'), *args, **kwargs: [x, y, *z, *args]"
-        for attr in ['SCT_CHECK', 'SCT_KW', 'SCT_POS', 'SCT_CHECK_ONE', 'SCT_CHECK_Y', 'SCT_CHECK_X']:
+        for attr in ['MULTI_SCT', 'SCT_CHECK', 'SCT_KW', 'SCT_POS', 'SCT_CHECK_ONE', 'SCT_CHECK_Y', 'SCT_CHECK_X']:
             lam_sct = getattr(self, attr).replace("check_function_def('my_fun')", 'check_lambda_function(0)')
             setattr(self, attr, lam_sct)
 

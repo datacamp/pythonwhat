@@ -29,11 +29,13 @@ def test_dictionary(name,
     # Check if defined
     if not undefined_msg:
         undefined_msg = "Are you sure you defined the dictionary `%s`?" % name
-    rep.do_test(DefinedProcessTest(name, student_process, Feedback(undefined_msg)))
+    _msg = state.build_message(undefined_msg)
+    rep.do_test(DefinedProcessTest(name, student_process, Feedback(_msg)))
 
     if not not_dictionary_msg:
         not_dictionary_msg = "`%s` is not a dictionary." % name
-    rep.do_test(InstanceProcessTest(name, dict, student_process, Feedback(not_dictionary_msg)))
+    _msg = state.build_message(not_dictionary_msg)
+    rep.do_test(InstanceProcessTest(name, dict, student_process, Feedback(_msg)))
 
     sol_keys = getKeysInProcess(name, solution_process)
     if sol_keys is None:
@@ -53,7 +55,8 @@ def test_dictionary(name,
             msg = "Have you specified a key `%s` inside `%s`?" % (str(key), name)
         else:
             msg = key_missing_msg
-        rep.do_test(DefinedCollProcessTest(name, key, student_process, Feedback(msg)))
+        _msg = state.build_message(msg)
+        rep.do_test(DefinedCollProcessTest(name, key, student_process, Feedback(_msg)))
 
 
         sol_value, sol_str = getValueInProcess(name, key, solution_process)
@@ -65,4 +68,5 @@ def test_dictionary(name,
             msg = "Have you specified the correct value for the key `%s` inside `%s`?" % (str(key), name)
         else:
             msg = incorrect_value_msg
-        rep.do_test(EqualValueProcessTest(name, key, student_process, sol_value, Feedback(msg)))
+        _msg = state.build_message(msg)
+        rep.do_test(EqualValueProcessTest(name, key, student_process, sol_value, Feedback(_msg)))

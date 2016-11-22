@@ -68,11 +68,12 @@ def test_operator(index=1,
     solution_ops = state.solution_operators
 
     # Check if number of student operations is greater than index (which is decreased with 1 by now)
+    _msg = state.build_message(not_found_msg or "You didn't define enough operations in your code.")
     rep.do_test(
         BiggerTest(
             len(student_ops),
             index,
-            (not_found_msg if not_found_msg else "You didn't define enough operations in your code.")))
+            _msg))
 
     expr_student, used_student = student_ops[index]
 
@@ -95,8 +96,9 @@ def test_operator(index=1,
         if incorrect_op_msg is None:
             incorrect_op_msg = build_incorrect_msg + (" is missing a `%s` operation." % op)
 
+        _msg = state.build_message(incorrect_op_msg)
         rep.do_test(DefinedCollTest(op, used_student,
-            Feedback(incorrect_op_msg, expr_student)))
+            Feedback(_msg, expr_student)))
 
     if (do_eval):
 
@@ -119,5 +121,6 @@ def test_operator(index=1,
 
             incorrect_result_msg = build_incorrect_msg + (" evaluates to %s, should be `%s`." % (stud_patt, utils.shorten_str(str_solution)))
 
+        _msg = state.build_message(incorrect_result_msg)
         rep.do_test(eq_map[eq_condition](
-            eval_student, eval_solution, Feedback(incorrect_result_msg, expr_student)))
+            eval_student, eval_solution, Feedback(_msg, expr_student)))

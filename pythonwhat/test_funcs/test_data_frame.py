@@ -31,11 +31,13 @@ def test_data_frame(name,
     # Check if defined
     if not undefined_msg:
         undefined_msg = "Are you sure you defined the pandas DataFrame: `%s`?" % name
-    rep.do_test(DefinedProcessTest(name, student_process, Feedback(undefined_msg)))
+    _msg = state.build_message(undefined_msg)
+    rep.do_test(DefinedProcessTest(name, student_process, Feedback(_msg)))
 
     if not not_data_frame_msg:
         not_data_frame_msg = "`%s` is not a pandas DataFrame." % name
-    rep.do_test(InstanceProcessTest(name, pd.DataFrame, student_process, Feedback(not_data_frame_msg)))
+    _msg = state.build_message(not_data_frame_msg)
+    rep.do_test(InstanceProcessTest(name, pd.DataFrame, student_process, Feedback(_msg)))
 
     sol_columns = getColumnsInProcess(name, solution_process)
     if sol_columns is None:
@@ -54,7 +56,8 @@ def test_data_frame(name,
             msg = "There is no column `%s` inside `%s`." % (column, name)
         else:
             msg = undefined_cols_msg
-        rep.do_test(DefinedCollProcessTest(name, column, student_process, Feedback(msg)))
+        _msg = state.build_message(msg)
+        rep.do_test(DefinedCollProcessTest(name, column, student_process, Feedback(_msg)))
 
         sol_value, sol_str = getValueInProcess(name, column, solution_process)
         if isinstance(sol_value, ReprFail):
@@ -65,4 +68,5 @@ def test_data_frame(name,
             msg = "Column `%s` of your pandas DataFrame, `%s`, is not correct." % (column, name)
         else:
             msg = incorrect_msg
-        rep.do_test(EqualValueProcessTest(name, column, student_process, sol_value, Feedback(msg)))
+        _msg = state.build_message(msg)
+        rep.do_test(EqualValueProcessTest(name, column, student_process, sol_value, Feedback(_msg)))

@@ -119,16 +119,14 @@ class TestMulti(unittest.TestCase):
         self.data["DC_CODE"] = self.data["DC_SOLUTION"]
         self.FAIL_CODE = '''[aa for aa in range(2)]'''
 
-    @unittest.skip('TODO')
     def test_nested_multi(self):
         self.data["DC_SCT"]  =  '''
-test_body = F().check_list_comp(0).check_body().set_context(aa=2).has_equal_value('wrong')
+test_body = F().check_body().set_context(aa=2).has_equal_value('wrong')
 Ex().check_list_comp(0).multi(F().multi(test_body))
 '''
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-    @unittest.skip('TODO')
     def test_multi_splits_node_and_check(self):
         self.data["DC_SCT"]  =  '''
 test_body = F().check_list_comp(0).check_body().set_context(aa=2).has_equal_value('wrong')

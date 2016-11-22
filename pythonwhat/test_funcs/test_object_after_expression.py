@@ -74,6 +74,7 @@ def test_object_after_expression(name,
     has_equal_value(
             incorrect_msg = incorrect_msg,
             error_msg = undefined_msg,
+            undefined_msg = undefined_msg,
             extra_env=extra_env,
             context_vals=context_vals,
             pre_code=pre_code,

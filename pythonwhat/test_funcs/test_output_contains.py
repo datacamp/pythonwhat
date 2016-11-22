@@ -25,9 +25,10 @@ def test_output_contains(text,
 
     student_output = state.raw_student_output
 
+    _msg = state.build_message(no_output_msg)
     rep.do_test(
         StringContainsTest(
             student_output,
             text,
             pattern,
-            no_output_msg))
+            _msg))

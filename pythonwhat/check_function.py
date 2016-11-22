@@ -4,8 +4,8 @@ from pythonwhat.tasks import getSignatureInProcess
 from functools import partial
 
 def check_function(name, index=0, 
-                   missing_msg = "Did you define {stu_part[name]}?", 
-                   expand_msg  = "In your definition of {stu_part[name]}, ", 
+                   missing_msg = "Did you define {sol_part[name]}?", 
+                   expand_msg  = "In your definition of {sol_part[name]}, ", 
                    state=None):
     rep = Reporter.active_reporter
     stu_out = state.student_function_calls

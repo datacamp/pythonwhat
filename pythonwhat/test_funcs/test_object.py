@@ -62,7 +62,8 @@ def test_object(name,
     if not isDefinedInProcess(name, solution_process):
         raise NameError("%r not in solution environment " % name)
 
-    rep.do_test(DefinedProcessTest(name, student_process, Feedback(undefined_msg)))
+    _msg = state.build_message(undefined_msg)
+    rep.do_test(DefinedProcessTest(name, student_process, Feedback(_msg)))
 
     if do_eval:
         ass_node = get_assignment_node(student_obj_ass, name)
@@ -71,10 +72,11 @@ def test_object(name,
         if isinstance(sol_obj, ReprFail):
             raise NameError(sol_obj.info)
 
+        _msg = state.build_message(incorrect_msg)
         rep.do_test(eq_map[eq_condition](name,
                                          student_process,
                                          sol_obj,
-                                         Feedback(incorrect_msg, ass_node)))
+                                         Feedback(_msg, ass_node)))
 
 def get_assignment_node(student_obj_ass, name):
     if (name not in student_obj_ass):

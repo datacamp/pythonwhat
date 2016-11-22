@@ -91,9 +91,10 @@ def test_function(name,
     if name not in solution_calls or len(solution_calls[name]) <= index:
         raise NameError("%r not in solution environment (often enough)" % name)
 
-    rep.do_test(DefinedCollTest(name, student_calls, not_called_msg))
+    _msg = state.build_message(not_called_msg)
+    rep.do_test(DefinedCollTest(name, student_calls, _msg))
 
-    rep.do_test(BiggerTest(len(student_calls[name]), index, not_called_msg))
+    rep.do_test(BiggerTest(len(student_calls[name]), index, _msg))
 
     solution_call, args_solution, keyw_solution, sol_name = solution_calls[name][index]['_spec1']
     keyw_solution = {keyword.arg: keyword.value for keyword in keyw_solution}
@@ -145,7 +146,7 @@ def test_function(name,
                     msg = incorrect_msg
 
                 test = build_test(arg_student, arg_solution,
-                                  student_process, solution_process,
+                                  state,
                                   do_eval, eq_fun, msg, add_more=add_more)
                 test.test()
 
@@ -167,7 +168,7 @@ def test_function(name,
                         add_more = False
 
                     test = build_test(key_student, key_solution,
-                                      student_process, solution_process,
+                                      state,
                                       do_eval, eq_fun, msg, add_more=add_more)
                     test.test()
 
@@ -184,7 +185,8 @@ def test_function(name,
 
         if not success:
             if feedback is None:
-                feedback = Feedback("You haven't used enough appropriate calls of `%s()`" % stud_name)
+                _msg = state.build_message("You haven't used enough appropriate calls of `%s()`" % stud_name)
+                feedback = Feedback(_msg)
             rep.do_test(Test(feedback))
 
 def test_print(index = 1,
@@ -304,10 +306,11 @@ def test_function_v2(name,
     if name not in solution_calls or len(solution_calls[name]) <= index:
         raise NameError("%r not in solution environment (often enough)" % name)
     # TODO: test if function name in dict of calls
-    rep.do_test(DefinedCollTest(name, student_calls, not_called_msg))
+    _msg = state.build_message(not_called_msg)
+    rep.do_test(DefinedCollTest(name, student_calls, _msg))
 
     # TODO: test if number of specific function calls is less than index
-    rep.do_test(BiggerTest(len(student_calls[name]), index, not_called_msg))  # TODO
+    rep.do_test(BiggerTest(len(student_calls[name]), index, _msg))  # TODO
 
     # TODO pull into own function
     if len(params) > 0:
@@ -369,7 +372,8 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
         if not params_not_matched_msg:
             params_not_matched_msg = ("Something went wrong in figuring out how you specified the " + \
                 "arguments for `%s()`; have another look at your code and its output.") % stud_name
-        feedback = Feedback(params_not_matched_msg, student_call)
+        _msg = state.build_message(params_not_matched_msg)
+        feedback = Feedback(_msg, student_call)
         # run subtest
         rep.do_test(Test(feedback))    # TODO: sub_call
 
@@ -386,7 +390,8 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
                 msg += " You didn't specify `%s`." % first_missing
         else:
             msg = params_not_specified_msg[param_ind]
-        feedback = Feedback(msg, student_call)
+        _msg = state.build_message(msg)
+        feedback = Feedback(_msg, student_call)
         # run subtest
         rep.do_test(Test(feedback))    # TODO: sub_call
     
@@ -419,7 +424,7 @@ def test_arg(param, do_eval,
         msg = incorrect_msg
 
     test = build_test(arg_student, arg_solution,
-                        state.student_process, state.solution_process,
+                        state,
                         do_eval, eq_fun, msg, add_more = add_more)
     # TODO
     rep.do_test(test)
@@ -437,17 +442,17 @@ def bind_args(signature, arguments, keyws):
     bound_args = signature.bind(*arguments, **keyws)
     return(bound_args.arguments, signature.parameters)
 
-def build_test(stud, sol, student_process, solution_process, do_eval, eq_fun, feedback_msg, add_more):
+def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more):
     got_error = False
     if do_eval:
 
-        eval_solution, str_solution = getResultInProcess(tree = sol, process = solution_process)
+        eval_solution, str_solution = getResultInProcess(tree = sol, process = state.solution_process)
         if str_solution is None:
             raise ValueError("Running an argument in the solution environment raised an error")
         if isinstance(eval_solution, ReprFail):
             raise ValueError("Couldn't figure out the argument: " + eval_solution.info)
 
-        eval_student, str_student = getResultInProcess(tree = stud, process = student_process)
+        eval_student, str_student = getResultInProcess(tree = stud, process = state.student_process)
         if isinstance(str_student, Exception):
             got_error = True
 
@@ -465,8 +470,9 @@ def build_test(stud, sol, student_process, solution_process, do_eval, eq_fun, fe
         eval_student = ast.dump(stud)
         eval_solution = ast.dump(sol)
 
-    return(Test(Feedback(feedback_msg, stud)) if got_error else
-        eq_fun(eval_student, eval_solution, Feedback(feedback_msg, stud)))
+    _msg = state.build_message(feedback_msg)
+    return(Test(Feedback(_msg, stud)) if got_error else
+        eq_fun(eval_student, eval_solution, Feedback(_msg, stud)))
 
 
 
