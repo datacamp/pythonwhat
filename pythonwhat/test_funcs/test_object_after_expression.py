@@ -7,6 +7,7 @@ def test_object_after_expression(name,
                                  undefined_msg=None,
                                  incorrect_msg=None,
                                  eq_condition="equal",
+                                 expr_code=None,
                                  pre_code=None,
                                  keep_objs_in_env=None,
                                  state=None):
@@ -84,4 +85,5 @@ def test_object_after_expression(name,
             keep_objs_in_env=keep_objs_in_env,
             name = name,
             highlight = ass_node,
+            expr_code = expr_code,
             state=state)
