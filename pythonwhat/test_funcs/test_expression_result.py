@@ -4,6 +4,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import EqualTest, Test
 from pythonwhat import utils
 from pythonwhat.tasks import getResultInProcess, ReprFail
+from pythonwhat.check_funcs import has_equal_value
 
 
 def test_expression_result(extra_env=None,
@@ -71,56 +72,22 @@ def test_expression_result(extra_env=None,
         to `3`.
 
     """
-    rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_expression_result")
 
-    eq_map = {"equal": EqualTest}
-
-    if eq_condition not in eq_map:
-        raise NameError("%r not a valid equality condition " % eq_condition)
-
-    eval_solution, str_solution = getResultInProcess(tree = state.solution_tree,
-                                                     process = state.solution_process,
-                                                     extra_env = extra_env,
-                                                     context = state.solution_context,
-                                                     context_vals = context_vals,
-                                                     pre_code = pre_code,
-                                                     expr_code = expr_code,
-                                                     keep_objs_in_env = keep_objs_in_env)
-
-    if str_solution is None:
-      raise ValueError("Running the expression in the solution process caused an error.")
-    if isinstance(eval_solution, ReprFail):
-      raise ValueError("The result of running the expression in the solution process couldn't be figured out: " + eval_solution.info)
-
-    eval_student, str_student = getResultInProcess(tree = state.student_tree,
-                                                   process = state.student_process,
-                                                   extra_env = extra_env,
-                                                   context = state.student_context,
-                                                   context_vals = context_vals,
-                                                   pre_code = pre_code,
-                                                   expr_code = expr_code,
-                                                   keep_objs_in_env = keep_objs_in_env)
-
-
-    if isinstance(str_student, Exception):
-        rep.do_test(Test(error_msg or "Running an expression in the student process caused an error"))
-        return
-
-    if eval_student is None:
-        rep.do_test(Test(error_msg or "Running an expression in the student process caused an error"))
-        return
-
+    error_msg = error_msg or "Running an expression in the student process caused an error"
     if incorrect_msg is not None:
         feedback_msg = incorrect_msg
     else:
-        feedback_msg = "Unexpected expression: expected `%s`, got `%s` with values" + \
-            ((" " + str(extra_env)) if extra_env else ".")
-        feedback_msg = feedback_msg % (utils.shorten_str(
-            str_solution), utils.shorten_str(str_student))
+        # need to double bracket extra_env, so doesn't mess up str templating
+        feedback_msg = (
+                "Unexpected expression: expected `{sol_eval}`, got `{stu_eval}` with values"
+                " " + str(extra_env).replace('{', '{{').replace('}','}}') if extra_env else "."
+                )
 
-    rep.do_test(
-        eq_map[eq_condition](
-            eval_solution,
-            eval_student,
-            feedback_msg))
+    has_equal_value(feedback_msg,
+                    error_msg,
+                    extra_env = extra_env,
+                    context_vals=context_vals,
+                    expr_code=expr_code,
+                    pre_code=pre_code,
+                    keep_objs_in_env=keep_objs_in_env,
+                    state = state)

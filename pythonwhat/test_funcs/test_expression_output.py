@@ -1,11 +1,4 @@
-import ast
-from pythonwhat.State import State
-from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import EqualTest
-
-from pythonwhat import utils
-
-from pythonwhat.tasks import getOutputInProcess
+from pythonwhat.check_funcs import has_equal_output
 
 def test_expression_output(extra_env=None,
                            context_vals=None,
@@ -67,38 +60,6 @@ def test_expression_output(extra_env=None,
         This SCT will pass as the subexpression will output 'test 5' in both student as solution environment,
         since the extra environment sets `a` to 5.
     """
-    rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_expression_output")
-
-    eq_map = {"equal": EqualTest}
-
-    if eq_condition not in eq_map:
-        raise NameError("%r not a valid equality condition " % eq_condition)
-
-    out_student = getOutputInProcess(tree = state.student_tree,
-                                     process = state.student_process,
-                                     extra_env = extra_env,
-                                     context = state.student_context,
-                                     context_vals = context_vals,
-                                     pre_code = pre_code,
-                                     expr_code = expr_code,
-                                     keep_objs_in_env = keep_objs_in_env,
-                                     do_exec=True)
-
-    out_solution = getOutputInProcess(tree = state.solution_tree,
-                                      process = state.solution_process,
-                                      extra_env = extra_env,
-                                      context = state.solution_context,
-                                      context_vals = context_vals,
-                                      pre_code = pre_code,
-                                      expr_code = expr_code,
-                                      keep_objs_in_env = keep_objs_in_env,
-                                      do_exec=True)
-
-    if out_solution is None:
-        raise ValueError("test_expression_output raised error in solution process")
-
-    out_student = out_student or "Error"
 
     if incorrect_msg is not None:
         feedback_msg = incorrect_msg
@@ -107,15 +68,18 @@ def test_expression_output(extra_env=None,
             prestring = "When running %s e" % expr_code
         else:
             prestring = "E"
-        feedback_msg = "%sxpected output `%s`, instead got `%s`" % \
-            (prestring, utils.shorten_str(str(out_solution)), utils.shorten_str(str(out_student)))
+        feedback_msg = "%sxpected output `{sol_eval}`, instead got `{stu_eval}`" % (prestring)
         if extra_env:
-            feedback_msg += "for values %s." % str(extra_env)
+            # need double brackets to not screw up string formatting
+            feedback_msg += "for values %s." % str(extra_env).replace('{','{{').replace('}','}}')
         else:
             feedback_msg += "."
 
-    Reporter.active_reporter.do_test(
-        eq_map[eq_condition](
-            out_solution,
-            out_student,
-            feedback_msg))
+    has_equal_output(incorrect_msg = feedback_msg,
+                     error_msg = feedback_msg,
+                     extra_env = extra_env,
+                     context_vals=context_vals,
+                     expr_code=expr_code,
+                     pre_code=pre_code,
+                     keep_objs_in_env=keep_objs_in_env,
+                     state = state)

@@ -344,3 +344,61 @@ def call(args,
     rep.do_test(EqualTest(eval_sol, eval_stu, Feedback(_msg, stu_node)))
 
     return state
+
+# Expression tests ------------------------------------------------------------
+def has_expr(incorrect_msg,
+             error_msg="Running an expression in the student process caused an issue",
+             extra_env=None,
+             context_vals=None,
+             expr_code=None,
+             pre_code=None,
+             keep_objs_in_env=None,
+             name=None,
+             state=None,
+             test=None):
+    from pythonwhat.tasks import ReprFail
+    from pythonwhat.Test import EqualTest
+    from pythonwhat import utils
+    rep = Reporter.active_reporter
+
+    get_func = partial(evalCalls[test], 
+                       extra_env = extra_env,
+                       context_vals = context_vals,
+                       pre_code = pre_code,
+                       expr_code = expr_code,
+                       keep_objs_in_env = keep_objs_in_env,
+                       name=name,
+                       do_exec = True if test == 'output' else False)
+    
+    eval_sol, str_sol = get_func(tree = state.solution_tree,
+                                 process = state.solution_process,
+                                 context = state.solution_context)
+
+    if (test == 'error') ^ isinstance(str_sol, Exception):
+        raise ValueError("evaluating expression raised error in solution process")
+    if isinstance(eval_sol, ReprFail):
+        raise ValueError("Couldn't figure out the value of a default argument: " + eval_sol.info)
+
+    eval_stu, str_stu = get_func(tree = state.student_tree,
+                                 process = state.student_process,
+                                 context = state.student_context)
+
+    # kwargs ---
+    fmt_kwargs = {'stu_part': state.student_parts, 'sol_part': state.solution_parts}
+    fmt_kwargs['stu_eval'] = utils.shorten_str(str(eval_stu))
+    fmt_kwargs['sol_eval'] = utils.shorten_str(str(eval_sol))
+
+    # tests ---
+    if (test == 'error') ^ isinstance(str_stu, Exception):
+        _msg = state.build_message(error_msg, fmt_kwargs)
+        feedback = Feedback(_msg, state.highlight)
+        rep.do_test(Test(feedback))
+
+    _msg = state.build_message(incorrect_msg, fmt_kwargs)
+    rep.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, state.highlight)))
+
+    return state
+
+has_equal_value =  partial(has_expr, test = 'value')
+has_equal_output = partial(has_expr, test = 'output')
+has_equal_error  = partial(has_expr, test = 'error')

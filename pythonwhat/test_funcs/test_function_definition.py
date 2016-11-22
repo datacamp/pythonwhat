@@ -194,7 +194,7 @@ def test_args(arg_names, arg_defaults,
                 has_equal_part('is_default', arg_defaults_msg or MSG_BAD_DEFAULT, arg_state)
                 # test default value, use if to prevent running a process no default
                 if arg_state.solution_parts['is_default']:
-                    has_equal_value(arg_defaults_msg or MSG_INC_DEFAULT, arg_state)
+                    has_equal_value(arg_defaults_msg or MSG_INC_DEFAULT, "error message", state = arg_state)
 
         # test *args and **kwargs
         if child.solution_parts['*args']:
