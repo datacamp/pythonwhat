@@ -334,9 +334,16 @@ def has_expr(incorrect_msg,
              pre_code=None,
              keep_objs_in_env=None,
              name=None,
+             highlight=None,
              state=None,
              test=None):
     rep = Reporter.active_reporter
+
+    # run function to highlight a block of code
+    if callable(highlight):
+        try:    highlight = highlight(state=state).student_tree
+        except: pass
+    highlight = highlight or state.highlight
 
     get_func = partial(evalCalls[test], 
                        extra_env = extra_env,
@@ -369,17 +376,17 @@ def has_expr(incorrect_msg,
     # error in process
     if (test == 'error') ^ isinstance(str_stu, Exception):
         _msg = state.build_message(error_msg, fmt_kwargs)
-        feedback = Feedback(_msg, state.highlight)
+        feedback = Feedback(_msg, highlight)
         rep.do_test(Test(feedback))
 
     # name is undefined after running expression
     if isinstance(str_stu, UndefinedValue):
         _msg = state.build_message(undefined_msg, fmt_kwargs)
-        rep.do_test(Test(Feedback(_msg, state.highlight)))
+        rep.do_test(Test(Feedback(_msg, highlight)))
 
     # test equality of results
     _msg = state.build_message(incorrect_msg, fmt_kwargs)
-    rep.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, state.highlight)))
+    rep.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, highlight)))
 
     return state
 

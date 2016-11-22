@@ -354,10 +354,17 @@ def taskRunEval(tree,
             obj = eval(code, new_env)
         else:       
             exec(code, new_env)
-            if name:
-                if name not in new_env: return UndefinedValue()
-                obj = new_env[name]
-            else: obj = "exec only"
+            obj = "exec only"
+        
+        # If name given, get from new_env
+        if name:
+            try:
+                if isinstance(name, ast.AST):
+                    obj = eval(compile(tree, "<script>", "eval"), new_env)
+                else:
+                    obj = eval(name, new_env)
+            except NameError:
+                return UndefinedValue()
 
         # call object if dict with args and kwargs was passed
         if call is not None:

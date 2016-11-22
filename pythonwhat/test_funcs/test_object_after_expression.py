@@ -1,4 +1,5 @@
-from pythonwhat.check_funcs import has_equal_value
+from pythonwhat.check_funcs import has_equal_value, check_part
+from .test_object import get_assignment_node
 
 def test_object_after_expression(name,
                                  extra_env=None,
@@ -71,6 +72,8 @@ def test_object_after_expression(name,
     if not incorrect_msg:
         incorrect_msg = "Are you sure you assigned the correct value to `%s`?" % name
 
+    ass_node = get_assignment_node(state.student_object_assignments, name)
+
     has_equal_value(
             incorrect_msg = incorrect_msg,
             error_msg = undefined_msg,
@@ -80,4 +83,5 @@ def test_object_after_expression(name,
             pre_code=pre_code,
             keep_objs_in_env=keep_objs_in_env,
             name = name,
+            highlight = ass_node,
             state=state)
