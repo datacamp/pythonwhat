@@ -426,9 +426,10 @@ class ObjectAssignmentParser(Parser):
     def visit_Name(self, node):
         if self.active_assignment is not None:
             if node.id not in self.out:
-                self.out[node.id] = [self.active_assignment]
+                self.out[node.id] = self.get_part(node, self.active_assignment)
             else:
-                self.out[node.id].append(self.active_assignment)
+                self.out[node.id]['highlight'] = None
+                self.out[node.id]['assignments'].append(self.active_assignment)
             self.active_assignment = None
 
     def visit_Attribute(self, node):
@@ -464,6 +465,20 @@ class ObjectAssignmentParser(Parser):
     def visit_TryFinally(self, node):
         self.visit_each(node.body)
         self.visit_each(node.finalbody)
+
+    @staticmethod
+    def get_part(name_node, ass_node=None):
+        # either name node or simply str or name itself
+        name = getattr(name_node, 'id', name_node)
+        load_name = ast.Name(id=name, ctx=ast.Load())
+        ast.fix_missing_locations(load_name)
+        # 
+        return {'name': name,
+                'node': load_name,
+                'highlight': ass_node or name_node,
+                'assignments': [] if not ass_node else [ass_node]
+                }
+
 
 class IfParser(Parser):
     """Find if structures.

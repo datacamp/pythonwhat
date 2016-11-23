@@ -1,24 +1,21 @@
-from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, DefinedCollProcessTest, EqualValueProcessTest
-from pythonwhat.Feedback import Feedback
-from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getColumnsInProcess, getValueInProcess, ReprFail
+from pythonwhat.tasks import getColumnsInProcess
 from .test_object import check_object
 from .test_dictionary import is_instance, test_key, has_key
 
 import pandas as pd
 
-MSG_UNDEFINED = "Are you sure you defined the pandas DataFrame: `{name}`?"
-MSG_NOT_INSTANCE = "`{name}` is not a pandas DataFrame."
-MSG_KEY_MISSING = "There is no column `{key}` inside `{name}`."
-MSG_INCORRECT_VAL = "Column `{key}` of your pandas DataFrame, `{name}`, is not correct."
+MSG_UNDEFINED = "Are you sure you defined the pandas DataFrame: `{parent[sol_part][name]}`?"
+MSG_NOT_INSTANCE = "`{parent[sol_part][name]}` is not a pandas DataFrame."
+MSG_KEY_MISSING = "There is no column `{key}` inside `{parent[sol_part][name]}`."
+MSG_INCORRECT_VAL = "Column `{key}` of your pandas DataFrame, `{parent[sol_part][name]}`, is not correct."
 
 def test_data_frame(name,
                     columns=None,
-                    undefined_msg=MSG_UNDEFINED,
-                    not_data_frame_msg=MSG_NOT_INSTANCE,
-                    undefined_cols_msg=MSG_KEY_MISSING,
-                    incorrect_msg=MSG_INCORRECT_VAL,
+                    undefined_msg=None,
+                    not_data_frame_msg=None,
+                    undefined_cols_msg=None,
+                    incorrect_msg=None,
                     state=None):
     """Test a pandas dataframe.
     """
@@ -26,9 +23,9 @@ def test_data_frame(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_data_frame")
 
-    check_df(name, undefined_msg, not_data_frame_msg, state=state)
+    child = check_df(name, undefined_msg or MSG_UNDEFINED, not_data_frame_msg or MSG_NOT_INSTANCE, state=state)
 
-    sol_cols = getColumnsInProcess(name, state.solution_process)
+    sol_cols = getColumnsInProcess(name, child.solution_process)
     if sol_cols is None:
         raise ValueError("Something went wrong in figuring out the columns for %s in the solution process" % name)
 
@@ -37,19 +34,13 @@ def test_data_frame(name,
 
     for col in columns:
         # check if column available
-        test_key(name, col, incorrect_msg, undefined_cols_msg, state=state)
+        test_key(name, col, incorrect_msg or MSG_INCORRECT_VAL, undefined_cols_msg or MSG_KEY_MISSING, state=child)
 
 # Check functions -------------------------------------------------------------
 
-def check_df(name, undefined_msg, not_instance_msg, state=None):
-    rep = Reporter.active_reporter
+def check_df(name, undefined_msg=MSG_UNDEFINED, not_instance_msg=MSG_NOT_INSTANCE, state=None):
 
-    # Check if defined
-    undefined_msg = undefined_msg.format(name=name)
+    child = check_object(name, undefined_msg, state=state)          # test defined
+    is_instance(name, pd.DataFrame, not_instance_msg, state=child)  # test instance
 
-    # check but don't get solution object representation
-    state = check_object(name, undefined_msg, state=state)
-
-    is_instance(name, pd.DataFrame, not_instance_msg, state=state)
-
-    return state
+    return child

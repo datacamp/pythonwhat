@@ -1,14 +1,13 @@
-from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, DefinedCollProcessTest, EqualValueProcessTest
+from pythonwhat.Test import InstanceProcessTest, DefinedCollProcessTest, EqualValueProcessTest
 from pythonwhat.Feedback import Feedback
-from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getKeysInProcess, getValueInProcess, isDefinedCollInProcess, ReprFail
+from pythonwhat.tasks import isInstanceInProcess, getKeysInProcess, getValueInProcess, isDefinedCollInProcess, ReprFail
 from .test_object import check_object
 
-MSG_UNDEFINED = "Are you sure you defined the dictionary `{name}`?"
-MSG_NOT_INSTANCE = "`{name}` is not a dictionary."
-MSG_KEY_MISSING = "Have you specified a key `{key}` inside `{name}`?"
-MSG_INCORRECT_VAL = "Have you specified the correct value for the key `{key}` inside `{name}`?"
+MSG_UNDEFINED = "Are you sure you defined the dictionary `{parent[sol_part][name]}`?"
+MSG_NOT_INSTANCE = "`{parent[sol_part][name]}` is not a dictionary."
+MSG_KEY_MISSING = "Have you specified a key `{key}` inside `{parent[sol_part][name]}`?"
+MSG_INCORRECT_VAL = "Have you specified the correct value for the key `{key}` inside `{parent[sol_part][name]}`?"
 
 def test_dictionary(name,
                     keys=None,
@@ -23,7 +22,7 @@ def test_dictionary(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_dictionary")
 
-    check_dict(name, undefined_msg, not_dictionary_msg, state=state)
+    child = check_dict(name, undefined_msg or MSG_UNDEFINED, not_dictionary_msg or MSG_NOT_INSTANCE, state=state)
 
     # set keys or check if manual keys are valid
     if not keys: 
@@ -31,23 +30,16 @@ def test_dictionary(name,
 
     for key in keys:
         # check if key in dictionary
-        test_key(name, key, incorrect_value_msg, key_missing_msg, state=state)
+        test_key(name, key, incorrect_value_msg or MSG_INCORRECT_VAL, key_missing_msg or MSG_KEY_MISSING, state=child)
 
 # Check functions -------------------------------------------------------------
 
-def check_dict(name, undefined_msg, not_instance_msg, state=None):
-    rep = Reporter.active_reporter
+def check_dict(name, undefined_msg=MSG_UNDEFINED, not_instance_msg=MSG_NOT_INSTANCE, state=None):
 
-    # Check if defined
-    undefined_msg = undefined_msg.format(name=name)
-    _msg = state.build_message(undefined_msg)
+    child = check_object(name, undefined_msg, state=state)   # test defined
+    is_instance(name, dict, not_instance_msg, state=child)   # test instance
 
-    # check but don't get solution object representation
-    state = check_object(name, _msg, state=state)
-
-    is_instance(name, dict, not_instance_msg, state=state)
-
-    return state
+    return child
 
 def is_instance(name, inst, not_instance_msg, state=None):
     rep = Reporter.active_reporter
@@ -55,7 +47,8 @@ def is_instance(name, inst, not_instance_msg, state=None):
     if not isInstanceInProcess(name, inst, state.solution_process):
         raise ValueError("%r is not a %s in the solution environment" % (name, type(inst)))
 
-    feedback = Feedback(not_instance_msg.format(name=name))
+    _msg = state.build_message(not_instance_msg)
+    feedback = Feedback(_msg, state.highlight)
     rep.do_test(InstanceProcessTest(name, inst, state.student_process, feedback))
 
 def has_key(name, key, key_missing_msg, state=None):
@@ -65,8 +58,9 @@ def has_key(name, key, key_missing_msg, state=None):
         raise NameError("Not all keys you specified are actually keys in %s in the solution process" % name)
 
     # check if key available
-    msg = key_missing_msg.format(key=key, name=name)
-    rep.do_test(DefinedCollProcessTest(name, key, state.student_process, Feedback(msg)))
+    _msg = state.build_message(key_missing_msg, {'key': key})
+    rep.do_test(DefinedCollProcessTest(name, key, state.student_process, 
+                                       Feedback(_msg, state.highlight)))
 
 def test_key(name, key, incorrect_value_msg, key_missing_msg, state=None):
     rep = Reporter.active_reporter
@@ -78,6 +72,5 @@ def test_key(name, key, incorrect_value_msg, key_missing_msg, state=None):
         raise NameError("Value from %r can't be fetched from the solution process: %s" % c(name, sol_value.info))
 
     # check if value ok
-    msg = incorrect_value_msg.format(key=key, name=name)
-    _msg = state.build_message(msg)
-    rep.do_test(EqualValueProcessTest(name, key, state.student_process, sol_value, Feedback(_msg)))
+    _msg = state.build_message(incorrect_value_msg, {'key': key})
+    rep.do_test(EqualValueProcessTest(name, key, state.student_process, sol_value, Feedback(_msg, state.highlight)))

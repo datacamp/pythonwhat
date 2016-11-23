@@ -90,6 +90,7 @@ df = pd.DataFrame({
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'Column <code>b</code> of your pandas DataFrame, <code>df</code>, is not correct.')
+        helper.test_lines(self, sct_payload, 2, 6, 1, 2)
 
     def test_Fail3(self):
         self.data["DC_CODE"] = '''

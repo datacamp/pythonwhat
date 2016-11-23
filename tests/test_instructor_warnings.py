@@ -8,7 +8,7 @@ class TestWarnings(unittest.TestCase):
                 "DC_SCT": """set_converter('builtins.dict', lambda: abc); test_object('d') """
                 }
         data['DC_CODE'] = data['DC_SOLUTION']
-        self.assertRaises(NameError, lambda: helper.run(data))
+        self.assertRaises(ValueError, lambda: helper.run(data))
 
 if __name__ == "__main__":
     unittest.main()
