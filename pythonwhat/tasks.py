@@ -226,17 +226,6 @@ def getClass(name, process, shell):
 def convert(name, converter, process, shell):
     return dill.loads(converter)(get_env(shell.user_ns)[name])
 
-# class TaskGetObject(object):
-#     def __init__(self, name):
-#         self.name = name
-
-#     def __call__(self, shell):
-#         obj = get_env(shell.user_ns)[self.name]
-#         #if dill.pickles(obj):
-#         return obj
-#        else:
-#            return None
-
 @process_task
 def getStreamPickle(name, process, shell):
     try:
@@ -290,7 +279,7 @@ class UndefinedValue: pass
 
 def getResultFromProcess(res, tempname, process):
     """Get a value from process, return tuple of value, res if succesful"""
-    if res is not None and not isinstance(res, UndefinedValue):
+    if not isinstance(res, (UndefinedValue, Exception)):
         value = getRepresentation(tempname, process)
         return (value, res)
     else: 
@@ -318,8 +307,18 @@ def get_rep(f):
 def get_output(f, process, shell, *args, **kwargs):
     with capture_output() as out:
         res = f(*args, process=process, shell=shell, **kwargs)
-    if res is not None: 
-        return out[0].strip()
+
+    out_str = out[0].strip()
+    if not isinstance(res, Exception):
+        str_rep = out_str or "no output"
+        return (out_str, str_rep) 
+    else:
+        return (None, res)
+
+@process_task
+def get_error(f, *args, **kwargs):
+    res = f(*args, **kwargs)
+    return (res, res) if isinstance(res, Exception) else (None, res)
 
 # General tasks to eval or exec code, with decorated counterparts -------------
 
@@ -328,7 +327,8 @@ def get_output(f, process, shell, *args, **kwargs):
 def taskRunEval(tree,
                 process, shell, 
                 keep_objs_in_env = None, extra_env = None, context=None, context_vals=None, 
-                pre_code = "", expr_code = "", name="", tempname='_evaluation_object_', do_exec=False):
+                pre_code = "", expr_code = "", name="", tempname='_evaluation_object_', do_exec=False, 
+                call=None):
     new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
     if extra_env is not None:
         new_env.update(copy.deepcopy(extra_env))
@@ -354,63 +354,39 @@ def taskRunEval(tree,
             obj = eval(code, new_env)
         else:       
             exec(code, new_env)
-            if name:
-                if name not in new_env: return UndefinedValue()
-                obj = new_env[name]
-            else: obj = "exec only"
+            obj = "exec only"
+        
+        # If name given, get from new_env
+        if name:
+            try:
+                if isinstance(name, ast.AST):
+                    obj = eval(compile(tree, "<script>", "eval"), new_env)
+                else:
+                    obj = eval(name, new_env)
+            except NameError:
+                return UndefinedValue()
+
+        # call object if dict with args and kwargs was passed
+        if call is not None:
+            obj = obj(*call['args'], **call['kwargs'])
 
         # Set object as temp variable in original environment, so we can
         # later get its class, etc.., in order to extract it from process
         get_env(shell.user_ns)[tempname] = obj
         return str(obj)
 
-    except:
-        return None
+    except Exception as e: 
+        return e
 
 getResultInProcess = get_rep(taskRunEval)
 getOutputInProcess = partial(get_output, taskRunEval)
+getErrorInProcess = partial(get_error, taskRunEval)
 
 # Get the value linked to a key of a collection in the process
 @process_task
 def taskGetValue(name, key, process, shell, tempname='_evaluation_object_'):
-    try:
-        get_env(shell.user_ns)[tempname] = get_env(shell.user_ns)[name][key]
-        return True
-    except:
-        return None
+    get_env(shell.user_ns)[tempname] = get_env(shell.user_ns)[name][key]
+    return True
 
 getValueInProcess = get_rep(taskGetValue)
-
-# Run a function call in process
-# TODO: should this run the function on the original environment? what about side effects?
-@process_task
-def taskRunFunctionCall(fun_name, arguments, process, shell, tempname='_evaluation_object_'):
-    try:
-        get_env(shell.user_ns)[tempname] = get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
-        return str(get_env(shell.user_ns)[tempname])
-    except:
-        return None
-
-getFunctionCallResultInProcess = get_rep(taskRunFunctionCall)
-getFunctionCallOutputInProcess = partial(get_output, taskRunFunctionCall)
-
-# Get error of function call in process
-@process_task
-def getFunctionCallErrorInProcess(fun_name, arguments, process, shell):
-    try:
-        get_env(shell.user_ns)[fun_name](*arguments['args'], **arguments['kwargs'])
-    except Exception as e:
-        return e
-    else:
-        return None
-
-# Get error of an expression tree in process
-@process_task
-def getTreeErrorInProcess(tree, process, shell):
-    try:
-        eval(compile(ast.Expression(tree), "<script>", "eval"), get_env(shell.user_ns))
-    except Exception as e:
-        return e
-    else:
-        return None
 

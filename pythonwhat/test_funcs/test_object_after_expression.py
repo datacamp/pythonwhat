@@ -1,14 +1,5 @@
-import ast
-from pythonwhat.State import State
-from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import EqualTest, Test
-
+from pythonwhat.check_funcs import has_equal_value, check_part
 from .test_object import get_assignment_node
-from pythonwhat.Feedback import Feedback
-from pythonwhat import utils
-
-from pythonwhat.tasks import getResultInProcess, UndefinedValue
-
 
 def test_object_after_expression(name,
                                  extra_env=None,
@@ -16,6 +7,7 @@ def test_object_after_expression(name,
                                  undefined_msg=None,
                                  incorrect_msg=None,
                                  eq_condition="equal",
+                                 expr_code=None,
                                  pre_code=None,
                                  keep_objs_in_env=None,
                                  state=None):
@@ -75,10 +67,6 @@ def test_object_after_expression(name,
         This SCT will pass as the value of `count` is updated identically in the body of the for loop in the
         student code and solution code.
     """
-    rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_object_after_expression")
-
-    student_obj_ass = state.student_object_assignments
 
     if not undefined_msg:
         undefined_msg = "Have you defined `%s` without errors?" % name
@@ -86,38 +74,17 @@ def test_object_after_expression(name,
     if not incorrect_msg:
         incorrect_msg = "Are you sure you assigned the correct value to `%s`?" % name
 
-    eq_map = {"equal": EqualTest}
+    ass_node = state.student_object_assignments.get(name, {}).get('highlight')
 
-    if eq_condition not in eq_map:
-        raise NameError("%r not a valid equality condition " % eq_condition)
-
-    eval_student, str_student = getResultInProcess(tree = state.student_tree,
-                                                   name = name,
-                                                   process = state.student_process,
-                                                   extra_env = extra_env,
-                                                   context = state.student_context,
-                                                   context_vals = context_vals,
-                                                   pre_code = pre_code,
-                                                   keep_objs_in_env = keep_objs_in_env)
-
-    eval_solution, str_solution = getResultInProcess(tree = state.solution_tree, 
-                                                     name = name,
-                                                     process = state.solution_process,
-                                                     extra_env = extra_env,
-                                                     context = state.solution_context,
-                                                     context_vals = context_vals,
-                                                     pre_code = pre_code,
-                                                     keep_objs_in_env = keep_objs_in_env)
-
-    if str_solution is None:
-        raise ValueError("Running the expression in the solution environment caused an error.")
-
-    if isinstance(str_student, UndefinedValue) or str_student is None:
-        rep.do_test(Test(undefined_msg))
-        return
-
-    ass_node = get_assignment_node(student_obj_ass, name)
-    rep.do_test(eq_map[eq_condition](eval_student,
-                                     eval_solution,
-                                     Feedback(incorrect_msg, ass_node)))
-
+    has_equal_value(
+            incorrect_msg = incorrect_msg,
+            error_msg = undefined_msg,
+            undefined_msg = undefined_msg,
+            extra_env=extra_env,
+            context_vals=context_vals,
+            pre_code=pre_code,
+            keep_objs_in_env=keep_objs_in_env,
+            name = name,
+            highlight = ass_node,
+            expr_code = expr_code,
+            state=state)

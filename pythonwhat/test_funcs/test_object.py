@@ -1,8 +1,13 @@
+import ast
+from pythonwhat.parsing import ObjectAssignmentParser
 from pythonwhat.Test import DefinedProcessTest, EqualProcessTest
-from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
-from pythonwhat.tasks import isDefinedInProcess, getRepresentation, ReprFail
+from pythonwhat.tasks import isDefinedInProcess, getRepresentation
+from pythonwhat.check_funcs import part_to_child, has_equal_value
+
+MSG_UNDEFINED = "Have you defined `{parent[sol_part][name]}`?"
+MSG_INCORRECT = "The contents of `{parent[sol_part][name]}` aren't correct."
 
 def test_object(name,
                 eq_condition="equal",
@@ -52,44 +57,36 @@ def test_object(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object")
 
-    student_obj_ass = state.student_object_assignments
-
-    if not undefined_msg:
-        undefined_msg = "Have you defined `%s`?" % name
-
-    if not incorrect_msg:
-        incorrect_msg = "The contents of `%s` aren't correct." % name
-
-    eq_map = {"equal": EqualProcessTest}
-    student_process = state.student_process
-    solution_process = state.solution_process
-
-    if eq_condition not in eq_map:
-        raise NameError("%r not a valid equality condition " % eq_condition)
-
-    if not isDefinedInProcess(name, solution_process):
-        raise NameError("%r not in solution environment " % name)
-
-    rep.do_test(DefinedProcessTest(name, student_process, Feedback(undefined_msg)))
+    child = check_object(name, undefined_msg or MSG_UNDEFINED, state=state)
 
     if do_eval:
-        ass_node = get_assignment_node(student_obj_ass, name)
 
-        sol_obj = getRepresentation(name, solution_process)
-        if isinstance(sol_obj, ReprFail):
-            raise NameError(sol_obj.info)
+        has_equal_value(incorrect_msg or MSG_INCORRECT, state=child)
 
-        rep.do_test(eq_map[eq_condition](name,
-                                         student_process,
-                                         sol_obj,
-                                         Feedback(incorrect_msg, ass_node)))
+def get_assignment_node(obj_ass, name):
+    nodes = obj_ass[name] if name in obj_ass else None
+    
+    # found a single case of assigning name
+    if nodes and len(nodes) == 1: 
+        return nodes[0]
 
-def get_assignment_node(student_obj_ass, name):
-    if (name not in student_obj_ass):
-        return(None)
+# Check functions -------------------------------------------------------------
 
-    # For now, only pass along node if single assignment
-    if (len(student_obj_ass[name]) != 1):
-        return(None)
+def check_object(name, undefined_msg=MSG_UNDEFINED, state=None):
+    rep = Reporter.active_reporter
 
-    return(student_obj_ass[name][0])
+    if not isDefinedInProcess(name, state.solution_process):
+        raise NameError("%r not in solution environment " % name)
+
+    # create child state, using either parser output, or create part from name
+    fallback = lambda: ObjectAssignmentParser.get_part(name)
+    stu_part = state.student_object_assignments.get(name, fallback())
+    sol_part = state.solution_object_assignments.get(name, fallback())
+    
+    child = part_to_child(stu_part, sol_part, {'msg': '', 'kwargs': {}}, state)
+
+    # test object exists
+    _msg = child.build_message(undefined_msg)
+    rep.do_test(DefinedProcessTest(name, child.student_process, Feedback(_msg)))
+
+    return child

@@ -1,12 +1,5 @@
-import ast
-from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import DefinedCollTest, EqualTest, Test, InstanceTest
-from pythonwhat.Feedback import Feedback
-from pythonwhat import utils
-from pythonwhat.utils import get_ord
-from pythonwhat.tasks import getFunctionCallResultInProcess, getFunctionCallOutputInProcess, getFunctionCallErrorInProcess, ReprFail
-from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_part, has_equal_part_len, has_equal_part, has_equal_value
+from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_part, has_equal_part_len, has_equal_part, has_equal_value, call, fix_format
 
 from functools import partial
 
@@ -20,11 +13,18 @@ MSG_BAD_ARG_NAME = "the {parent[ordinal]} {parent[part]} should be called `{sol_
 MSG_BAD_DEFAULT = "the {parent[part]} `{stu_part[name]}` should have no default."
 MSG_INC_DEFAULT = "the {parent[part]} `{stu_part[name]}` does not have the correct default."
 
-MSG_NO_VARARG = "have you specified an argument to take a `*` argument and named it `{sol_part[vararg][name]}`?"
-MSG_NO_KWARGS = "have you specified an argument to take a `**` argument and named it `{sol_part[kwarg][name]}`?"
+MSG_NO_VARARG = "have you specified an argument to take a `*` argument and named it `{sol_part[*args][name]}`?"
+MSG_NO_KWARGS = "have you specified an argument to take a `**` argument and named it `{sol_part[**kwargs][name]}`?"
 MSG_VARARG_NAME = "have you specified an argument to take a `*` argument and named it `{sol_part[name]}`?"
 MSG_KWARG_NAME = "have you specified an argument to take a `**` argument and named it `{sol_part[name]}`?"
 
+# TODO some need to reference the eval rather than str
+MSG_RES_ERROR = "Calling `{argstr}` should result in `{str_sol}`, instead got an error."
+MSG_RES_INCORRECT = "Calling `{argstr}` should result in `{str_sol}`, instead got `{str_stu}`."
+MSG_ERR_NONE = "Calling `{argstr}` doesn't result in an error, but it should!"
+MSG_ERR_INCORRECT = "Calling `{argstr}` should result in a `{str_sol.__class__.__name__}`, instead got a `{str_stu.__class__.__name__}`."
+MSG_OUT_ERROR = "Calling `{argstr}` should output {str_sol}, instead got an error."
+MSG_OUT_INCORRECT = "Calling `{argstr}` should output `{str_sol}`, instead got {str_stu}."
 
 def test_function_definition(name,
                              arg_names=True,
@@ -135,103 +135,33 @@ def test_function_definition(name,
 
     multi(body, state=check_part('body', "", child))
 
-    # TODO: refactor below ----------------------------------------------------
-    #
-    solution_defs = state.solution_function_defs
-    student_defs = state.student_function_defs
+    # Test function calls -----------------------------------------------------
 
-    solution_def = solution_defs[name]
-    student_def = student_defs[name]
+    #fun_name = ("`%s()`" % name)
 
-    fun_def = student_def['node']
-    fun_name = ("`%s()`" % name)
+    for el in (results or []):
+        el = fix_format(el)
+        call(el, 'value',
+                incorrect_msg = wrong_result_msg or MSG_RES_INCORRECT,
+                error_msg = wrong_result_msg or MSG_RES_ERROR,
+                argstr = name + stringify(el),
+                state = quiet_child)
 
+    for el in (outputs or []):
+        el = fix_format(el)
+        call(el, 'output',
+                incorrect_msg = wrong_output_msg or MSG_OUT_INCORRECT,
+                error_msg = wrong_output_msg or MSG_OUT_ERROR,
+                argstr = name + stringify(el),
+                state = quiet_child)
 
-    if results is not None:
-        for el in results:
-            el = fix_format(el)
-            call_str = name + stringify(el)
-
-            eval_solution, str_solution = getFunctionCallResultInProcess(process = state.solution_process,
-                                                                         fun_name = name,
-                                                                         arguments = el)
-            if str_solution is None:
-                raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
-            if isinstance(eval_solution, ReprFail):
-                raise ValueError("Something went wrong in figuring out the result of " + call_str + ": " + eval_solution.info)
-
-            eval_student, str_student = getFunctionCallResultInProcess(process = state.student_process,
-                                                                       fun_name = name,
-                                                                       arguments = el)
-
-            if str_student is None:
-                c_wrong_result_msg = wrong_result_msg or \
-                    ("Calling `%s` should result in `%s`, instead got an error." %
-                        (call_str, str_solution))
-                rep.do_test(Test(c_wrong_result_msg))
-                return
-
-            c_wrong_result_msg = wrong_result_msg or \
-                ("Calling `%s` should result in `%s`, instead got `%s`." %
-                    (call_str, str_solution, str_student))
-            rep.do_test(EqualTest(eval_solution, eval_student, c_wrong_result_msg))
-
-    if outputs is not None:
-        for el in outputs:
-            el = fix_format(el)
-            call_str = name + stringify(el)
-            output_solution = getFunctionCallOutputInProcess(process = state.solution_process,
-                                                             fun_name = name,
-                                                             arguments = el)
-
-            if output_solution is None:
-                raise ValueError("Calling %s in the solution process resulted in an error" % call_str)
-
-            output_student = getFunctionCallOutputInProcess(process = state.student_process,
-                                                            fun_name = name,
-                                                            arguments = el)
-
-            def format_output(out):
-                if len(out) == 0:
-                    return "no output"
-                else:
-                    return "`%s`" % out
-
-            if output_student is None:
-                c_wrong_output_msg = wrong_output_msg or \
-                    ("Calling `%s` should output %s, instead got an error." %
-                        (call_str, format_output(output_solution)))
-                rep.do_test(Test(c_wrong_output_msg))
-                return
-
-            c_wrong_output_msg = wrong_output_msg or \
-                ("Calling `%s` should output %s, instead got %s." %
-                    (call_str, format_output(output_solution), format_output(output_student)))
-            rep.do_test(EqualTest(output_solution, output_student, c_wrong_output_msg))
-
-    if errors is not None:
-        for el in errors:
-            el = fix_format(el)
-            call_str = name + stringify(el)
-            error_solution = getFunctionCallErrorInProcess(process = state.solution_process,
-                                                           fun_name = name,
-                                                           arguments = el)
-
-            if error_solution is None:
-                raise ValueError("Calling %s did not generate an error in the solution environment." % call_str)
-
-            error_student = getFunctionCallErrorInProcess(process = state.student_process,
-                                                          fun_name = name,
-                                                          arguments = el)
-
-            if error_student is None:
-                feedback_msg = no_error_msg or ("Calling `%s` doesn't result in an error, but it should!" % call_str)
-                rep.do_test(Test(feedback_msg))
-                return
-
-            feedback_msg = wrong_error_msg or ("Calling `%s` should result in a `%s`, instead got a `%s`." % \
-                (call_str, error_solution.__class__.__name__, error_student.__class__.__name__))
-            rep.do_test(InstanceTest(error_student, error_solution.__class__, feedback_msg))
+    for el in (errors or []):
+        el = fix_format(el)
+        call(el, 'error',
+                incorrect_msg = wrong_error_msg or MSG_ERR_INCORRECT,
+                error_msg = no_error_msg or MSG_ERR_NONE,
+                argstr = name + stringify(el),
+                state = quiet_child)
 
 
 def stringify(arguments):
@@ -249,31 +179,17 @@ def stringify(arguments):
             return "(" + ", ".join([vararg, kwarg]) + ")"
 
 
-def fix_format(arguments):
-    if isinstance(arguments, str):
-        arguments = (arguments, )
-    if isinstance(arguments, tuple):
-        arguments = list(arguments)
-
-    if isinstance(arguments, list):
-        arguments = {'args': arguments, 'kwargs': {}}
-
-    if not isinstance(arguments, dict) or 'args' not in arguments or 'kwargs' not in arguments:
-        raise ValueError("Wrong format of arguments in 'results', 'outputs' or 'errors'; either a list, or a dictionary with names args (a list) and kwargs (a dict)")
-
-    return(arguments)
-
 def test_args(arg_names, arg_defaults, 
               nb_args_msg, arg_names_msg, arg_defaults_msg, 
               child, quiet_child):
     if arg_names or arg_defaults:
         # test number of args
-        has_equal_part_len('arg', nb_args_msg or MSG_NUM_ARGS, state=quiet_child)
+        has_equal_part_len('_spec1_args', nb_args_msg or MSG_NUM_ARGS, state=quiet_child)
 
         # iterate over each arg, testing name and default
-        for ii in range(len(child.solution_parts['arg'])):
+        for ii in range(len(child.solution_parts['_spec1_args'])):
             # get argument state
-            arg_state = check_part_index('arg', ii, 'argument', "NO MISSING MSG", state=child)
+            arg_state = check_part_index('_spec1_args', ii, 'argument', "NO MISSING MSG", state=child)
             # test exact name
             has_equal_part('name', arg_names_msg or MSG_BAD_ARG_NAME, arg_state)
 
@@ -282,14 +198,14 @@ def test_args(arg_names, arg_defaults,
                 has_equal_part('is_default', arg_defaults_msg or MSG_BAD_DEFAULT, arg_state)
                 # test default value, use if to prevent running a process no default
                 if arg_state.solution_parts['is_default']:
-                    has_equal_value(arg_defaults_msg or MSG_INC_DEFAULT, arg_state)
+                    has_equal_value(arg_defaults_msg or MSG_INC_DEFAULT, "error message", state = arg_state)
 
         # test *args and **kwargs
-        if child.solution_parts['vararg']:
-            vararg = check_part('vararg', "", missing_msg = MSG_NO_VARARG, state = child)
+        if child.solution_parts['*args']:
+            vararg = check_part('*args', "", missing_msg = MSG_NO_VARARG, state = child)
             has_equal_part('name', MSG_VARARG_NAME, vararg)
         
-        if child.solution_parts['kwarg']:
-            kwarg = check_part('kwarg', "", missing_msg = MSG_NO_KWARGS, state = child)
+        if child.solution_parts['**kwargs']:
+            kwarg = check_part('**kwargs', "", missing_msg = MSG_NO_KWARGS, state = child)
             has_equal_part('name', MSG_KWARG_NAME, kwarg)
 

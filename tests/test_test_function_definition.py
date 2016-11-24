@@ -14,6 +14,23 @@ class TestFunctionDefinitionStepByStep(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_step_x_spec2(self):
+        self.data['DC_SCT'] = """
+cargs = {'args': [2, 3], 'kwargs': {}}
+eargs = {'args': ['a', 'b'], 'kwargs': {}}
+(Ex().check_function_def('test').call(cargs, 'value').call(cargs, 'output')
+                                .call(eargs, 'error'))
+        """
+        self.test_step_x()
+
+    def test_step_x_spec2_str_call(self):
+        self.data['DC_SCT'] = """
+(Ex().check_function_def('test').call("f(1,2)", 'value').call("f(1,2)", 'output')
+                                .call("f('a','b')", 'error'))
+"""
+        self.test_step_x()
+
+
 class TestExercise1(unittest.TestCase):
 
     def setUp(self):
@@ -59,6 +76,15 @@ shout( 'help' )
 
     def test_Fail_no_lam(self):
         self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
+        self.test_Fail()
+
+    def test_Pass_spec2(self):
+        self.data["DC_SCT"] = """Ex().check_function_def("shout").check_body().set_context(word="help").test_expression_output()"""
+        self.test_Pass()
+
+    @unittest.skip("TODO: spec2 prepended messages")
+    def test_Fail_spec2(self):
+        self.data["DC_SCT"] = """Ex().check_function_def("shout").check_body().set_context(word="help").test_expression_output(incorrect_msg='Make sure to output the correct string.')"""
         self.test_Fail()
 
 class TestExercise2(unittest.TestCase):
@@ -687,6 +713,99 @@ def my_fun(x, y = 4, z = ['a', 'b'], *args, **kwargs):
         self.data["DC_CODE"] = self.data["DC_SOLUTION"]
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
+class TestFunctionSpec2(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": '''
+def my_fun(x, y = 4, z = ('a', 'b'), *args, **kwargs):
+    return [x, y, *z, *args]
+            '''
+            }
+
+        self.MULTI_SCT = """
+varnames = ['x', 'y', 'z', '*args', '**kwargs']
+test_names = [check_arg(name).has_equal_part('name', 'bad%s'%name) for name in varnames]
+Ex().check_function_def('my_fun').multi(test_names)
+"""
+        self.SCT_CHECK = "Ex().check_function_def('my_fun')"
+        self.SCT_KW = "Ex().check_function_def('my_fun').check_arg('x').has_equal_part('name', 'badx')"
+        self.SCT_POS = "Ex().check_function_def('my_fun').check_arg(0).has_equal_part('name', 'badx')"
+        self.SCT_CHECK_ONE = "Ex().check_function_def('my_fun').check_arg(1)"
+        self.SCT_CHECK_Y = "Ex().check_function_def('my_fun').check_arg('y')"
+        self.SCT_CHECK_X = "Ex().check_function_def('my_fun').check_arg('x')"
+
+    def when_code_is_sol(self):
+        self.data['DC_CODE'] = self.data['DC_SOLUTION']
+        sct_payload = helper.run(self.data)
+        return sct_payload['correct']
+
+    def when_replace(self, orig, new):
+        self.data['DC_CODE'] = self.data['DC_SOLUTION'].replace(orig, new)
+        sct_payload = helper.run(self.data)
+        return sct_payload['correct']
+
+    def test_pass_kw(self):
+        self.data['DC_SCT'] = self.SCT_KW
+        self.assertTrue(self.when_code_is_sol())
+
+    def test_fail_kw(self):
+        self.data['DC_SCT'] = self.SCT_KW
+        self.assertFalse(self.when_replace('x', 'x2'))
+
+    def test_pass_pos(self):
+        self.data['DC_SCT'] = self.SCT_POS
+        self.assertTrue(self.when_code_is_sol())
+
+    def test_fail_pos(self):
+        self.data['DC_SCT'] = self.SCT_POS
+        self.assertFalse(self.when_replace('x', 'x2'))
+
+    def test_fail_pos_is_default(self):
+        self.data['DC_SCT'] = self.SCT_CHECK_ONE + ".has_equal_part('is_default', 'baddefault')"
+        self.assertFalse(self.when_replace('y = 4', 'y'))
+
+    def test_fail_kw_is_default(self):
+        self.data['DC_SCT'] = self.SCT_CHECK_Y + ".has_equal_part('is_default', 'baddefault')"
+        self.assertFalse(self.when_replace('y = 4', 'y'))
+
+    def test_pass_equal_value(self):
+        self.data['DC_SCT'] = self.SCT_CHECK_Y + ".has_equal_value('unequal values')"
+        self.assertTrue(self.when_code_is_sol())
+
+    def test_fail_equal_value(self):
+        self.data['DC_SCT'] = self.SCT_CHECK_Y + ".has_equal_value('unequal values')"
+        self.assertFalse(self.when_replace('y = 4', 'y = 2'))
+
+    def test_pass_call_str(self):
+        self.data['DC_SCT'] = self.SCT_CHECK + """.call("f(1, 2, (3,4), 5, kw_arg='ok')")"""
+        self.assertTrue(self.when_replace('x', 'x2'))
+
+    def test_pass_call_list(self):
+        self.data['DC_SCT'] = self.SCT_CHECK + """.call([1, 2, (3,4), 5])"""
+        self.assertTrue(self.when_replace('x', 'x2'))
+
+    @unittest.skip("Tries to evaluate ast tree but gets None when no default")
+    def test_check_value_when_no_default(self):
+        self.data['DC_SCT'] = self.SCT_CHECK_X + ".has_equal_value('unequal values')"
+        self.assertTrue(self.when_code_is_sol())
+
+    def test_pass_multi(self):
+        self.data['DC_SCT'] = self.MULTI_SCT
+        self.assertTrue(self.when_code_is_sol())
+
+    def test_fail_multi(self):
+        self.data['DC_SCT'] = self.MULTI_SCT
+        self.assertFalse(self.when_replace('x', 'x2'))
+
+class TestLambdaFunctionSpec2(TestFunctionSpec2):
+    def setUp(self):
+        super().setUp()
+        self.data['DC_SOLUTION'] = "lambda x, y = 4, z = ('a', 'b'), *args, **kwargs: [x, y, *z, *args]"
+        for attr in ['MULTI_SCT', 'SCT_CHECK', 'SCT_KW', 'SCT_POS', 'SCT_CHECK_ONE', 'SCT_CHECK_Y', 'SCT_CHECK_X']:
+            lam_sct = getattr(self, attr).replace("check_function_def('my_fun')", 'check_lambda_function(0)')
+            setattr(self, attr, lam_sct)
 
 if __name__ == "__main__":
     unittest.main()

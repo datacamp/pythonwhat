@@ -1,5 +1,5 @@
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import Test
+from pythonwhat.Test import Test, EqualTest
 from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord
 from functools import partial
@@ -96,7 +96,10 @@ def has_part(name, msg, state=None, fmt_kwargs=None):
          **fmt_kwargs
          }
 
-    if not d['stu_part'][name] is not None:
+    try: 
+        part = state.student_parts[name]
+        if part is None: raise KeyError
+    except (KeyError, IndexError):
         _msg = state.build_message(msg, d)
         rep.do_test(Test(Feedback(_msg, state.highlight)))
 
@@ -127,30 +130,6 @@ def has_equal_part_len(name, insufficient_msg, state=None):
 
     return state
 
-def has_equal_value(msg, state=None):
-    from pythonwhat.tasks import getResultInProcess, ReprFail
-    from pythonwhat.Test import EqualTest
-    rep = Reporter.active_reporter
-    eval_solution, str_solution = getResultInProcess(tree = state.solution_tree,
-                                                     context = state.solution_context,
-                                                     process = state.solution_process)
-    if str_solution is None:
-        raise ValueError("Evaluating a default argument in the solution environment raised an error")
-    if isinstance(eval_solution, ReprFail):
-        raise ValueError("Couldn't figure out the value of a default argument: " + eval_solution.info)
-
-    eval_student, str_student = getResultInProcess(tree = state.student_tree,
-                                                   context = state.student_context,
-                                                   process = state.student_process)
-
-    _msg = state.build_message(msg, {'stu_part': state.student_parts, 'sol_part': state.solution_parts})
-    feedback = Feedback(_msg, state.highlight)
-    if str_student is None:
-        rep.do_test(Test(feedback))
-    else:
-        rep.do_test(EqualTest(eval_student, eval_solution, feedback))
-
-    return state
 
 def extend(*args, state=None):
     """Run multiple subtests in sequence, each using the output state of the previous."""
@@ -175,11 +154,11 @@ def multi(*args, state=None):
             # TODO: it seems clear the reporter doesn't need to hold state anymore
             closure = partial(test, state=state)
             # message from parent checks
-            prefix = state.build_message()
-            # resetting reporter message until it can be refactored
-            prev_msg = rep.failure_msg
-            rep.do_test(closure, prefix, state.highlight)
-            rep.failure_msg = prev_msg
+            #prefix = state.build_message()
+            ## resetting reporter message until it can be refactored
+            #prev_msg = rep.failure_msg
+            rep.do_test(closure, "", state.highlight)
+            #rep.failure_msg = prev_msg
 
     # return original state, so can be chained
     return state
@@ -241,3 +220,176 @@ def set_context(*args, state=None, **kwargs):
     return state.to_child_state(student_subtree = None, solution_subtree = None,
                                 student_context = out_stu, solution_context = out_sol)
 
+
+def check_arg(name, missing_msg='check the argument `{part}`, ', state=None):
+    if name in ['*args', '**kwargs']:
+        return check_part(name, name, state=state, missing_msg = missing_msg)
+    else: 
+        return check_part_index('args', name, name, state=state, missing_msg = missing_msg)
+
+
+# CALL CHECK ==================================================================
+
+from pythonwhat.tasks import getResultInProcess, getOutputInProcess, getErrorInProcess, ReprFail
+import ast
+
+evalCalls = {'value':  getResultInProcess,
+             'output': getOutputInProcess,
+             'error':  getErrorInProcess}
+
+call_warnings = {
+        'value': 'in the solution process resulted in an error',
+        'error': 'did not generate an error in the solution environment',
+        'output': 'in the solution process resulted in an error'
+        }
+
+def fix_format(arguments):
+    if isinstance(arguments, str):
+        arguments = (arguments, )
+    if isinstance(arguments, tuple):
+        arguments = list(arguments)
+
+    if isinstance(arguments, list):
+        arguments = {'args': arguments, 'kwargs': {}}
+
+    if not isinstance(arguments, dict) or 'args' not in arguments or 'kwargs' not in arguments:
+        raise ValueError("Wrong format of arguments in 'results', 'outputs' or 'errors'; either a list, or a dictionary with names args (a list) and kwargs (a dict)")
+
+    return(arguments)
+
+# TODO: test string syntax with check_function_def
+#       test argument syntax with check_lambda
+#       implement for error and output
+def run_call(args, node, process, get_func, **kwargs):
+    # Get function expression
+    if isinstance(node, ast.FunctionDef):                     # function name
+        func_expr = ast.Name(id=node.name, ctx=ast.Load())
+    elif isinstance(node, ast.Lambda):                        # lambda body expr
+        func_expr = node
+    else: raise TypeError("Only function definition or lambda may be called")
+
+    # args is a call string or argument list/dict
+    if isinstance(args, str):
+        parsed = ast.parse(args).body[0].value
+        parsed.func = func_expr
+        ast.fix_missing_locations(parsed)
+        return get_func(process = process, tree = parsed, **kwargs)
+    else:
+        # e.g. list -> {args: [...], kwargs: {}} 
+        fmt_args = fix_format(args)           
+        ast.fix_missing_locations(func_expr)
+        return get_func(process = process, tree=func_expr, call = fmt_args, **kwargs)
+        
+
+MSG_CALL_INCORRECT = "Calling it should result in {str_sol}, instead got {str_sol}"
+MSG_CALL_ERROR     = "Calling it should result in {str_sol}, instead got an error"
+def call(args, 
+         test='value', 
+         incorrect_msg=MSG_CALL_INCORRECT, 
+         error_msg=MSG_CALL_ERROR, 
+         # TODO hardcoded lambda description for now
+         argstr='the Xth lambda function',
+         state=None, **kwargs):
+    rep = Reporter.active_reporter
+    test_type = ('value', 'output', 'error')
+
+    get_func = evalCalls[test]
+
+    # Run for Solution --------------------------------------------------------
+    eval_sol, str_sol = run_call(args, state.solution_parts['node'], state.solution_process, get_func, **kwargs)
+
+    if (test == 'error') ^ isinstance(str_sol, Exception):
+        _msg_prefix = "Calling %s for arguments %s " % (argstr, args)
+        raise ValueError(_msg_prefix + call_warnings[test])
+
+    if isinstance(eval_sol, ReprFail):
+        raise ValueError("Can't get the result of calling %s for arguments %s: %s" % (argstr, args, eval_sol.info))
+
+    # Run for Submission ------------------------------------------------------
+    eval_stu, str_stu = run_call(args, state.student_parts['node'], state.student_process, get_func, **kwargs)
+    fmt_kwargs = {'part': argstr, 'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu}
+
+    # either error test and no error, or vice-versa
+    stu_node = state.student_parts['node']
+    if (test == 'error') ^ isinstance(str_stu, Exception):
+        _msg = state.build_message(error_msg, fmt_kwargs)
+        rep.do_test(Test(Feedback(_msg, stu_node)))
+
+    # incorrect result
+    _msg = state.build_message(incorrect_msg, fmt_kwargs)
+    rep.do_test(EqualTest(eval_sol, eval_stu, Feedback(_msg, stu_node)))
+
+    return state
+
+# Expression tests ------------------------------------------------------------
+from pythonwhat.tasks import ReprFail, UndefinedValue
+from pythonwhat.Test import EqualTest
+from pythonwhat import utils
+def has_expr(incorrect_msg,
+             error_msg="Running an expression in the student process caused an issue",
+             undefined_msg="Have you defined `{name}` without errors?",
+             extra_env=None,
+             context_vals=None,
+             expr_code=None,
+             pre_code=None,
+             keep_objs_in_env=None,
+             name=None,
+             highlight=None,
+             state=None,
+             test=None):
+    rep = Reporter.active_reporter
+
+    # run function to highlight a block of code
+    if callable(highlight):
+        try:    highlight = highlight(state=state).student_tree
+        except: pass
+    highlight = highlight or state.highlight
+
+    get_func = partial(evalCalls[test], 
+                       extra_env = extra_env,
+                       context_vals = context_vals,
+                       pre_code = pre_code,
+                       expr_code = expr_code,
+                       keep_objs_in_env = keep_objs_in_env,
+                       name=name,
+                       do_exec = True if test == 'output' else False)
+    
+    eval_sol, str_sol = get_func(tree = state.solution_tree,
+                                 process = state.solution_process,
+                                 context = state.solution_context)
+
+    if (test == 'error') ^ isinstance(str_sol, Exception):
+        raise ValueError("evaluating expression raised error in solution process")
+    if isinstance(eval_sol, ReprFail):
+        raise ValueError("Couldn't figure out the value of a default argument: " + eval_sol.info)
+
+    eval_stu, str_stu = get_func(tree = state.student_tree,
+                                 process = state.student_process,
+                                 context = state.student_context)
+
+    # kwargs ---
+    fmt_kwargs = {'stu_part': state.student_parts, 'sol_part': state.solution_parts, 'name': name}
+    fmt_kwargs['stu_eval'] = utils.shorten_str(str(eval_stu))
+    fmt_kwargs['sol_eval'] = utils.shorten_str(str(eval_sol))
+
+    # tests ---
+    # error in process
+    if (test == 'error') ^ isinstance(str_stu, Exception):
+        _msg = state.build_message(error_msg, fmt_kwargs)
+        feedback = Feedback(_msg, highlight)
+        rep.do_test(Test(feedback))
+
+    # name is undefined after running expression
+    if isinstance(str_stu, UndefinedValue):
+        _msg = state.build_message(undefined_msg, fmt_kwargs)
+        rep.do_test(Test(Feedback(_msg, highlight)))
+
+    # test equality of results
+    _msg = state.build_message(incorrect_msg, fmt_kwargs)
+    rep.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, highlight)))
+
+    return state
+
+has_equal_value =  partial(has_expr, test = 'value')
+has_equal_output = partial(has_expr, test = 'output')
+has_equal_error  = partial(has_expr, test = 'error')

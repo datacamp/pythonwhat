@@ -50,6 +50,20 @@ class TargetVars(Mapping):
         """Return copy of instance, omitting entries that are EMPTY"""
         return self.__class__([(k, v) for k,v in self.items() if v is not self.EMPTY], is_empty=False)
 
+class IndexedDict(Mapping):
+    """Wrapper around OrderedDict that allows access via item position or key"""
+
+    def __init__(self, *args, **kwargs):
+        self._od = OrderedDict(*args, **kwargs)
+
+    def __getitem__(self, k): 
+        try: return list(self._od.values())[k]
+        except TypeError: return self._od[k]
+    
+    def __len__(self):  return self._od.__len__()
+    def __iter__(self): return self._od.__iter__()
+
+
         
 class Parser(ast.NodeVisitor):
     """Basic parser.
@@ -122,7 +136,7 @@ class Parser(ast.NodeVisitor):
         return list(zip(arguments, defaults))
 
     @staticmethod
-    def get_arg_parts(arguments, defaults, name=None):
+    def get_arg_parts(arguments, defaults, type):
         # only difference is that it doesn't pull out arg.arg, so we can 
         # use all the information on the arg node down the road
         match_def = [None] * (len(arguments) - len(defaults)) + defaults
@@ -132,7 +146,8 @@ class Parser(ast.NodeVisitor):
         return part_list
 
     @staticmethod
-    def get_arg_part(_arg, _def, name=None):
+    def get_arg_part(_arg, _def, type=None):
+        # type is arg, kwonly, kwarg, vararg
         if not _arg: return None
 
         # part uses default highlighting, so will highlight "node" entry
@@ -140,9 +155,9 @@ class Parser(ast.NodeVisitor):
                 'node': _def or _arg,
                 'arg': _arg,
                 # TODO: need to fill out
-                'type': 'default' if _def else 'positional',
+                'type': type,
                 'is_default': True if _def else False,
-                'name': name or _arg.arg,
+                'name': _arg.arg,
                 'annotation': _arg.annotation
                 }
 
@@ -245,7 +260,8 @@ class FunctionParser(Parser):
     """
 
     def __init__(self):
-        self.current = ''
+        self.gen_name = ''
+        self.raw_name = ''
         self.mappings = {}
         self.calls = {}
         self.call_lookup_active = False
@@ -275,10 +291,7 @@ class FunctionParser(Parser):
 
     def visit_ImportFrom(self, node):
         for imp in node.names:
-            if imp.asname is not None:
-                self.mappings[imp.asname] = node.module + "." + imp.name
-            else:
-                self.mappings[imp.name] = node.module + "." + imp.name
+            self.mappings[imp.asname or imp.name] = node.module + "." + imp.name
 
     def visit_Expr(self, node):
         self.visit(node.value)
@@ -290,13 +303,14 @@ class FunctionParser(Parser):
             self.call_lookup_active = True
             self.visit(node.func) # Need to visit func to start recording the current function name.
 
-            if self.current:
-                if (self.current not in self.calls):
-                    self.calls[self.current] = []
+            if self.gen_name:
+                if (self.gen_name not in self.calls):
+                    self.calls[self.gen_name] = []
 
-                self.calls[self.current].append((node, node.args, node.keywords))
+                self.calls[self.gen_name].append(self.get_call_part(node))
+                #self.calls[self.current].append((node, node.args, node.keywords))
 
-            self.current = ''
+            self.gen_name = self.raw_name = ""
             self.call_lookup_active = False
 
             # dive deeper in func, args and keywords
@@ -308,13 +322,54 @@ class FunctionParser(Parser):
             for key in node.keywords:
                 self.visit(key.value)
 
-
     def visit_Attribute(self, node):
         self.visit(node.value)  # Go deeper for the package/module names!
-        self.current += "." + node.attr  # Add the function name
+        self.gen_name += "." + node.attr  # Add the function name
+        self.raw_name += "." + node.attr
 
     def visit_Name(self, node):
-        self.current = (node.id if not node.id in self.mappings else self.mappings[node.id])
+        self.gen_name = self.mappings.get(node.id) or node.id
+        self.raw_name = node.id
+    
+    def get_call_part(self, node):
+        args = [self.get_pos_arg_part(n, ii) for ii, n in enumerate(node.args)]
+        keywords = [self.get_kw_arg_part(n) for n in node.keywords]
+        return {'node': node,
+                # TODO: right now, args and keywords can be indexed by pos or name.
+                #       Note that a pos args name is its position.
+                #       Problems will arise if SCT tests a position, but the submission
+                #       has too few positional arguments, since it will then grab a kw arg :(
+                #       This is not necessarily a bad thing, but instructors would need to be
+                #       Careful deciding when to test a pos arg, and when to test using kw.
+                #       Could use check_pos_args with pos_args entry below to solve.
+                'args': IndexedDict((n['name'], n) for n in [*args, *keywords]),
+                #'pos_args': args,
+                #'keywords': keywords,
+                'name': self.raw_name,
+                '_spec1': (node, node.args, node.keywords, self.raw_name)
+                }
+
+    def get_pos_arg_part(self, arg, indx_pos):
+        is_star = isinstance(arg, ast.Starred)
+        return {
+                'node': arg if not is_star else arg.value,
+                'highlight': arg,
+                'type': 'argument',
+                'is_starred': is_star,
+                'name': indx_pos
+                }
+
+    def get_kw_arg_part(self, arg):
+        is_kwarg = arg.arg is None
+        return {
+                'node': arg.value,
+                'highlight': arg,
+                'type': 'keyword',
+                'is_kwarg': is_kwarg,
+                'name': arg.arg
+                }
+
+
 
 class ObjectAccessParser(FunctionParser):
     """Find object accesses
@@ -343,19 +398,19 @@ class ObjectAccessParser(FunctionParser):
 
     def visit_Attribute(self, node):
         # if already a chain, prepend, else initialize self.current
-        self.current = node.attr + "." + self.current if self.current else node.attr
+        self.gen_name = node.attr + "." + self.gen_name if self.gen_name else node.attr
+        self.raw_name = node.attr + "." + self.raw_name if self.raw_name else node.attr
         self.visit(node.value)
 
     def visit_Name(self, node):
         # if name refers to an import, replace
-        prefix = None
-        if node.id in self.mappings:
-            prefix = self.mappings[node.id]
-        else:
-            prefix = node.id
-        self.current = prefix + "." + self.current if self.current else prefix
-        self.out.append(self.current)
-        self.current = ''
+        prefix = self.mappings.get(node.id) or node.id
+
+        self.gen_name = prefix  + "." + self.gen_name if self.gen_name else prefix
+        self.raw_name = node.id + "." + self.raw_name if self.raw_name else node.id
+
+        self.out.append(self.gen_name)
+        self.gen_name = self.raw_name = ""
 
 class ObjectAssignmentParser(Parser):
     """Find object assignmnts
@@ -371,9 +426,10 @@ class ObjectAssignmentParser(Parser):
     def visit_Name(self, node):
         if self.active_assignment is not None:
             if node.id not in self.out:
-                self.out[node.id] = [self.active_assignment]
+                self.out[node.id] = self.get_part(node, self.active_assignment)
             else:
-                self.out[node.id].append(self.active_assignment)
+                self.out[node.id]['highlight'] = None
+                self.out[node.id]['assignments'].append(self.active_assignment)
             self.active_assignment = None
 
     def visit_Attribute(self, node):
@@ -409,6 +465,20 @@ class ObjectAssignmentParser(Parser):
     def visit_TryFinally(self, node):
         self.visit_each(node.body)
         self.visit_each(node.finalbody)
+
+    @staticmethod
+    def get_part(name_node, ass_node=None):
+        # either name node or simply str or name itself
+        name = getattr(name_node, 'id', name_node)
+        load_name = ast.Name(id=name, ctx=ast.Load())
+        ast.fix_missing_locations(load_name)
+        # 
+        return {'name': name,
+                'node': load_name,
+                'highlight': ass_node or name_node,
+                'assignments': [] if not ass_node else [ass_node]
+                }
+
 
 class IfParser(Parser):
     """Find if structures.
@@ -531,14 +601,21 @@ class FunctionDefParser(Parser):
         target_vars = [arg[0] for arg in normal_args]
         if vararg: target_vars.append(vararg)
         if kwarg:  target_vars.append(kwarg)
+
+        args = cls.get_arg_parts(node.args.args, node.args.defaults, 'arg')
+        kw_args = cls.get_arg_parts(node.args.kwonlyargs, node.args.kw_defaults, 'kwonly')
+        varargs = cls.get_arg_part(node.args.vararg, None, 'vararg')
+        kwargs = cls.get_arg_part(node.args.kwarg, None, 'kwarg')
+        all_args = [*args, varargs, *kw_args, kwargs]
         
         return {
             "node": node,
-            "args": {'args': normal_args, 'kwonlyargs': kwonlyargs, 'vararg': vararg, 'kwarg': kwarg},
+            "name": getattr(node, 'name', None),
+            "args": IndexedDict([ (p['name'], p) for p in all_args if p is not None]),
             # TODO: arg is the node counterpart to target_vars
-            "arg": cls.get_arg_parts(node.args.args, node.args.defaults),
-            "vararg": cls.get_arg_part(node.args.vararg, None),
-            "kwarg":  cls.get_arg_part(node.args.kwarg, None),
+            "_spec1_args": args,
+            "*args": varargs,
+            "**kwargs":  kwargs,
             "body": {'node': FunctionBodyTransformer().visit(ast.Module(node.body)), 
                      'target_vars': TargetVars(target_vars)}
         }

@@ -51,14 +51,16 @@ def test_import(name,
     if not_imported_msg is None:
         not_imported_msg = "Did you import `%s`?" % name
 
-    rep.do_test(DefinedCollTest(name, student_imports, not_imported_msg))
+    _msg = state.build_message(not_imported_msg)
+    rep.do_test(DefinedCollTest(name, student_imports, _msg))
 
     if (same_as):
         if incorrect_as_msg is None:
             incorrect_as_msg = "Did you set the correct alias for `%s`?" % name
 
+        _msg = state.build_message(incorrect_as_msg)
         rep.do_test(
             EqualTest(
                 solution_imports[name],
                 student_imports[name],
-                incorrect_as_msg))
+                _msg))

@@ -28,4 +28,5 @@ def test_student_typed(text,
 
     student_code = state.student_code
 
-    rep.do_test(StringContainsTest(student_code, text, pattern, not_typed_msg))
+    _msg = state.build_message(not_typed_msg)
+    rep.do_test(StringContainsTest(student_code, text, pattern, _msg))
