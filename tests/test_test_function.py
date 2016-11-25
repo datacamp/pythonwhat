@@ -660,6 +660,34 @@ test_function("print", index = 3)
         self.assertEqual(sct_payload.get('line_start'), None)
 
 
+class TestFunctionWithFunctionArg(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+                "DC_SOLUTION": """
+def sum2(arr): return sum(arr)
+
+def apply(f, arr): return f(arr)
+
+apply(sum2, [1,2,3])
+""",
+                "DC_SCT": """
+def sum2(arr): return sum(arr)
+test_function('apply')
+"""
+                }
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+
+    @unittest.skip("Can't unpickle user def funcs, but doesn't throw PicklingError (see issue #155)")
+    def test_pass(self):
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_pass_v2(self):
+        self.data["DC_SCT"] = """test_function_v2('apply', params=['f', 'arr'], do_eval=[False, True])"""
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+
 
 if __name__ == "__main__":
     unittest.main()
