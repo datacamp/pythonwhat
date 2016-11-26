@@ -44,9 +44,11 @@ def check_part_index(name, index, part_msg,
 
     # create message
     ordinal = "" if isinstance(index, str) else get_ord(index+1)
+    fmt_kwargs = {'index': index, 'ordinal': ordinal}
+    fmt_kwargs['part'] = part_msg.format(**fmt_kwargs)
 
     append_message = {'msg': expand_msg,
-                      'kwargs': {'part': part_msg, 'index': index, 'ordinal': ordinal}}
+                      'kwargs': fmt_kwargs}
 
     # check there are enough parts for index
     stu_parts = state.student_parts[name]
@@ -62,8 +64,8 @@ def check_part_index(name, index, part_msg,
     # return child state from part
     return part_to_child(stu_part, sol_part, append_message, state)
 
-MSG_MISSING = "The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
-MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} {typestr}. "
+MSG_MISSING = "The system wants to check the {typestr} you defined but hasn't found it."
+MSG_PREPEND = "Check your code in the {child[part]} of the {typestr}. "
 def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PREPEND, state=None):
     rep = Reporter.active_reporter
     stu_out = getattr(state, 'student_'+name)
@@ -71,7 +73,8 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
 
     # check if there are enough nodes for index
     fmt_kwargs = {'ordinal': get_ord(index+1) if isinstance(index, int) else "",
-                  'typestr': typestr}
+                  'index': index}
+    fmt_kwargs['typestr'] = typestr.format(**fmt_kwargs)
 
     # test if node can be indexed succesfully
     try: stu_out[index]
@@ -221,11 +224,11 @@ def set_context(*args, state=None, **kwargs):
                                 student_context = out_stu, solution_context = out_sol)
 
 
-def check_arg(name, missing_msg='check the argument `{part}`, ', state=None):
+def check_args(name, missing_msg='check the argument `{part}`, ', state=None):
     if name in ['*args', '**kwargs']:
         return check_part(name, name, state=state, missing_msg = missing_msg)
     else: 
-        return check_part_index('args', name, name, state=state, missing_msg = missing_msg)
+        return check_part_index('args', name, "argument `%s`"%name, state=state, missing_msg = missing_msg)
 
 
 # CALL CHECK ==================================================================

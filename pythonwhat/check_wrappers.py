@@ -9,29 +9,27 @@ __PART_WRAPPERS__ = {
         'key' : 'key part',
         'value': 'value part',
         'orelse': 'else part',
-        #'vararg': 'vararg part',
-        #'kwarg':  ' kwarg part',
         'test': 'condition' 
         }
 
 __PART_INDEX_WRAPPERS__ = {
-        'ifs': 'if',
-        'handlers': 'exception handler',
+        'ifs': '{ordinal} if',
+        'handlers': '{index} `except` block',
         'context': 'context'
         }
 
 __NODE_WRAPPERS__ = {
-        'list_comp': 'list comprehension',
-        'generator_exp': 'generator expression',
-        'dict_comp': 'dictionary comprehension',
-        'for_loop': 'for statement',
-        'function_def': 'function definition',
-        'if_exp': 'if expression',
-        'if_else': 'if statement',
-        'lambda_function': 'lambda function',
-        'try_except': 'try statement',
-        'while': '`while` loop',
-        'with': '`with` statement'
+        'list_comp': '{ordinal} list comprehension',
+        'generator_exp': '{ordinal} generator expression',
+        'dict_comp': '{ordinal} dictionary comprehension',
+        'for_loop': '{ordinal} for statement',
+        'function_def': 'definition of `{index}()`',
+        'if_exp': '{ordinal} if expression',
+        'if': '{ordinal} if statement',
+        'lambda_function': '{ordinal} lambda function',
+        'try_except': '{ordinal} try statement',
+        'while': '{ordinal} `while` loop',
+        'with': '{ordinal} `with` statement'
         }
 
 scts = {}
@@ -50,7 +48,7 @@ for k in ['set_context',
           'has_equal_value', 'has_equal_output', 'has_equal_error', 'call',
           'extend', 'multi',
           'with_context',
-          'check_arg',
+          'check_args',
           'has_equal_part']:
     scts[k] = getattr(check_funcs, k)
 
