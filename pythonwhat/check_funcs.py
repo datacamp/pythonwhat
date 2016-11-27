@@ -5,7 +5,7 @@ from pythonwhat.utils import get_ord
 from functools import partial
 import copy
 
-def part_to_child(stu_part, sol_part, append_message, state):
+def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
     # stu_part and sol_part will be accessible on all templates
     append_message['kwargs'].update({'stu_part': stu_part, 'sol_part': sol_part})
 
@@ -15,7 +15,7 @@ def part_to_child(stu_part, sol_part, append_message, state):
                                     stu_part.get('target_vars'), sol_part.get('target_vars'),
                                     stu_part, sol_part,
                                     highlight = stu_part.get('highlight'),
-                                    append_message = append_message)
+                                    append_message = append_message, node_name=node_name)
 
     # otherwise, assume they are just nodes
     return state.to_child_state(stu_part, sol_part, append_message = append_message)
@@ -90,7 +90,7 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
                       'kwargs': fmt_kwargs
                       }
 
-    return part_to_child(stu_part, sol_part, append_message, state)
+    return part_to_child(stu_part, sol_part, append_message, state, node_name=name)
 
 
 # Part tests ------------------------------------------------------------------

@@ -1,6 +1,7 @@
 import ast
 import inspect
 from copy import copy
+from functools import partial
 from pythonwhat.parsing import TargetVars, FunctionParser, ObjectAccessParser, parser_dict
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
@@ -120,7 +121,7 @@ class State(object):
                              student_context=None, solution_context=None,
                              student_parts=None, solution_parts=None,
                              highlight = None,
-                             append_message=""):
+                             append_message="", node_name=""):
         """Dive into nested tree.
 
         Set the current state as a state with a subtree of this syntax tree as
@@ -154,7 +155,8 @@ class State(object):
                                student_parts = student_parts, solution_parts = solution_parts,
                                highlight = highlight, messages = messages)
 
-        child = State(student_code = utils_ast.extract_text_from_node(self.full_student_code, student_subtree),
+        klass = State if not node_name else self.SUBCLASSES[node_name]
+        child = klass(student_code = utils_ast.extract_text_from_node(self.full_student_code, student_subtree),
                       full_student_code = self.full_student_code,
                       pre_exercise_code = self.pre_exercise_code,
                       student_context = student_context,
@@ -238,8 +240,6 @@ class State(object):
 #   @property
 #   def student_withs(self): ...
 # when defining the State class.
-from functools import partial
-
 def getx(tree_name, Parser, ext_attr, self): 
     """getter for Parser outputs"""
     # return cached output if possible
@@ -249,26 +249,18 @@ def getx(tree_name, Parser, ext_attr, self):
     else:
         # otherwise, run parser over tree
         p = Parser()
+        # set mappings for parsers that inspect attribute access
+        if ext_attr != 'mappings' and Parser in [FunctionParser, ObjectAccessParser]: 
+            p.mappings = self.pre_exercise_mappings.copy()
+        # run parser
         p.visit(getattr(self, tree_name))
         # cache
         self._parser_cache[cache_key] = p
     return getattr(p, ext_attr)
 
-def get_func_map(tree_name, ext_attr, self):
-    """getter for FunctionParser outputs, uses pre_exercise_mappings"""
-    cache_key = tree_name + FunctionParser.__name__
-    if self._parser_cache.get(cache_key):
-        p = self._parser_cache[cache_key]
-    else:
-        p = FunctionParser()
-        p.mappings = self.pre_exercise_mappings.copy()
-        p.visit(getattr(self, tree_name))
-        self._parser_cache[cache_key] = p
-    return getattr(p, ext_attr)
-    
 # put a property getter on state for each parsed ast tree output.
 # since the getter takes only one argument, self, partial functions
-# are used to set all other arguments on getx and get_func_map
+# are used to set all other arguments on getx
 for s in ['student', 'solution']:
     tree_name = s+'_tree'
     for k, Parser in parser_dict.items():
@@ -278,17 +270,16 @@ for s in ['student', 'solution']:
     prop_oa_map = property(partial(getx, tree_name, ObjectAccessParser, 'mappings'))
     setattr(State, s+'_oa_mappings', prop_oa_map)
 
-    # Getters for FunctionParser -----
-    # calls
-    prop_calls = property(partial(get_func_map, tree_name, 'calls'))
-    setattr(State, s+'_function_calls', prop_calls)
-    # mappings
-    prop_map = property(partial(get_func_map, tree_name, 'mappings'))
+    # mappings from FunctionParser
+    prop_map = property(partial(getx, tree_name, FunctionParser, 'mappings'))
     setattr(State, s+'_mappings', prop_map)
 
+# mappings for pre exercise code from FunctionParser
 pec_prop_map = property(partial(getx, 'pre_exercise_tree', FunctionParser, 'mappings'))
 setattr(State, 'pre_exercise_mappings', pec_prop_map)
 
+# State subclasses based on parsed output -------------------------------------
+State.SUBCLASSES = {node_name: type(node_name, (State,), {}) for node_name in parser_dict}
 
 # global setters on State -----------------------------------------------------
 def set_converter(key, fundef):
