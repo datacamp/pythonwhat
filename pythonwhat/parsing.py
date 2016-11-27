@@ -822,7 +822,7 @@ parser_dict = {
         "object_assignments": ObjectAssignmentParser,
         "operators": OperatorParser,
         "imports": ImportParser,
-        "ifs": IfParser,
+        "if_elses": IfParser,
         "if_exps": IfExpParser,
         "whiles": WhileParser,
         "for_loops": ForParser,

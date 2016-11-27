@@ -25,7 +25,7 @@ __NODE_WRAPPERS__ = {
         'for_loop': '{ordinal} for statement',
         'function_def': 'definition of `{index}()`',
         'if_exp': '{ordinal} if expression',
-        'if': '{ordinal} if statement',
+        'if_else': '{ordinal} if statement',
         'lambda_function': '{ordinal} lambda function',
         'try_except': '{ordinal} try statement',
         'while': '{ordinal} `while` loop',
