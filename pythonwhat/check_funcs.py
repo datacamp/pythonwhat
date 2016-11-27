@@ -36,7 +36,7 @@ def check_part(name, part_msg, state=None, missing_msg="", expand_msg=""):
     return part_to_child(stu_part, sol_part, append_message, state)
 
 def check_part_index(name, index, part_msg,
-                     missing_msg="Define more {part}.",
+                     missing_msg="Have you defined a {part}.",
                      state=None, expand_msg=""):
     """Return child state with indexed name part as its ast tree"""
 
@@ -91,6 +91,9 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
                       }
 
     return part_to_child(stu_part, sol_part, append_message, state)
+
+
+# Part tests ------------------------------------------------------------------
 
 def has_part(name, msg, state=None, fmt_kwargs=None):
     rep = Reporter.active_reporter
@@ -290,8 +293,8 @@ def call(args,
          test='value', 
          incorrect_msg=MSG_CALL_INCORRECT, 
          error_msg=MSG_CALL_ERROR, 
-         # TODO hardcoded lambda description for now
-         argstr='the Xth lambda function',
+         # TODO kept for backwards compatibility in test_function_definition/lambda
+         argstr='',
          state=None, **kwargs):
     rep = Reporter.active_reporter
     test_type = ('value', 'output', 'error')
@@ -328,7 +331,7 @@ def call(args,
 from pythonwhat.tasks import ReprFail, UndefinedValue
 from pythonwhat.Test import EqualTest
 from pythonwhat import utils
-def has_expr(incorrect_msg,
+def has_expr(incorrect_msg="Unexpected expression: expected `{sol_eval}`, got `{stu_eval}` with values{extra_env}.",
              error_msg="Running an expression in the student process caused an issue",
              undefined_msg="Have you defined `{name}` without errors?",
              extra_env=None,
@@ -371,7 +374,8 @@ def has_expr(incorrect_msg,
                                  context = state.student_context)
 
     # kwargs ---
-    fmt_kwargs = {'stu_part': state.student_parts, 'sol_part': state.solution_parts, 'name': name}
+    fmt_kwargs = {'stu_part': state.student_parts, 'sol_part': state.solution_parts, 'name': name,
+                  'extra_env': " "+str(extra_env or ""), 'context_vals': context_vals}
     fmt_kwargs['stu_eval'] = utils.shorten_str(str(eval_stu))
     fmt_kwargs['sol_eval'] = utils.shorten_str(str(eval_sol))
 

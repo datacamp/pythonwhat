@@ -87,8 +87,6 @@ def test_lambda_function(index,
     student_fun  = state.student_lambda_functions[index-1]['node']
     solution_fun = state.solution_lambda_functions[index-1]['node']
 
-    fun_name = "the %s lambda function" % get_ord(index)
-
     for el in results:
         argstr = el.replace('lam', '')
         call(el, 
