@@ -113,7 +113,8 @@ class Node(object):
 
     def partial(self):
         """Return partial of original function call"""
-        return partial(self.data['func'], **self.data['bound_args'].arguments)
+        ba = self.data['bound_args']
+        return partial(self.data['func'], *ba.args, **ba.kwargs)
 
     def update_child_calls(self):
         """Replace child nodes on original function call with their partials"""
