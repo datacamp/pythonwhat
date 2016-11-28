@@ -10,6 +10,7 @@ from pythonwhat import signatures
 from pythonwhat.converters import get_manual_converters
 from collections.abc import Mapping
 from itertools import chain
+from jinja2 import Template
 
 class Context(Mapping):
     def __init__(self, context=None, prev=None):
@@ -140,14 +141,17 @@ class State(object):
         msgs = self.messages[:] + [{'msg': tail or "", 'kwargs':fmt_kwargs}]
         # format messages in list, by iterating over previous, current, and next message
         for prev_d, d, next_d in zip([{}, *msgs[:-1]], msgs, [*msgs[1:], {}]):
+            tmp_kwargs = {'parent': prev_d.get('kwargs'), 
+                          'child': next_d.get('kwargs'), 
+                          'this': d['kwargs'], 
+                          **d['kwargs']}
             if d['msg'].startswith('FMT:'):
-                out = d['msg'].replace('FMT:', "").format(
-                        parent = prev_d.get('kwargs'),
-                        child = next_d.get('kwargs'),
-                        this = d['kwargs'],
-                        **d['kwargs'])
+                out = d['msg'].replace('FMT:', "").format(**tmp_kwargs)
+            elif d['msg'].startswith('__JINJA__:'):
+                out = Template(d['msg'].replace('__JINJA__:', "")).render(**tmp_kwargs)
             else:
                 out = d['msg']
+
             out_list.append(out)
 
         return "".join(out_list)
