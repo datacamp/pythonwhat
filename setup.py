@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
 	name='pythonwhat',
-	version='1.2.1',
+	version='2.0.0',
 	packages=['pythonwhat', 'pythonwhat.test_funcs'],
 	requires=["ast", "re", "markdown2"]
 )
