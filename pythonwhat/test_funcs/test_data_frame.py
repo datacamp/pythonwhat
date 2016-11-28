@@ -5,10 +5,10 @@ from .test_dictionary import is_instance, test_key, has_key
 
 import pandas as pd
 
-MSG_UNDEFINED = "Are you sure you defined the pandas DataFrame: `{parent[sol_part][name]}`?"
-MSG_NOT_INSTANCE = "`{parent[sol_part][name]}` is not a pandas DataFrame."
-MSG_KEY_MISSING = "There is no column `{key}` inside `{parent[sol_part][name]}`."
-MSG_INCORRECT_VAL = "Column `{key}` of your pandas DataFrame, `{parent[sol_part][name]}`, is not correct."
+MSG_UNDEFINED = "FMT:Are you sure you defined the pandas DataFrame: `{parent[sol_part][name]}`?"
+MSG_NOT_INSTANCE = "FMT:`{parent[sol_part][name]}` is not a pandas DataFrame."
+MSG_KEY_MISSING = "FMT:There is no column `{key}` inside `{parent[sol_part][name]}`."
+MSG_INCORRECT_VAL = "FMT:Column `{key}` of your pandas DataFrame, `{parent[sol_part][name]}`, is not correct."
 
 def test_data_frame(name,
                     columns=None,

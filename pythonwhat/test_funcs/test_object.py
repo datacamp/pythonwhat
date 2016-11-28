@@ -6,8 +6,8 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.tasks import isDefinedInProcess, getRepresentation
 from pythonwhat.check_funcs import part_to_child, has_equal_value
 
-MSG_UNDEFINED = "Have you defined `{parent[sol_part][name]}`?"
-MSG_INCORRECT = "The contents of `{parent[sol_part][name]}` aren't correct."
+MSG_UNDEFINED = "FMT:Have you defined `{parent[sol_part][name]}`?"
+MSG_INCORRECT = "FMT:The contents of `{parent[sol_part][name]}` aren't correct."
 
 def test_object(name,
                 eq_condition="equal",

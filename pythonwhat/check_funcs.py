@@ -64,8 +64,8 @@ def check_part_index(name, index, part_msg,
     # return child state from part
     return part_to_child(stu_part, sol_part, append_message, state)
 
-MSG_MISSING = "The system wants to check the {typestr} you defined but hasn't found it."
-MSG_PREPEND = "Check your code in the {child[part]} of the {typestr}. "
+MSG_MISSING = "FMT:The system wants to check the {typestr} you defined but hasn't found it."
+MSG_PREPEND = "__JINJA__:Check your code in the {{child['part']+ ' of the' if child['part']}} {{typestr}}. "
 def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PREPEND, state=None):
     rep = Reporter.active_reporter
     stu_out = getattr(state, 'student_'+name)
@@ -226,7 +226,7 @@ def set_context(*args, state=None, **kwargs):
                                 student_context = out_stu, solution_context = out_sol)
 
 
-def check_args(name, missing_msg='check the argument `{part}`, ', state=None):
+def check_args(name, missing_msg='FMT:check the argument `{part}`, ', state=None):
     if name in ['*args', '**kwargs']:
         return check_part(name, name, state=state, missing_msg = missing_msg)
     else: 
@@ -286,8 +286,8 @@ def run_call(args, node, process, get_func, **kwargs):
         return get_func(process = process, tree=func_expr, call = fmt_args, **kwargs)
         
 
-MSG_CALL_INCORRECT = "Calling it should result in {str_sol}, instead got {str_sol}"
-MSG_CALL_ERROR     = "Calling it should result in {str_sol}, instead got an error"
+MSG_CALL_INCORRECT = "FMT:Calling it should result in {str_sol}, instead got {str_sol}"
+MSG_CALL_ERROR     = "FMT:Calling it should result in {str_sol}, instead got an error"
 def call(args, 
          test='value', 
          incorrect_msg=MSG_CALL_INCORRECT, 
@@ -304,11 +304,14 @@ def call(args,
     eval_sol, str_sol = run_call(args, state.solution_parts['node'], state.solution_process, get_func, **kwargs)
 
     if (test == 'error') ^ isinstance(str_sol, Exception):
-        _msg_prefix = "Calling %s for arguments %s " % (argstr, args)
-        raise ValueError(_msg_prefix + call_warnings[test])
+        _msg = state.build_message("FMT:Calling for arguments {args} resulted in an error (or not an error if testing for one).",
+                                   dict(args=args))
+        raise ValueError(_msg)
 
     if isinstance(eval_sol, ReprFail):
-        raise ValueError("Can't get the result of calling %s for arguments %s: %s" % (argstr, args, eval_sol.info))
+        _msg = state.build_message("FMT:Can't get the result of calling it for arguments {args}: {eval_sol.info}",
+                                   dict(args = args, eval_sol=eval_sol))
+        raise ValueError(_msg)
 
     # Run for Submission ------------------------------------------------------
     eval_stu, str_stu = run_call(args, state.student_parts['node'], state.student_process, get_func, **kwargs)
@@ -329,9 +332,9 @@ def call(args,
 # Expression tests ------------------------------------------------------------
 from pythonwhat.tasks import ReprFail, UndefinedValue
 from pythonwhat import utils
-def has_expr(incorrect_msg="Unexpected expression: expected `{sol_eval}`, got `{stu_eval}` with values{extra_env}.",
+def has_expr(incorrect_msg="FMT:Unexpected expression {test}: expected `{sol_eval}`, got `{stu_eval}` with values{extra_env}.",
              error_msg="Running an expression in the student process caused an issue",
-             undefined_msg="Have you defined `{name}` without errors?",
+             undefined_msg="FMT:Have you defined `{name}` without errors?",
              extra_env=None,
              context_vals=None,
              expr_code=None,
@@ -372,7 +375,8 @@ def has_expr(incorrect_msg="Unexpected expression: expected `{sol_eval}`, got `{
                                  context = state.student_context)
 
     # kwargs ---
-    fmt_kwargs = {'stu_part': state.student_parts, 'sol_part': state.solution_parts, 'name': name,
+    fmt_kwargs = {'stu_part': state.student_parts, 'sol_part': state.solution_parts, 
+                  'name': name, 'test': test,
                   'extra_env': " "+str(extra_env or ""), 'context_vals': context_vals}
     fmt_kwargs['stu_eval'] = utils.shorten_str(str(eval_stu))
     fmt_kwargs['sol_eval'] = utils.shorten_str(str(eval_sol))

@@ -66,9 +66,9 @@ def test_expression_output(extra_env=None,
         feedback_msg = incorrect_msg
     else:
         if expr_code is not None:
-            prestring = "When running %s e" % expr_code
+            prestring = "FMT:When running %s e" % expr_code
         else:
-            prestring = "E"
+            prestring = "FMT:E"
         feedback_msg = "%sxpected output `{sol_eval}`, instead got `{stu_eval}`" % (prestring)
         if extra_env:
             # need double brackets to not screw up string formatting

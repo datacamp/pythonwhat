@@ -1,5 +1,6 @@
 import ast
 import inspect
+import string
 from copy import copy
 from functools import partial
 from pythonwhat.parsing import TargetVars, FunctionParser, ObjectAccessParser, parser_dict
@@ -10,6 +11,7 @@ from pythonwhat import signatures
 from pythonwhat.converters import get_manual_converters
 from collections.abc import Mapping
 from itertools import chain
+from jinja2 import Template
 
 class Context(Mapping):
     def __init__(self, context=None, prev=None):
@@ -31,6 +33,37 @@ class Context(Mapping):
     def __len__(self):
         return len(self._items)
 
+
+#class MsgFormatter(string.Formatter):
+#    def vformat(self, format_string, args, kwargs):
+#        """Restricted vformat, which does not format entries with converters or format specs"""
+#        used_args = set()
+#        result = []
+#        for chunk in string._string.formatter_parser(format_string):
+#            orig = self._orig_from_chunk(*chunk)
+#            # return original string if there are converters or format specs,
+#            # otherwise, parse as normal
+#            if chunk[1] and any(chunk[2:]):
+#                result.append(orig)
+#            elif chunk[0] and not any(chunk[1:]):
+#                result.append(chunk[0])
+#            else:
+#                res, _ = self._vformat(orig, args, kwargs, used_args, 1)
+#                result.append(res)
+#        return "".join(result)
+#
+#    def get_field(self, field_name, args, kwargs):
+#        try:
+#            return super().get_field(field_name, args, kwargs)
+#        except (KeyError, AttributeError):
+#            return "{"+field_name+"}", "NA"
+#
+#    @staticmethod
+#    def _orig_from_chunk(literal_text, field_name, format_spec, conversion):
+#        # of form, literal_str {var_name!conversion:format_spec}
+#        conversion = '!' + conversion if conversion else ""
+#        format_spec = ":" + format_spec if format_spec else ""
+#        return "%s{%s%s%s}"%(literal_text, field_name, conversion, format_spec)
 
 class State(object):
     """State of the SCT environment.
@@ -109,10 +142,17 @@ class State(object):
         msgs = self.messages[:] + [{'msg': tail or "", 'kwargs':fmt_kwargs}]
         # format messages in list, by iterating over previous, current, and next message
         for prev_d, d, next_d in zip([{}, *msgs[:-1]], msgs, [*msgs[1:], {}]):
-            out = d['msg'].format(parent = prev_d.get('kwargs'),
-                                  child = next_d.get('kwargs'),
-                                  this = d['kwargs'],
-                                  **d['kwargs'])
+            tmp_kwargs = {'parent': prev_d.get('kwargs'), 
+                          'child': next_d.get('kwargs'), 
+                          'this': d['kwargs'], 
+                          **d['kwargs']}
+            if d['msg'].startswith('FMT:'):
+                out = d['msg'].replace('FMT:', "").format(**tmp_kwargs)
+            elif d['msg'].startswith('__JINJA__:'):
+                out = Template(d['msg'].replace('__JINJA__:', "")).render(**tmp_kwargs)
+            else:
+                out = d['msg']
+
             out_list.append(out)
 
         return "".join(out_list)

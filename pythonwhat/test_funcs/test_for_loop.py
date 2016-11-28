@@ -3,8 +3,8 @@ from pythonwhat.check_funcs import check_part, check_node, multi
 
 from functools import partial
 
-MSG_MISSING = "Define more {typestr}."
-MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} for loop. "
+MSG_MISSING = "FMT:Define more {typestr}."
+MSG_PREPEND = "FMT:Check your code in the {child[part]} of the {ordinal} for loop. "
 
 def test_for_loop(index=1,
                   for_iter=None,

@@ -8,11 +8,11 @@ from pythonwhat.check_funcs import check_node, check_part, check_part_index, mul
 from functools import partial
 
 MSG_MISSING = "Define more `with` statements."
-MSG_PREPEND = "In your {ordinal} {typestr}, "
-MSG_PREPEND2 = "Check the {child[part]} of the {ordinal} `with` statement. "
+MSG_PREPEND = "FMT:In your {ordinal} {typestr}, "
+MSG_PREPEND2 = "FMT:Check the {child[part]} of the {ordinal} `with` statement. "
 MSG_NUM_CTXT = "make sure to use the correct number of context variables. It seems you defined too many."
 MSG_NUM_CTXT2 = "make sure to use the correct number of context variables. It seems you defined too little."
-MSG_CTXT_NAMES = "make sure to use the correct context variable names. Was expecting `{sol_part[target_vars]}` but got `{stu_part[target_vars]}`."
+MSG_CTXT_NAMES = "FMT:make sure to use the correct context variable names. Was expecting `{sol_part[target_vars]}` but got `{stu_part[target_vars]}`."
 
 
 def test_with(index,

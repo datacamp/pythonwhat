@@ -3,8 +3,8 @@ from pythonwhat.check_funcs import check_part, check_node, multi
 
 from functools import partial, update_wrapper
 
-MSG_MISSING = "The system wants to check the {ordinal} {typestr}, but it hasn't found it. Have another look at your code."
-MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} `if` statement. "
+MSG_MISSING = "FMT:The system wants to check the {ordinal} {typestr}, but it hasn't found it. Have another look at your code."
+MSG_PREPEND = "FMT:Check your code in the {child[part]} of the {ordinal} `if` statement. "
 
 def test_if_else(index=1,
                  test=None,
