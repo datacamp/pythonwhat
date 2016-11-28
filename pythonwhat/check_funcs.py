@@ -118,9 +118,8 @@ def has_equal_part(name, msg, state):
          'sol_part': state.solution_parts,
          'name': name}
 
-    if d['stu_part'][name] != d['sol_part'][name]:
-        _msg = state.build_message(msg, d)
-        rep.do_test(Test(Feedback(_msg, state.highlight)))
+    _msg = state.build_message(msg, d)
+    rep.do_test(EqualTest(d['stu_part'][name], d['sol_part'][name], Feedback(_msg, state.highlight)))
 
     return state
 
@@ -329,7 +328,6 @@ def call(args,
 
 # Expression tests ------------------------------------------------------------
 from pythonwhat.tasks import ReprFail, UndefinedValue
-from pythonwhat.Test import EqualTest
 from pythonwhat import utils
 def has_expr(incorrect_msg="Unexpected expression: expected `{sol_eval}`, got `{stu_eval}` with values{extra_env}.",
              error_msg="Running an expression in the student process caused an issue",
