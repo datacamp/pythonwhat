@@ -221,7 +221,7 @@ def set_context(*args, state=None, **kwargs):
                                 student_context = out_stu, solution_context = out_sol)
 
 
-def check_arg(name, missing_msg='check the argument `{part}`, ', state=None):
+def check_arg(name, missing_msg='FMT:check the argument `{part}`, ', state=None):
     if name in ['*args', '**kwargs']:
         return check_part(name, name, state=state, missing_msg = missing_msg)
     else: 
@@ -299,12 +299,12 @@ def call(args,
     eval_sol, str_sol = run_call(args, state.solution_parts['node'], state.solution_process, get_func, **kwargs)
 
     if (test == 'error') ^ isinstance(str_sol, Exception):
-        _msg = state.build_message("Calling for arguments {args} resulted in an error (or not an error if testing for one).",
+        _msg = state.build_message("FMT:Calling for arguments {args} resulted in an error (or not an error if testing for one).",
                                    dict(args=args))
         raise ValueError(_msg)
 
     if isinstance(eval_sol, ReprFail):
-        _msg = state.build_message("Can't get the result of calling it for arguments {args}: {eval_sol.info}",
+        _msg = state.build_message("FMT:Can't get the result of calling it for arguments {args}: {eval_sol.info}",
                                    dict(args = args, eval_sol=eval_sol))
         raise ValueError(_msg)
 
@@ -328,7 +328,7 @@ def call(args,
 from pythonwhat.tasks import ReprFail, UndefinedValue
 from pythonwhat.Test import EqualTest
 from pythonwhat import utils
-def has_expr(incorrect_msg="Unexpected expression {test}: expected `{sol_eval}`, got `{stu_eval}` with values{extra_env}.",
+def has_expr(incorrect_msg="FMT:Unexpected expression {test}: expected `{sol_eval}`, got `{stu_eval}` with values{extra_env}.",
              error_msg="Running an expression in the student process caused an issue",
              undefined_msg="FMT:Have you defined `{name}` without errors?",
              extra_env=None,
