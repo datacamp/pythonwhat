@@ -3,28 +3,28 @@ from pythonwhat.check_funcs import check_node, check_part, check_part_index, mul
 
 from functools import partial
 
-MSG_MISSING = "You didn't define the following function: {typestr}."
-MSG_PREPEND = "Check your definition of {typestr}. "
+MSG_MISSING = "FMT:You didn't define the following function: {typestr}."
+MSG_PREPEND = "FMT:Check your definition of {typestr}. "
 
-MSG_NUM_ARGS = "You should define {parent[typestr]} with {sol_len} arguments, instead got {stu_len}."
+MSG_NUM_ARGS = "FMT:You should define {parent[typestr]} with {sol_len} arguments, instead got {stu_len}."
 
-MSG_PREPEND_ARG = "In your definition of {typestr}, " 
-MSG_BAD_ARG_NAME = "the {parent[ordinal]} {parent[part]} should be called `{sol_part[name]}`, instead got `{stu_part[name]}`."
-MSG_BAD_DEFAULT = "the {parent[part]} `{stu_part[name]}` should have no default."
-MSG_INC_DEFAULT = "the {parent[part]} `{stu_part[name]}` does not have the correct default."
+MSG_PREPEND_ARG = "FMT:In your definition of {typestr}, " 
+MSG_BAD_ARG_NAME = "FMT:the {parent[ordinal]} {parent[part]} should be called `{sol_part[name]}`, instead got `{stu_part[name]}`."
+MSG_BAD_DEFAULT = "FMT:the {parent[part]} `{stu_part[name]}` should have no default."
+MSG_INC_DEFAULT = "FMT:the {parent[part]} `{stu_part[name]}` does not have the correct default."
 
-MSG_NO_VARARG = "have you specified an argument to take a `*` argument and named it `{sol_part[*args][name]}`?"
-MSG_NO_KWARGS = "have you specified an argument to take a `**` argument and named it `{sol_part[**kwargs][name]}`?"
-MSG_VARARG_NAME = "have you specified an argument to take a `*` argument and named it `{sol_part[name]}`?"
-MSG_KWARG_NAME = "have you specified an argument to take a `**` argument and named it `{sol_part[name]}`?"
+MSG_NO_VARARG = "FMT:have you specified an argument to take a `*` argument and named it `{sol_part[*args][name]}`?"
+MSG_NO_KWARGS = "FMT:have you specified an argument to take a `**` argument and named it `{sol_part[**kwargs][name]}`?"
+MSG_VARARG_NAME = "FMT:have you specified an argument to take a `*` argument and named it `{sol_part[name]}`?"
+MSG_KWARG_NAME = "FMT:have you specified an argument to take a `**` argument and named it `{sol_part[name]}`?"
 
 # TODO some need to reference the eval rather than str
-MSG_RES_ERROR = "Calling `{argstr}` should result in `{str_sol}`, instead got an error."
-MSG_RES_INCORRECT = "Calling `{argstr}` should result in `{str_sol}`, instead got `{str_stu}`."
-MSG_ERR_NONE = "Calling `{argstr}` doesn't result in an error, but it should!"
-MSG_ERR_INCORRECT = "Calling `{argstr}` should result in a `{str_sol.__class__.__name__}`, instead got a `{str_stu.__class__.__name__}`."
-MSG_OUT_ERROR = "Calling `{argstr}` should output {str_sol}, instead got an error."
-MSG_OUT_INCORRECT = "Calling `{argstr}` should output `{str_sol}`, instead got {str_stu}."
+MSG_RES_ERROR = "FMT:Calling `{argstr}` should result in `{str_sol}`, instead got an error."
+MSG_RES_INCORRECT = "FMT:Calling `{argstr}` should result in `{str_sol}`, instead got `{str_stu}`."
+MSG_ERR_NONE = "FMT:Calling `{argstr}` doesn't result in an error, but it should!"
+MSG_ERR_INCORRECT = "FMT:Calling `{argstr}` should result in a `{str_sol.__class__.__name__}`, instead got a `{str_stu.__class__.__name__}`."
+MSG_OUT_ERROR = "FMT:Calling `{argstr}` should output {str_sol}, instead got an error."
+MSG_OUT_INCORRECT = "FMT:Calling `{argstr}` should output `{str_sol}`, instead got {str_stu}."
 
 def test_function_definition(name,
                              arg_names=True,

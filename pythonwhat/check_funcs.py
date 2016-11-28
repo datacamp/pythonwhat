@@ -62,8 +62,8 @@ def check_part_index(name, index, part_msg,
     # return child state from part
     return part_to_child(stu_part, sol_part, append_message, state)
 
-MSG_MISSING = "The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
-MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} {typestr}. "
+MSG_MISSING = "FMT:The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
+MSG_PREPEND = "FMT:Check your code in the {child[part]} of the {ordinal} {typestr}. "
 def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PREPEND, state=None):
     rep = Reporter.active_reporter
     stu_out = getattr(state, 'student_'+name)
@@ -281,8 +281,8 @@ def run_call(args, node, process, get_func, **kwargs):
         return get_func(process = process, tree=func_expr, call = fmt_args, **kwargs)
         
 
-MSG_CALL_INCORRECT = "Calling it should result in {str_sol}, instead got {str_sol}"
-MSG_CALL_ERROR     = "Calling it should result in {str_sol}, instead got an error"
+MSG_CALL_INCORRECT = "FMT:Calling it should result in {str_sol}, instead got {str_sol}"
+MSG_CALL_ERROR     = "FMT:Calling it should result in {str_sol}, instead got an error"
 def call(args, 
          test='value', 
          incorrect_msg=MSG_CALL_INCORRECT, 
@@ -327,7 +327,7 @@ from pythonwhat.Test import EqualTest
 from pythonwhat import utils
 def has_expr(incorrect_msg,
              error_msg="Running an expression in the student process caused an issue",
-             undefined_msg="Have you defined `{name}` without errors?",
+             undefined_msg="FMT:Have you defined `{name}` without errors?",
              extra_env=None,
              context_vals=None,
              expr_code=None,

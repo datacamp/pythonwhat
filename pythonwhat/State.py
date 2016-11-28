@@ -32,16 +32,36 @@ class Context(Mapping):
         return len(self._items)
 
 
-class MsgFormatter(string.Formatter):
-    def __init__(self, default='{{{0}}}'):
-        self.default=default
-
-    def get_value(self, key, args, kwds):
-        if isinstance(key, str):
-            return kwds.get(key, self.default.format(key))
-        else:
-            Formatter.get_value(key, args, kwds)
-
+#class MsgFormatter(string.Formatter):
+#    def vformat(self, format_string, args, kwargs):
+#        """Restricted vformat, which does not format entries with converters or format specs"""
+#        used_args = set()
+#        result = []
+#        for chunk in string._string.formatter_parser(format_string):
+#            orig = self._orig_from_chunk(*chunk)
+#            # return original string if there are converters or format specs,
+#            # otherwise, parse as normal
+#            if chunk[1] and any(chunk[2:]):
+#                result.append(orig)
+#            elif chunk[0] and not any(chunk[1:]):
+#                result.append(chunk[0])
+#            else:
+#                res, _ = self._vformat(orig, args, kwargs, used_args, 1)
+#                result.append(res)
+#        return "".join(result)
+#
+#    def get_field(self, field_name, args, kwargs):
+#        try:
+#            return super().get_field(field_name, args, kwargs)
+#        except (KeyError, AttributeError):
+#            return "{"+field_name+"}", "NA"
+#
+#    @staticmethod
+#    def _orig_from_chunk(literal_text, field_name, format_spec, conversion):
+#        # of form, literal_str {var_name!conversion:format_spec}
+#        conversion = '!' + conversion if conversion else ""
+#        format_spec = ":" + format_spec if format_spec else ""
+#        return "%s{%s%s%s}"%(literal_text, field_name, conversion, format_spec)
 
 class State(object):
     """State of the SCT environment.
@@ -55,7 +75,6 @@ class State(object):
                  student_context=None, solution_context=None,
                  student_parts=None, solution_parts=None, 
                  highlight = None, messages=None, 
-                 msg_formatter = None,
                  **kwargs):
 
         # Set basic fields from kwargs
@@ -82,8 +101,6 @@ class State(object):
         self.solution_context = Context(solution_context) if solution_context is None else solution_context
 
         self.highlight = self.student_tree if highlight is None else highlight
-
-        self.msg_formatter = MsgFormatter() if msg_formatter is None else msg_formatter
 
         self.converters = get_manual_converters()    # accessed only from root state
 
@@ -123,11 +140,14 @@ class State(object):
         msgs = self.messages[:] + [{'msg': tail or "", 'kwargs':fmt_kwargs}]
         # format messages in list, by iterating over previous, current, and next message
         for prev_d, d, next_d in zip([{}, *msgs[:-1]], msgs, [*msgs[1:], {}]):
-            out = self.msg_formatter.format(d['msg'],
-                                            parent = prev_d.get('kwargs'),
-                                            child = next_d.get('kwargs'),
-                                            this = d['kwargs'],
-                                            **d['kwargs'])
+            if d['msg'].startswith('FMT:'):
+                out = d['msg'].replace('FMT:', "").format(
+                        parent = prev_d.get('kwargs'),
+                        child = next_d.get('kwargs'),
+                        this = d['kwargs'],
+                        **d['kwargs'])
+            else:
+                out = d['msg']
             out_list.append(out)
 
         return "".join(out_list)
@@ -179,7 +199,6 @@ class State(object):
                       solution_process = self.solution_process,
                       raw_student_output = self.raw_student_output,
                       pre_exercise_tree = self.pre_exercise_tree,
-                      msg_formatter = self.msg_formatter,
                       student_tree = student_subtree,
                       solution_tree = solution_subtree,
                       student_parts = student_parts,
