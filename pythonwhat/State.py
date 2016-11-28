@@ -1,5 +1,6 @@
 import ast
 import inspect
+import string
 from copy import copy
 from pythonwhat.parsing import TargetVars, FunctionParser, ObjectAccessParser, parser_dict
 from pythonwhat.Reporter import Reporter
@@ -31,6 +32,17 @@ class Context(Mapping):
         return len(self._items)
 
 
+class MsgFormatter(string.Formatter):
+    def __init__(self, default='{{{0}}}'):
+        self.default=default
+
+    def get_value(self, key, args, kwds):
+        if isinstance(key, str):
+            return kwds.get(key, self.default.format(key))
+        else:
+            Formatter.get_value(key, args, kwds)
+
+
 class State(object):
     """State of the SCT environment.
 
@@ -43,6 +55,7 @@ class State(object):
                  student_context=None, solution_context=None,
                  student_parts=None, solution_parts=None, 
                  highlight = None, messages=None, 
+                 msg_formatter = None,
                  **kwargs):
 
         # Set basic fields from kwargs
@@ -69,6 +82,8 @@ class State(object):
         self.solution_context = Context(solution_context) if solution_context is None else solution_context
 
         self.highlight = self.student_tree if highlight is None else highlight
+
+        self.msg_formatter = MsgFormatter() if msg_formatter is None else msg_formatter
 
         self.converters = get_manual_converters()    # accessed only from root state
 
@@ -108,10 +123,11 @@ class State(object):
         msgs = self.messages[:] + [{'msg': tail or "", 'kwargs':fmt_kwargs}]
         # format messages in list, by iterating over previous, current, and next message
         for prev_d, d, next_d in zip([{}, *msgs[:-1]], msgs, [*msgs[1:], {}]):
-            out = d['msg'].format(parent = prev_d.get('kwargs'),
-                                  child = next_d.get('kwargs'),
-                                  this = d['kwargs'],
-                                  **d['kwargs'])
+            out = self.msg_formatter.format(d['msg'],
+                                            parent = prev_d.get('kwargs'),
+                                            child = next_d.get('kwargs'),
+                                            this = d['kwargs'],
+                                            **d['kwargs'])
             out_list.append(out)
 
         return "".join(out_list)
@@ -163,6 +179,7 @@ class State(object):
                       solution_process = self.solution_process,
                       raw_student_output = self.raw_student_output,
                       pre_exercise_tree = self.pre_exercise_tree,
+                      msg_formatter = self.msg_formatter,
                       student_tree = student_subtree,
                       solution_tree = solution_subtree,
                       student_parts = student_parts,
