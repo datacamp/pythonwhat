@@ -4,10 +4,10 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.tasks import isInstanceInProcess, getKeysInProcess, getValueInProcess, isDefinedCollInProcess, ReprFail
 from .test_object import check_object
 
-MSG_UNDEFINED = "Are you sure you defined the dictionary `{parent[sol_part][name]}`?"
-MSG_NOT_INSTANCE = "`{parent[sol_part][name]}` is not a dictionary."
-MSG_KEY_MISSING = "Have you specified a key `{key}` inside `{parent[sol_part][name]}`?"
-MSG_INCORRECT_VAL = "Have you specified the correct value for the key `{key}` inside `{parent[sol_part][name]}`?"
+MSG_UNDEFINED = "FMT:Are you sure you defined the dictionary `{parent[sol_part][name]}`?"
+MSG_NOT_INSTANCE = "FMT:`{parent[sol_part][name]}` is not a dictionary."
+MSG_KEY_MISSING = "FMT:Have you specified a key `{key}` inside `{parent[sol_part][name]}`?"
+MSG_INCORRECT_VAL = "FMT:Have you specified the correct value for the key `{key}` inside `{parent[sol_part][name]}`?"
 
 def test_dictionary(name,
                     keys=None,

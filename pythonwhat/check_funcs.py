@@ -5,7 +5,7 @@ from pythonwhat.utils import get_ord
 from functools import partial
 import copy
 
-def part_to_child(stu_part, sol_part, append_message, state):
+def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
     # stu_part and sol_part will be accessible on all templates
     append_message['kwargs'].update({'stu_part': stu_part, 'sol_part': sol_part})
 
@@ -15,13 +15,13 @@ def part_to_child(stu_part, sol_part, append_message, state):
                                     stu_part.get('target_vars'), sol_part.get('target_vars'),
                                     stu_part, sol_part,
                                     highlight = stu_part.get('highlight'),
-                                    append_message = append_message)
+                                    append_message = append_message, node_name=node_name)
 
     # otherwise, assume they are just nodes
     return state.to_child_state(stu_part, sol_part, append_message = append_message)
 
 
-def check_part(name, part_msg, state=None, missing_msg="", expand_msg=""):
+def check_part(name, part_msg, state=None, missing_msg="Are you sure it's defined?", expand_msg=""):
     """Return child state with name part as its ast tree"""
     rep = Reporter.active_reporter
 
@@ -36,7 +36,7 @@ def check_part(name, part_msg, state=None, missing_msg="", expand_msg=""):
     return part_to_child(stu_part, sol_part, append_message, state)
 
 def check_part_index(name, index, part_msg,
-                     missing_msg="Define more {part}.",
+                     missing_msg="FMT:Are you sure it is defined?",
                      state=None, expand_msg=""):
     """Return child state with indexed name part as its ast tree"""
 
@@ -44,9 +44,11 @@ def check_part_index(name, index, part_msg,
 
     # create message
     ordinal = "" if isinstance(index, str) else get_ord(index+1)
+    fmt_kwargs = {'index': index, 'ordinal': ordinal}
+    fmt_kwargs['part'] = part_msg.format(**fmt_kwargs)
 
     append_message = {'msg': expand_msg,
-                      'kwargs': {'part': part_msg, 'index': index, 'ordinal': ordinal}}
+                      'kwargs': fmt_kwargs}
 
     # check there are enough parts for index
     stu_parts = state.student_parts[name]
@@ -62,8 +64,8 @@ def check_part_index(name, index, part_msg,
     # return child state from part
     return part_to_child(stu_part, sol_part, append_message, state)
 
-MSG_MISSING = "The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
-MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} {typestr}. "
+MSG_MISSING = "FMT:The system wants to check the {typestr} you defined but hasn't found it."
+MSG_PREPEND = "__JINJA__:Check your code in the {{child['part']+ ' of the' if child['part']}} {{typestr}}. "
 def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PREPEND, state=None):
     rep = Reporter.active_reporter
     stu_out = getattr(state, 'student_'+name)
@@ -71,7 +73,8 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
 
     # check if there are enough nodes for index
     fmt_kwargs = {'ordinal': get_ord(index+1) if isinstance(index, int) else "",
-                  'typestr': typestr}
+                  'index': index}
+    fmt_kwargs['typestr'] = typestr.format(**fmt_kwargs)
 
     # test if node can be indexed succesfully
     try: stu_out[index]
@@ -87,7 +90,10 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
                       'kwargs': fmt_kwargs
                       }
 
-    return part_to_child(stu_part, sol_part, append_message, state)
+    return part_to_child(stu_part, sol_part, append_message, state, node_name=name)
+
+
+# Part tests ------------------------------------------------------------------
 
 def has_part(name, msg, state=None, fmt_kwargs=None):
     rep = Reporter.active_reporter
@@ -112,9 +118,8 @@ def has_equal_part(name, msg, state):
          'sol_part': state.solution_parts,
          'name': name}
 
-    if d['stu_part'][name] != d['sol_part'][name]:
-        _msg = state.build_message(msg, d)
-        rep.do_test(Test(Feedback(_msg, state.highlight)))
+    _msg = state.build_message(msg, d)
+    rep.do_test(EqualTest(d['stu_part'][name], d['sol_part'][name], Feedback(_msg, state.highlight)))
 
     return state
 
@@ -221,11 +226,11 @@ def set_context(*args, state=None, **kwargs):
                                 student_context = out_stu, solution_context = out_sol)
 
 
-def check_arg(name, missing_msg='check the argument `{part}`, ', state=None):
+def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
     if name in ['*args', '**kwargs']:
         return check_part(name, name, state=state, missing_msg = missing_msg)
     else: 
-        return check_part_index('args', name, name, state=state, missing_msg = missing_msg)
+        return check_part_index('args', name, "argument `%s`"%name, state=state, missing_msg = missing_msg)
 
 
 # CALL CHECK ==================================================================
@@ -281,14 +286,14 @@ def run_call(args, node, process, get_func, **kwargs):
         return get_func(process = process, tree=func_expr, call = fmt_args, **kwargs)
         
 
-MSG_CALL_INCORRECT = "Calling it should result in {str_sol}, instead got {str_sol}"
-MSG_CALL_ERROR     = "Calling it should result in {str_sol}, instead got an error"
+MSG_CALL_INCORRECT = "FMT:Calling it should result in {str_sol}, instead got {str_sol}"
+MSG_CALL_ERROR     = "FMT:Calling it should result in {str_sol}, instead got an error"
 def call(args, 
          test='value', 
          incorrect_msg=MSG_CALL_INCORRECT, 
          error_msg=MSG_CALL_ERROR, 
-         # TODO hardcoded lambda description for now
-         argstr='the Xth lambda function',
+         # TODO kept for backwards compatibility in test_function_definition/lambda
+         argstr='',
          state=None, **kwargs):
     rep = Reporter.active_reporter
     test_type = ('value', 'output', 'error')
@@ -299,11 +304,14 @@ def call(args,
     eval_sol, str_sol = run_call(args, state.solution_parts['node'], state.solution_process, get_func, **kwargs)
 
     if (test == 'error') ^ isinstance(str_sol, Exception):
-        _msg_prefix = "Calling %s for arguments %s " % (argstr, args)
-        raise ValueError(_msg_prefix + call_warnings[test])
+        _msg = state.build_message("FMT:Calling for arguments {args} resulted in an error (or not an error if testing for one). Error message: {str_sol}",
+                                   dict(args=args, str_sol=str_sol))
+        raise ValueError(_msg)
 
     if isinstance(eval_sol, ReprFail):
-        raise ValueError("Can't get the result of calling %s for arguments %s: %s" % (argstr, args, eval_sol.info))
+        _msg = state.build_message("FMT:Can't get the result of calling it for arguments {args}: {eval_sol.info}",
+                                   dict(args = args, eval_sol=eval_sol))
+        raise ValueError(_msg)
 
     # Run for Submission ------------------------------------------------------
     eval_stu, str_stu = run_call(args, state.student_parts['node'], state.student_process, get_func, **kwargs)
@@ -323,11 +331,10 @@ def call(args,
 
 # Expression tests ------------------------------------------------------------
 from pythonwhat.tasks import ReprFail, UndefinedValue
-from pythonwhat.Test import EqualTest
 from pythonwhat import utils
-def has_expr(incorrect_msg,
+def has_expr(incorrect_msg="FMT:Unexpected expression {test}: expected `{sol_eval}`, got `{stu_eval}` with values{extra_env}.",
              error_msg="Running an expression in the student process caused an issue",
-             undefined_msg="Have you defined `{name}` without errors?",
+             undefined_msg="FMT:Have you defined `{name}` without errors?",
              extra_env=None,
              context_vals=None,
              expr_code=None,
@@ -359,7 +366,8 @@ def has_expr(incorrect_msg,
                                  context = state.solution_context)
 
     if (test == 'error') ^ isinstance(str_sol, Exception):
-        raise ValueError("evaluating expression raised error in solution process")
+        raise ValueError("evaluating expression raised error in solution process (or not an error if testing for one). "
+                         "Error message: %s"%str_sol)
     if isinstance(eval_sol, ReprFail):
         raise ValueError("Couldn't figure out the value of a default argument: " + eval_sol.info)
 
@@ -368,7 +376,9 @@ def has_expr(incorrect_msg,
                                  context = state.student_context)
 
     # kwargs ---
-    fmt_kwargs = {'stu_part': state.student_parts, 'sol_part': state.solution_parts, 'name': name}
+    fmt_kwargs = {'stu_part': state.student_parts, 'sol_part': state.solution_parts, 
+                  'name': name, 'test': test,
+                  'extra_env': " "+str(extra_env or ""), 'context_vals': context_vals}
     fmt_kwargs['stu_eval'] = utils.shorten_str(str(eval_stu))
     fmt_kwargs['sol_eval'] = utils.shorten_str(str(eval_sol))
 

@@ -263,7 +263,7 @@ class FunctionParser(Parser):
         self.gen_name = ''
         self.raw_name = ''
         self.mappings = {}
-        self.calls = {}
+        self.out = {}
         self.call_lookup_active = False
 
     def visit_BinOp(self, node):
@@ -304,11 +304,11 @@ class FunctionParser(Parser):
             self.visit(node.func) # Need to visit func to start recording the current function name.
 
             if self.gen_name:
-                if (self.gen_name not in self.calls):
-                    self.calls[self.gen_name] = []
+                if (self.gen_name not in self.out):
+                    self.out[self.gen_name] = []
 
-                self.calls[self.gen_name].append(self.get_call_part(node))
-                #self.calls[self.current].append((node, node.args, node.keywords))
+                self.out[self.gen_name].append(self.get_call_part(node))
+                #self.out[self.current].append((node, node.args, node.keywords))
 
             self.gen_name = self.raw_name = ""
             self.call_lookup_active = False
@@ -822,7 +822,7 @@ parser_dict = {
         "object_assignments": ObjectAssignmentParser,
         "operators": OperatorParser,
         "imports": ImportParser,
-        "ifs": IfParser,
+        "if_elses": IfParser,
         "if_exps": IfExpParser,
         "whiles": WhileParser,
         "for_loops": ForParser,
@@ -832,5 +832,6 @@ parser_dict = {
         "dict_comps": DictCompParser,
         "generator_exps": GeneratorExpParser,
         "withs": WithParser,
-        "try_excepts": TryExceptParser
+        "try_excepts": TryExceptParser,
+        "function_calls": FunctionParser
 }

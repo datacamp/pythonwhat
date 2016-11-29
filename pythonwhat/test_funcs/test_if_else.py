@@ -3,8 +3,8 @@ from pythonwhat.check_funcs import check_part, check_node, multi
 
 from functools import partial, update_wrapper
 
-MSG_MISSING = "The system wants to check the {ordinal} {typestr}, but it hasn't found it. Have another look at your code."
-MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} `if` statement. "
+MSG_MISSING = "FMT:The system wants to check the {ordinal} {typestr}, but it hasn't found it. Have another look at your code."
+MSG_PREPEND = "FMT:Check your code in the {child[part]} of the {ordinal} `if` statement. "
 
 def test_if_else(index=1,
                  test=None,
@@ -73,7 +73,7 @@ def test_if_else(index=1,
 
 
     # get state with specific if block
-    node_name = 'if_exps' if use_if_exp else 'ifs'
+    node_name = 'if_exps' if use_if_exp else 'if_elses'
     # TODO original typestr for check_node used if rather than `if`
     state = check_node(node_name, index-1, "if statement", MSG_MISSING, MSG_PREPEND if expand_message else "", state=state)
 

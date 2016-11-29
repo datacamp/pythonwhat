@@ -80,8 +80,7 @@ def test_expression_result(extra_env=None,
     else:
         # need to double bracket extra_env, so doesn't mess up str templating
         feedback_msg = (
-                "Unexpected expression: expected `{sol_eval}`, got `{stu_eval}` with values"
-                " " + str(extra_env).replace('{', '{{').replace('}','}}') if extra_env else "."
+                "FMT:Unexpected expression: expected `{sol_eval}`, got `{stu_eval}` with values{extra_env}."
                 )
 
     has_equal_value(feedback_msg,

@@ -2,9 +2,9 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, quiet
 from functools import partial
 
-MSG_MISSING = "The system wants to check the {ordinal} try-except block you defined but hasn't found it."
-MSG_PREPEND = "Check your code in the {child[part]} of the {ordinal} {typestr}. "
-MSG_MISSING_PART  = "Have you included a {part} in your {parent[ordinal]} {parent[typestr]}?"
+MSG_MISSING = "FMT:The system wants to check the {ordinal} try-except block you defined but hasn't found it."
+MSG_PREPEND = "FMT:Check your code in the {child[part]} of the {ordinal} {typestr}. "
+MSG_MISSING_PART  = "FMT:Have you included a {part} in your {parent[ordinal]} {parent[typestr]}?"
 
 def test_try_except(index=1,
                     not_called_msg=None,

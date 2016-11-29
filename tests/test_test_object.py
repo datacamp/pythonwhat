@@ -28,6 +28,12 @@ class TestObjectStepByStep(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_fail_with_unsafe_msg(self):
+        self.data["DC_CODE"] = ""
+        self.data["DC_SCT"] = "test_object('x', undefined_msg = '`{a_bad_template_var}`')"
+        sct_payload = helper.run(self.data)
+        self.assertEqual('<code>{a_bad_template_var}</code>', sct_payload['message'])
+
 class TestObjectStepByStepCustom(unittest.TestCase):
 
     def setUp(self):

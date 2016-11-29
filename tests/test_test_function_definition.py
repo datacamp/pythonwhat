@@ -122,7 +122,15 @@ success_msg("Nice work!")
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "You should define <code>shout()</code> with 2 arguments, instead got 1.")
+
         helper.test_lines(self, sct_payload, 2, 4, 1, 23)
+
+    def test_Fail_spec2(self):
+        # TODO: shouldn't have to hardcode message
+        self.data["DC_SCT"] = """
+msg = "You should define <code>shout()</code> with 2 arguments, instead got 1."
+Ex().check_function_def("shout").has_equal_part_len('arg', msg)"""
+        self.test_Fail()
 
 class TestExercise3(unittest.TestCase):
 
@@ -726,25 +734,25 @@ def my_fun(x, y = 4, z = ('a', 'b'), *args, **kwargs):
 
         self.MULTI_SCT = """
 varnames = ['x', 'y', 'z', '*args', '**kwargs']
-test_names = [check_arg(name).has_equal_part('name', 'bad%s'%name) for name in varnames]
+test_names = [check_args(name).has_equal_part('name', 'bad%s'%name) for name in varnames]
 Ex().check_function_def('my_fun').multi(test_names)
 """
         self.SCT_CHECK = "Ex().check_function_def('my_fun')"
-        self.SCT_KW = "Ex().check_function_def('my_fun').check_arg('x').has_equal_part('name', 'badx')"
-        self.SCT_POS = "Ex().check_function_def('my_fun').check_arg(0).has_equal_part('name', 'badx')"
-        self.SCT_CHECK_ONE = "Ex().check_function_def('my_fun').check_arg(1)"
-        self.SCT_CHECK_Y = "Ex().check_function_def('my_fun').check_arg('y')"
-        self.SCT_CHECK_X = "Ex().check_function_def('my_fun').check_arg('x')"
+        self.SCT_KW = "Ex().check_function_def('my_fun').check_args('x').has_equal_part('name', 'badx')"
+        self.SCT_POS = "Ex().check_function_def('my_fun').check_args(0).has_equal_part('name', 'badx')"
+        self.SCT_CHECK_ONE = "Ex().check_function_def('my_fun').check_args(1)"
+        self.SCT_CHECK_Y = "Ex().check_function_def('my_fun').check_args('y')"
+        self.SCT_CHECK_X = "Ex().check_function_def('my_fun').check_args('x')"
 
     def when_code_is_sol(self):
         self.data['DC_CODE'] = self.data['DC_SOLUTION']
-        sct_payload = helper.run(self.data)
-        return sct_payload['correct']
+        self.sct_payload = helper.run(self.data)
+        return self.sct_payload['correct']
 
     def when_replace(self, orig, new):
         self.data['DC_CODE'] = self.data['DC_SOLUTION'].replace(orig, new)
-        sct_payload = helper.run(self.data)
-        return sct_payload['correct']
+        self.sct_payload = helper.run(self.data)
+        return self.sct_payload['correct']
 
     def test_pass_kw(self):
         self.data['DC_SCT'] = self.SCT_KW
@@ -763,12 +771,16 @@ Ex().check_function_def('my_fun').multi(test_names)
         self.assertFalse(self.when_replace('x', 'x2'))
 
     def test_fail_pos_is_default(self):
-        self.data['DC_SCT'] = self.SCT_CHECK_ONE + ".has_equal_part('is_default', 'baddefault')"
+        self.data['DC_SCT'] = self.SCT_CHECK_ONE + ".is_default()"
         self.assertFalse(self.when_replace('y = 4', 'y'))
 
     def test_fail_kw_is_default(self):
-        self.data['DC_SCT'] = self.SCT_CHECK_Y + ".has_equal_part('is_default', 'baddefault')"
+        self.data['DC_SCT'] = self.SCT_CHECK_Y + ".is_default()"
         self.assertFalse(self.when_replace('y = 4', 'y'))
+
+    def test_fail_kw_not_default(self):
+        self.data['DC_SCT'] = self.SCT_CHECK_X + ".is_default()"
+        self.assertFalse(self.when_replace('x, y = 4', 'x = 2, y = 4'))
 
     def test_pass_equal_value(self):
         self.data['DC_SCT'] = self.SCT_CHECK_Y + ".has_equal_value('unequal values')"

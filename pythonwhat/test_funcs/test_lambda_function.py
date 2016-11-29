@@ -4,13 +4,13 @@ from pythonwhat.utils import get_ord
 from pythonwhat.check_funcs import check_node, multi, check_part, call
 from functools import partial
 
-MSG_MISSING = "The system wants to check {typestr} you defined but hasn't found it."
-MSG_PREPEND = "Check your definition of {typestr}. "
-MSG_PREPEND_ARG = "In your definition of {typestr}, "
+MSG_MISSING = "FMT:The system wants to check {typestr} you defined but hasn't found it."
+MSG_PREPEND = "FMT:Check your definition of {typestr}. "
+MSG_PREPEND_ARG = "FMT:In your definition of {typestr}, "
 
-MSG_RES_ERROR = "Calling it with arguments `{argstr}` should result in `{str_sol}`, instead got an error."
-MSG_RES_INCORRECT = "Calling it with arguments `{argstr}` should result in `{str_sol}`, instead got `{str_stu}`."
-MSG_ERR_WRONG = "Calling it with arguments `{argstr}` doesn't result in an error, but it should!"
+MSG_RES_ERROR = "FMT:Calling it with arguments `{argstr}` should result in `{str_sol}`, instead got an error."
+MSG_RES_INCORRECT = "FMT:Calling it with arguments `{argstr}` should result in `{str_sol}`, instead got `{str_stu}`."
+MSG_ERR_WRONG = "FMT:Calling it with arguments `{argstr}` doesn't result in an error, but it should!"
 def test_lambda_function(index,
                          arg_names=True,
                          arg_defaults=True,
@@ -86,8 +86,6 @@ def test_lambda_function(index,
 
     student_fun  = state.student_lambda_functions[index-1]['node']
     solution_fun = state.solution_lambda_functions[index-1]['node']
-
-    fun_name = "the %s lambda function" % get_ord(index)
 
     for el in results:
         argstr = el.replace('lam', '')
