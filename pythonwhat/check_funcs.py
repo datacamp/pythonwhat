@@ -2,6 +2,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import Test, EqualTest
 from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord
+from types import GeneratorType
 from functools import partial
 import copy
 
@@ -151,19 +152,14 @@ def multi(*args, state=None):
         rep = Reporter.active_reporter
 
         # when input is a single list of subtests
-        args = args[0] if len(args) == 1 and isinstance(args[0], (list, tuple)) else args
+        if len(args) == 1 and isinstance(args[0], (list, tuple, GeneratorType)):
+            args = args[0]
 
         for test in args:
             # assume test is function needing a state argument
             # partial state so reporter can test
-            # TODO: it seems clear the reporter doesn't need to hold state anymore
             closure = partial(test, state=state)
-            # message from parent checks
-            #prefix = state.build_message()
-            ## resetting reporter message until it can be refactored
-            #prev_msg = rep.failure_msg
             rep.do_test(closure, "", state.highlight)
-            #rep.failure_msg = prev_msg
 
     # return original state, so can be chained
     return state

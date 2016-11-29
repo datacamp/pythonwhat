@@ -135,7 +135,13 @@ Ex().check_list_comp(0).multi(F().check_body().set_context(aa=2).has_equal_value
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-
+    def test_multi_generator(self):
+        self.data["DC_SCT"] = """
+Ex().check_list_comp(0).check_body()\
+        .multi(set_context(aa=i).has_equal_value('wrong') for i in range(2))
+"""
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
 if __name__ == "__main__":
     unittest.main()
