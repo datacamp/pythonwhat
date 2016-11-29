@@ -21,7 +21,7 @@ def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
     return state.to_child_state(stu_part, sol_part, append_message = append_message)
 
 
-def check_part(name, part_msg, state=None, missing_msg="", expand_msg=""):
+def check_part(name, part_msg, state=None, missing_msg="Are you sure it's defined?", expand_msg=""):
     """Return child state with name part as its ast tree"""
     rep = Reporter.active_reporter
 
@@ -36,7 +36,7 @@ def check_part(name, part_msg, state=None, missing_msg="", expand_msg=""):
     return part_to_child(stu_part, sol_part, append_message, state)
 
 def check_part_index(name, index, part_msg,
-                     missing_msg="Have you defined a {part}.",
+                     missing_msg="FMT:Are you sure it is defined?",
                      state=None, expand_msg=""):
     """Return child state with indexed name part as its ast tree"""
 
@@ -226,7 +226,7 @@ def set_context(*args, state=None, **kwargs):
                                 student_context = out_stu, solution_context = out_sol)
 
 
-def check_args(name, missing_msg='FMT:check the argument `{part}`, ', state=None):
+def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
     if name in ['*args', '**kwargs']:
         return check_part(name, name, state=state, missing_msg = missing_msg)
     else: 
@@ -304,8 +304,8 @@ def call(args,
     eval_sol, str_sol = run_call(args, state.solution_parts['node'], state.solution_process, get_func, **kwargs)
 
     if (test == 'error') ^ isinstance(str_sol, Exception):
-        _msg = state.build_message("FMT:Calling for arguments {args} resulted in an error (or not an error if testing for one).",
-                                   dict(args=args))
+        _msg = state.build_message("FMT:Calling for arguments {args} resulted in an error (or not an error if testing for one). Error message: {str_sol}",
+                                   dict(args=args, str_sol=str_sol))
         raise ValueError(_msg)
 
     if isinstance(eval_sol, ReprFail):
@@ -366,7 +366,8 @@ def has_expr(incorrect_msg="FMT:Unexpected expression {test}: expected `{sol_eva
                                  context = state.solution_context)
 
     if (test == 'error') ^ isinstance(str_sol, Exception):
-        raise ValueError("evaluating expression raised error in solution process")
+        raise ValueError("evaluating expression raised error in solution process (or not an error if testing for one). "
+                         "Error message: %s"%str_sol)
     if isinstance(eval_sol, ReprFail):
         raise ValueError("Couldn't figure out the value of a default argument: " + eval_sol.info)
 
