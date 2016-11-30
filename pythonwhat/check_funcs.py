@@ -286,7 +286,7 @@ def run_call(args, node, process, get_func, **kwargs):
         return get_func(process = process, tree=func_expr, call = fmt_args, **kwargs)
         
 
-MSG_CALL_INCORRECT = "FMT:Calling it should result in {str_sol}, instead got {str_sol}"
+MSG_CALL_INCORRECT = "FMT:Calling it should result in {str_sol}, instead got {str_stu}"
 MSG_CALL_ERROR     = "FMT:Calling it should result in {str_sol}, instead got an error"
 def call(args, 
          test='value', 
