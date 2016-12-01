@@ -44,7 +44,7 @@ with open('moby_dick.txt') as file:
 
     def test_Fail1(self):
         self.data["DC_SCT"] = '''
-test_with(1, body = lambda: [test_function('print', index = i + 1) for i in range(3)])
+test_with(1, body = lambda: [test_function('print', index = i + 1, highlight=True) for i in range(3)])
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
@@ -55,7 +55,7 @@ success_msg("Nice work!")
 
     def test_Fail2(self):
         self.data["DC_SCT"] = '''
-test_with(1, body = lambda: [test_function('print', index = i + 1) for i in range(3)], expand_message = False)
+test_with(1, body = lambda: [test_function('print', index = i + 1, highlight=True) for i in range(3)], expand_message = False)
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
@@ -66,7 +66,7 @@ success_msg("Nice work!")
 
     def test_Pass1(self):
         self.data["DC_SCT"] = '''
-test_with(2, body = lambda: test_for_loop(1, body = lambda: test_if_else(1, body = lambda: test_function('print'))))
+test_with(2, body = lambda: test_for_loop(1, body = lambda: test_if_else(1, body = lambda: test_function('print', highlight=True))))
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
@@ -74,7 +74,7 @@ success_msg("Nice work!")
 
     def test_Fail2_no_lam(self):
         self.data["DC_SCT"] = '''
-test_with(1, body = [test_function('print', index = i + 1) for i in range(3)], expand_message = False)
+test_with(1, body = [test_function('print', index = i + 1, highlight=True) for i in range(3)], expand_message = False)
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
@@ -85,7 +85,7 @@ success_msg("Nice work!")
 
     def test_Pass1_no_lam(self):
         self.data["DC_SCT"] = '''
-test_with(2, body = test_for_loop(1, body = test_if_else(1, body = test_function('print'))))
+test_with(2, body = test_for_loop(1, body = test_if_else(1, body = test_function('print', highlight=True))))
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
@@ -93,7 +93,7 @@ success_msg("Nice work!")
 
     def test_Pass1_spec2(self):
         self.data["DC_SCT"] = '''
-for_test = test_for_loop(1, body = test_if_else(1, body = test_function('print')))
+for_test = test_for_loop(1, body = test_if_else(1, body = test_function('print', highlight=True)))
 Ex().check_with(1).check_body().with_context(for_test)
         '''
         sct_payload = helper.run(self.data)
@@ -101,7 +101,7 @@ Ex().check_with(1).check_body().with_context(for_test)
 
     def test_Fail1_spec2(self):
         self.data["DC_SCT"] = '''
-Ex().check_with(0).check_body().with_context([test_function('print', index = i+1) for i in range(3)])
+Ex().check_with(0).check_body().with_context([test_function('print', index = i+1, highlight=True) for i in range(3)])
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
@@ -112,7 +112,7 @@ Ex().check_with(0).check_body().with_context([test_function('print', index = i+1
     def test_Pass1_spec2_no_ctx(self):
         self.data["DC_SCT"] = '''
 # since the print func is being tested w/o SCTs setting any variables, don't need with_context
-for_test = test_for_loop(1, body = test_if_else(1, body = test_function('print')))
+for_test = test_for_loop(1, body = test_if_else(1, body = test_function('print', highlight=True)))
 Ex().check_with(1).check_body().multi(for_test)
         '''
         sct_payload = helper.run(self.data)
@@ -232,8 +232,8 @@ success_msg("Nice work!")
     def test_Fail1(self):
         self.data["DC_SCT"] = '''
 test_with(1, context_tests=[
-    lambda: test_function('open'),
-    lambda: test_function('open')])
+    lambda: test_function('open', highlight=True),
+    lambda: test_function('open', highlight=True)])
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
@@ -244,8 +244,8 @@ success_msg("Nice work!")
     def test_Fail2(self):
         self.data["DC_SCT"] = '''
 test_with(2, context_tests=[
-    lambda: test_function('open'),
-    lambda: test_function('open')])
+    lambda: test_function('open', highlight=True),
+    lambda: test_function('open', highlight=True)])
 success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)

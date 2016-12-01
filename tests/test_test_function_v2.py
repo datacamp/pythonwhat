@@ -18,7 +18,7 @@ class TestFunctionBase(unittest.TestCase):
             "DC_PEC": "def my_fun(a):\n    pass",
             "DC_SOLUTION": "my_fun(2)",
             "DC_CODE": "my_fun(1)",
-            "DC_SCT": "test_function_v2('my_fun', params = ['a'])"
+            "DC_SCT": "test_function_v2('my_fun', params = ['a'], highlight=True)"
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
@@ -40,7 +40,7 @@ class TestFunctionBase(unittest.TestCase):
             "DC_PEC": "",
             "DC_SOLUTION": "print('test')",
             "DC_CODE": "print('testing')",
-            "DC_SCT": "test_function_v2('print', params = ['value'])"
+            "DC_SCT": "test_function_v2('print', params = ['value'], highlight=True)"
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
@@ -66,7 +66,7 @@ test_function_v2('max', params = ['iterable'], signature = sig)
             "DC_CODE": "max([1, 2, 3, 412])",
             "DC_SCT": '''
 sig = sig_from_params(param('iterable', param.POSITIONAL_ONLY))
-test_function_v2('max', params = ['iterable'], signature = sig)
+test_function_v2('max', params = ['iterable'], signature = sig, highlight=True)
             '''
         }
         sct_payload = helper.run(self.data)
@@ -88,7 +88,7 @@ test_function_v2('max', params = ['iterable'], signature = sig)
             "DC_PEC": "import pandas as pd",
             "DC_SOLUTION": "df = pd.DataFrame({'a': [1, 2, 3]})",
             "DC_CODE": "df = pd.DataFrame({'a': [1, 2, 312]})",
-            "DC_SCT": "test_function_v2('pandas.DataFrame', params = ['data'])"
+            "DC_SCT": "test_function_v2('pandas.DataFrame', params = ['data'], highlight=True)"
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
@@ -110,7 +110,7 @@ test_function_v2('max', params = ['iterable'], signature = sig)
             "DC_PEC": "import numpy as np",
             "DC_SOLUTION": "arr = np.array([1, 2, 3])",
             "DC_CODE": "arr = np.array([1, 2, 123])",
-            "DC_SCT": "test_function_v2('numpy.array', params = ['object'])"
+            "DC_SCT": "test_function_v2('numpy.array', params = ['object'], highlight=True)"
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
@@ -136,7 +136,7 @@ test_function_v2('numpy.complex', params = ['real', 'imag'], signature=sig)
             "DC_CODE": "com = np.complex(2, 5)",
             "DC_SCT": '''
 sig = sig_from_params(param('real', param.POSITIONAL_OR_KEYWORD), param('imag', param.POSITIONAL_OR_KEYWORD, default=0))
-test_function_v2('numpy.complex', params = ['real', 'imag'], signature=sig)
+test_function_v2('numpy.complex', params = ['real', 'imag'], signature=sig, highlight=True)
             '''}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
@@ -174,7 +174,7 @@ x = Test(123)
             ''',
             "DC_SOLUTION": "x.set_a(4)",
             "DC_CODE": "x.set_a(4123)",
-            "DC_SCT": "test_function_v2('x.set_a', params = ['value'])"
+            "DC_SCT": "test_function_v2('x.set_a', params = ['value'], highlight=True)"
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
@@ -195,7 +195,7 @@ x = Test(123)
             "DC_PEC": "arr = [1, 2, 3, 4]",
             "DC_SOLUTION": "arr.append(5)",
             "DC_CODE": "arr.append(5123)",
-            "DC_SCT": "test_function_v2('arr.append', params = ['object'])"
+            "DC_SCT": "test_function_v2('arr.append', params = ['object'], highlight=True)"
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
@@ -221,7 +221,7 @@ test_function_v2('arr.count', params = ['value'], signature=sig)
             "DC_CODE": "res = arr.count(2123)",
             "DC_SCT": '''
 sig = sig_from_params(param('value', param.POSITIONAL_ONLY))
-test_function_v2('arr.count', params = ['value'], signature=sig)
+test_function_v2('arr.count', params = ['value'], signature=sig, highlight=True)
             '''
         }
         sct_payload = helper.run(self.data)
@@ -372,7 +372,7 @@ test_function_v2('numpy.complex', params = ['real', 'imag'], signature=sig)
             "DC_PEC": "def my_fun(a):\n    pass",
             "DC_SOLUTION": "my_fun(1)",
             "DC_CODE": "my_fun(b = 1)",
-            "DC_SCT": "test_function_v2('my_fun', params = ['a'])"
+            "DC_SCT": "test_function_v2('my_fun', params = ['a'], highlight=True)"
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
@@ -556,9 +556,9 @@ print(123)
 print([1, 2, 3])
             ''',
              "DC_SCT": '''
-test_function_v2("print", index = 1, params = ['value'])
-test_function_v2("print", index = 2, params = ['value'])
-test_function_v2("print", index = 3, params = ['value'])
+test_function_v2("print", index = 1, params = ['value'], highlight=True)
+test_function_v2("print", index = 2, params = ['value'], highlight=True)
+test_function_v2("print", index = 3, params = ['value'], highlight=True)
             '''
         }
     def test_multiple_1(self):
@@ -618,7 +618,7 @@ class TestStepByStep(unittest.TestCase):
         self.data = {
             "DC_PEC": "import pandas as pd",
             "DC_SOLUTION": "df = pd.DataFrame([1, 2, 3], columns=['a'])",
-            "DC_SCT": "test_function_v2('pandas.DataFrame', params=['data', 'columns'])"
+            "DC_SCT": "test_function_v2('pandas.DataFrame', params=['data', 'columns'], highlight=True)"
         }
 
     def test_step1(self):
@@ -664,7 +664,8 @@ test_function_v2('pandas.DataFrame', params=['data', 'columns'],
                  not_called_msg='notcalledmsg',
                  params_not_matched_msg='paramsnotmatchedmsg',
                  params_not_specified_msg='paramsnotspecifiedmsg',
-                 incorrect_msg='incorrectmsg')
+                 incorrect_msg='incorrectmsg',
+                 highlight=True)
             '''
         }
 
@@ -708,7 +709,8 @@ class TestStepByStepCustom2(unittest.TestCase):
             "DC_SOLUTION": "df = pd.DataFrame([1, 2, 3], columns=['a'])",
             "DC_SCT": '''
 test_function_v2('pandas.DataFrame', params=['data', 'columns'],
-                 incorrect_msg=['dataincorrect', 'columnsincorrect'])
+                 incorrect_msg=['dataincorrect', 'columnsincorrect'],
+                 highlight=True)
             '''
         }
 
@@ -738,7 +740,8 @@ class TestStepByStepCustom3(unittest.TestCase):
             "DC_SOLUTION": "df = pd.DataFrame([1, 2, 3], columns=['a'])",
             "DC_SCT": '''
 test_function_v2('pandas.DataFrame', params=['data', 'columns'],
-                 params_not_specified_msg=['datanotspecified', 'columnsnotspecified'])
+                 params_not_specified_msg=['datanotspecified', 'columnsnotspecified'],
+                 highlight=True)
             '''
         }
 
@@ -759,7 +762,7 @@ class TestStepByStepPositional(unittest.TestCase):
         self.data = {
             "DC_PEC": "x = 'test'",
             "DC_SOLUTION": "x.center(50, 't')",
-            "DC_SCT": "test_function_v2('x.center', params=['width','fillchar'])"
+            "DC_SCT": "test_function_v2('x.center', params=['width','fillchar'], highlight=True)"
         }
 
     def test_step1(self):
@@ -810,7 +813,7 @@ class TestDoEval(unittest.TestCase):
         self.data = {"DC_PEC": '',
                      "DC_SOLUTION": "round(2.1234, ndigits = 4)",
                      "DC_CODE": "round(2.123456, ndigits = 4)",
-                     "DC_SCT": "test_function_v2('round', params=['number', 'ndigits'], do_eval = True)"}
+                     "DC_SCT": "test_function_v2('round', params=['number', 'ndigits'], do_eval = True, highlight=True)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>round()</code> with the correct arguments?", sct_payload['message'])
@@ -828,7 +831,7 @@ class TestDoEval(unittest.TestCase):
         self.data = {"DC_PEC": '',
                      "DC_SOLUTION": "y = 2.12309123; round(y, ndigits = 4)",
                      "DC_CODE": "x = 2.123450; round(x, ndigits = 4)",
-                     "DC_SCT": "test_function_v2('round', params=['number', 'ndigits'], do_eval = False)"}
+                     "DC_SCT": "test_function_v2('round', params=['number', 'ndigits'], do_eval = False, highlight=True)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Did you call <code>round()</code> with the correct arguments? The argument you specified for <code>number</code> seems to be incorrect.", sct_payload['message'])
@@ -846,7 +849,7 @@ class TestDoEval(unittest.TestCase):
         self.data = {"DC_PEC": '',
              "DC_SOLUTION": "round(123.123, ndigits = 2)",
              "DC_CODE": "round(123.123)",
-             "DC_SCT": "test_function_v2('round', params=['number', 'ndigits'], do_eval = None)"}
+             "DC_SCT": "test_function_v2('round', params=['number', 'ndigits'], do_eval = None, highlight=True)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Have you specified all required arguments inside <code>round()</code>? You didn\'t specify <code>ndigits</code>.", sct_payload['message'])
@@ -856,7 +859,7 @@ class TestDoEval(unittest.TestCase):
         self.data = {"DC_PEC": '',
              "DC_SOLUTION": "round(123.123, 2)", # args = [0, 1]
              "DC_CODE": "round(123.123)", # student_args is len 1
-             "DC_SCT": "test_function_v2('round', params=['number', 'ndigits'], do_eval = None)"}
+             "DC_SCT": "test_function_v2('round', params=['number', 'ndigits'], do_eval = None, highlight=True)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Have you specified all required arguments inside <code>round()</code>? You didn\'t specify <code>ndigits</code>.", sct_payload['message'])

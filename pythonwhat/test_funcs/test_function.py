@@ -67,8 +67,6 @@ def test_function(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_function")
 
-    if not highlight: state.highlight = None
-
     index = index - 1
 
     eq_map = {"equal": EqualTest}
@@ -202,7 +200,7 @@ def test_print(index = 1,
                params_not_matched_msg="Have you correctly called `print()`?",
                params_not_specified_msg="Have you correctly called `print()`?",
                incorrect_msg="Have you printed out the correct object?",
-               highlight=True,
+               highlight=False,
                state=None):
     test_function_v2("print",
                      index=index,
@@ -262,11 +260,6 @@ def test_function_v2(name,
 
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_function")
-
-    # Note that this mutates state, which is bad. The easiest way to avoid this
-    # would be to make a copy of state, but that would break blacklisting here,
-    # which also requires state mutation.
-    if not highlight: state.highlight = None
 
     index = index - 1
     eq_map = {"equal": EqualTest}

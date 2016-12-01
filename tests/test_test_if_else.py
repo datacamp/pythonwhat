@@ -26,7 +26,7 @@ def condition_test():
 test_if_else(index=1,
              test = condition_test,
              body = lambda: test_student_typed('x\s*=\s*5', not_typed_msg = "you did something wrong"),
-             orelse = lambda: test_function('round'))
+             orelse = lambda: test_function('round', highlight=True))
 success_msg("Nice")
             '''
         }
@@ -42,7 +42,7 @@ condition_test = [
 test_if_else(index=1,
              test = condition_test,
              body = test_student_typed('x\s*=\s*5', not_typed_msg = "you did something wrong"),
-             orelse = test_function('round'))
+             orelse = test_function('round', highlight=True))
 success_msg("Nice")
             '''
 
@@ -200,7 +200,7 @@ def orelse_test():
     def body_test2():
         test_student_typed('7', not_typed_msg = 'incorrect_elif')
     def orelse_test2():
-        test_function('round')
+        test_function('round', highlight=True)
     test_if_else(index = 1,
                   test = test_test2,
                   body = body_test2,

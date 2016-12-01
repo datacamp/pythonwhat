@@ -458,7 +458,7 @@ class TestLineNumbers(unittest.TestCase):
         self.data = {"DC_PEC": '',
                      "DC_SOLUTION": "round(1.23456, ndigits = 1)",
                      "DC_CODE": "round(1.34567, ndigits = 1)",
-                     "DC_SCT": "test_function('round', index = 1)"}
+                     "DC_SCT": "test_function('round', index = 1, highlight=True)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>round()</code> with the correct arguments? The first argument seems to be incorrect.", sct_payload['message'])
@@ -468,7 +468,7 @@ class TestLineNumbers(unittest.TestCase):
         self.data = {"DC_PEC": '',
                      "DC_SOLUTION": "round(1.23456, ndigits = 1)",
                      "DC_CODE": "round(1.23456, ndigits = 3)",
-                     "DC_SCT": "test_function('round', index = 1)"}
+                     "DC_SCT": "test_function('round', index = 1, highlight=True)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>round()</code> with the correct arguments? Keyword <code>ndigits</code> seems to be incorrect.", sct_payload['message'])
@@ -488,7 +488,7 @@ class TestFunctionNested(unittest.TestCase):
         self.data = {"DC_PEC": '',
                      "DC_SOLUTION": "print(type([1, 2, 3]))",
                      "DC_CODE": "print(type([1, 2, 4]))",
-                     "DC_SCT": "test_function('type')"}
+                     "DC_SCT": "test_function('type', highlight=True)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         helper.test_lines(self, sct_payload, 1, 1, 12, 20)
@@ -497,7 +497,7 @@ class TestFunctionNested(unittest.TestCase):
         self.data = {"DC_PEC": '',
                      "DC_SOLUTION": "round(1.1234, ndigits = max([1, 2, 3]))",
                      "DC_CODE": "round(1.1234, ndigits = max([1, 2, 3]))",
-                     "DC_SCT": "test_function('max')"}
+                     "DC_SCT": "test_function('max', highlight=True)"}
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
@@ -505,7 +505,7 @@ class TestFunctionNested(unittest.TestCase):
         self.data = {"DC_PEC": '',
                      "DC_SOLUTION": "round(1.1234, ndigits = max([1, 2, 3]))",
                      "DC_CODE": "round(1.1234, ndigits = max([1, 2]))",
-                     "DC_SCT": "test_function('max')"}
+                     "DC_SCT": "test_function('max', highlight=True)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         helper.test_lines(self, sct_payload, 1, 1, 29, 34)
@@ -558,7 +558,7 @@ class TestFunctionDoEval(unittest.TestCase):
         self.data = {"DC_PEC": '',
              "DC_SOLUTION": "round(123.123, ndigits = 2)",
              "DC_CODE": "round(123.123)",
-             "DC_SCT": "test_function('round', do_eval = None)"}
+             "DC_SCT": "test_function('round', do_eval = None, highlight=True)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Have you specified all required arguments inside <code>round()</code>?", sct_payload['message'])
@@ -568,7 +568,7 @@ class TestFunctionDoEval(unittest.TestCase):
         self.data = {"DC_PEC": '',
              "DC_SOLUTION": "round(123.123)", # args = [0]
              "DC_CODE": "round(number = 123.123)", # student args is len 0
-             "DC_SCT": "test_function('round', do_eval = None)"}
+             "DC_SCT": "test_function('round', do_eval = None, highlight=True)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Have you specified all required arguments inside <code>round()</code>?", sct_payload['message'])
@@ -578,7 +578,7 @@ class TestFunctionDoEval(unittest.TestCase):
         self.data = {"DC_PEC": '',
              "DC_SOLUTION": "round(123.123, 2)", # args = [0, 1]
              "DC_CODE": "round(123.123)", # student_args is len 1
-             "DC_SCT": "test_function('round', do_eval = None)"}
+             "DC_SCT": "test_function('round', do_eval = None, highlight=True)"}
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Have you specified all required arguments inside <code>round()</code>?", sct_payload['message'])
@@ -594,9 +594,9 @@ print(123)
 print([1, 2, 3])
             ''',
              "DC_SCT": '''
-test_function("print", index = 1)
-test_function("print", index = 2)
-test_function("print", index = 3)
+test_function("print", index = 1, highlight=True)
+test_function("print", index = 2, highlight=True)
+test_function("print", index = 3, highlight=True)
             '''
         }
         self.DC_SCT_SPEC2 = '''
