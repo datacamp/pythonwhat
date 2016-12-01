@@ -1,14 +1,13 @@
 from pythonwhat.Reporter import Reporter
 from pythonwhat.tasks import getColumnsInProcess
-from .test_object import check_object
-from .test_dictionary import is_instance, test_key, has_key
+from pythonwhat.check_object import check_object, is_instance, has_equal_key, has_key
 
-import pandas as pd
-
-MSG_UNDEFINED = "FMT:Are you sure you defined the pandas DataFrame: `{parent[sol_part][name]}`?"
+MSG_UNDEFINED = "FMT:Are you sure you defined the pandas DataFrame: `{index}`?"
 MSG_NOT_INSTANCE = "FMT:`{parent[sol_part][name]}` is not a pandas DataFrame."
 MSG_KEY_MISSING = "FMT:There is no column `{key}` inside `{parent[sol_part][name]}`."
 MSG_INCORRECT_VAL = "FMT:Column `{key}` of your pandas DataFrame, `{parent[sol_part][name]}`, is not correct."
+
+import pandas as pd
 
 def test_data_frame(name,
                     columns=None,
@@ -23,7 +22,8 @@ def test_data_frame(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_data_frame")
 
-    child = check_df(name, undefined_msg or MSG_UNDEFINED, not_data_frame_msg or MSG_NOT_INSTANCE, state=state)
+    child = check_object(name, undefined_msg or MSG_UNDEFINED, expand_msg="", state=state, typestr="pandas DataFrame")
+    is_instance(pd.DataFrame, not_data_frame_msg or MSG_NOT_INSTANCE, state=child)  # test instance
 
     sol_cols = getColumnsInProcess(name, child.solution_process)
     if sol_cols is None:
@@ -34,13 +34,14 @@ def test_data_frame(name,
 
     for col in columns:
         # check if column available
-        test_key(name, col, incorrect_msg or MSG_INCORRECT_VAL, undefined_cols_msg or MSG_KEY_MISSING, state=child)
+        has_equal_key(col, incorrect_msg or MSG_INCORRECT_VAL, undefined_cols_msg or MSG_KEY_MISSING, state=child)
 
-# Check functions -------------------------------------------------------------
 
 def check_df(name, undefined_msg=MSG_UNDEFINED, not_instance_msg=MSG_NOT_INSTANCE, state=None):
 
-    child = check_object(name, undefined_msg, state=state)          # test defined
-    is_instance(name, pd.DataFrame, not_instance_msg, state=child)  # test instance
+    # test defined
+    child = check_object(name, undefined_msg, state=state, typestr="pandas DataFrame")
+    is_instance(pd.DataFrame, not_instance_msg, state=child)  # test instance
 
     return child
+

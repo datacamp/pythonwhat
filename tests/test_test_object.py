@@ -34,6 +34,30 @@ class TestObjectStepByStep(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertEqual('<code>{a_bad_template_var}</code>', sct_payload['message'])
 
+    def test_pass_spec2(self):
+        self.data["DC_SCT"] = "Ex().check_object('x').has_equal_value()"
+        self.data["DC_CODE"] = "x = 100"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail_spec2(self):
+        self.data["DC_SCT"] = "Ex().check_object('x').has_equal_value()"
+        self.data["DC_CODE"] = "x = 10"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_fail_undef_spec2(self):
+        self.data["DC_SCT"] = "Ex().check_object('x')"
+        self.data["DC_CODE"] = "y = 10"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_pass_exists_spec2(self):
+        self.data["DC_SCT"] = "Ex().check_object('x')"
+        self.data["DC_CODE"] = "x = 1"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 class TestObjectStepByStepCustom(unittest.TestCase):
 
     def setUp(self):
@@ -309,6 +333,9 @@ df2.columns = ["c", "d"]
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         helper.test_absent_lines(self, sct_payload)
+
+    def test_fail_spec2(self):
+        self.data["DC_SCT"] = "Ex().check_object('df2').has_equal_value()"
 
 
 

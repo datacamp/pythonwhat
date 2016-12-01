@@ -30,6 +30,14 @@ df = pd.DataFrame({
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_Pass1_spec2(self):
+        self.data["DC_SCT"] = "Ex().check_df('df').has_equal_value()"
+        self.test_Pass1()
+
+    def test_Pass1_spec2_manual(self):
+        self.data["DC_SCT"] = "Ex().check_df('df').multi([has_equal_key(i) for i in ['a', 'b', 'c']])"
+        self.test_Pass1()
+
     def test_Pass2(self):
         self.data["DC_SCT"] = "test_data_frame('df', columns=['b','c'])"
         self.data["DC_CODE"] = '''
@@ -78,6 +86,30 @@ df = pd.DataFrame({
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], 'Column <code>a</code> of your pandas DataFrame, <code>df</code>, is not correct.')
+
+    def test_Fail1_spec2_manual(self):
+        self.data["DC_CODE"] = '''
+df = pd.DataFrame({
+    'a': [1, 2, 2],
+    'b': ['x', 'y', 'z'],
+    'c': [True, False, True]
+})
+        '''
+        self.data["DC_SCT"] = "Ex().check_df('df').has_equal_key('a')"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_Fail1_spec2_auto(self):
+        self.data["DC_CODE"] = '''
+df = pd.DataFrame({
+    'a': [1, 2, 2],
+    'b': ['x', 'y', 'z'],
+    'c': [True, False, True]
+})
+        '''
+        self.data["DC_SCT"] = "Ex().check_df('df').has_equal_value()"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
 
     def test_Fail2(self):
         self.data["DC_CODE"] = '''
