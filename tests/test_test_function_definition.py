@@ -842,7 +842,7 @@ class TestLambdaFunctionSpec2(TestFunctionSpec2):
     def setUp(self):
         super().setUp()
         self.data['DC_SOLUTION'] = "lambda x, y = 4, z = ('a', 'b'), *args, **kwargs: [x, y, *z, *args]"
-        for attr in ['MULTI_SCT', 'SCT_CHECK', 'SCT_KW', 'SCT_POS', 'SCT_CHECK_ONE', 'SCT_CHECK_Y', 'SCT_CHECK_X']:
+        for attr in ['MULTI_SCT', 'SCT_CHECK', 'SCT_KW', 'SCT_POS', 'SCT_CHECK_ONE', 'SCT_CHECK_Y', 'SCT_CHECK_X', 'SCT_CHECK_ARGS', 'SCT_CHECK_KWARGS']:
             lam_sct = getattr(self, attr).replace("check_function_def('my_fun')", 'check_lambda_function(0)')
             setattr(self, attr, lam_sct)
 
