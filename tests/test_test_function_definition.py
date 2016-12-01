@@ -743,6 +743,8 @@ Ex().check_function_def('my_fun').multi(test_names)
         self.SCT_CHECK_ONE = "Ex().check_function_def('my_fun').check_args(1)"
         self.SCT_CHECK_Y = "Ex().check_function_def('my_fun').check_args('y')"
         self.SCT_CHECK_X = "Ex().check_function_def('my_fun').check_args('x')"
+        self.SCT_CHECK_ARGS = "Ex().check_function_def('my_fun').check_args('*args')"
+        self.SCT_CHECK_KWARGS = "Ex().check_function_def('my_fun').check_args('**kwargs')"
 
     def when_code_is_sol(self):
         self.data['DC_CODE'] = self.data['DC_SOLUTION']
@@ -782,6 +784,30 @@ Ex().check_function_def('my_fun').multi(test_names)
         self.data['DC_SCT'] = self.SCT_CHECK_X + ".is_default()"
         self.assertFalse(self.when_replace('x, y = 4', 'x = 2, y = 4'))
 
+    def test_fail_star_args_undef(self):
+        self.data['DC_CODE'] = """def my_fun(x, y = 4, z = ('a', 'b'), args=2, **kwargs): pass"""
+        self.data['DC_SCT'] = self.SCT_CHECK_ARGS
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_fail_star_args_name(self):
+        self.data['DC_CODE'] = """def my_fun(x, y = 4, z = ('a', 'b'), *wrongargsname, **kwargs): pass"""
+        self.data['DC_SCT'] = self.SCT_CHECK_ARGS + '.has_equal_name()'
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_fail_kwargs_undef(self):
+        self.data['DC_CODE'] = """def my_fun(x, y = 4, z = ('a', 'b'), args=2, kwargs=2): pass"""
+        self.data['DC_SCT'] = self.SCT_CHECK_KWARGS
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_fail_kwargs_name(self):
+        self.data['DC_CODE'] = """def my_fun(x, y = 4, z = ('a', 'b'), *args, **wrongkwargsname): pass"""
+        self.data['DC_SCT'] = self.SCT_CHECK_KWARGS + '.has_equal_name()'
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
     def test_pass_equal_value(self):
         self.data['DC_SCT'] = self.SCT_CHECK_Y + ".has_equal_value('unequal values')"
         self.assertTrue(self.when_code_is_sol())
@@ -810,6 +836,7 @@ Ex().check_function_def('my_fun').multi(test_names)
     def test_fail_multi(self):
         self.data['DC_SCT'] = self.MULTI_SCT
         self.assertFalse(self.when_replace('x', 'x2'))
+
 
 class TestLambdaFunctionSpec2(TestFunctionSpec2):
     def setUp(self):
