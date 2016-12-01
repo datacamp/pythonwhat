@@ -19,6 +19,7 @@ def test_function(name,
                   args_not_specified_msg=None,
                   incorrect_msg=None,
                   add_more=False,
+                  highlight=False,
                   state=None):
     """Test if function calls match.
 
@@ -65,6 +66,8 @@ def test_function(name,
     """
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_function")
+
+    if not highlight: state.highlight = None
 
     index = index - 1
 
@@ -128,7 +131,7 @@ def test_function(name,
                 if feedback is None:
                     if not args_not_specified_msg:
                         args_not_specified_msg = dflt
-                    feedback = Feedback(args_not_specified_msg, student_call)
+                    feedback = Feedback(args_not_specified_msg, student_call if highlight else None)
                 success = False
                 continue
 
@@ -148,7 +151,8 @@ def test_function(name,
 
                 test = build_test(arg_student, arg_solution,
                                   state,
-                                  do_eval, eq_fun, msg, add_more=add_more)
+                                  do_eval, eq_fun, msg, add_more=add_more,
+                                  highlight=arg_student if highlight else None)
                 test.test()
 
                 if not test.result:
@@ -170,7 +174,8 @@ def test_function(name,
 
                     test = build_test(key_student, key_solution,
                                       state,
-                                      do_eval, eq_fun, msg, add_more=add_more)
+                                      do_eval, eq_fun, msg, add_more=add_more,
+                                      highlight=key_student if highlight else None)
                     test.test()
 
                     if not test.result:
@@ -197,6 +202,7 @@ def test_print(index = 1,
                params_not_matched_msg="Have you correctly called `print()`?",
                params_not_specified_msg="Have you correctly called `print()`?",
                incorrect_msg="Have you printed out the correct object?",
+               highlight=True,
                state=None):
     test_function_v2("print",
                      index=index,
@@ -207,7 +213,8 @@ def test_print(index = 1,
                      not_called_msg=not_called_msg,
                      params_not_matched_msg=params_not_matched_msg,
                      params_not_specified_msg=params_not_specified_msg,
-                     incorrect_msg=incorrect_msg, state=state)
+                     incorrect_msg=incorrect_msg,
+                     highlight=highlight, state=state)
     """Test print() calls
 
     Utility function to test the print() function. For arguments, check test_function_v2()
@@ -224,6 +231,7 @@ def test_function_v2(name,
                      params_not_specified_msg=None,
                      incorrect_msg=None,
                      add_more=False,
+                     highlight=False,
                      state=None):
     """Test if function calls match (v2).
 
@@ -254,6 +262,11 @@ def test_function_v2(name,
 
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_function")
+
+    # Note that this mutates state, which is bad. The easiest way to avoid this
+    # would be to make a copy of state, but that would break blacklisting here,
+    # which also requires state mutation.
+    if not highlight: state.highlight = None
 
     index = index - 1
     eq_map = {"equal": EqualTest}
@@ -342,7 +355,7 @@ def test_function_v2(name,
         sub_tests = [partial(test_call, name, call_ind, signature, params, do_eval, solution_args, 
                              eq_fun, add_more, index,
                              params_not_specified_msg, params_not_matched_msg, incorrect_msg, 
-                             keywords, state=state)
+                             keywords, state=state, highlight = highlight)
                      for call_ind in call_indices]
         test_or(*sub_tests, state=state)
 
@@ -356,7 +369,7 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
               eq_fun, add_more, index,
               params_not_specified_msg, params_not_matched_msg, incorrect_msg, 
               keywords,  # pulled from solution process
-              state):
+              state, highlight):
     #stud_name = get_mapped_name(name, state.student_mappings)
 
     rep = Reporter.active_reporter
@@ -374,7 +387,7 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
             params_not_matched_msg = ("Something went wrong in figuring out how you specified the " + \
                 "arguments for `%s()`; have another look at your code and its output.") % stud_name
         _msg = state.build_message(params_not_matched_msg)
-        feedback = Feedback(_msg, student_call)
+        feedback = Feedback(_msg, student_call if highlight else None)
         # run subtest
         rep.do_test(Test(feedback))    # TODO: sub_call
 
@@ -392,7 +405,7 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
         else:
             msg = params_not_specified_msg[param_ind]
         _msg = state.build_message(msg)
-        feedback = Feedback(_msg, student_call)
+        feedback = Feedback(_msg, student_call if highlight else None)
         # run subtest
         rep.do_test(Test(feedback))    # TODO: sub_call
     
@@ -405,7 +418,7 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
         test_arg(param, do_eval[ind],
                  arg_student, arg_solution, param_kind, stud_name,
                  eq_fun, add_more,
-                 incorrect_msg[ind], state=state)
+                 incorrect_msg[ind], state=state, highlight = arg_student if highlight else None)
 
     # If all is still good, we have a winner!
     state.set_used(name, call_ind, index)
@@ -413,7 +426,7 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
 def test_arg(param, do_eval, 
              arg_student, arg_solution, param_kind, stud_name,
              eq_fun, add_more,
-             incorrect_msg, state=None):
+             incorrect_msg, state=None, highlight = None):
     rep = Reporter.active_reporter
 
     if incorrect_msg is None:
@@ -426,7 +439,7 @@ def test_arg(param, do_eval,
 
     test = build_test(arg_student, arg_solution,
                         state,
-                        do_eval, eq_fun, msg, add_more = add_more)
+                        do_eval, eq_fun, msg, add_more = add_more, highlight=highlight)
     # TODO
     rep.do_test(test)
 
@@ -443,7 +456,7 @@ def bind_args(signature, arguments, keyws):
     bound_args = signature.bind(*arguments, **keyws)
     return(bound_args.arguments, signature.parameters)
 
-def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more):
+def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more, highlight = False):
     got_error = False
     if do_eval:
 
@@ -472,8 +485,8 @@ def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more):
         eval_solution = ast.dump(sol)
 
     _msg = state.build_message(feedback_msg)
-    return(Test(Feedback(_msg, stud)) if got_error else
-        eq_fun(eval_student, eval_solution, Feedback(_msg, stud)))
+    return(Test(Feedback(_msg, stud if highlight else None)) if got_error else
+        eq_fun(eval_student, eval_solution, Feedback(_msg, stud if highlight else None)))
 
 
 

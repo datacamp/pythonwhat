@@ -626,6 +626,18 @@ Ex().check_function("print", 0).check_arg(0).has_equal_value()
         self.assertIn("Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 7, 11)
 
+    def test_multiple_4_no_highlight(self):
+        self.data["DC_CODE"] = 'print("acb")\nprint(1234)\nprint([1, 2, 3])'
+        self.data["DC_SCT"] = """
+test_function("print", index = 1, highlight = False)
+test_function("print", index = 2)
+test_function("print", index = 3)
+        """
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.", sct_payload['message'])
+        self.assertEqual(sct_payload.get('line_start'), None)
+
     def test_multiple_5(self):
         self.data["DC_CODE"] = 'print("abc")\nprint(1234)\nprint([1, 2, 3])'
         sct_payload = helper.run(self.data)
@@ -639,6 +651,13 @@ Ex().check_function("print", 0).check_arg(0).has_equal_value()
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 3, 3, 7, 18)
+
+    def test_nohighlight_too_few_calls(self):
+        self.data["DC_SCT"] = 'test_function("print", index = 3, args = [], keywords = [])\n' + self.data["DC_SCT"]
+        self.data["DC_CODE"] = 'print("abc")\nprint(1234)'
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload.get('line_start'), None)
 
 
 
