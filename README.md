@@ -2,7 +2,7 @@
 
 The `pythonwhat` package provides rich functionality to write Submission Correctness Tests for interactive Python exercises on the DataCamp platform. DataCamp operates with **Python 3**.
 
-For a detailed guide on how to use `pythonwhat`, head over to the [wiki](https://github.com/datacamp/pythonwhat/wiki).
+For a detailed guide on how to use `pythonwhat`, head over to [the online documentation](http://pythonwhat.readthedocs.io/en/latest/). Before, all documentation was on the [wiki](https://github.com/datacamp/pythonwhat/wiki), but things are steadily being moved to the _readthedocs_ format.
 
 Visit [DataCamp Teach](https://www.datacamp.com/teach) to create your own DataCamp Python course, powered by `pythonwhat`.
 
@@ -34,14 +34,4 @@ python3 run_all.py
 
 To disable deprecation warnings: `$ export PYTHONWARNINGS="ignore"`
 
-## Generate Documentation PDF
-
-```
-pip3 install sphinx
-python3 setup.py install
-cd docs
-make latexpdf
-open build/latex/Pythonwhat.pdf
-```
-
-For more details, questions and suggestions, contact <b>content-engineering@datacamp.com</b>.
+For more details, questions and suggestions, contact <b>learn-engineering@datacamp.com</b>.
