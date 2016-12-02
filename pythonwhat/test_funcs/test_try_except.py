@@ -17,8 +17,28 @@ def test_try_except(index=1,
                     finalbody_missing_msg=None,
                     expand_message=True,
                     state=None):
-    """Test a try except construct
-    """
+    """Test whether the student correctly coded a `try-except` block.  
+
+    This function allows you to test specific parts of a try-except block.
+    A try-except block consists of 4 parts: a body, error handlers, plus (rarely) an
+    else and final block. ::
+
+        try:              print(hello)
+        except NameError: print('hello what?')
+        except:           print('unexplained error')
+        else:             print('else block')
+        finally:          print('final block')
+    
+    Args:
+        index (int): index of the try-except block to check. 
+        not_called_msg: override the default message when too few try-except blocks found in student code.
+        body: sub-sct to test the code of the `try` block. 
+        handlers: a dictionary, where the keys are the error classes you expect the student to capture (for the general `except:`, use `'all'`), and the values are sub-SCTs for each of these `except` blocks.
+        except_missing_message: override the default message when a expect block in the handlers arg is missing.
+        orelse: similar to body, but for the else block.
+        finalbody: similar to body, but for the finally block. 
+        _missing_msg: custom messages if the orelse, or finalbody pieces are missing.
+"""
 
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_try_except")

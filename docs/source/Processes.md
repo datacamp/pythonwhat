@@ -1,5 +1,16 @@
-Processes
-=========
+Expressions
+===========
+
+[TODO: Managing Processes taken from wiki, will update with spec2 functions]
+
+`has_equal` Syntax
+------------------
+
+`call` Syntax
+-------------
+
+Managing Processes
+-----------------
 
 As mentioned on the [wiki Homepage](https://github.com/datacamp/pythonwhat/wiki), DataCamp uses two separate processes. One process to run the solution code, and one process to run the student's submission. This way, `pythonwhat` has access to the 'ideal ending scenario' of an exercises; this makes it easier to write SCTs. Instead of having to specify which value an object should be, we can have `test_object()` look into the solution process and compare the object in that process with the object in the student process.
 
