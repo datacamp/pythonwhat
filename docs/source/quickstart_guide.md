@@ -4,73 +4,55 @@ Quickstart Guide
 Course Setup
 ------------
 
-To start teaching on DataCamp, you should go to https://www.datacamp.com/teach. With the [Getting Started documentation there](https://www.datacamp.com/teach/documentation#tab_getting_started) you'll be up and running in no time.
-
-Basically, you have to log in to DataCamp, link your account to GitHub, and then create a new GitHub repository. The DataCamp Teach application uses GitHub to host your course files; whenever you make a change to the course files in the GitHub repository, the corresponding DataCamp course is updated for you.
-
-If you've used DataCamp Teach to set up a template Python course for you, you'll find a file called `chapter1.md` in the resulting GitHub repository. It's in these chapter files that exercises for the first chapter are coded up. There's the exercise header, that tells the type, xp and skills of the exercises, but also parts that specify the exercise contents, instructions, a hint and code blocks: the pre exercise code, sample and solution code, and finally, the SCT, short for Submission Correctness tests. To learn more about these different components of a DataCamp exercise, visit the [Code Exercises Article](https://www.datacamp.com/teach/documentation#tab_code_exercises) of the DataCamp Teach documentation. Here, we'll focus just on the SCT.
+This guide will cover the basics of creating submission correctness tests (SCTs) for DataCamp exercise. SCTs deal with the running and testing code submissions, in order to give useful feedback. For help on the entire exercise creation process, check out https://www.datacamp.com/teach/documentation. If this is your first time creating a course, see their [Getting Started screencast](https://www.datacamp.com/teach/documentation#tab_getting_started) and [Code Exercises article](https://www.datacamp.com/teach/documentation#tab_code_exercises).
 
 Your First Exercise
 -------------------
 
-As a basic example, suppose we have an exercise that requires the student to create a variable `x`. In your `chapter1.md` file, this exercise could look something like this (if you add this exercise to your own chapter file in your GitHub repo that's linked to DataCamp, the exercise will automatically be added to your course):
+As a basic example, suppose we have an exercise that requires the student to print a variable named `x`. This exercise could look something like this:
 
 
-		--- type:NormalExercise lang:python xp:100 skills:2
-		## Create a variable
+``````python
+	*** =pre_exercise_code
+	```{python}
+	x = 5
+	```
 
-		In this exercise, you'll be creating a variable. 
+	*** =sample_code
+	```{python}
+	# Print x
+	
+	```
 
-		To create a variable in Python, you need `=`.
+	*** =solution
+	```{python}
+	# Print x
+	print(x)
+	```
 
-		*** =instructions
-		- Create a variable `x`, equal to 5.
-		- Print out `x`.
+	*** =sct
+	```{python}
+	Ex().check_object('x').has_equal_value()
+	Ex().test_output_contains('5')
+	success_msg('Great job!')
+	```
+``````
 
-		*** =hint
-		- To create a variable `y` equal to 7, you'd need `y = 7`.
+The SCT uses three `pythonwhat` chains to test the correctness of the student's submission. 
 
-		*** =pre_exercise_code
-		```{python}
-		# no pre exercise code required
-		```
+1. `check_object` is used to test whether `x` was defined in the submission. In addition, the `has_equal_value()` statement tests whether the value of `x` is equal between the submission and solution.
+2. `test_output_contains()` tests whether the student printed out `x` correctly. The function looks at the output the student generated with his or her submission, and then checks whether the string '5' is found in this output.
+3. `success_msg()` is used to give positive feedback when all `pythonwhat` tests passed. If you do not use `success_msg()`, `pythonwhat` will generate a kind message itself :).
 
-		*** =sample_code
-		```{python}
-		# Create x
+In all the test statements above, feedback messages will be automatically generated when something goes wrong. However, it is possible to manually set these feedback messages. For example, in the code below,
 
+```python
+Ex().check_object(undefined_msg="`x` is undefined!") \
+    .has_equal_value(incorrect_msg="wrong value for `x`")
+```
 
-		# Print x
+the automatic messages for when `x` is undefined or incorrect are replaced with manual feedback. Now, if students submit `x = 4` instead of `x = 5`, they will see the message, "wrong value for `x`". Finally, notice that you can use Markdown syntax inside the strings here.
 
-		```
+The same holds for `test_output_contains()`: you can use the `no_output_msg` argument to specify a custom message. For more information on all the different arguments you can set in the different `pythonwhat` functions, have a look at the articles in this wiki, describing them in detail.
 
-		*** =solution
-		```{python}
-		# Create x
-		x = 5
-
-		# Print x
-		print(x)
-		```
-
-		*** =sct
-		```{python}
-		test_object('x')
-		test_output_contains('5')
-		success_msg('Great job!')
-		```
-
-The SCT uses three `pythonwhat` functions to test the correctness of the student's submission. 
-
-- First, `test_object()` is used to test whether the object `x` was correctly defined and whether it corresponds to the variable `x` that was specified in the solution. If `x` is not defined, `pythonwhat` will automatically generate an appropriate feedback message. If `x` was defined, but does not correspond to the `x` that was generated by the solution, the student is presented with a different feedback message.
-- Next, `test_output_contains()` tests whether the student actually printed out `x` after defining it. The function looks at the output the student generated with his or her submission, and then checks whether the string '5' is found in this output.
-- Finally, `success_msg()` is used to give the student a congratulatory message in case all the listed `pythonwhat` tests passed. If you do not use `success_msg()`, `pythonwhat` will generate a kind message itself.
-
-In both `test_object()` and `test_output_contains()`, the feedback messages in case when something goes wrong, are automatically generated. It is, however, perfectly possible to manually set these incorrect messages, for example if you want to push the student in a certain direction. Instead of `test_object('x')`, we could've used:
-
-		test_object('x', incorrect_msg = "Are you sure assigned 5 to `x`? You can do this with `x = 5`.")
-
-Notice that you can use Markdown syntax inside the strings here. Now, if students for example submitted `x = 4` instead of `x = 5`, they will get the author-specified message. The same holds for `test_output_contains()`: you can use the `no_output_msg` argument to specify a custom message. For more information on all the different arguments you can set in the different `pythonwhat` functions, have a look at the articles in this wiki, describing them in detail.
-
-
-
+[TODO: quick outline of next steps]

@@ -8,11 +8,13 @@ Contents:
    :maxdepth: 2
 
    Home
-   quickstart_guide
-   test_functions
-   parts_cheatsheet
+   quickstart_guide.md
+   simple_tests.md
+   parts_cheatsheet.rst
    Processes
-   Sub-SCTs
+   logic
+   spec2_summary
+   test_functions
 
 Indices and tables
 ==================

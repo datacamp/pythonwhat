@@ -1,5 +1,7 @@
-Composite SCTs
+Logic
 ==============
+
+[TODO: this is a previous version, will update with spec2 functions]
 
 Several functions, such as `test_correct()`, `test_or()`, `test_function_definition()`, among others, also have arguments that expect another set of tests. This article will explain the different ways of specifying these 'sub-tests'.
 

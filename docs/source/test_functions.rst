@@ -1,5 +1,5 @@
-Test Functions
-==============
+Old Syntax
+=================
 
 Simple
 ------
@@ -85,6 +85,12 @@ test_comp
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: pythonwhat.test_funcs.test_comp
+    :members:
+
+test_try_except
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: pythonwhat.test_funcs.test_try_except
     :members:
 
 test_function_definition

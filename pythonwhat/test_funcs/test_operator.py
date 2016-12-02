@@ -14,7 +14,9 @@ def test_operator(index=1,
                   incorrect_op_msg=None,
                   incorrect_result_msg=None,
                   state=None):
-    """Test if operator groups match.
+    """THIS FUNCTION IS DEPRECATED
+
+    Test if operator groups match.
 
     This function compares an operator group in the student's code with the corresponding one in the solution
     code. It will cause the reporter to fail if the corresponding operators do not match. The fail message
