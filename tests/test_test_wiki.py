@@ -186,7 +186,67 @@ test_for_loop(index = 1, body = test_for_body)
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+class TestPartChecks(unittest.TestCase):
+    def test_pass_simple(self):
+        self.data = {
+                "DC_SOLUTION": '''
+L2 = [i*2 for i in range(0,10) if i>2]
+''',
+                "DC_SCT": '''
+list_comp = Ex().check_list_comp(0, missing_msg="Did you include a list comprehension?")
+list_comp.check_body().test_student_typed('i\*2')
+list_comp.check_iter().has_equal_value()
+list_comp.check_ifs(0).multi([has_equal_value(context_vals=[i]) for i in range(0,10)])
+'''
+                }
+        self.data["DC_CODE"] = "L2 = [i*2 for i in range(10) if i>2]"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
+    def test_pass_complex1(self):
+        self.data = {
+                "DC_SOLUTION": """L3 = [i*2 if i> 5 else 0 for i in range(0,10)]""",
+                "DC_SCT": """
+(Ex().check_list_comp(0)                            # first comptehension
+        .check_body()                               # comp's body
+        .set_context(i=6)
+                .check_if_exp(0)                    # body's inline if
+                .has_equal_value()                  
+        )
+"""
+                }
+        self.data['DC_CODE'] = self.data['DC_SOLUTION']
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail_complex1(self):
+        self.data = {
+                "DC_SOLUTION": """L3 = [i*2 if i> 5 else 0 for i in range(0,10)]""",
+                "DC_SCT": """
+(Ex().check_list_comp(0)                            # first comptehension
+        .check_body()                               # comp's body
+        .set_context(i=6)
+                .check_if_exp(0)                    # body's inline if
+                .has_equal_value()                  
+        )
+"""
+                }
+        self.data['DC_CODE'] = """L3 = [i*2 for i in range(0,10)]"""  # no inline if
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_pass_complex2(self):
+        self.data = {
+                "DC_SOLUTION": """L3 = [i*2 if i> 5 else 0 for i in range(0,10)]""",
+                "DC_SCT": """
+(Ex().check_list_comp(0)                            # first comptehension
+        .check_body().set_context(i=6).has_equal_value()                  
+        )
+"""
+                }
+        self.data['DC_CODE'] = self.data['DC_SOLUTION']
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
 if __name__ == "__main__":
     unittest.main()
