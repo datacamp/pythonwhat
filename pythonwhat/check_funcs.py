@@ -137,6 +137,8 @@ def has_equal_part_len(name, insufficient_msg, state=None):
     return state
 
 
+# functions for running multiple sub-tests ------------------------------------
+
 def extend(*args, state=None):
     """Run multiple subtests in sequence, each using the output state of the previous."""
 
@@ -164,12 +166,38 @@ def multi(*args, state=None):
     # return original state, so can be chained
     return state
 
+from pythonwhat.Test import TestFail
+
+def test_not(*args, msg, state=None):
+    """Pass if all of the subtests fail"""
+    rep = Reporter.active_reporter
+
+    try: multi(*args, state=state)
+    except TestFail as e:
+        rep.failed_test = False          # protect against old behavior
+        return state
+    
+    _msg = state.build_message(msg)
+    return rep.do_test(Test(msg))
+
+# utility functions -----------------------------------------------------------
+
 def quiet(n = 0, state=None):
     """Turn off prepended messages. Defaults to turning all off."""
     cpy = copy.copy(state)
     hushed = [{**m, 'msg': ""} for m in cpy.messages]
     cpy.messages = hushed
     return cpy
+
+def fail(msg="", state=None):
+    """Fail test with message"""
+    rep = Reporter.active_reporter
+    _msg = state.build_message(msg)
+    rep.do_test(Test(Feedback(msg, state.highlight)))
+
+    return state
+
+# context functions -----------------------------------------------------------
 
 from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
 def with_context(*args, state=None):
@@ -205,18 +233,31 @@ def with_context(*args, state=None):
     return state
 
 def set_context(*args, state=None, **kwargs):
+    """Update context values for student and solution environments.
+    
+    Note that excess args and unmatched kwargs will be unused in the student environment.
+    If an argument is specified both by name and position args, will use named arg.
+    """
     stu_crnt = state.student_context.context
     sol_crnt = state.solution_context.context
-    # set args specified by pos ----
-    upd_stu = stu_crnt.update(dict(zip(sol_crnt.keys(), args)))
+    # set args specified by pos -----------------------------------------------
+    # stop if too many pos args for solution
+    if len(args) > len(sol_crnt): 
+        raise IndexError("Too many positional args. There are {} context vals, but tried to set {}"
+                            .format(len(sol_crnt), len(args)))
+    # set pos args
     upd_sol = sol_crnt.update(dict(zip(stu_crnt.keys(), args)))
+    upd_stu = stu_crnt.update(dict(zip(sol_crnt.keys(), args)))
 
-    # set args specified by keyword ----
+    # set args specified by keyword -------------------------------------------
+    if set(kwargs) - set(upd_sol):
+        raise KeyError("Context val names are {}, but tried to set {}"
+                            .format(upd_sol or "none", kwargs.keys()))
     out_sol = upd_sol.update(kwargs)
     # need to match keys in kwargs with corresponding keys in stu context
     # in case they used, e.g., different loop variable names
     match_keys = dict(zip(sol_crnt.keys(), stu_crnt.keys()))
-    out_stu = upd_stu.update({match_keys[k]: v for k,v in kwargs.items()})
+    out_stu = upd_stu.update({match_keys[k]: v for k,v in kwargs.items() if k in match_keys})
 
     return state.to_child_state(student_subtree = None, solution_subtree = None,
                                 student_context = out_stu, solution_context = out_sol)
@@ -300,8 +341,8 @@ def call(args,
     eval_sol, str_sol = run_call(args, state.solution_parts['node'], state.solution_process, get_func, **kwargs)
 
     if (test == 'error') ^ isinstance(str_sol, Exception):
-        _msg = state.build_message("FMT:Calling for arguments {args} resulted in an error (or not an error if testing for one). Error message: {str_sol}",
-                                   dict(args=args, str_sol=str_sol))
+        _msg = state.build_message("FMT:Calling for arguments {args} resulted in an error (or not an error if testing for one). Error message: {type_err} {str_sol}",
+                                   dict(args=args, type_err=type(str_sol), str_sol=str_sol))
         raise ValueError(_msg)
 
     if isinstance(eval_sol, ReprFail):
@@ -363,7 +404,7 @@ def has_expr(incorrect_msg="FMT:Unexpected expression {test}: expected `{sol_eva
 
     if (test == 'error') ^ isinstance(str_sol, Exception):
         raise ValueError("evaluating expression raised error in solution process (or not an error if testing for one). "
-                         "Error message: %s"%str_sol)
+                         "Error: %s - %s"%(type(str_sol), str_sol))
     if isinstance(eval_sol, ReprFail):
         raise ValueError("Couldn't figure out the value of a default argument: " + eval_sol.info)
 
