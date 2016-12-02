@@ -1,13 +1,9 @@
-import ast
-from pythonwhat.parsing import ObjectAssignmentParser
-from pythonwhat.Test import DefinedProcessTest, EqualProcessTest
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Feedback import Feedback
-from pythonwhat.tasks import isDefinedInProcess, getRepresentation
 from pythonwhat.check_funcs import part_to_child, has_equal_value
+from pythonwhat.check_object import check_object, MSG_UNDEFINED
 
-MSG_UNDEFINED = "FMT:Have you defined `{parent[sol_part][name]}`?"
-MSG_INCORRECT = "FMT:The contents of `{parent[sol_part][name]}` aren't correct."
+MSG_UNDEFINED = "FMT:Have you defined `{index}`?"
+MSG_INCORRECT = "FMT:The contents of `{parent[index]}` aren't correct."
 
 def test_object(name,
                 eq_condition="equal",
@@ -57,36 +53,8 @@ def test_object(name,
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_object")
 
-    child = check_object(name, undefined_msg or MSG_UNDEFINED, state=state)
+    child = check_object(name, undefined_msg or MSG_UNDEFINED, expand_msg = "", state=state)
 
     if do_eval:
 
         has_equal_value(incorrect_msg or MSG_INCORRECT, state=child)
-
-def get_assignment_node(obj_ass, name):
-    nodes = obj_ass[name] if name in obj_ass else None
-    
-    # found a single case of assigning name
-    if nodes and len(nodes) == 1: 
-        return nodes[0]
-
-# Check functions -------------------------------------------------------------
-
-def check_object(name, undefined_msg=MSG_UNDEFINED, state=None):
-    rep = Reporter.active_reporter
-
-    if not isDefinedInProcess(name, state.solution_process):
-        raise NameError("%r not in solution environment " % name)
-
-    # create child state, using either parser output, or create part from name
-    fallback = lambda: ObjectAssignmentParser.get_part(name)
-    stu_part = state.student_object_assignments.get(name, fallback())
-    sol_part = state.solution_object_assignments.get(name, fallback())
-    
-    child = part_to_child(stu_part, sol_part, {'msg': '', 'kwargs': {}}, state)
-
-    # test object exists
-    _msg = child.build_message(undefined_msg)
-    rep.do_test(DefinedProcessTest(name, child.student_process, Feedback(_msg)))
-
-    return child

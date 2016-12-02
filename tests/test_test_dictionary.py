@@ -16,6 +16,10 @@ class TestDictionaryStepByStep(unittest.TestCase):
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Are you sure you defined", sct_payload['message'])
 
+    def test_dict_step1_spec2(self):
+        self.data["DC_SCT"] = "Ex().check_dict('x')"
+        self.test_dict_step1()
+
     def test_dict_step2(self):
         self.data["DC_CODE"] = "x = 123"
         sct_payload = helper.run(self.data)
@@ -34,10 +38,27 @@ class TestDictionaryStepByStep(unittest.TestCase):
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Have you specified the correct value for the key <code>c</code> inside <code>x</code>?", sct_payload['message'])
 
+    def test_dict_step4_spec2_manual(self):
+        self.data["DC_CODE"] = "x = {'a':123, 'b':456, 'c':78}"
+        self.data["DC_SCT"] = "Ex().check_dict('x').multi([has_equal_key(i) for i in ['a','b','c']])"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_dict_step4_spec2_auto(self):
+        self.data["DC_CODE"] = "x = {'a':123, 'b':456, 'c':78}"
+        self.data["DC_SCT"] = "Ex().check_dict('x').has_equal_value()"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+
     def test_dict_step5(self):
         self.data["DC_CODE"] = "x = {'a':123, 'b':456, 'c':789}"
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
+    def test_dict_step5_spec2(self):
+        self.data["DC_SCT"] = "Ex().check_dict('x').has_equal_value()"
+        self.test_dict_step5()
 
 class TestDictionaryStepByStepCustom(unittest.TestCase):
     def setUp(self):

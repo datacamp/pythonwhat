@@ -1,5 +1,4 @@
 from pythonwhat.check_funcs import has_equal_value, check_part
-from .test_object import get_assignment_node
 
 def test_object_after_expression(name,
                                  extra_env=None,
