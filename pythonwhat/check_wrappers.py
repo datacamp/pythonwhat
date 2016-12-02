@@ -56,7 +56,7 @@ for k, v in __NODE_WRAPPERS__.items():
 
 for k in ['set_context', 
           'has_equal_value', 'has_equal_output', 'has_equal_error', 'call',
-          'extend', 'multi',
+          'extend', 'multi', 'test_not', 'fail', 'quiet',
           'with_context',
           'check_args',
           'has_equal_part']:

@@ -135,7 +135,50 @@ Ex().check_list_comp(0).multi(F().check_body().set_context(aa=2).has_equal_value
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_multi_generator(self):
+        self.data["DC_SCT"] = """
+Ex().check_list_comp(0).check_body()\
+        .multi(set_context(aa=i).has_equal_value('wrong') for i in range(2))
+"""
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
+class TestTestNot(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+                "DC_SOLUTION": "x = 1",
+                "DC_CODE": "x = 1"
+                }
+
+    def test_pass(self):
+        self.data["DC_SCT"] = """Ex().test_not(check_list_comp(0), msg="no")"""
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail(self):
+        # obviously this would be a terrible sct...
+        self.data["DC_SCT"] = """Ex().test_not(test_object('x'), msg="no")"""
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+class TestTestFail(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+                "DC_SOLUTION": "", "DC_CODE": ""
+                }
+
+    def test_fail(self):
+        self.data["DC_SCT"] = """Ex().fail()"""
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+
+#class TestSetContext(unittest.TestCase):
+#    def setUp(self):
+#        self.data = {
+#                "DC_PEC": "",
+#                "DC_SOLUTION": "[(i,j) for i,j in enumerate(range(10))]"
+#                }
 
 if __name__ == "__main__":
     unittest.main()

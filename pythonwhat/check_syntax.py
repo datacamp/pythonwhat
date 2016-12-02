@@ -45,24 +45,31 @@ class Chain:
     def __init__(self, state):
         self._state = state
         self._crnt_sct = None
+        self._waiting_on_call = False
 
     def __getattr__(self, attr):
         if attr not in ATTR_SCTS: raise AttributeError("No SCT named %s"%attr)
+        elif self._waiting_on_call: 
+            raise AttributeError("Did you forget to call a statement? "
+                                 "e.g. Ex().check_list_comp.check_body()")
         else:
             # make a copy to return, 
             # in case someone does: a = chain.a; b = chain.b
             chain = copy.copy(self)
             chain._crnt_sct = ATTR_SCTS[attr]
+            chain._waiting_on_call = True
             return chain
 
     def __call__(self, *args, **kwargs):
         self._state = self._crnt_sct(state=self._state, *args, **kwargs)
+        self._waiting_on_call = False
         return self
 
 class F(Chain):
     def __init__(self, stack = None):
         self._crnt_sct = None
         self._stack = [] if stack is None else stack
+        self._waiting_on_call = False
 
     def __call__(self, *args, **kwargs):
         if not self._crnt_sct:
@@ -84,7 +91,7 @@ def Ex():
 # Prepare SCTs that may be chained attributes ----------------------
 # decorate functions that may try to run test_* function nodes as subtests
 # so they remove those nodes from the tree
-for k in ['multi', 'with_context']:
+for k in ['multi', 'with_context', 'test_not']:
     ATTR_SCTS[k] = multi_dec(ATTR_SCTS[k])
 # allow test_* functions as chained attributes
 for k in TEST_NAMES:
