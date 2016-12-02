@@ -102,7 +102,7 @@ class State(object):
         self.student_context  = Context(student_context)  if student_context is None else student_context
         self.solution_context = Context(solution_context) if solution_context is None else solution_context
 
-        self.highlight = self.student_tree if highlight is None else highlight
+        self.highlight = self.student_tree if (not highlight) and self.parent_state else highlight
 
         self.converters = get_manual_converters()    # accessed only from root state
 
