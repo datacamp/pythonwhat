@@ -454,7 +454,7 @@ def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more, highli
     if do_eval:
 
         eval_solution, str_solution = getResultInProcess(tree = sol, process = state.solution_process)
-        if str_solution is None:
+        if isinstance(str_solution, Exception):
             raise ValueError("Running an argument in the solution environment raised an error")
         if isinstance(eval_solution, ReprFail):
             raise ValueError("Couldn't figure out the argument: " + eval_solution.info)
