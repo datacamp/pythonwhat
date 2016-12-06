@@ -259,7 +259,7 @@ def getRepresentation(name, process):
         try:
             stream = getStreamPickle(name, process)
             if not errored(stream): return pickle.loads(stream)
-        except PicklingError: 
+        except: 
             pass
 
         # if it failed, try to dill
@@ -268,7 +268,10 @@ def getRepresentation(name, process):
             if not errored(stream): return dill.loads(stream)
             return ReprFail("dilling inside process failed for %s - write manual converter" % obj_class)
         except PicklingError:
-            return ReprFail("undilling of bytestream failed - write manual converter")
+            return ReprFail("undilling of bytestream failed with PicklingError - write manual converter")
+        except Exception as e:
+            return ReprFail("undilling of bytestream failed for class %s - write manual converter."
+                            "Error: %s - %s" % (obj_class, type(e), e))
 
 def errored(el):
     return el is None or (isinstance(el, list) and 'backend-error' in str(el))

@@ -660,6 +660,49 @@ test_function("print", index = 3)
         self.assertEqual(sct_payload.get('line_start'), None)
 
 
+class TestFunctionComplexArgs(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+                "DC_SOLUTION": """
+def sum2(arr): return sum(arr)
+
+def apply(f, arr): return f(arr)
+
+apply(sum2, [1,2,3])
+""",
+                "DC_SCT": """
+test_function('apply')
+"""
+                }
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+
+    def test_function_with_funcarg_fails(self):
+        # because functions are shipped across student and submission processes
+        # they are always "unequal".
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_pass_with_no_eval(self):
+        self.data["DC_SCT"] = """test_function_v2('apply', params=['f', 'arr'], do_eval=[False, True])"""
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail_undillable_args(self):
+        self.data = {
+                "DC_PEC": """
+import pickle; from io import BytesIO
+
+file = BytesIO(pickle.dumps('abc'))
+        """,
+                "DC_SOLUTION": "d = pickle.load(file); print(d)",
+                "DC_CODE": "print(file)",
+                "DC_SCT": """test_function("print", index=1)"""
+                }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+
+
 
 if __name__ == "__main__":
     unittest.main()
