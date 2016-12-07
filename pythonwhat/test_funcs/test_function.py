@@ -19,7 +19,7 @@ def test_function(name,
                   args_not_specified_msg=None,
                   incorrect_msg=None,
                   add_more=False,
-                  highlight=False,
+                  highlight=True,
                   state=None):
     """Test if function calls match.
 
@@ -200,7 +200,7 @@ def test_print(index = 1,
                params_not_matched_msg="Have you correctly called `print()`?",
                params_not_specified_msg="Have you correctly called `print()`?",
                incorrect_msg="Have you printed out the correct object?",
-               highlight=False,
+               highlight=True,
                state=None):
     test_function_v2("print",
                      index=index,
@@ -229,7 +229,7 @@ def test_function_v2(name,
                      params_not_specified_msg=None,
                      incorrect_msg=None,
                      add_more=False,
-                     highlight=False,
+                     highlight=True,
                      state=None):
     """Test if function calls match (v2).
 
