@@ -74,7 +74,8 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
 
     # check if there are enough nodes for index
     fmt_kwargs = {'ordinal': get_ord(index+1) if isinstance(index, int) else "",
-                  'index': index}
+                  'index': index,
+                  'name': name}
     fmt_kwargs['typestr'] = typestr.format(**fmt_kwargs)
 
     # test if node can be indexed succesfully
