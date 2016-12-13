@@ -3,3 +3,5 @@ dependencies:
 - python=3.5.1=0
 - sphinx>1.4.0
 - sphinx_rtd_theme>=0.1.9
+- pip:
+  - recommonmark>=0.4.0

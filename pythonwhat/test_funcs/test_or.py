@@ -3,6 +3,8 @@ from pythonwhat.Test import TestFail
 from pythonwhat.check_funcs import multi
 
 def test_or(*tests, state=None):
+    """Test whether at least one SCT passes."""
+
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_or")
 
