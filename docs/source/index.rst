@@ -8,13 +8,21 @@ Contents:
    :maxdepth: 2
 
    Home
-   quickstart_guide.md
-   simple_tests.md
-   parts_cheatsheet.rst
-   Processes
-   logic
+   quickstart_guide
+   simple_tests/index.rst
+   part_checks
+   expression_tests
+   logic_tests/index.rst
    spec2_summary
-   test_functions
+
+
+Pythonwhat V1
+-------------
+
+.. toctree::
+
+   pythonwhat.wiki/index.rst
+
 
 Indices and tables
 ==================

@@ -5,8 +5,8 @@ Spec2 Improvements
    :language: python
 
 
-Lambdaless test_ functions
--------------------------
+Lambdaless test functions
+---------------------------
 
 Sometimes you want to pass a test function as an argument to another test function. For the examples below, we'll use the following solution code
 
@@ -127,7 +127,7 @@ That is, if you want ``test_if_exp`` below to run immediately, do not write
 
 and expect the SCTs to run in a predictable order.
 
-If you want create a bunch of sub-tests, but don't want to preface each with F(), you can use the pythonwhat v2 function multi, as below.
+If you want to create a bunch of sub-tests, but don't want to preface each with F(), you can use the pythonwhat v2 function multi, as below.
 
 .. code::
 
@@ -137,19 +137,90 @@ If you want create a bunch of sub-tests, but don't want to preface each with F()
 Context values for nested parts
 -------------------------------
 
+Context values may now be defined for nested parts. For example, the print statement below,
+
+.. code::
+
+    for i in range(2):              # outer for loop part
+        for j in range(3):          # inner for loop part
+            print(i + j)
+
+may be tested by setting context values at each level,
+
+.. code::
+
+    (Ex()
+        .check_for_loop(0).check_body().set_context(i = 1)    # outer for
+        .check_for_loop(0).check_body().set_context(j = 2)    # inner for
+            .has_equal_output()
+        )
+
+For more on context valus see [PROCESSES LINK HERE].
+
 Can call code chunks that before could only be split up
 -------------------------------------------------------
+
+Entire code pieces, such as the inline if statement below,
+
+.. code::
+
+    'yes' if True else 'no'
+
+may be tested using something like,
+
+.. code::
+
+    Ex().check_if_exp(0).has_equal_value()
 
 Argument checking
 -----------------
 
+The arguments of a function definition, such as
+
+.. code::
+
+    def f(a=1): print(a)
+
+are now parts and may be checked as below..
+
+.. code::
+
+    (Ex().check_function_def('f')   # does f exist?
+         .check_args('a')           # does a exist?
+         .is_default()              # is it a default argument?
+         .has_equal_value()         # is it's default equal to solution?
+         )
+         
+For more on the argument part, see [PART CHEATSHEET LINK HERE].
+
+
 Deprecate test_expression_result and friends
 --------------------------------------------
 
-Long live `has_equal_value`, `has_equal_output`, `has_equal_error`
+In pythonwhat v1, the functions 
+
+* test_expression_result
+* test_expression_output
+* test_object_after_expression
+
+and various arguments of test_function_definition, test_lambda_function ran code and then
+checked the result, printed output, or errors against eachother.
+
+These functions have been deprecated in favor of similar function..
+
+* `has_equal_value`
+* `has_equal_output`
+* `has_equal_error`
+
+These functions include identical arguments as the above.
 
 Feedback messages may use templating (via str.format or Jinja2)
 -----------------------------------------------------------------
 
+**This feature is not stable, and should not be used in production**
+
+
 Cleaned up internals
 --------------------
+
+Yayyyy.
