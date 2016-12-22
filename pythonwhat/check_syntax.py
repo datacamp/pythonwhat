@@ -96,6 +96,11 @@ for k in ['multi', 'with_context', 'test_not']:
 # allow test_* functions as chained attributes
 for k in TEST_NAMES:
     ATTR_SCTS[k] = Probe(tree = None, f = getattr(test_funcs, k), eval_on_call=True)
+# original logical test_* functions behave like multi, test_not
+# this is necessary to allow them to take check_* funcs as args
+# since probe behavior will try to call all SCTs passed (assuming they're also probes)
+for k in ['test_or', 'test_correct']:
+    ATTR_SCTS[k] = multi_dec(getattr(test_funcs, k))
 
 # Prepare check_funcs to be used alone (e.g. test = check_with().check_body())
 spec_2_context = {k : state_dec(v) for k, v in scts.items()}

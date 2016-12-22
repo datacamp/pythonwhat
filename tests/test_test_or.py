@@ -44,6 +44,10 @@ class TestExercise1(unittest.TestCase):
         self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
         self.test_Pass4()
 
+    def test_Pass4_spec2(self):
+        self.data["DC_SCT"] = "Ex().test_or(test_function('print'), check_object('test'))"
+        self.test_Pass4()
+
     def test_Fail1_no_lam(self):
         self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
         self.test_Fail1()
