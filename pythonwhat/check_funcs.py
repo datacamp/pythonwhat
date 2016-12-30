@@ -268,7 +268,8 @@ def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
     if name in ['*args', '**kwargs']:
         return check_part(name, name, state=state, missing_msg = missing_msg)
     else: 
-        return check_part_index('args', name, "argument `%s`"%name, state=state, missing_msg = missing_msg)
+        arg_str = "%s argument"%get_ord(name+1) if isinstance(name, int) else "argument `%s`"%name
+        return check_part_index('args', name, arg_str, state=state, missing_msg = missing_msg)
 
 
 # CALL CHECK ==================================================================
@@ -370,6 +371,18 @@ def call(args,
 # Expression tests ------------------------------------------------------------
 from pythonwhat.tasks import ReprFail, UndefinedValue
 from pythonwhat import utils
+
+def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solution.", state=None):
+    rep = Reporter.active_reporter
+
+    stu_rep = ast.dump(state.student_tree)
+    sol_rep = ast.dump(state.solution_tree)
+
+    _msg = state.build_message(incorrect_msg)
+    rep.do_test(EqualTest(stu_rep, sol_rep, Feedback(_msg, state.highlight)))
+
+    return state
+
 def has_expr(incorrect_msg="FMT:Unexpected expression {test}: expected `{sol_eval}`, got `{stu_eval}` with values{extra_env}.",
              error_msg="Running an expression in the student process caused an issue",
              undefined_msg="FMT:Have you defined `{name}` without errors?",
