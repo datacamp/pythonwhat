@@ -5,6 +5,9 @@ from pythonwhat.check_funcs import multi
 from .test_or import test_or
 
 def test_correct(check, diagnose, state=None):
+    """Allows feedback from a diagnostic SCT, only if a check SCT fails. 
+    
+    """
     rep = Reporter.active_reporter
     rep.set_tag("fun", "test_correct")
 

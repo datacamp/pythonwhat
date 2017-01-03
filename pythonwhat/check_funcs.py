@@ -384,7 +384,7 @@ def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solut
     return state
 
 def has_expr(incorrect_msg="FMT:Unexpected expression {test}: expected `{sol_eval}`, got `{stu_eval}` with values{extra_env}.",
-             error_msg="Running an expression in the student process caused an issue",
+             error_msg="Running an expression in the student process caused an issue.",
              undefined_msg="FMT:Have you defined `{name}` without errors?",
              extra_env=None,
              context_vals=None,

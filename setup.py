@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
 	name='pythonwhat',
-	version='2.1.0',
+	version='2.1.2',
 	packages=['pythonwhat', 'pythonwhat.test_funcs'],
-	requires=["ast", "re", "markdown2"]
+	install_requires=["dill", "IPython", "numpy", "pandas", "markdown2"]
 )

@@ -51,6 +51,17 @@ class TestExercise1(unittest.TestCase):
         self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
         self.test_Pass2()
 
+    def test_Pass2_spec2(self):
+        self.data["DC_SCT"] = "Ex().test_correct(check_object('test').has_equal_value(), test_function('numpy.sum'))"
+        self.test_Pass2()
+
+    def test_Pass2_spec2_F(self):
+        self.data["DC_SCT"] = """
+test = F().test_correct(check_object('test').has_equal_value(), test_function('numpy.sum'))
+Ex().multi(test)
+"""
+        self.test_Pass2()
+
     def test_Fail2_mix_lam(self):
         self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"], count=1)
         self.test_Fail2()

@@ -19,7 +19,7 @@ def test_function(name,
                   args_not_specified_msg=None,
                   incorrect_msg=None,
                   add_more=False,
-                  highlight=False,
+                  highlight=True,
                   state=None):
     """Test if function calls match.
 
@@ -200,7 +200,7 @@ def test_print(index = 1,
                params_not_matched_msg="Have you correctly called `print()`?",
                params_not_specified_msg="Have you correctly called `print()`?",
                incorrect_msg="Have you printed out the correct object?",
-               highlight=False,
+               highlight=True,
                state=None):
     test_function_v2("print",
                      index=index,
@@ -229,7 +229,7 @@ def test_function_v2(name,
                      params_not_specified_msg=None,
                      incorrect_msg=None,
                      add_more=False,
-                     highlight=False,
+                     highlight=True,
                      state=None):
     """Test if function calls match (v2).
 
@@ -454,7 +454,7 @@ def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more, highli
     if do_eval:
 
         eval_solution, str_solution = getResultInProcess(tree = sol, process = state.solution_process)
-        if str_solution is None:
+        if isinstance(str_solution, Exception):
             raise ValueError("Running an argument in the solution environment raised an error")
         if isinstance(eval_solution, ReprFail):
             raise ValueError("Couldn't figure out the argument: " + eval_solution.info)
