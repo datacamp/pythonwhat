@@ -670,7 +670,7 @@ test_function_v2('pandas.DataFrame', params=['data', 'columns'],
         }
 
         self.SPEC2_SCT = """
-Ex().check_function('pandas.DataFrame', missing_msg = "notcalledmsg")\
+Ex().check_function('pandas.DataFrame', 0, missing_msg = "notcalledmsg", expand_msg="")\
         .check_args('data', missing_msg='paramsnotmatchedmsg')
 """
 
