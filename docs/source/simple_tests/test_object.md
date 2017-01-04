@@ -13,7 +13,7 @@ test_object
 
 `test_object()` enables you to test whether a student correctly defined an object.
 
-As explained on the [wiki home](https://github.com/datacamp/pythonwhat/wiki), both the student's submission as well as the solution code are executed, in separate processes. `test_object()` looks at these processes and checks if the object specified in `name` is available in the student process. Next, it checks whether the object in the student and solution process correspond. In case of a failure along the way, `test_object()` will generate a meaningful feedback message that you can override.
+As explained on the [docs home](/Home.md), both the student's submission as well as the solution code are executed, in separate processes. `test_object()` looks at these processes and checks if the object specified in `name` is available in the student process. Next, it checks whether the object in the student and solution process correspond. In case of a failure along the way, `test_object()` will generate a meaningful feedback message that you can override.
 
 ### Example 1
 
@@ -94,6 +94,6 @@ Of course primitive classes like `str`, `int`, `list`, `dict`, ... can be tested
 
 #### Manually define a converter
 
-As explained in the [Processes article](https://github.com/datacamp/pythonwhat/wiki/Processes), objects are extracted from their respected processes by 'dilling' and 'undilling' them. However, you can manually set a 'converter' with the `set_converter()` function. This will override the default dilling and undilling behavior, and enables you to make simplified representations of custom objects, testing only exactly what you want to test. Learn more about it [here](https://github.com/datacamp/pythonwhat/wiki/Processes).
+As explained in the [Processes article](../expression_tests.md), objects are extracted from their respected processes by 'dilling' and 'undilling' them. However, you can manually set a 'converter' with the `set_converter()` function. This will override the default dilling and undilling behavior, and enables you to make simplified representations of custom objects, testing only exactly what you want to test.
 
-**NOTE**: Behind the scenes, `pythonwhat` has to fetch the value of objects from sub-processes. The required 'dilling' and 'undilling' can cause issues for exotic objects. For more information on this and possible errors that can occur, read the [Processes article](https://github.com/datacamp/pythonwhat/wiki/Processes).
+**NOTE**: Behind the scenes, `pythonwhat` has to fetch the value of objects from sub-processes. The required 'dilling' and 'undilling' can cause issues for exotic objects. For more information on this and possible errors that can occur, read the [Processes article](../expression_tests.md).

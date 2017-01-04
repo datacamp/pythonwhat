@@ -83,4 +83,4 @@ As usual, the `test_lambda_function()` will generate a bunch of meaningful autom
 
 This is practically impossible to do in a robust way; we suggest you do this in an indirect way (checking the output that should be generated, checking the object that should be created, etc).
 
-**NOTE**: Behind the scenes, `pythonwhat` has to fetch the value of objects from sub-processes. The required 'dilling' and 'undilling' can cause issues for exotic objects. For more information on this and possible errors that can occur, read the [Processes article](https://github.com/datacamp/pythonwhat/wiki/Processes).
+**NOTE**: Behind the scenes, `pythonwhat` has to fetch the value of objects from sub-processes. The required 'dilling' and 'undilling' can cause issues for exotic objects. For more information on this and possible errors that can occur, read the [Processes article](../expression_tests.md).

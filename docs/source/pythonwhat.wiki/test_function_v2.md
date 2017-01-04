@@ -16,7 +16,7 @@ test_function_v2
                   params_not_specified_msg=None,
                   incorrect_msg=None)
 
-`test_function_v2()` enables you to test whether the student called a function correctly. The function first tests if the specified function is actually called by the student, and then compares the call with calls of the function in the solution code. Next, it can compare the arguments passed to these functions. Because `test_function_v2()` also uses the student and solution process, this can be done in a very concise way. `test_function_v2()` is an improved version of [`test_function()`](https://github.com/datacamp/pythonwhat/wiki/test_function), where:
+`test_function_v2()` enables you to test whether the student called a function correctly. The function first tests if the specified function is actually called by the student, and then compares the call with calls of the function in the solution code. Next, it can compare the arguments passed to these functions. Because `test_function_v2()` also uses the student and solution process, this can be done in a very concise way. `test_function_v2()` is an improved version of [`test_function()`](test_function.md), where:
 
 - there is resilience against different ways of calling a function (arguments vs keywords),
 - you have to be specific about which parameters you want to check,
@@ -262,7 +262,7 @@ The following full example shows how it's done:
 
 ### Extra: Argument equality
 
-Just like with `test_object()`, evaluated arguments are compared using the `==` operator (check out [the section about Object equality](https://github.com/datacamp/pythonwhat/wiki/test_object#object-equality)). For a lot of complex objects, the implementation of `==` causes the object instances to be compared... not their underlying meaning. For example when the solution is:
+Just like with `test_object()`, evaluated arguments are compared using the `==` operator (check out [the section about Object equality](test_object.md#object-equality)). For a lot of complex objects, the implementation of `==` causes the object instances to be compared... not their underlying meaning. For example when the solution is:
 
     *** =solution
     ```
@@ -292,6 +292,6 @@ The SCT will fail even if the student uses this exact solution code. The reason 
         lambda: test_function_v2("pandas.read_sql_query", do_eval=False)
     )
 
-This SCT will not do exactly the same, but it will test enough in practice 99% of the time. Check out [the section about Object equality](https://github.com/datacamp/pythonwhat/wiki/test_object#object-equality) for complex objects that DO have a good equality implementation.
+This SCT will not do exactly the same, but it will test enough in practice 99% of the time. Check out [the section about Object equality](test_object.md#object-equality) for complex objects that DO have a good equality implementation.
 
-**NOTE**: Behind the scenes, `pythonwhat` has to fetch the value of objects from sub-processes. The required 'dilling' and 'undilling' can cause issues for exotic objects. For more information on this and possible errors that can occur, read the [Processes article](https://github.com/datacamp/pythonwhat/wiki/Processes).
+**NOTE**: Behind the scenes, `pythonwhat` has to fetch the value of objects from sub-processes. The required 'dilling' and 'undilling' can cause issues for exotic objects. For more information on this and possible errors that can occur, read the [Processes article](../expression_tests.md).

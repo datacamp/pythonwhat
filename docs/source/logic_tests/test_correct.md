@@ -8,7 +8,7 @@ test_correct
 
 A wrapper function around `test_or()`, `test_correct()` allows you to add logic to your SCT. Normally, your SCT is simply a script with subsequent `pythonwhat` function calls, all of which have to pass. `test_correct()` allows you to bypass this: you can specify a "sub-SCT" in the `check` part, that should pass. If these tests pass, the "sub-SCT" in `diagnose` is not executed. If the tests don't pass, the "sub-SCT" in `diagnose` is run, typically to dive deeper into what the error might be and give more specific feedback.
 
-To accomplish this, the lambda function in `check` is executed silently, so that failure will not cause the SCT to stop and generate a feedback message. If the execution passes, all is good and `test_correct()` is abandoned. If it fails, `diagnose` is executed, not silently. If the `diagnose` part fails, the feedback message that it generates is presented to the student. If it passes, the `check` part is executed again, this time not silently, to make sure that a `test_correct()` that contains a failing `check` part leads to a failing SCT.
+To accomplish this, the SCT in `check` is executed silently, so that failure will not cause the SCT to stop and generate a feedback message. If the execution passes, all is good and `test_correct()` is abandoned. If it fails, `diagnose` is executed, not silently. If the `diagnose` part fails, the feedback message that it generates is presented to the student. If it passes, the `check` part is executed again, this time not silently, to make sure that a `test_correct()` that contains a failing `check` part leads to a failing SCT.
 
 ### Example 1
 
@@ -28,28 +28,51 @@ You want the SCT to pass when the student manages to store the correct value in 
 
     *** =sct
     ```{python}
-    test_correct(lambda: test_object('result'),
-                 lambda: test_function('numpy.mean'))
+    test_correct(test_object('result'),
+                 test_function('numpy.mean'))
     success_msg("You own numpy!")
     ```
 
-Notice that you have to use lambda functions to use Python as a functional programming language.
 Let's go over what happens when the student submits different pieces of code:
 
-- The student submits `result = np.mean(arr)`, exactly the same as the solution. `test_correct()` executes the first lambda function, `test_object('result')`. This test passes, so `test_correct()` is exited and `test_function()` is not executed. The SCT passes.
-- The student submits `result = np.sum(arr) / arr.size`, which also leads to the correct value in `result`. `test_correct()` executes the first lambda function, `test_object('result')`. This test passes, so `test_correct()` is exited and `test_function()` is not executed. So the entire SCT passes even though `np.mean()` was not used.
-- The student submits `result = np.mean(arr + 1)`. `test_correct()` executes the first lambda function, `test_object('result')`. This test fails, so `test_correct()` heads over to second, 'diagnose' lambda function and executes `test_function('numpy.mean')`. This function will fail, because the argument passed to `numpy.mean()` in the student submission does not correspond to the argument passed in the solution. A meaningful, specific feedback message is presented to the student: you did not correctly specify the arguments inside `np.mean()`.
-- The student submits `result = np.mean(arr) + 1`. `test_correct()` executes the first lambda function, `test_object('result')`. This test fails, so `test_correct()` heads over to the second, 'diagnose' lambda function and executes `test_function('numpy.mean'). This function passes, because `np.mean()` is called in exactly the same way in the student code as in the solution. Because there is something wrong - `result` is not correct - the 'check' lambda function, `test_object('result')` is executed again, and this time its feedback on failure is presented to the student. The student gets the message that `result` does not contain the correct value.
+- The student submits `result = np.mean(arr)`, exactly the same as the solution. 
+  `test_correct()` runs `test_object('result')`. 
+  This test passes, so `test_correct()` stops. 
+  The SCT passes.
+- The student submits `result = np.sum(arr) / arr.size`, which also leads to the correct value in `result`.
+  `test_correct()` runs `test_object('result')`.
+  This test passes, so `test_correct()` stops before running `test_function()`.
+  The entire SCT passes even though `np.mean()` was not used.
+- The student submits `result = np.mean(arr + 1)`.
+  `test_correct()` runs `test_object('result')`.
+  This test fails, so `test_correct()` continues with 'diagnose', running `test_function('numpy.mean')`.
+  This function fails, since the argument passed to `numpy.mean()` in the student submission does not correspond to the argument passed in the solution.
+  A meaningful, specific feedback message is presented to the student: you did not correctly specify the arguments inside `np.mean()`.
+- The student submits `result = np.mean(arr) + 1`.
+  `test_correct()` runs `test_object('result')`.
+  This test fails, so `test_correct()` continues with'diagnose', running `test_function('numpy.mean').
+  This function passes, because `np.mean()` is called in exactly the same way in the student code as in the solution.
+  Because there is something wrong - `result` is not correct - the 'check' SCT, `test_object('result')` is executed again, and this time its feedback on failure is presented to the student.
+  The student gets the message that `result` does not contain the correct value.
+
 
 ### Multiple functions in `diagnose` and `check`
 
-You can also use `test_correct()` with entire 'sub-SCTs' that are composed of several SCT calls. In this case, you have to define an additional function that executes the tests you want to perform in this sub-SCT, and pass this function to `test_correct()`.
+You can also use `test_correct()` with entire 'sub-SCTs' that are composed of several SCT calls. In this case, you may put multiple tests inside `multi()`, as below..
+
+    *** =sct
+    ```{python}
+    Ex().test_correct(
+            multi(test_object('a'), test_object('b')),   # multiple check SCTs
+            test_function('numpy.mean')
+            )
+    ```
 
 ### Why to use `test_correct()`
 
 You will find that `test_correct()` is an extremely powerful function to allow for different ways of solving the same problem. You can use `test_correct()` to check the end result of a calculation. If the end result is correct, you can go ahead and accept the entire exercise. If the end result is incorrect, you can use the `diagnose` part of `test_correct()` to dig a little deeper.
 
-It is also perfectly possible to use `test_correct()` inside another `test_correct()`, although things can get funky with the lambda functions in this case.
+It is also perfectly possible to use `test_correct()` inside another `test_correct()`.
 
 ### Wrapper around `test_or()`
 

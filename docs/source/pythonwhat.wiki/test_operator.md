@@ -59,4 +59,4 @@ You can learn about `test_object()` and `test_function()` in the other articles,
 
 This SCT will be more forgiving, but the result is still checked with `test_object()` so the student will still have to calculate the correct value. This time, however, it is not checked by `test_operator()` because `do_eval = False`. `used = ["**"]` is used to tell the system to only check on the `**` operator for the first operation group.
 
-**NOTE**: Behind the scenes, `pythonwhat` has to fetch the value of objects from sub-processes. The required 'dilling' and 'undilling' can cause issues for exotic objects. For more information on this and possible errors that can occur, read the [Processes article](https://github.com/datacamp/pythonwhat/wiki/Processes).
+**NOTE**: Behind the scenes, `pythonwhat` has to fetch the value of objects from sub-processes. The required 'dilling' and 'undilling' can cause issues for exotic objects. For more information on this and possible errors that can occur, read the [Processes article](../expression_tests.md).
