@@ -179,7 +179,7 @@ def test_not(*args, msg, state=None):
         return state
     
     _msg = state.build_message(msg)
-    return rep.do_test(Test(msg))
+    return rep.do_test(Test(_msg))
 
 # utility functions -----------------------------------------------------------
 
@@ -194,7 +194,7 @@ def fail(msg="", state=None):
     """Fail test with message"""
     rep = Reporter.active_reporter
     _msg = state.build_message(msg)
-    rep.do_test(Test(Feedback(msg, state.highlight)))
+    rep.do_test(Test(Feedback(_msg, state.highlight)))
 
     return state
 
