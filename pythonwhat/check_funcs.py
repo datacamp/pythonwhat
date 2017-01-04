@@ -216,11 +216,12 @@ def override(solution, state=None):
                 new_ast = node
                 break
 
+    kwargs  = state.messages[-1] if state.messages else {}
     child = state.to_child_state(
             solution_subtree = new_ast,
             student_subtree = state.student_tree,
             highlight = state.highlight,
-            append_message = {'msg': "", 'kwargs': state.messages[-1]['kwargs']}
+            append_message = {'msg': "", 'kwargs': kwargs}
             )
 
     return child

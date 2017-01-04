@@ -757,14 +757,23 @@ class TestCheckFunctionCases(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-    @unittest.skip("TODO: implement override")
     def test_pass_sig_false_override(self):
         self.setup_color()
-        self.data["DC_SCT"].replace('color', 'c')
+        self.data["DC_CODE"] = self.data["DC_CODE"].replace('color', 'c')
+        self.data['DC_SCT'] =  """
+Ex().override("f(c = 'blue')").check_function('f', 0, signature=False).check_args('c').has_equal_ast()
+"""
+
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    @unittest.skip("TODO: override code isn't parsed, so can't get args part")
+    def test_pass_sig_false_override_after_check(self):
+        self.setup_color()
+        self.data["DC_CODE"] = self.data["DC_CODE"].replace('color', 'c')
         self.data['DC_SCT'] =  """
 Ex().check_function('f', 0, signature=False).override("f(c = 'blue')").check_args('c').has_equal_ast()
 """
-
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
