@@ -58,7 +58,7 @@ scts['check_function'] = check_function
 
 for k in ['set_context', 
           'has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'call',
-          'extend', 'multi', 'test_not', 'fail', 'quiet',
+          'extend', 'multi', 'test_not', 'fail', 'quiet', 'override',
           'with_context',
           'check_args',
           'has_equal_part']:
