@@ -6,5 +6,4 @@ Logic Tests
 
    test_correct
    test_or
-   test_not
-   misc
+   test_no

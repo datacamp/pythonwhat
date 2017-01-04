@@ -5,7 +5,7 @@ test_if_exp
 .. autofunction:: pythonwhat.test_funcs.test_if_else.test_if_exp
 ```
 
-`test_if_exp` is a wrapper around `test_if_else`, which tells it to look for inline `if` expressions. As such, it uses the same arguments. [See `test_if_else` for more info](test_if_else).
+`test_if_exp` is a wrapper around `test_if_else`, which tells it to look for inline `if` expressions. As such, it uses the same arguments. [See `test_if_else` for more info](test_if_else.md).
 
 ### What is an inline `if` expression?
 

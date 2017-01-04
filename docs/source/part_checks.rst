@@ -12,7 +12,7 @@ In Brief
 
 While functions beginning with ``test_``, such as ``test_student_typed`` look over some code or output, ``check_`` functions allow us to zoom in on parts of that student and solution code.
 
-For example, [check_list_comp](#check_list_comp) examines list comprehensions by breaking them into 3 parts: ``body``, ``comp_iter``, and ``ifs``. This is shown below.
+For example, ``check_list_comp`` examines list comprehensions by breaking them into 3 parts: ``body``, ``comp_iter``, and ``ifs``. This is shown below.
 
 
 :code:`[i*2 for i in range(10) if i>2]` => :code:`[BODY for i in COMP_ITER if IFS]`

@@ -40,4 +40,4 @@ Suppose you want the student to create a dictionary `x`, that contains three key
 - Step 3: if the student submits `x = {'a':123, 'b':456, 'd':78}`, the feedback _Have you specified a key `c` inside `x`?_ will be presented. You can override this by specifying `key_missing_msg` yourself.
 - Step 4: if the student submits `x = {'a':123, 'b':456, 'c':78}`, the feedback _Have you specified the correct value for the key `c` inside `x`?_ will be presented. You can override this by specifying `incorrect_value_msg` yourself.
 
-**NOTE**: Behind the scenes, `pythonwhat` has to fetch the value of objects from sub-processes. The required 'dilling' and 'undilling' can cause issues for exotic objects. For more information on this and possible errors that can occur, read the [Processes article](https://github.com/datacamp/pythonwhat/wiki/Processes).
+**NOTE**: Behind the scenes, `pythonwhat` has to fetch the value of objects from sub-processes. The required 'dilling' and 'undilling' can cause issues for exotic objects. For more information on this and possible errors that can occur, read the [Processes article](../expression_tests.md).
