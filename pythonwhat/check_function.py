@@ -59,7 +59,6 @@ def check_function(name, index,
                             "You might have to manually specify or correct the signature."
                                     .format(index=index, name=name))
 
-        # TODO if can't parse sig, send failed test msg
         try:
             stu_sig = get_sig(mapped_name=stu_parts['name'], process=state.student_process)
             stu_parts['args'], _ = bind_args(stu_sig, stu_parts['args'])
