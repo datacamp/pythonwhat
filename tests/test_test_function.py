@@ -34,6 +34,13 @@ success_msg("Great!")
         self.assertTrue(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Great!")
 
+    def test_Pass_spec2(self):
+        self.data['DC_SCT'] = """
+Ex().check_function('print', 0).check_args(0).has_equal_ast()
+"""
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 class TestFunctionExerciseNumpy(unittest.TestCase):
 
     def setUp(self):
@@ -599,9 +606,7 @@ test_function("print", index = 2, highlight=True)
 test_function("print", index = 3, highlight=True)
             '''
         }
-        self.DC_SCT_SPEC2 = '''
-Ex().check_function("print", 0).check_arg(0).has_equal_value()
-        '''
+
     def test_multiple_1(self):
         self.data["DC_CODE"] = 'print("abc")'
         sct_payload = helper.run(self.data)
@@ -659,6 +664,110 @@ test_function("print", index = 3)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload.get('line_start'), None)
 
+class TestCheckFunction(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "import numpy as np",
+            "DC_CODE": "np.array([1,2,3])",
+            "DC_SOLUTION": "np.array([1,2,3])",
+            "DC_SCT": "Ex().check_function('numpy.array', 0)"
+            }
+
+    def run_append(self, sct):
+        self.data["DC_SCT"] += sct
+        return helper.run(self.data)
+
+    def run_pass(self, sct):
+        sct_payload = self.run_append(sct)
+        print(sct_payload)
+        self.assertTrue(sct_payload['correct'])
+        return sct_payload
+
+    def run_fail(self, sct):
+        self.assertFalse(self.run_append(sct)['correct'])
+
+    def test_pass_np_call_exists(self):
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_pass_test_student_typed(self):
+        self.run_pass(".test_student_typed(r'np\.array\(\[1,2,3\]\)')")
+
+    def test_fail_test_student_typed(self):
+        self.data["DC_CODE"] = "np.array([1,2])"
+        self.run_fail(".test_student_typed(r'np\.array\(\[1,2,3\]\)')")
+
+    def test_pass_func_has_equal_ast(self):
+        self.run_pass(".has_equal_ast()")
+
+    def test_fail_func_has_equal_ast(self):
+        self.data["DC_CODE"] = "np.array([1,2])"
+        self.run_fail(".has_equal_ast()")
+
+    def test_pass_check_args_pos_0(self):
+        self.run_pass(".check_args(0)")
+
+    def test_fail_check_args_pos_0(self):
+        self.data["DC_CODE"] = "np.array()"
+        self.run_fail(".check_args(0)")
+
+    def test_pass_pos_0_test_student_typed(self):
+        self.run_pass(".check_args(0).test_student_typed(r'\[1,2,3\]')")
+
+    def test_fail_pos_0_test_student_typed(self):
+        self.data["DC_CODE"] = "np.array([1,2])"
+        self.run_fail(".check_args(0).test_student_typed(r'\[1,2,3\]')")
+
+    def test_pass_pos_0_has_equal_ast(self):
+        self.run_pass(".check_args(0).has_equal_ast()")
+
+    def test_fail_pos_0_has_equal_ast(self):
+        self.data["DC_CODE"] = "np.array([1,2])"
+        self.run_fail(".check_args(0).has_equal_ast()")
+
+    def test_pass_pos_0_has_equal_value(self):
+        self.run_pass(".check_args(0).has_equal_value()")
+
+    def test_fail_pos_0_has_equal_value(self):
+        self.data["DC_CODE"] = "np.array([1,2])"
+        self.run_fail(".check_args(0).has_equal_value()")
+
+    def test_pass_pos_0_inline_if_body(self):
+        self.data["DC_CODE"] = "np.array([1,2,3] if True else [1])"
+        self.data["DC_SOLUTION"] = "np.array([1,2,3] if False else [1])"
+        self.run_pass(".check_args(0).check_if_exp(0).check_body().has_equal_ast()")
+
+    def test_fail_pos_0_inline_if_body(self):
+        self.data["DC_CODE"] = "np.array([1,2,3] if True else [1])"
+        self.data["DC_SOLUTION"] = "np.array([1,2] if False else [1])"
+        self.run_fail(".check_args(0).check_if_exp(0).check_body().has_equal_ast()")
+
+class TestCheckFunctionCases(unittest.TestCase):
+    def setup_color(self):
+        self.data = {
+                'DC_PEC': "def f(*args, **kwargs): pass",
+                'DC_CODE': "f(color = 'blue')"
+                }
+        self.data["DC_SOLUTION"] = self.data["DC_CODE"]
+
+    def test_pass_sig_false(self):
+        self.setup_color()
+        self.data['DC_SCT'] =  "Ex().check_function('f', 0, signature=False).check_args('color').has_equal_ast()"
+
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    @unittest.skip("TODO: implement override")
+    def test_pass_sig_false_override(self):
+        self.setup_color()
+        self.data["DC_SCT"].replace('color', 'c')
+        self.data['DC_SCT'] =  """
+Ex().check_function('f', 0, signature=False).override("f(c = 'blue')").check_args('c').has_equal_ast()
+"""
+
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 
 class TestFunctionComplexArgs(unittest.TestCase):
     def setUp(self):
@@ -700,8 +809,6 @@ file = BytesIO(pickle.dumps('abc'))
                 }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-
-
 
 
 if __name__ == "__main__":

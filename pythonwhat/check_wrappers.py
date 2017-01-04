@@ -1,5 +1,6 @@
 from pythonwhat.check_funcs import check_part, check_part_index, check_node, has_equal_part
 from pythonwhat import check_funcs, check_object
+from pythonwhat.check_function import check_function
 from pythonwhat.test_funcs.test_data_frame import check_df
 from pythonwhat.test_funcs.test_dictionary import check_dict
 from pythonwhat import test_funcs
@@ -53,9 +54,10 @@ for k, v in __PART_INDEX_WRAPPERS__.items():
 
 for k, v in __NODE_WRAPPERS__.items():
     scts['check_'+k] = partial(check_node, k+'s', typestr=v)
+scts['check_function'] = check_function
 
 for k in ['set_context', 
-          'has_equal_value', 'has_equal_output', 'has_equal_error', 'call',
+          'has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'call',
           'extend', 'multi', 'test_not', 'fail', 'quiet',
           'with_context',
           'check_args',
