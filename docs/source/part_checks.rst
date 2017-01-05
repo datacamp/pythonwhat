@@ -29,7 +29,7 @@ For example, in order to test the body of the comprehension above, we could crea
 
     *** =sct
     ```{python}
-    (Ex().check_list_comp(1)                         # focus on first list comp
+    (Ex().check_list_comp(0)                         # focus on first list comp
            .check_body().test_student_typed('i\*2')  # focus on its body for test
            )
     ```
@@ -52,10 +52,10 @@ This section expands the above example to run tests on each part: body, iter, an
 
     *** =sct
     ```{python}
-    list_comp = Ex().check_list_comp(1, missing_msg="Did you include a list comprehension?")
+    list_comp = Ex().check_list_comp(0, missing_msg="Did you include a list comprehension?")
     list_comp.check_body().test_student_typed('i\*2')
     list_comp.check_iter().has_equal_value()
-    list_comp.check_ifs(1).multi([has_equal_value(context_vals=[i]) for i in range(0,10)])
+    list_comp.check_ifs(0).multi([has_equal_value(context_vals=[i]) for i in range(0,10)])
     ```
 
 In this SCT, the first line focuses on the first list comprehension, and assigns it to ``list_comp``, so we can test each part in turn. As a reminder, the code corresponding to each part in the solution code is..
@@ -87,14 +87,14 @@ The line
 
 .. code-block:: python
   
-  list_comp.check_ifs(1).multi([has_equal_value(context_vals=[i] for i in range(0,10))])
+  list_comp.check_ifs(0).multi([has_equal_value(context_vals=[i] for i in range(0,10))])
 
 is a doozy, but can be broken down into
 
 .. code-block:: python
 
   equal_tests = [has_equal_value(context_vals=[i] for i in range(0,10))]    # collection of has_equal_tests
-  list_comp.check_ifs(1).multi(equal_tests)                                 # focus on IFS run equal_tests`
+  list_comp.check_ifs(0).multi(equal_tests)                                 # focus on IFS run equal_tests`
 
 In this case ``equal_tests`` is a list of ``has_equal_value`` tests that we'll want to perform. ``check_ifs(1)`` grabs the first IFS part, and ``multi(equal_tests)`` runs each ``has_equal_value`` test on that part. 
 
@@ -133,9 +133,9 @@ in order to test running the inline if expression we could go from list_comp => 
 
    *** =sct
    ```{python}
-   (Ex().check_list_comp(1)                     # first comprehension
+   (Ex().check_list_comp(0)                     # first comprehension
         .check_body().set_context(i=6)      # comp's body
-        .check_if_exp(1).has_equal_value()  # body's inline IFS
+        .check_if_exp(0).has_equal_value()  # body's inline IFS
         )
    ```
 
@@ -148,7 +148,7 @@ If we left out the ``check_if_exp`` above, the resulting SCT,
 
 .. code:: python
    
-   (Ex().check_list_comp(1).check_body().set_context(i=6)
+   (Ex().check_list_comp(0).check_body().set_context(i=6)
             #.check_if_exp(1)
             .has_equal_value()
             )
@@ -326,7 +326,7 @@ but its BODY does.
 +------------------------+------------------------------------------------------+-------------------+
 | check                  | parts                                                | target variables  |
 +========================+======================================================+===================+
-|check_if_else           | .. code::                                            |                   |
+|check_if_else(0)        | .. code::                                            |                   |
 |                        |                                                      |                   |
 |                        |     if TEST:                                         |                   |
 |                        |         BODY                                         |                   |
@@ -335,7 +335,7 @@ but its BODY does.
 |                        |                                                      |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_while             |  .. code:: python                                    |                   |
+|check_while(0)          |  .. code:: python                                    |                   |
 |                        |                                                      |                   |
 |                        |      while TEST:                                     |                   |
 |                        |          BODY                                        |                   |
@@ -343,22 +343,22 @@ but its BODY does.
 |                        |          ORELSE                                      |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_list_comp         | .. code::                                            | ``i``             |
+|check_list_comp(0)      | .. code::                                            | ``i``             |
 |                        |                                                      |                   |
 |                        |     [BODY for i in ITER if IFS[0] if IFS[1]]         |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_generator_exp     | .. code::                                            | ``i``             |
+|check_generator_exp(0)  | .. code::                                            | ``i``             |
 |                        |                                                      |                   |
 |                        |     (BODY for i in ITER if IFS[0] if IFS[1])         |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_dict_comp         | .. code::                                            | ``k``, ``v``      |
+|check_dict_comp(0)      | .. code::                                            | ``k``, ``v``      |
 |                        |                                                      |                   |
 |                        |     {KEY : VALUE for k, v in ITER if IFS[0]}         |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_for_loop          | .. code::                                            | ``i``             |
+|check_for_loop(0)       | .. code::                                            | ``i``             |
 |                        |                                                      |                   |
 |                        |     for i in ITER:                                   |                   |
 |                        |         BODY                                         |                   |
@@ -366,7 +366,7 @@ but its BODY does.
 |                        |         ORELSE                                       |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_try_except        |  .. code:: python                                    | ``e``             |
+|check_try_except(0)     |  .. code:: python                                    | ``e``             |
 |                        |                                                      |                   |
 |                        |    try:                                              |                   |
 |                        |        BODY                                          |                   |
@@ -380,21 +380,27 @@ but its BODY does.
 |                        |        FINALBODY                                     |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_with              |   .. code:: python                                   | `f``              |
+|check_with(0)           |   .. code:: python                                   | `f``              |
 |                        |                                                      |                   |
 |                        |     with CONTEXT_TEST as f:                          |                   |
 |                        |         BODY                                         |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_function_def      |   .. code:: python                                   | argument names    |
+|check_function_def('f') |   .. code:: python                                   | argument names    |
 |                        |                                                      |                   |
 |                        |       def f(ARGS[0], ARGS[1]):                       |                   |
 |                        |           BODY                                       |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_lambda            | .. code::                                            | argument names    |
+|check_lambda(0)         | .. code::                                            | argument names    |
 |                        |                                                      |                   |
 |                        |     lambda ARGS[0], ARGS[1]: BODY                    |                   |
+|                        |                                                      |                   |
+|                        |                                                      |                   |
++------------------------+------------------------------------------------------+-------------------+
+|check_function('f', 0)  | .. code::                                            | argument names    |
+|                        |                                                      |                   |
+|                        |     f(ARGS[0], ARGS[1])                              |                   |
 |                        |                                                      |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
@@ -425,8 +431,8 @@ can be checked with the following SCT
 
 .. code:: python
 
-   (Ex().check_if_else(1)                    # lines 1-3
-        .check_orelse().check_if_else(1)     # lines 2-3
+   (Ex().check_if_else(0)                    # lines 1-3
+        .check_orelse().check_if_else(0)     # lines 2-3
         .check_orelse().has_equal_output()       # line 3
         )
 
@@ -434,13 +440,129 @@ can be checked with the following SCT
 function definition / lambda args
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+the ARGS part in function definitions and lambdas may be selected by position or keyword. 
+For example, the arguments `a` and `b` below,
+
 .. code:: python
 
-  def f(a, b):
+  def f(a, b=2, *some_name):
       BODY
 
-*args and **kwargs
+Could be tested using,
+
+.. code:: python
+
+  Ex().check_function_def('f').multi(
+          check_args('a').is_default(),
+          check_args('b').is_default().has_equal_value(),
+          check_args('*args', 'missing a starred argument!')
+          )
+
+Note that ``check_args('*args')`` and ``check_args('**kwargs')`` may be used to test *args, and **kwargs style parameters, regardless of their name in the function definition.
+
+function call args
+~~~~~~~~~~~~~~~~~~~
+
+Behind the scenes, ``check_function`` uses the same logic for matching arguments to function signatures as `test_function_v2 <pythonwhat.wiki/test_function_v2.html>`__.
+It also has a ``signature`` argument that accepts a custom signature.
+
+Matching Signatures
+^^^^^^^^^^^^^^^^^^^^
+
+By default, ``check_function`` tries to match each argument in the function call with the appropriate parameters in that function's call signature.
+For example, all the calls to ``f`` below use ``a = 1`` and ``b = 2``.
+
+.. code::
+
+   def f(a, b): pass
+   
+   f(1, 2)           # by position
+   f(a = 1, b = 2)   # by keyword
+   f(1, b = 2)       # mixed
+
+However, when testing a submission, we may not care how the argument was specified.
+
+.. code::
+
+   *** =pre_exercise_code
+   ```{python}
+   def f(a, b): pass
+   ```
+
+   *** =solution
+   ```{python}
+   f(1, b=2)
+   ```
+   
+   *** =sct
+   ```{python}
+   Ex().check_function('f', 0).check_args('a').has_equal_value()
+   ```
+   
+will pass for all the ways of calling ``f`` listed above.
+
+signature = False
 ^^^^^^^^^^^^^^^^^^
 
-testing default values
-^^^^^^^^^^^^^^^^^^^^^^
+Setting signature to false, as below, only allows you to check an argument by name, if the name was explicitly specified in the function call.
+For example,
+
+.. code::
+
+   *** =solution
+   ```{python}
+   dict( [('a', 1)],  c = 2)
+   ```
+   
+   *** =sct
+   ```{python}
+   Ex().check_function('dict', 0, signature=False)\
+       .multi(
+           check_args(0),     # can only select by position
+           check_args('c')    # could use check_args(1)
+           )
+   ```
+
+Note that here, an argument's position is referring to its position in the function call (not its signature).
+
+Example: testing a list passed as an argument
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Suppose you want to test the first argument passed to `sum`.
+Below, we show how this can be down, using `has_equal_ast()` to check that the abstract syntax trees for the 1st argument match.
+
+.. code:: python
+
+   *** =solution
+   ```{python}
+   sum([1, 2, 3])
+   ```
+
+   *** =sct
+   ```{python}
+   (Ex().check_function('sum', 0)
+        .check_args(0)
+        .has_equal_ast("ast fail")                        # compares abstract representations
+        .test_student_typed("\[1, 2, 3\]", "typed fail")  # alternative, more rigid test
+        )
+   ```
+
+Notice that testing the argument is similar to testing, say, the body of an if statement.
+In this sense, we could even do deeper checks into an argument.
+Below, the SCT verifies that the first argument passed to sum is a list comprehension.
+
+.. code:: python
+
+   *** =solution
+   ```{python}
+   sum([i for i in range(10)])
+   ```
+
+   *** =sct
+   ```{python}
+   (Ex().check_function('sum', 0)
+        .check_args(0)
+        .check_list_comp(0)
+        .has_equal_ast()
+        )
+   ```

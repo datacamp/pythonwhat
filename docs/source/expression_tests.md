@@ -281,10 +281,45 @@ For example, the following SCT simply runs `len(x)` in the solution and student 
 `call` Syntax
 -------------
 
-* almost identical to has_equal_\*.
-* special call syntax
-  - string form
-  - dict form
+Testing a function definition or lambda may require calling it with some arguments.
+In order to do this, use the `call()` SCT.
+There are two ways to tell it what arguments to pass to the function/lambda,
+
+* `call("f (1, 2, x = 3)")` - as a string, where `"f"` gets substituted with the function's name.
+* `call([1,2,3])` - as a list of positional arguments.
+
+Below, two alternative ways of specifying the arguments to pass are shown.
+
+    *** =solution
+    ```{python}
+    def my_fun(x, y = 4, z = ('a', 'b'), *args, **kwargs):
+        return [x, y, *z, *args]
+    ```
+ 
+    *** =sct
+    ```{python}
+    Ex().check_function_def('my_fun').call("f(1, 2, (3,4), 5, kw_arg='ok')")  # as string
+    Ex().check_function_def('my_fun').call([1, 2, (3,4), 5])                  # as list
+    ```
+
+```eval_rst
+.. note::
+
+   Technically, you can get crazy and replace the list approach with a dictionary of the form ``{'args': [POSARG1, POSARG2], 'kwargs': {KWARGS}}``.
+```
+
+### Additional Parameters
+
+In addition to its first argument, `call()` accepts all the parameters that the expression tests above can (i.e. `has_equal_value`, `has_equal_error`, `has_equal_output`).
+The function call is run at the point where these functions would evaluate an expression.
+Moreover, setting the argument `test` to either "value", "output", or "error" controls which expression test it behaves like.
+
+For example, the SCT below shows how to run some `pre_code`, and then evaluate the output of a call.
+
+```
+Ex().check_function_def('my_fun').call("f(1, 2)", test="output", pre_code="x = 1")
+```
+
 
 Managing Processes
 -----------------
