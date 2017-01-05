@@ -670,8 +670,10 @@ test_function_v2('pandas.DataFrame', params=['data', 'columns'],
         }
 
         self.SPEC2_SCT = """
-Ex().check_function('pandas.DataFrame', 0, missing_msg = "notcalledmsg", expand_msg="")\
-        .check_args('data', missing_msg='paramsnotmatchedmsg')
+Ex().check_function('pandas.DataFrame', 0, missing_msg = "notcalledmsg", expand_msg="", params_not_matched_msg='paramsnotmatchedmsg')\
+        .multi(
+            check_args('data', missing_msg='paramsnotspecifiedmsg'),
+            check_args('columns', missing_msg='paramsnotspecifiedmsg'))
 """
 
     def test_step1(self):
@@ -696,13 +698,16 @@ Ex().check_function('pandas.DataFrame', 0, missing_msg = "notcalledmsg", expand_
         self.data["DC_SCT"] = self.SPEC2_SCT
         self.test_step2()
 
-
     def test_step3(self):
         self.data["DC_CODE"] = "df = pd.DataFrame(data=[1, 2, 3])"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual('paramsnotspecifiedmsg', sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 6, 33)
+
+    def test_step3_spec2(self):
+        self.data["DC_SCT"] = self.SPEC2_SCT
+        self.test_step3()
 
     def test_step4(self):
         self.data["DC_CODE"] = "df = pd.DataFrame(data=[1, 2, 3], columns=['b'])"

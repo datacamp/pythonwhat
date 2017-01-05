@@ -243,6 +243,15 @@ class TestBuiltInMethodsNumpy(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_array_spec2(self):
+        self.data = {
+            "DC_PEC": "import numpy as np",
+            "DC_SOLUTION": "x = np.array([1,2,3,4])",
+            "DC_CODE": "x = np.array([1,2,3,4])",
+            "DC_SCT": "Ex().check_function('numpy.array', 0).check_args('object')"}
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
     def test_random_seed(self):
         self.data = {
             "DC_PEC": "import numpy as np",
