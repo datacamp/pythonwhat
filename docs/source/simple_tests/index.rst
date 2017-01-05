@@ -13,4 +13,5 @@ A final, common use is to test the value of a variable in the final environment 
     test_object
     test_output_contains
     test_student_typed
+    has_equal_ast
     test_mc

@@ -1,4 +1,4 @@
-Spec2 Improvements
+Spec2 Changes
 ==================
 
 .. role:: python(code)

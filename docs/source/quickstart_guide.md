@@ -55,4 +55,12 @@ the automatic messages for when `x` is undefined or incorrect are replaced with 
 
 The same holds for `test_output_contains()`: you can use the `no_output_msg` argument to specify a custom message. For more information on all the different arguments you can set in the different `pythonwhat` functions, have a look at the articles in this wiki, describing them in detail.
 
-[TODO: quick outline of next steps]
+Next Steps
+----------
+
+Test functions in pythonwhat are broken into 4 groups:
+
+* [Simple tests](simple_tests/index.rst): look at, e.g., the output produced by an entire code submission.
+* [Part checks](part_checks.rst): focus on specific pieces of code, like a particular for loop.
+* [Expression tests](expression_tests.md): combined with part checks, these run pieces of code and evaluate the outcome.
+* [Logic tests](logic_tests/index.rst): these allow logic like an or statement to be used with SCTs.
