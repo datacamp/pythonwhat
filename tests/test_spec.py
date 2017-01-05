@@ -173,6 +173,76 @@ class TestTestFail(unittest.TestCase):
         self.assertFalse(sct_payload['correct'])
 
 
+class TestOverride(unittest.TestCase):
+    """
+    This class is used to test overriding w/ correct and incorrect code. Tests are 
+    run for entire nodes (e.g. an if block) and their parts (e.g. body of if block)
+    """
+
+    def do_exercise(self, code, base_check, parts, override=None, part_name = None, part_index = "", passes=True):
+        """High level function used to generate tests"""
+        if part_name:
+            if not override: override = parts[part_name]
+            sct = base_check + '.check_{}({}).override("""{}""").has_equal_ast()'\
+                        .format(part_name, part_index, override)
+        else:
+            # whole code (e.g. if expression, or for loop)
+            if not override: override = code.format(**parts)
+            sct = base_check + '.override("""{}""").has_equal_ast()'.format(override)
+        
+        data = {
+                "DC_SOLUTION": code.format(**parts),
+                "DC_CODE": code.format(**parts),
+                "DC_SCT": sct
+            }
+        sct_payload = helper.run(data)
+        self.assertTrue(sct_payload['correct']) if passes else self.assertFalse(sct_payload['correct'])
+
+    # used to generate tests
+    EXPRESSIONS = {
+            'if_exp': "{body} if {test} else {orelse}",
+            'list_comp': "[{body} for i in {iter}]",
+            'dict_comp': "{{ {key}: {value}  for i in {iter} }}",
+            'for_loop': "for i in {iter}: {body}",
+            'while': "while {test}: {body}",
+            'try_except': "try: {body}\nexcept: pass\nelse: {orelse}",
+            'lambda_function': "lambda a={args}: {body}",
+            'function_def': ["'sum'", "def sum(a={args}): {body}"],
+            'function': ["'sum', 0", "sum({args})"]
+            }
+
+    PARTS = {'body': "1", "test": "False", 'orelse': "2", 'iter': "range(3)", 
+             'key': "3", 'value': "4", 'args': "(1,2,3)"}
+
+import re
+def gen_exercise(*args, **kwargs):
+    return lambda self: TestOverride.do_exercise(self, *args, **kwargs)
+
+for k, code in TestOverride.EXPRESSIONS.items():
+    # base SCT, w/ special indexing if function checks
+    if isinstance(code, list): indx, code = code
+    else: indx = '0'
+    base_check = "Ex().check_{}({})".format(k, indx)
+    # pass overall test ----
+    pf = gen_exercise(code, base_check, TestOverride.PARTS)
+    setattr(TestOverride, 'test_{}_pass'.format(k), pf)
+    # fail overall test ----
+    pf = gen_exercise(code, base_check, TestOverride.PARTS, override="'WRONG ANSWER'", passes=False)
+    setattr(TestOverride, 'test_{}_fail'.format(k), pf)
+    # test individual pieces --------------------------------------------------
+    for part in re.findall("\{([^{]*?)\}", code):    # find all str.format vars, e.g. {body}
+        part_index = "" if part != 'args' else 0
+        # pass individual piece ----
+        test_name = 'test_{}_{}_pass'.format(k, part)
+        pf = gen_exercise(code, base_check, TestOverride.PARTS, part_name=part, part_index=part_index)
+        setattr(TestOverride, test_name, pf) 
+        # fail individual piece ----
+        test_name = 'test_{}_{}_fail'.format(k, part)
+        bad_code = code.format(**{part: "[]", **TestOverride.PARTS})
+        pf = gen_exercise(code, base_check, TestOverride.PARTS, part_name=part, part_index=part_index, override=bad_code, passes=False)
+        setattr(TestOverride, test_name, pf) 
+
+
 #class TestSetContext(unittest.TestCase):
 #    def setUp(self):
 #        self.data = {

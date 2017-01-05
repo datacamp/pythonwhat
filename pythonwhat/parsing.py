@@ -608,6 +608,9 @@ class FunctionDefParser(Parser):
         kwargs = cls.get_arg_part(node.args.kwarg, None, 'kwarg')
         all_args = [*args, varargs, *kw_args, kwargs]
         
+        if isinstance(node, ast.Lambda): body_node = node.body
+        else: body_node = FunctionBodyTransformer().visit(ast.Module(node.body))
+
         return {
             "node": node,
             "name": getattr(node, 'name', None),
@@ -616,7 +619,7 @@ class FunctionDefParser(Parser):
             "_spec1_args": args,
             "*args": varargs,
             "**kwargs":  kwargs,
-            "body": {'node': FunctionBodyTransformer().visit(ast.Module(node.body)), 
+            "body": {'node': body_node, 
                      'target_vars': TargetVars(target_vars)}
         }
 

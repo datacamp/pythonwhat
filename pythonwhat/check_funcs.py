@@ -179,7 +179,7 @@ def test_not(*args, msg, state=None):
         return state
     
     _msg = state.build_message(msg)
-    return rep.do_test(Test(msg))
+    return rep.do_test(Test(_msg))
 
 # utility functions -----------------------------------------------------------
 
@@ -194,9 +194,38 @@ def fail(msg="", state=None):
     """Fail test with message"""
     rep = Reporter.active_reporter
     _msg = state.build_message(msg)
-    rep.do_test(Test(Feedback(msg, state.highlight)))
+    rep.do_test(Test(Feedback(_msg, state.highlight)))
 
     return state
+
+import ast
+def override(solution, state=None):
+    """Change the focused solution code."""
+
+    # the old ast may be a number of node types, but generally either a
+    # (1) ast.Module, or for single expressions...
+    # (2) whatever was grabbed using module.body[0]
+    # (3) module.body[0].value, when module.body[0] is an Expr node
+    old_ast = state.solution_tree
+    new_ast = ast.parse(solution)
+    if not isinstance(old_ast, ast.Module) and len(new_ast.body) == 1:
+        expr = new_ast.body[0]
+        candidates = [expr, expr.value] if isinstance(expr, ast.Expr) else [expr]
+        for node in candidates:
+            if isinstance(node, old_ast.__class__): 
+                new_ast = node
+                break
+
+    kwargs  = state.messages[-1] if state.messages else {}
+    child = state.to_child_state(
+            solution_subtree = new_ast,
+            student_subtree = state.student_tree,
+            highlight = state.highlight,
+            append_message = {'msg': "", 'kwargs': kwargs}
+            )
+
+    return child
+    
 
 # context functions -----------------------------------------------------------
 
