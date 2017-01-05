@@ -24,7 +24,7 @@ def check_function(name, index,
                    params_not_matched_msg = "FMT:Something went wrong in figuring out how you specified the "
                                             "arguments for `{name}`; have another look at your code and its output.",
                    expand_msg  = MSG_PREPEND, 
-                   signature=None,
+                   signature=True,
                    typestr = "{ordinal} function call",
                    state=None):
     rep = Reporter.active_reporter
@@ -64,7 +64,7 @@ def check_function(name, index,
             stu_parts['args'], _ = bind_args(stu_sig, stu_parts['args'])
         except Exception as e:
             _msg = state.build_message(params_not_matched_msg, fmt_kwargs)
-            rep.do_test(Test(Feedback(_msg, state.highlight)))
+            rep.do_test(Test(Feedback(_msg, stu_parts['node'])))
 
     # three types of parts: pos_args, keywords, args (e.g. these are bound to sig)
     append_message = {'msg': expand_msg, 'kwargs': fmt_kwargs}
