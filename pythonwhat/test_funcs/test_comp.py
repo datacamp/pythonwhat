@@ -2,7 +2,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat.Test import EqualTest
 from pythonwhat.utils import get_ord
-from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_equal_part_len
+from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_equal_part_len, has_iter_vars
 
 MSG_NOT_CALLED = "FMT:The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
 MSG_PREPEND = "FMT:Check your code in the {child[part]} of the {ordinal} {typestr}. "
@@ -86,7 +86,10 @@ def test_comp(typestr, comptype, index, iter_vars_names,
 
     # test comprehension iter and its variable names (or number of variables)
     if comp_iter: multi(comp_iter, state=check_part("iter", "iterable part", state))
-    has_iter_vars(incorrect_iter_vars_msg, iter_vars_names, state=quiet_state)
+
+    # test iterator variables
+    default_msg = MSG_INCORRECT_ITER_VARS if iter_vars_names else MSG_INCORRECT_NUM_ITER_VARS
+    has_iter_vars(incorrect_iter_vars_msg or default_msg, iter_vars_names, state=quiet_state)
 
     # test the main expressions.
     if body:   multi(body,  state=check_part("body", "body", state))        # list and gen comp
@@ -99,31 +102,4 @@ def test_comp(typestr, comptype, index, iter_vars_names,
         has_equal_part_len('ifs', insufficient_ifs_msg, state=quiet_state)
         # test individual ifs
         multi(if_test, state=check_part_index("ifs", i, get_ord(i+1) + " if", state=state))
-
-
-def has_iter_vars(incorrect_iter_vars_msg, exact_names=False, state=None):
-    rep = Reporter.active_reporter
-    # get parts for testing from state
-    # TODO: this could be rewritten to use check_part_index -> has_equal_part, etc..
-    stu_vars = state.student_parts['_target_vars']
-    sol_vars = state.solution_parts['_target_vars']
-    stu_target = state.student_parts['target']
-
-    # variables exposed to messages
-    d = { 'stu_vars': stu_vars, 
-          'sol_vars': sol_vars, 
-          'num_vars': len(sol_vars)}
-
-    if exact_names:
-        # message for wrong iter var names
-        _msg = state.build_message(incorrect_iter_vars_msg or MSG_INCORRECT_ITER_VARS, d)
-        # test
-        rep.do_test(EqualTest(stu_vars, sol_vars, Feedback(_msg, stu_target)))
-    else:
-        # message for wrong number of iter vars
-        _msg = state.build_message(incorrect_iter_vars_msg or MSG_INCORRECT_NUM_ITER_VARS, d)
-        # test
-        rep.do_test(EqualTest(len(stu_vars), len(sol_vars), Feedback(_msg, stu_target)))
-
-    return state
 

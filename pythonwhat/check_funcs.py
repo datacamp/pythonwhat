@@ -138,6 +138,33 @@ def has_equal_part_len(name, insufficient_msg, state=None):
     return state
 
 
+def has_iter_vars(incorrect_msg, exact_names=False, state=None):
+    rep = Reporter.active_reporter
+    # get parts for testing from state
+    # TODO: this could be rewritten to use check_part_index -> has_equal_part, etc..
+    stu_vars = state.student_parts['_target_vars']
+    sol_vars = state.solution_parts['_target_vars']
+    stu_target = state.student_parts['target']
+
+    # variables exposed to messages
+    d = { 'stu_vars': stu_vars, 
+          'sol_vars': sol_vars, 
+          'num_vars': len(sol_vars)}
+
+    if exact_names:
+        # message for wrong iter var names
+        _msg = state.build_message(incorrect_msg, d)
+        # test
+        rep.do_test(EqualTest(stu_vars, sol_vars, Feedback(_msg, stu_target)))
+    else:
+        # message for wrong number of iter vars
+        _msg = state.build_message(incorrect_msg, d)
+        # test
+        rep.do_test(EqualTest(len(stu_vars), len(sol_vars), Feedback(_msg, stu_target)))
+
+    return state
+
+
 # functions for running multiple sub-tests ------------------------------------
 
 def extend(*args, state=None):
