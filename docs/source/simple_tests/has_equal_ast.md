@@ -2,8 +2,7 @@ has_equal_ast
 --------------
 
 ```eval_rst
-.. automodule:: pythonwhat.check_funcs.has_equal_ast
-    :members:
+.. autofunction:: pythonwhat.check_funcs.has_equal_ast
 ```
 
 An abstract syntax tree (AST) is a way of representing the high-level structure of python code.

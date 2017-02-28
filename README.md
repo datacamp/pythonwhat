@@ -6,6 +6,11 @@ For a detailed guide on how to use `pythonwhat`, head over to [the online docume
 
 Visit [DataCamp Teach](https://www.datacamp.com/teach) to create your own DataCamp Python course, powered by `pythonwhat`.
 
+## Documentation
+
+* [pythonwhat documentation](http://pythonwhat.readthedocs.io)
+* [full tutorial](https://github.com/datacamp/courses-pythonwhat-tutorial)
+
 ## Installation
 
 ```
