@@ -259,6 +259,22 @@ class TestListIterVars(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_fail_spec2(self):
+        self.data["DC_SCT"] = "Ex().check_list_comp(0).has_context()"
+        self.data["DC_CODE"] = "[a for a in x.items()]"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_pass_spec2(self):
+        self.data["DC_SCT"] = "Ex().check_list_comp(0).has_context()"
+        self.test_pass()
+
+    def test_fail_spec2_exact_names(self):
+        self.data["DC_CODE"] = "[a for a,b in x.items()]"
+        self.data["DC_SCT"] = "Ex().check_list_comp(0).has_context(exact_names=True)"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
 
 class TestListDestructuring(unittest.TestCase):
     def setUp(self):

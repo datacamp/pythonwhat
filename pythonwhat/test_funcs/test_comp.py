@@ -2,7 +2,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat.Test import EqualTest
 from pythonwhat.utils import get_ord
-from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_equal_part_len, has_iter_vars
+from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_equal_part_len, has_context
 
 MSG_NOT_CALLED = "FMT:The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
 MSG_PREPEND = "FMT:Check your code in the {child[part]} of the {ordinal} {typestr}. "
@@ -89,7 +89,7 @@ def test_comp(typestr, comptype, index, iter_vars_names,
 
     # test iterator variables
     default_msg = MSG_INCORRECT_ITER_VARS if iter_vars_names else MSG_INCORRECT_NUM_ITER_VARS
-    has_iter_vars(incorrect_iter_vars_msg or default_msg, iter_vars_names, state=quiet_state)
+    has_context(incorrect_iter_vars_msg or default_msg, iter_vars_names, state=quiet_state)
 
     # test the main expressions.
     if body:   multi(body,  state=check_part("body", "body", state))        # list and gen comp

@@ -382,6 +382,39 @@ test_with(1, body=[test_function('print'), test_function('print')])
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+class TestHasContext(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+                "DC_PEC": "from io import StringIO",
+                "DC_SOLUTION": "with StringIO() as f1, StringIO() as f2: pass",
+                "DC_CODE": "with StringIO() as f1, StringIO() as f2: pass",
+                "DC_SCT": "Ex().check_with(0).has_context()"
+                }
+
+    def test_pass(self):
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail(self):
+        self.data["DC_CODE"] = "with StringIO() as f1: pass"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_fail_exact_names(self):
+        self.data["DC_CODE"] = "with StringIO() as f3, StringIO() as f4: pass"
+        self.data["DC_SCT"] = "Ex().check_with(0).has_context(exact_names=True)"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_context_pass(self):
+        self.data["DC_SCT"] = "Ex().check_with(0).check_context(0).has_context()"
+        self.test_pass()
+
+    def test_context_fail(self):
+        self.data["DC_CODE"] = "with StringIO() as f3: pass"
+        self.data["DC_SCT"] = "Ex().check_with(0).check_context(0).has_context(exact_names=True)"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
 
 if __name__ == "__main__":
     unittest.main()

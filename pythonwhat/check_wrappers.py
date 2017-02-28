@@ -57,7 +57,7 @@ for k, v in __NODE_WRAPPERS__.items():
 scts['check_function'] = check_function
 
 for k in ['set_context', 
-          'has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'call',
+          'has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'has_context', 'call',
           'extend', 'multi', 'test_not', 'fail', 'quiet', 'override',
           'with_context',
           'check_args',

@@ -138,13 +138,13 @@ def has_equal_part_len(name, insufficient_msg, state=None):
     return state
 
 
-def has_iter_vars(incorrect_msg, exact_names=False, state=None):
+def has_context(incorrect_msg="Incorrect iterator variables", exact_names=False, state=None):
     rep = Reporter.active_reporter
     # get parts for testing from state
     # TODO: this could be rewritten to use check_part_index -> has_equal_part, etc..
-    stu_vars = state.student_parts['_target_vars']
-    sol_vars = state.solution_parts['_target_vars']
-    stu_target = state.student_parts['target']
+    stu_vars = state.student_parts.get('_target_vars') or state.student_parts['target_vars']
+    sol_vars = state.solution_parts.get('_target_vars') or state.solution_parts['target_vars']
+    stu_target = state.student_parts.get('target')
 
     # variables exposed to messages
     d = { 'stu_vars': stu_vars, 
