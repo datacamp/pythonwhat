@@ -1,0 +1,11 @@
+sudo: false
+language: python
+python:
+  - "3.5"
+
+before_install: 
+  - pip install -e .
+  - "git clone https://$GH_TOKEN@github.com/datacamp/pythonbackend.git && pip install ./pythonbackend && rm -rf pythonbackend"
+install: pip install -r requirements.txt
+
+script: pytest tests -m "not dep_matplotlib" -s

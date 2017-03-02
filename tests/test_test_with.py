@@ -1,5 +1,6 @@
 import unittest
 import helper
+import pytest
 
 class TestExercise1(unittest.TestCase):
 
@@ -307,6 +308,7 @@ test_with(1,
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+@pytest.mark.dep_matplotlib
 class TestExercise5(unittest.TestCase):
 
     def setUp(self):
