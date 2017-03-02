@@ -5,7 +5,10 @@ from pythonwhat.State import State
 from functools import singledispatch
 from pythonwhat.check_funcs import check_part_index
 
-def has_context(incorrect_msg="Incorrect iterator variables", exact_names=False, state=None):
+MSG_INCORRECT_LOOP = "FMT:Have you used the correct iterator variable names? Was expecting `{sol_vars}` but got `{stu_vars}`."
+MSG_INCORRECT_WITH = "FMT:Make sure to use the correct context variable names. Was expecting `{sol_vars}` but got `{stu_vars}`."
+
+def has_context(incorrect_msg=None, exact_names=False, state=None):
     # call _has_context, since the built-in singledispatch can only use 1st pos arg
     return _has_context(state, incorrect_msg, exact_names)
 
@@ -49,13 +52,14 @@ def has_context_state(*args, **kwargs):
 @_has_context.register(State.SUBCLASSES['dict_comps'])
 @_has_context.register(State.SUBCLASSES['generator_exps'])
 @_has_context.register(State.SUBCLASSES['list_comps'])
-def has_context_loop(*args, **kwargs):
+def has_context_loop(state, incorrect_msg, exact_names):
     """When dispatched on loops, has_context the target vars are the attribute _target_vars.
 
     Note: This is to allow people to call has_context on a node (e.g. for_loop) rather than
           one of its attributes (e.g. body). Purely for convenience.
     """
-    return _test(*args, tv_name='_target_vars', highlight_name='target', **kwargs)
+    return _test(state, incorrect_msg or MSG_INCORRECT_LOOP, exact_names,
+                        tv_name='_target_vars', highlight_name='target')
 
 @_has_context.register(State.SUBCLASSES['withs'])
 def has_context_with(state, incorrect_msg, exact_names):
@@ -69,6 +73,6 @@ def has_context_with(state, incorrect_msg, exact_names):
 
     for i in range(len(state.solution_parts['context'])):
         ctxt_state = check_part_index('context', i, "", state=state)
-        _has_context(ctxt_state, incorrect_msg, exact_names)
+        _has_context(ctxt_state, incorrect_msg or MSG_INCORRECT_WITH, exact_names)
 
     return state

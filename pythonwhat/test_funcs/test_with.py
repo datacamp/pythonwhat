@@ -53,10 +53,6 @@ with open_file('...') as file:
 
         # test context var names ----
         has_context(incorrect_msg=context_vals_msg or MSG_CTXT_NAMES, exact_names = True, state=child)
-        #for i in range(len(child.solution_parts['context'])):
-        #    ctxt_state = check_part_index('context', i, "", state=child)
-        #    has_equal_part('target_vars', MSG_CTXT_NAMES, state=ctxt_state)
-
     
     # Context sub tests ----
     if context_tests and not isinstance(context_tests, list): context_tests = [context_tests]
