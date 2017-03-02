@@ -789,7 +789,6 @@ class WithParser(Parser):
             "body": {'node': node.body, 'with_items': items},
             "node": node,
             "n_vars": len(items),
-            "_target_vars": tv_all
         })
 
 class TryExceptParser(Parser):

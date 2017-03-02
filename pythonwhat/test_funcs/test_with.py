@@ -4,6 +4,7 @@ from pythonwhat.Test import EqualTest, Test
 from pythonwhat import utils
 from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
 from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, quiet, has_equal_part, with_context
+from pythonwhat.check_has_context import has_context
 
 from functools import partial
 
@@ -12,7 +13,7 @@ MSG_PREPEND = "FMT:In your {ordinal} {typestr}, "
 MSG_PREPEND2 = "FMT:Check the {child[part]} of the {ordinal} `with` statement. "
 MSG_NUM_CTXT = "make sure to use the correct number of context variables. It seems you defined too many."
 MSG_NUM_CTXT2 = "make sure to use the correct number of context variables. It seems you defined too little."
-MSG_CTXT_NAMES = "FMT:make sure to use the correct context variable names. Was expecting `{sol_part[target_vars]}` but got `{stu_part[target_vars]}`."
+MSG_CTXT_NAMES = "FMT:make sure to use the correct context variable names. Was expecting `{sol_vars}` but got `{stu_vars}`."
 
 
 def test_with(index,
@@ -51,9 +52,10 @@ with open_file('...') as file:
             rep.do_test(Test(Feedback(_msg, child.student_tree)))
 
         # test context var names ----
-        for i in range(len(child.solution_parts['context'])):
-            ctxt_state = check_part_index('context', i, "", state=child)
-            has_equal_part('target_vars', MSG_CTXT_NAMES, state=ctxt_state)
+        has_context(incorrect_msg=context_vals_msg or MSG_CTXT_NAMES, exact_names = True, state=child)
+        #for i in range(len(child.solution_parts['context'])):
+        #    ctxt_state = check_part_index('context', i, "", state=child)
+        #    has_equal_part('target_vars', MSG_CTXT_NAMES, state=ctxt_state)
 
     
     # Context sub tests ----
