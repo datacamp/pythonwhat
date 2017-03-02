@@ -7,7 +7,7 @@ from pythonwhat.check_funcs import check_node, check_part, check_part_index, mul
 MSG_NOT_CALLED = "FMT:The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
 MSG_PREPEND = "FMT:Check your code in the {child[part]} of the {ordinal} {typestr}. "
 
-MSG_INCORRECT_ITER_VARS = "FMT:Have you used the correct iterator variables in the {parent[ordinal]} {parent[typestr]}? Make sure you use the correct names!"
+MSG_INCORRECT_ITER_VARS = "FMT:Have you used the correct iterator variables in the {parent[ordinal]} {parent[typestr]}? Be sure to use the correct names."
 MSG_INCORRECT_NUM_ITER_VARS = "FMT:Have you used {num_vars} iterator variables in the {parent[ordinal]} {parent[typestr]}?"
 MSG_INSUFFICIENT_IFS = "FMT:Have you used {sol_len} ifs inside the {parent[ordinal]} {parent[typestr]}?"
 
