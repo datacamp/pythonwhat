@@ -402,6 +402,11 @@ from pythonwhat.tasks import ReprFail, UndefinedValue
 from pythonwhat import utils
 
 def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solution.", state=None):
+    """Test whether abstract syntax trees match between the student and solution code.
+
+    Args:
+        incorrect_msg: message displayed when ASTs mismatch.
+    """
     rep = Reporter.active_reporter
 
     stu_rep = ast.dump(state.student_tree)
@@ -424,6 +429,34 @@ def has_expr(incorrect_msg="FMT:Unexpected expression {test}: expected `{sol_eva
              highlight=None,
              state=None,
              test=None):
+    """Run student and solution code, compare returned value, printed output, or errors.
+
+    Args:
+        incorrect_msg (str): feedback message if the output of the expression in the solution doesn't match
+          the one of the student. This feedback message will be expanded if it is used in the context of
+          another test function, like test_if_else.
+        error_msg (str): feedback message if there was an error when running the student code.
+          Note that when testing for an error, this message is displayed when none is raised.
+        undefined_msg (str): feedback message if the name argument is defined, but a variable 
+          with that name doesn't exist after running the student code.
+        extra_env (dict): set variables to the extra environment. They will update the student
+          and solution environment in the active state before the student/solution code in the active
+          state is ran. This argument should contain a dictionary with the keys the names of
+          the variables you want to set, and the values are the values of these variables.
+        context_vals (list): set variables which are bound in a for loop to certain values. This argument is
+          only useful if you use the function in a test_for_loop. It contains a list with the values
+          of the bound variables.
+        expr_code (str): if this variable is not None, the expression in the student/solution code will not
+          be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
+          and the result will be compared.
+        pre_code (str): the code in string form that should be executed before the expression is executed.
+          This is the ideal place to set a random seed, for example.
+        keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
+          the expression is evaluated. All primitive types are copied automatically, other objects have to
+          be passed explicitely.
+        name (str): the name of a variable, or expression, whose value will be tested after running the
+          student and solution code. This could be thought of as post code.
+    """
     rep = Reporter.active_reporter
 
     # run function to highlight a block of code

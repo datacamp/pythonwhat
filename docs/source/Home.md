@@ -34,7 +34,10 @@ Overview
 
 To get started, make sure to check out the [Quickstart Guide](quickstart_guide.md).
 
-To robustly test the equality of objects, and results of evaluations, it has to fetch the information from the respective processes, i.e. the student and solution processes. By default, this is done through a process of 'dilling' and 'undilling', but it's also possible to define your own converters to customize the way objects and results are compared. For more background on this, check out the [Processes article](expression_tests.md). For some more background on the principle of 'sub-SCTs', i.e. sets of tests to be called on a particular part or a particular state of a student's submission, have a look at the [Part Checks article](part_checks.rst).
+```eval_rst
+
+To robustly test the equality of objects, and results of evaluations, it has to fetch the information from the respective processes, i.e. the student and solution processes. By default, this is done through a process of 'dilling' and 'undilling', but it's also possible to define your own converters to customize the way objects and results are compared. For more background on this, check out :ref:`managing-processes`. For some more background on the principle of 'sub-SCTs', i.e. sets of tests to be called on a particular part or a particular state of a student's submission, have a look at the :doc:`Part Checks article <part_checks>`.
+```
 
 The remainder of the wiki goes over every test function that `pythonwhat` features, explaining all arguments and covering different use cases. They will give you an idea of how, why and when to use them.
 

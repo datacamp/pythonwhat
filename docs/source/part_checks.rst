@@ -161,8 +161,7 @@ Helper Functions
 multi
 ~~~~~~~
 
-Runs multiple subtests. 
-
+.. autofunction:: pythonwhat.check_funcs.multi
 
 Comma separated arguments
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -214,6 +213,8 @@ followed by its iterator.
 set_context
 ~~~~~~~~~~~~~
 
+.. autofunction:: pythonwhat.check_funcs.set_context
+
 Sets the value of a temporary variable, such as ``ii`` in the list comprehension below.
 
 .. code::
@@ -261,6 +262,8 @@ When you try to set context values that don't match any target variables in the 
 with_context
 ~~~~~~~~~~~~~~
 
+.. autofunction:: pythonwhat.check_funcs.with_context
+
 Runs subtests after setting the context for a ``with`` statement.
 
 This function takes arguments in the same form as ``multi``. 
@@ -291,6 +294,8 @@ and replacing step (3) with any sub-tests given as arguments.
 fail
 ~~~~~~
 
+.. autofunction:: pythonwhat.check_funcs.fail
+
 Fails. This function takes a single argument, ``msg``, that is the feedback given to the student.
 Note that this would be a terrible idea for grading submissions, but may be useful while writing SCTs.
 For example, failing a test will highlight the code as if the previous test/check had failed.
@@ -315,13 +320,13 @@ Check Functions
   (e.g. ``Ex().check_list_comp(0).check_ifs(0)``)
 * **missing_msg**: optional feedback message if node or part doesn't exist.
 
-
 Note that code in all caps indicates the name of a piece of code that may be inspected using, ``check_{part}``, 
 where ``{part}`` is replaced by the name in caps (e.g. ``check_if_else(0).check_test()``).
 Target variables are those that may be set using ``set_context``.
 These variables may only be set in places where python would set them.
 For example, this means that a list comprehension's ITER part has no target variables,
 but its BODY does.
+
 
 +------------------------+------------------------------------------------------+-------------------+
 | check                  | parts                                                | target variables  |
@@ -380,9 +385,9 @@ but its BODY does.
 |                        |        FINALBODY                                     |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_with(0)           |   .. code:: python                                   | `f``              |
+|check_with(0)           |   .. code:: python                                   | ``f``             |
 |                        |                                                      |                   |
-|                        |     with CONTEXT_TEST as f:                          |                   |
+|                        |     with CONTEXT[0] as f1, CONTEXT[1] as f2:         |                   |
 |                        |         BODY                                         |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+

@@ -320,6 +320,10 @@ For example, the SCT below shows how to run some `pre_code`, and then evaluate t
 Ex().check_function_def('my_fun').call("f(1, 2)", test="output", pre_code="x = 1")
 ```
 
+```eval_rst
+.. _managing-processes:
+```
+
 
 Managing Processes
 -----------------
