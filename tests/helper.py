@@ -3,9 +3,9 @@ from pythonbackend import utils
 import re
 
 def get_sct_payload(output):
-    output = [out for out in output if out['type'] == 'sct']
-    if (len(output) > 0):
-        return(output[0]['payload'])
+    sct_output = [out for out in output if out['type'] == 'sct']
+    if (len(sct_output) > 0):
+        return(sct_output[0]['payload'])
     else:
         print(output)
         return(None)

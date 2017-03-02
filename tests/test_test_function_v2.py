@@ -1,5 +1,6 @@
 import unittest
 import helper
+import pytest
 
 class TestFunctionBase(unittest.TestCase):
 
@@ -955,6 +956,7 @@ class TestTestMapping(unittest.TestCase):
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>pad.DataFrame()</code> with the correct arguments?", sct_payload['message'])
 
+    @pytest.mark.dep_matplotlib
     def test_mpl(self):
         self.data = {
             "DC_PEC": "",

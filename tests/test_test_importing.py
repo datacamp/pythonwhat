@@ -1,5 +1,6 @@
 import unittest
 import helper
+import pytest
 
 class TestExercise1(unittest.TestCase):
 
@@ -536,6 +537,7 @@ success_msg("Awesome!")
         self.assertTrue(sct_payload['correct'])
 
 
+@pytest.mark.dep_matplotlib
 class TestImportWhenTestFunction(unittest.TestCase):
 
     def test_pass(self):

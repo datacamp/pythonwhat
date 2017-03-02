@@ -1,0 +1,15 @@
+dill
+markdown2
+numpy
+pandas
+matplotlib
+boto3
+bs4
+h5py
+
+sqlalchemy
+requests
+xlrd
+tweepy
+scipy
+sas7bdat
