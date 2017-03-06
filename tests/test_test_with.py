@@ -397,11 +397,13 @@ class TestHasContext(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    @pytest.mark.feedback
     def test_fail(self):
         self.data["DC_CODE"] = "with StringIO() as f1: pass"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
 
+    @pytest.mark.feedback
     def test_fail_exact_names(self):
         self.data["DC_CODE"] = "with StringIO() as f3, StringIO() as f4: pass"
         self.data["DC_SCT"] = "Ex().check_with(0).has_context(exact_names=True)"

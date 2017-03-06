@@ -72,7 +72,7 @@ def has_context_with(state, incorrect_msg, exact_names):
     """
 
     for i in range(len(state.solution_parts['context'])):
-        ctxt_state = check_part_index('context', i, "", state=state)
+        ctxt_state = check_part_index('context', i, '{ordinal} context', state=state)
         _has_context(ctxt_state, incorrect_msg or MSG_INCORRECT_WITH, exact_names)
 
     return state

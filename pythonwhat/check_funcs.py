@@ -52,11 +52,12 @@ def check_part_index(name, index, part_msg,
                       'kwargs': fmt_kwargs}
 
     # check there are enough parts for index
-    stu_parts = state.student_parts[name]
-    try: stu_parts[index]
-    except (KeyError, IndexError):
-        _msg = state.build_message(missing_msg, append_message['kwargs'])
-        rep.do_test(Test(Feedback(_msg, state.highlight)))
+    has_part(name, missing_msg, state, append_message['kwargs'], index)
+    #stu_parts = state.student_parts[name]
+    #try: stu_parts[index]
+    #except (KeyError, IndexError):
+    #    _msg = state.build_message(missing_msg, append_message['kwargs'])
+    #    rep.do_test(Test(Feedback(_msg, state.highlight)))
 
     # get part at index
     stu_part = state.student_parts[name][index]
@@ -66,7 +67,7 @@ def check_part_index(name, index, part_msg,
     return part_to_child(stu_part, sol_part, append_message, state)
 
 MSG_MISSING = "FMT:The system wants to check the {typestr} you defined but hasn't found it."
-MSG_PREPEND = "__JINJA__:Check your code in the {{child['part']+ ' of the' if child['part']}} {{typestr}}. "
+MSG_PREPEND = "__JINJA__:Check your code in the{{' ' + child['part']+ ' of the' if child['part']}} {{typestr}}. "
 def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PREPEND, state=None):
     rep = Reporter.active_reporter
     stu_out = getattr(state, 'student_'+name)
@@ -97,7 +98,7 @@ def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PRE
 
 # Part tests ------------------------------------------------------------------
 
-def has_part(name, msg, state=None, fmt_kwargs=None):
+def has_part(name, msg, state=None, fmt_kwargs=None, index=None):
     rep = Reporter.active_reporter
     d = {'sol_part': state.solution_parts,
          'stu_part': state.student_parts,
@@ -106,6 +107,7 @@ def has_part(name, msg, state=None, fmt_kwargs=None):
 
     try: 
         part = state.student_parts[name]
+        if index is not None: part = part[index]
         if part is None: raise KeyError
     except (KeyError, IndexError):
         _msg = state.build_message(msg, d)

@@ -1,6 +1,7 @@
 from pythonbackend.Exercise import Exercise
 from pythonbackend import utils
 import re
+import os
 
 def get_sct_payload(output):
     sct_output = [out for out in output if out['type'] == 'sct']
@@ -17,7 +18,10 @@ def run(data):
         print(output)
         raise(ValueError("Backend error"))
     output = exercise.runSubmit(data)
-    return(get_sct_payload(output))
+    sct_payload = get_sct_payload(output)
+    if os.environ.get('PYTHONWHAT_DEBUG_FEEDBACK'):
+        print('message: %s'%sct_payload.get('message'))
+    return(sct_payload)
 
 def test_lines(test, sct_payload, ls, le, cs, ce):
     test.assertEqual(sct_payload['line_start'], ls)
