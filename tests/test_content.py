@@ -1,6 +1,8 @@
 import unittest
 import helper
+import pytest
 
+@pytest.mark.dep_matplotlib
 class TestTemplate(unittest.TestCase):
     def setUp(self):
         self.data = {
