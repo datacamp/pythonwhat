@@ -53,11 +53,6 @@ def check_part_index(name, index, part_msg,
 
     # check there are enough parts for index
     has_part(name, missing_msg, state, append_message['kwargs'], index)
-    #stu_parts = state.student_parts[name]
-    #try: stu_parts[index]
-    #except (KeyError, IndexError):
-    #    _msg = state.build_message(missing_msg, append_message['kwargs'])
-    #    rep.do_test(Test(Feedback(_msg, state.highlight)))
 
     # get part at index
     stu_part = state.student_parts[name][index]

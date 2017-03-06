@@ -788,7 +788,7 @@ class WithParser(Parser):
             "context": context,
             "body": {'node': node.body, 'with_items': items},
             "node": node,
-            "n_vars": len(items),
+            "n_vars": len(items)
         })
 
 class TryExceptParser(Parser):
