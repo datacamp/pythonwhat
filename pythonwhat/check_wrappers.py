@@ -1,6 +1,7 @@
 from pythonwhat.check_funcs import check_part, check_part_index, check_node, has_equal_part
 from pythonwhat import check_funcs, check_object
 from pythonwhat.check_function import check_function
+from pythonwhat.check_has_context import has_context
 from pythonwhat.test_funcs.test_data_frame import check_df
 from pythonwhat.test_funcs.test_dictionary import check_dict
 from pythonwhat import test_funcs
@@ -70,5 +71,4 @@ for k in ['check_object', 'is_instance', 'has_equal_key', 'has_key']:
 
 scts['check_df'] = check_df
 scts['check_dict'] = check_dict
-
-
+scts['has_context'] = has_context

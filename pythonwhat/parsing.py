@@ -574,6 +574,7 @@ class ForParser(Parser):
             'body': {'node': node.body, 'target_vars': tv},
             'orelse': {'node': node.orelse, 'target_vars': tv},
             'target': node.target,
+            '_target_vars': tv
             })
 
 
@@ -779,6 +780,7 @@ class WithParser(Parser):
                 } 
             for item in items]
 
+        tv_all = TargetVars(sum([list(c['target_vars'].items()) for c in context], []))
         #body_tv = []
         #for c in context: body_tv.extend(c['target_vars'])
 
