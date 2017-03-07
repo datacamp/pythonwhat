@@ -65,6 +65,7 @@ def test_exercise(sct,
     sct_cntxt.update(spec_2_context)
 
     try:
+        # if statement detects, for example, if State hit a parsing error w/student code
         if not rep.failed_test:
             exec(sct, sct_cntxt)         # Spec v2 tests run immediately
             for test in tree.crnt_node:  # Spec v1 tests run after
@@ -81,11 +82,11 @@ def success_msg(message):
             message (str): A string containing the feedback message.
     """
     rep = Reporter.active_reporter
-    rep.set_success_msg(message)
+    rep.success_msg = message
 
 
 def allow_errors():
     rep = Reporter.active_reporter
-    rep.allow_errors()
+    rep.errors_allowed = True
 
 cntxt['success_msg'] = success_msg

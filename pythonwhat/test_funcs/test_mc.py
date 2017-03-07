@@ -40,6 +40,6 @@ def test_mc(correct, msgs, state=None):
 
         feedback_msg = msgs[selected_option - 1]
 
-        rep.set_success_msg(msgs[correct - 1])
+        rep.success_msg = msgs[correct - 1]
 
         rep.do_test(EqualTest(selected_option, correct, feedback_msg))
