@@ -10,7 +10,7 @@ MSG_PREPEND_ARG = "FMT:In your definition of {typestr}, "
 
 MSG_RES_ERROR = "FMT:Calling it with arguments `{argstr}` should result in `{str_sol}`, instead got an error."
 MSG_RES_INCORRECT = "FMT:Calling it with arguments `{argstr}` should result in `{str_sol}`, instead got `{str_stu}`."
-MSG_ERR_WRONG = "FMT:Calling it with arguments `{argstr}` doesn't result in an error, but it should!"
+MSG_ERR_WRONG = "FMT:Calling it with arguments `{argstr}` doesn't result in an error, but it should."
 def test_lambda_function(index,
                          arg_names=True,
                          arg_defaults=True,

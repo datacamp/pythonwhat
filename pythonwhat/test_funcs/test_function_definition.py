@@ -21,7 +21,7 @@ MSG_KWARG_NAME = "FMT:have you specified an argument to take a `**` argument and
 # TODO some need to reference the eval rather than str
 MSG_RES_ERROR = "FMT:Calling `{argstr}` should result in `{str_sol}`, instead got an error."
 MSG_RES_INCORRECT = "FMT:Calling `{argstr}` should result in `{str_sol}`, instead got `{str_stu}`."
-MSG_ERR_NONE = "FMT:Calling `{argstr}` doesn't result in an error, but it should!"
+MSG_ERR_NONE = "FMT:Calling `{argstr}` doesn't result in an error, but it should."
 MSG_ERR_INCORRECT = "FMT:Calling `{argstr}` should result in a `{str_sol.__class__.__name__}`, instead got a `{str_stu.__class__.__name__}`."
 MSG_OUT_ERROR = "FMT:Calling `{argstr}` should output {str_sol}, instead got an error."
 MSG_OUT_INCORRECT = "FMT:Calling `{argstr}` should output `{str_sol}`, instead got {str_stu}."
