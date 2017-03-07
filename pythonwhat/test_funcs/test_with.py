@@ -3,7 +3,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import EqualTest, Test
 from pythonwhat import utils
 from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
-from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, quiet, has_equal_part, with_context
+from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, quiet, has_equal_part, with_context, has_equal_part_len
 from pythonwhat.check_has_context import has_context
 
 from functools import partial
@@ -45,14 +45,12 @@ with open_file('...') as file:
     quiet_child = quiet(1, child)
 
     if context_vals:
-        # test num context vars ----
-        too_many = len(child.student_parts['context']) > len(child.solution_parts['context'])
-        if too_many:
-            _msg = child.build_message(MSG_NUM_CTXT)
-            rep.do_test(Test(Feedback(_msg, child.student_tree)))
-
         # test context var names ----
         has_context(incorrect_msg=context_vals_msg or MSG_CTXT_NAMES, exact_names = True, state=child)
+
+        # test num context vars ----
+        has_equal_part_len('context', MSG_NUM_CTXT, state=child)
+        
     
     # Context sub tests ----
     if context_tests and not isinstance(context_tests, list): context_tests = [context_tests]
