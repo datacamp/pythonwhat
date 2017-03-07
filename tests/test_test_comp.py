@@ -39,7 +39,7 @@ test_list_comp(index=1,
         self.data["DC_CODE"] = "[a + str(b) for a,b in x.items()]"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Have you used the correct iterator variables in the first list comprehension? Make sure you use the correct names!")
+        self.assertEqual(sct_payload['message'], "Have you used the correct iterator variables in the first list comprehension? Be sure to use the correct names.")
         helper.test_lines(self, sct_payload, 1, 1, 17, 19)
 
     def test_fail_4(self):
@@ -334,7 +334,7 @@ test_dict_comp(index=1,
         self.data["DC_CODE"] = "{ a:a for a in lst }"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Have you used the correct iterator variables in the first dictionary comprehension? Make sure you use the correct names!", sct_payload['message'])
+        self.assertEqual("Have you used the correct iterator variables in the first dictionary comprehension? Be sure to use the correct names.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 11, 11)
 
     def test_fail_4(self):
@@ -419,7 +419,7 @@ test_generator_exp(index=1,
         self.data["DC_CODE"] = "(a + str(b) for a,b in x.items())"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Have you used the correct iterator variables in the first generator expression? Make sure you use the correct names!")
+        self.assertEqual(sct_payload['message'], "Have you used the correct iterator variables in the first generator expression? Be sure to use the correct names.")
         helper.test_lines(self, sct_payload, 1, 1, 17, 19)
 
     def test_fail_4(self):

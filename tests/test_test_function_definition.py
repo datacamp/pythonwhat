@@ -464,7 +464,7 @@ def inc(num):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Calling <code>inc(-1)</code> doesn't result in an error, but it should!", sct_payload['message'])
+        self.assertEqual("Calling <code>inc(-1)</code> doesn't result in an error, but it should.", sct_payload['message'])
 
     def test_fail_2(self):
         self.data["DC_CODE"] = '''
