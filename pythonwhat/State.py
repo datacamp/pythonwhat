@@ -232,14 +232,12 @@ class State(object):
             utils_ast.mark_text_ranges(res, x + '\n')
 
         except IndentationError as e:
-            rep.set_tag("fun", "indentation_error")
             e.filename = "script.py"
             # no line info for now
             rep.feedback = Feedback("Your code could not be parsed due to an error in the indentation:<br>`%s.`" % str(e))
             rep.failed_test = True
 
         except SyntaxError as e:
-            rep.set_tag("fun", "syntax_error")
             e.filename = "script.py"
             # no line info for now
             rep.feedback = Feedback("Your code can not be executed due to a syntax error:<br>`%s.`" % str(e))
@@ -248,7 +246,6 @@ class State(object):
         # Can happen, can't catch this earlier because we can't differentiate between
         # TypeError in parsing or TypeError within code (at runtime).
         except:
-            rep.set_tag("fun", "other_error")
             rep.feedback.message = "Something went wrong while parsing your code."
             rep.failed_test = True
 

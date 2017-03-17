@@ -41,7 +41,6 @@ def test_try_except(index=1,
 """
 
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_try_except")
 
     # TODO: alternatively, could have missing_msg not use prepended messages
     #       then we wouldn't have to run check_part twice for everything

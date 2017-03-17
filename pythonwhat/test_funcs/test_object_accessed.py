@@ -40,7 +40,6 @@ def test_object_accessed(name,
     """
 
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_object_accessed")
 
     student_object_accesses = state.student_object_accesses
     student_mappings = state.student_oa_mappings

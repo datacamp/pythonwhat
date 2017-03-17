@@ -36,7 +36,6 @@ with open_file('...') as file:
 
     """
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_with")
 
     check_with = partial(check_node, 'withs', index-1, "`with` statement", MSG_MISSING, state=state)
 

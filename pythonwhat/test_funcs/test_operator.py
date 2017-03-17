@@ -58,7 +58,6 @@ def test_operator(index=1,
 
     """
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_operator")
 
     # Indexing starts at 1 for the pythonwhat user.
     index = index - 1

@@ -64,7 +64,6 @@ def test_lambda_function(index,
     """
 
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_lambda_function")
 
     # what the lambda will be referred to as
     typestr = "the {} lambda function".format(get_ord(index))

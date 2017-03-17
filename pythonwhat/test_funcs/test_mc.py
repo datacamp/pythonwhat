@@ -22,7 +22,6 @@ def test_mc(correct, msgs, state=None):
         raise ValueError("correct should be an integer")
 
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_mc")
     student_process = state.student_process
     if not isDefinedInProcess(MC_VAR_NAME, student_process):
         raise NameError("Option not available in the student process")
@@ -40,6 +39,6 @@ def test_mc(correct, msgs, state=None):
 
         feedback_msg = msgs[selected_option - 1]
 
-        rep.set_success_msg(msgs[correct - 1])
+        rep.success_msg = msgs[correct - 1]
 
         rep.do_test(EqualTest(selected_option, correct, feedback_msg))

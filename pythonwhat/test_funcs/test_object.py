@@ -51,7 +51,6 @@ def test_object(name,
 
     """
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_object")
 
     child = check_object(name, undefined_msg or MSG_UNDEFINED, expand_msg = "", state=state)
 

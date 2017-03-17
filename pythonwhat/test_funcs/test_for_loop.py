@@ -62,7 +62,6 @@ def test_for_loop(index=1,
         :code:`test_exression_output()` will pass on the body code.
     """
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_for_loop")
 
     state = check_node('for_loops', index-1, "`for` loops", MSG_MISSING, MSG_PREPEND, state=state)
 

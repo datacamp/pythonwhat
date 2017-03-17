@@ -9,7 +9,6 @@ def test_correct(check, diagnose, state=None):
     
     """
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_correct")
 
     def diagnose_and_check(state=None):
         # use multi twice, since diagnose and check may be lists of tests
