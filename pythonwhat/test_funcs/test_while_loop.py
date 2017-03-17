@@ -67,7 +67,6 @@ def test_while_loop(index=1,
       and solution code and `test_exression_output()` will pass on the body code.
     """
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_while_loop")
 
     state = check_node('whiles', index-1, "`while` loops", MSG_MISSING, MSG_PREPEND if expand_message else "", state=state)
 

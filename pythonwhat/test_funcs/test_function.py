@@ -65,7 +65,6 @@ def test_function(name,
             test_function(index = 1, used = [], incorrect_result_msg = "Incorrect result") # fail
     """
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_function")
 
     index = index - 1
 
@@ -259,7 +258,6 @@ def test_function_v2(name,
     """
 
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_function")
 
     index = index - 1
     eq_map = {"equal": EqualTest}

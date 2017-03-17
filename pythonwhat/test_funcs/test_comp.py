@@ -27,7 +27,6 @@ def test_list_comp(index=1,
     """
 
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_list_comp")
 
     test_comp("list comprehension", 'list_comps', **(locals()))
 
@@ -44,7 +43,6 @@ def test_generator_exp(index=1,
     """Test generator expressions
     """
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_generator_exp")
 
     test_comp("generator expression", 'generator_exps', **(locals()))
 
@@ -63,7 +61,6 @@ def test_dict_comp(index=1,
     """Test dict comprehension.
     """
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_dict_comp")
 
     test_comp("dictionary comprehension", 'dict_comps', **(locals()))
 

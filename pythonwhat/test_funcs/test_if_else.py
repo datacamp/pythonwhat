@@ -69,7 +69,6 @@ def test_if_else(index=1,
         the same thing in the solution as in the student code.
     """
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_if_else")
 
 
     # get state with specific if block

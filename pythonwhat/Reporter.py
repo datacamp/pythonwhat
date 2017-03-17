@@ -23,8 +23,6 @@ class Reporter(object):
         self.failure_msg = ""
         self.fallback_ast = None
 
-    def set_tag(self, *args, **kwargs): pass
-
     def do_test(self, testobj, prepend_on_fail="", fallback_ast=None):
         """Do test.
 

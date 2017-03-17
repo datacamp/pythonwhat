@@ -117,7 +117,6 @@ def test_function_definition(name,
                     body = test_function('print', args = []]))
     """
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_function_definition")
 
     # what the function will be referred to as
     typestr = "`{}()`".format(name)

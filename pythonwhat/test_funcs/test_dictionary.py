@@ -18,7 +18,6 @@ def test_dictionary(name,
     """
 
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_dictionary")
 
     child = check_object(name, undefined_msg or MSG_UNDEFINED, expand_msg = "", state=state, typestr="dictionary")
     is_instance(dict, not_dictionary_msg or MSG_NOT_INSTANCE, state=child)   # test instance

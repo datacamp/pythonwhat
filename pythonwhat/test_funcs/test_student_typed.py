@@ -18,7 +18,6 @@ def test_student_typed(text,
         not_typed_msg (str): feedback message to be displayed if the student did not type the text.
     """
     rep = Reporter.active_reporter
-    rep.set_tag("fun", "test_student_typed")
 
     if not not_typed_msg:
         if pattern:
