@@ -44,7 +44,6 @@ class TestTestExerciseError(unittest.TestCase):
 		self.assertEqual(output[0]['type'], "error")
 		self.assertFalse(output[1]['payload']['correct'])
 		self.assertEqual(output[1]['payload']['message'], "Your code can not be executed due to a syntax error:<br><code>Missing parentheses in call to 'print' (script.py, line 1).</code>") 
-		self.assertEqual(output[1]['payload']['tags']['fun'], "syntax_error")
 
 	def test_indentation_error(self):
 		self.data = {
@@ -59,7 +58,6 @@ class TestTestExerciseError(unittest.TestCase):
 		self.assertEqual(output[0]['type'], "script-output")
 		self.assertFalse(output[1]['payload']['correct'])
 		self.assertEqual(output[1]['payload']['message'], "Your code could not be parsed due to an error in the indentation:<br><code>unexpected indent (script.py, line 1).</code>")
-		self.assertEqual(output[1]['payload']['tags']['fun'], "indentation_error")
 
 	def test_enrichment_error(self):
 		self.data = {
