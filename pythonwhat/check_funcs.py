@@ -397,19 +397,42 @@ def call(args,
 from pythonwhat.tasks import ReprFail, UndefinedValue
 from pythonwhat import utils
 
-def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solution.", state=None):
+def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solution.", code=None, exact=True, state=None):
     """Test whether abstract syntax trees match between the student and solution code.
 
     Args:
         incorrect_msg: message displayed when ASTs mismatch.
+        code: optional code to use instead of the solution AST
+        exact: whether the representations must match exactly. If false, the solution AST
+               only needs to be contained within the student AST (similar to using test student typed).
+
+    :Example:
+
+        Student and Solution Code::
+
+            dict(a = 'value').keys()
+
+        SCT::
+
+            # all pass
+            Ex().has_equal_ast()
+            Ex().has_equal_ast(code = "dict(a = 'value').keys()")
+            Ex().has_equal_ast(code = "dict(a = 'value')", exact = False)
+
     """
     rep = Reporter.active_reporter
 
-    stu_rep = ast.dump(state.student_tree)
-    sol_rep = ast.dump(state.solution_tree)
+    parse_tree = lambda n: ast.dump(n.body[0] if isinstance(n, ast.Module) and len(n.body) == 1 else n)
+
+    stu_rep = parse_tree(state.student_tree)
+    sol_rep = parse_tree(state.solution_tree if not code else ast.parse(code))
 
     _msg = state.build_message(incorrect_msg)
-    rep.do_test(EqualTest(stu_rep, sol_rep, Feedback(_msg, state.highlight)))
+
+    if exact:
+        rep.do_test(EqualTest(stu_rep, sol_rep, Feedback(_msg, state.highlight)))
+    elif not sol_rep in stu_rep:
+        rep.do_test(Test(Feedback(_msg, state.highlight)))
 
     return state
 
