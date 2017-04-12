@@ -405,6 +405,20 @@ def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solut
         code: optional code to use instead of the solution AST
         exact: whether the representations must match exactly. If false, the solution AST
                only needs to be contained within the student AST (similar to using test student typed).
+
+    :Example:
+
+        Student and Solution Code::
+
+            dict(a = 'value').keys()
+
+        SCT::
+
+            # all pass
+            Ex().has_equal_ast()
+            Ex().has_equal_ast(code = "dict(a = 'value').keys()")
+            Ex().has_equal_ast(code = "dict(a = 'value')", exact = False)
+
     """
     rep = Reporter.active_reporter
 
