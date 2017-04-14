@@ -97,3 +97,31 @@ Of course primitive classes like `str`, `int`, `list`, `dict`, ... can be tested
 As explained in the [Processes article](../expression_tests.md), objects are extracted from their respected processes by 'dilling' and 'undilling' them. However, you can manually set a 'converter' with the `set_converter()` function. This will override the default dilling and undilling behavior, and enables you to make simplified representations of custom objects, testing only exactly what you want to test.
 
 **NOTE**: Behind the scenes, `pythonwhat` has to fetch the value of objects from sub-processes. The required 'dilling' and 'undilling' can cause issues for exotic objects. For more information on this and possible errors that can occur, read the [Processes article](../expression_tests.md).
+
+check_object
+------------
+
+```eval_rst
+.. autofunction:: pythonwhat.check_object.check_object
+```
+
+is_instance
+-----------
+
+```eval_rst
+.. autofunction:: pythonwhat.check_object.is_instance
+```
+
+has_key
+-----------
+
+```eval_rst
+.. autofunction:: pythonwhat.check_object.has_key
+```
+
+has_equal_key
+---------------
+
+```eval_rst
+.. autofunction:: pythonwhat.check_object.has_equal_key
+```
