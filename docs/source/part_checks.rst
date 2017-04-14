@@ -209,6 +209,52 @@ followed by its iterator.
         .multi(check_body().has_equal_value()) \
         .check_iter().has_equal_value()
 
+has_context
+~~~~~~~~~~~~~
+
+.. autofunction:: pythonwhat.check_has_context.has_context
+
+Tests whether context variables defined by the student match the solution, for a selected block of code.
+A context variable is one that is defined in a looping or block statement.
+For example, ``ii`` in the code below.
+
+.. code::
+
+    [ii + 1 for ii in range(3)]
+
+By default, the test fails if the submission code does not have the same number of context variables.
+This is illustrated below.
+
+**Solution Code**
+
+.. code::
+
+    # ii and ltr are context variables
+    for ii, ltr in enumerate(['a']): pass
+
+**SCT**
+
+.. code::
+
+    Ex().check_for_loop(0).check_body().has_context()
+
+**Passing Submission**
+
+.. code::
+
+    # still 2 variables, just different names
+    for jj, Ltr in enumerate(['a']): pass
+
+**Failing Submission**
+
+.. code::
+
+   # only 1 variable
+   for ii in enumerate(['a']): pass
+
+.. note::
+   
+   that if you use ``has_context(exact_names = True)``, then the submission must use the same names for the context variables,    which would cause the passing submission above to fail.
 
 set_context
 ~~~~~~~~~~~~~

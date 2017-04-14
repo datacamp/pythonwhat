@@ -41,8 +41,6 @@ To robustly test the equality of objects, and results of evaluations, it has to 
 
 The remainder of the wiki goes over every test function that `pythonwhat` features, explaining all arguments and covering different use cases. They will give you an idea of how, why and when to use them.
 
-For more full examples of SCTs for Python exercises on DataCamp, check out the [source files of the introduction to Python course](http://www.github.com/datacamp/courses-intro-to-python). In the chapter files there, you can can see the SCTs that have been written for several exercises.
-
-To test your understanding of writing SCTs for Python exercises on the DataCamp platform, you can take the course [Writing SCTs with pythonwhat](https://www.datacamp.com/courses/writing-scts-with-pythonwhat) course.
+For more full examples of SCTs for Python exercises on DataCamp, check out the [source files of the pythonwhat tutorial course](http://www.github.com/datacamp/courses-pythonwhat-tutorial). In the chapter files there, you can can see the SCTs that have been written for several exercises. Another useful course is [introduction to Python](http://www.github.com/datacamp/courses-intro-to-python).
 
 After reading through this documentation, we hope writing SCTs for Python exercises on DataCamp becomes a painless experience. If this is not the case and you think improvements to `pythonwhat` and this documentation are possible, [please let us know](mailto:content-engineering@datacamp.com)!

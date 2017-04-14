@@ -47,13 +47,13 @@ The SCT uses three `pythonwhat` chains to test the correctness of the student's 
 In all the test statements above, feedback messages will be automatically generated when something goes wrong. However, it is possible to manually set these feedback messages. For example, in the code below,
 
 ```python
-Ex().check_object(undefined_msg="`x` is undefined!") \
+Ex().check_object(missing_msg="`x` is undefined!") \
     .has_equal_value(incorrect_msg="wrong value for `x`")
 ```
 
 the automatic messages for when `x` is undefined or incorrect are replaced with manual feedback. Now, if students submit `x = 4` instead of `x = 5`, they will see the message, "wrong value for `x`". Finally, notice that you can use Markdown syntax inside the strings here.
 
-The same holds for `test_output_contains()`: you can use the `no_output_msg` argument to specify a custom message. For more information on all the different arguments you can set in the different `pythonwhat` functions, have a look at the articles in this wiki, describing them in detail.
+The same holds for `has_equal_value()`: you can use the `incorrect_msg` argument to specify a custom message. For more information on all the different arguments you can set in the different `pythonwhat` functions, have a look at the articles in this wiki, describing them in detail.
 
 Next Steps
 ----------
