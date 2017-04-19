@@ -220,6 +220,15 @@ class TestHasEqualAst(unittest.TestCase):
         self.data["DC_SCT"] = "Ex().has_equal_ast(exact=False)"
         self.failing_submission()
 
+    def test_part_of_method_pass(self):
+        self.data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a")', exact=False)"""
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_part_of_method_fail(self):
+        self.data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a")', exact=False)"""
+        self.failing_submission()
+
 class TestOverride(unittest.TestCase):
     """
     This class is used to test overriding w/ correct and incorrect code. Tests are 

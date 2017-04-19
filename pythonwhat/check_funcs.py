@@ -422,8 +422,13 @@ def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solut
     """
     rep = Reporter.active_reporter
 
-    parse_tree = lambda n: ast.dump(n.body[0] if isinstance(n, ast.Module) and len(n.body) == 1 else n)
+    def parse_tree(n):
+        # get contents of module.body if only 1 element
+        crnt = n.body[0] if isinstance(n, ast.Module) and len(n.body) == 1 else n
 
+        # remove Expr if it exists
+        return ast.dump(crnt.value if isinstance(crnt, ast.Expr) else crnt)
+        
     stu_rep = parse_tree(state.student_tree)
     sol_rep = parse_tree(state.solution_tree if not code else ast.parse(code))
 
