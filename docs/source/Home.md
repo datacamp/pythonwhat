@@ -1,10 +1,8 @@
-Home
-====
+Background
+==========
 
-At DataCamp we build tools to [learn data science](https://www.datacamp.com) interactively. See e.g. our online [R tutorial](https://www.datacamp.com/courses/free-introduction-to-r) to learn R Programming and our Python For Data Science tutorial to [learn Python](https://www.datacamp.com/courses/intro-to-python-for-data-science).
-
-pythonwhat?
------------
+What is pythonwhat?
+-------------------
 
 A major part of DataCamp's interactive learning is centered around automated and meaningful feedback. When a student submits an incorrect answer, the system tells the student what he or she is doing wrong. This happens through so-called submission correctness tests, or SCTs. An SCT is a test script that compares the different steps in a student's submission to the ideal solution, and generates meaningful feedback along the way.
 

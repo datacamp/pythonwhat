@@ -98,29 +98,25 @@ As explained in the [Processes article](../expression_tests.md), objects are ext
 
 **NOTE**: Behind the scenes, `pythonwhat` has to fetch the value of objects from sub-processes. The required 'dilling' and 'undilling' can cause issues for exotic objects. For more information on this and possible errors that can occur, read the [Processes article](../expression_tests.md).
 
-check_object
-------------
+### check_object syntax
 
 ```eval_rst
 .. autofunction:: pythonwhat.check_object.check_object
 ```
 
-is_instance
------------
+#### is_instance
 
 ```eval_rst
 .. autofunction:: pythonwhat.check_object.is_instance
 ```
 
-has_key
------------
+#### has_key
 
 ```eval_rst
 .. autofunction:: pythonwhat.check_object.has_key
 ```
 
-has_equal_key
----------------
+#### has_equal_key
 
 ```eval_rst
 .. autofunction:: pythonwhat.check_object.has_equal_key
