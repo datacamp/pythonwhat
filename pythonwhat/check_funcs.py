@@ -451,6 +451,7 @@ def has_expr(incorrect_msg="FMT:Unexpected expression {test}: expected `{sol_eva
              keep_objs_in_env=None,
              name=None,
              highlight=None,
+             copy=True,
              state=None,
              test=None):
     """Run student and solution code, compare returned value, printed output, or errors.
@@ -496,6 +497,7 @@ def has_expr(incorrect_msg="FMT:Unexpected expression {test}: expected `{sol_eva
                        expr_code = expr_code,
                        keep_objs_in_env = keep_objs_in_env,
                        name=name,
+                       copy=copy,
                        do_exec = True if test == 'output' else False)
     
     eval_sol, str_sol = get_func(tree = state.solution_tree,

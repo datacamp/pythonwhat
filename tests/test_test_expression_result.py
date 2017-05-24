@@ -21,5 +21,19 @@ class TestExpressionOutputBasic(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_no_copy_bad_sct_passes(self):
+        self.data["DC_SOLUTION"] = "a = [2]"
+        self.data["DC_CODE"] = "a = [1]"
+        self.data["DC_SCT"] = "Ex().has_equal_value(expr_code = 'a[0] = 3', name = 'a', copy = False).has_equal_value(expr_code = 'a', name = 'a')"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_copy_sct_fails(self):
+        self.data["DC_SOLUTION"] = "a = [2]"
+        self.data["DC_CODE"] = "a = [1]"
+        self.data["DC_SCT"] = "Ex().has_equal_value(expr_code = 'a[0] = 3', name = 'a', copy = True).has_equal_value(name = 'a')"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
 if __name__ == "__main__":
     unittest.main()

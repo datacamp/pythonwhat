@@ -5,7 +5,7 @@ import pickle
 import pythonwhat
 import ast
 import inspect
-import copy
+from copy import deepcopy
 from pickle import PicklingError
 from pythonwhat.utils_env import set_context_vals, assign_from_ast
 from contextlib import contextmanager
@@ -330,17 +330,10 @@ def get_error(f, *args, **kwargs):
 def taskRunEval(tree,
                 process, shell, 
                 keep_objs_in_env = None, extra_env = None, context=None, context_vals=None, 
-                pre_code = "", expr_code = "", name="", tempname='_evaluation_object_', do_exec=False, 
-                call=None):
-    new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
-    if extra_env is not None:
-        new_env.update(copy.deepcopy(extra_env))
-    if context is not None: 
-        set_context_vals(new_env, context, context_vals)
+                pre_code = "", expr_code = "", name="", copy=True, tempname='_evaluation_object_', 
+                do_exec=False, call=None):
     try: 
-        # Execute pre_code if specified
-        if pre_code: exec(pre_code, new_env)
-
+        # Prepare code --------------------------------------------------------
         # If no name given, the object of interest is the output of eval
         # otherwise, we'll use name to get the object from the environment
         if not (name or do_exec):
@@ -352,6 +345,22 @@ def taskRunEval(tree,
         # Expression code takes precedence over tree code
         if expr_code: code = expr_code
         else:         code = compile(tree, "<script>", mode)
+
+        # Set up environment --------------------------------------------------
+        # avoid deepy copy if specified, or just looking up variable by name
+        if not copy or (isinstance(tree, ast.Name) and isinstance(tree.ctx, ast.Load)):
+            new_env = dict(get_env(shell.user_ns))
+        else:
+            new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
+
+        if extra_env is not None:
+            new_env.update(deepcopy(extra_env))
+        if context is not None: 
+            set_context_vals(new_env, context, context_vals)
+
+        # Execute code --------------------------------------------------------
+        # Run pre_code if specified
+        if pre_code: exec(pre_code, new_env)
 
         if mode == 'eval': 
             obj = eval(code, new_env)
