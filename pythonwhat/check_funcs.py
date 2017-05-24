@@ -441,7 +441,7 @@ def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solut
 
     return state
 
-def has_expr(incorrect_msg="__JINJA__:Unexpected expression {{test}}: expected `{{sol_eval}}`, got `{{stu_eval}` {{'with values ' + extra_env if extra_env}}.",
+def has_expr(incorrect_msg="__JINJA__:Unexpected expression {{test}}: expected `{{sol_eval}}`, got `{{stu_eval}}`{{' with values ' + extra_env if extra_env}}.",
              error_msg="Running an expression in the student process caused an issue.",
              undefined_msg="FMT:Have you defined `{name}` without errors?",
              extra_env=None,
@@ -517,7 +517,7 @@ def has_expr(incorrect_msg="__JINJA__:Unexpected expression {{test}}: expected `
     # kwargs ---
     fmt_kwargs = {'stu_part': state.student_parts, 'sol_part': state.solution_parts, 
                   'name': name, 'test': test,
-                  'extra_env': " "+str(extra_env or ""), 'context_vals': context_vals}
+                  'extra_env': str(extra_env) if extra_env else "", 'context_vals': context_vals}
     fmt_kwargs['stu_eval'] = utils.shorten_str(str(eval_stu))
     fmt_kwargs['sol_eval'] = utils.shorten_str(str(eval_sol))
 
