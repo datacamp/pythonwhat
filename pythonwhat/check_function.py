@@ -20,12 +20,12 @@ def bind_args(signature, args_part):
 
 MSG_PREPEND = "__JINJA__:Check your code in the {{child['part']+ ' of the' if child['part']}} {{typestr}}. "
 def check_function(name, index, 
-                   missing_msg = "FMT:Did you define {typestr}?", 
+                   missing_msg = "FMT:Did you define the {typestr}?", 
                    params_not_matched_msg = "FMT:Something went wrong in figuring out how you specified the "
                                             "arguments for `{name}`; have another look at your code and its output.",
                    expand_msg  = MSG_PREPEND, 
                    signature=True,
-                   typestr = "{ordinal} function call",
+                   typestr = "{ordinal} function call `{name}()`",
                    state=None):
     rep = Reporter.active_reporter
     stu_out = state.student_function_calls
