@@ -481,6 +481,8 @@ def has_expr(incorrect_msg="FMT:Unexpected expression {test}: expected `{sol_eva
           be passed explicitely.
         name (str): the name of a variable, or expression, whose value will be tested after running the
           student and solution code. This could be thought of as post code.
+        copy (bool): whether to try to deep copy objects in the environment, such as lists, that could
+          accidentally be mutated. Disable to speed up SCTs. Disabling may lead to cryptic mutation issues.
     """
     rep = Reporter.active_reporter
 
