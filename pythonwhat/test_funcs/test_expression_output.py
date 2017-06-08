@@ -7,7 +7,8 @@ def test_expression_output(extra_env=None,
                            expr_code=None,
                            pre_code=None,
                            keep_objs_in_env=None,
-                           state=None):
+                           state=None,
+                           **kwargs):
     """Test output of expression.
 
     The code of the student is ran in the active state and the output it generates is
@@ -37,6 +38,7 @@ def test_expression_output(extra_env=None,
         keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
           the expression is evaluated. All primitive types are copied automatically, other objects have to
           be passed explicitely.
+        kwargs: named arguments which are the same as those used by ``has_equal_value``.
 
     :Example:
         Student code::
@@ -83,4 +85,5 @@ def test_expression_output(extra_env=None,
                      expr_code=expr_code,
                      pre_code=pre_code,
                      keep_objs_in_env=keep_objs_in_env,
-                     state = state)
+                     state = state,
+                     **kwargs)

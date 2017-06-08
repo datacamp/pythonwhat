@@ -35,5 +35,11 @@ class TestExpressionOutputBasic(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
 
+    def test_test_expression_result_copy_pass(self):
+        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+        self.data["DC_SCT"] = "test_expression_result(expr_code = 'a', error_msg = 'cough', copy = False)"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 if __name__ == "__main__":
     unittest.main()

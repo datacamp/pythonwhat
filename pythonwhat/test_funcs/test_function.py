@@ -20,7 +20,8 @@ def test_function(name,
                   incorrect_msg=None,
                   add_more=False,
                   highlight=True,
-                  state=None):
+                  state=None,
+                  **kwargs):
     """Test if function calls match.
 
     This function compares a function call in the student's code with the corresponding one in the solution
@@ -42,6 +43,7 @@ def test_function(name,
         args_not_specified_msg (str): feedback message if the function is called but not all required arguments are specified
         incorrect_msg (str): feedback message if the arguments of the function in the solution doesn't match
           the one of the student.
+        kwargs: named arguments which are the same as those used by ``has_equal_value``.
 
     :Example:
 
@@ -149,7 +151,8 @@ def test_function(name,
                 test = build_test(arg_student, arg_solution,
                                   state,
                                   do_eval, eq_fun, msg, add_more=add_more,
-                                  highlight=arg_student if highlight else None)
+                                  highlight=arg_student if highlight else None,
+                                  **kwargs)
                 test.test()
 
                 if not test.result:
@@ -172,7 +175,7 @@ def test_function(name,
                     test = build_test(key_student, key_solution,
                                       state,
                                       do_eval, eq_fun, msg, add_more=add_more,
-                                      highlight=key_student if highlight else None)
+                                      highlight=key_student if highlight else None, **kwargs)
                     test.test()
 
                     if not test.result:
@@ -229,7 +232,8 @@ def test_function_v2(name,
                      incorrect_msg=None,
                      add_more=False,
                      highlight=True,
-                     state=None):
+                     state=None,
+                     **kwargs):
     """Test if function calls match (v2).
 
     This function compares a function call in the student's code with the corresponding one in the solution
@@ -255,6 +259,7 @@ def test_function_v2(name,
             parameters listed in params are specified by the student.
         incorrect_msg (list(str)): string or list of strings (parameter-specific). Custom feedback messages if the arguments
             don't correspond between student and solution code.
+        kwargs: named arguments which are the same as those used by ``has_equal_value``.
     """
 
     rep = Reporter.active_reporter
@@ -346,7 +351,7 @@ def test_function_v2(name,
         sub_tests = [partial(test_call, name, call_ind, signature, params, do_eval, solution_args, 
                              eq_fun, add_more, index,
                              params_not_specified_msg, params_not_matched_msg, incorrect_msg, 
-                             keywords, state=state, highlight = highlight)
+                             keywords, state=state, highlight = highlight, **kwargs)
                      for call_ind in call_indices]
         test_or(*sub_tests, state=state)
 
@@ -360,7 +365,7 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
               eq_fun, add_more, index,
               params_not_specified_msg, params_not_matched_msg, incorrect_msg, 
               keywords,  # pulled from solution process
-              state, highlight):
+              state, highlight, **kwargs):
     #stud_name = get_mapped_name(name, state.student_mappings)
 
     rep = Reporter.active_reporter
@@ -409,7 +414,8 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
         test_arg(param, do_eval[ind],
                  arg_student, arg_solution, param_kind, stud_name,
                  eq_fun, add_more,
-                 incorrect_msg[ind], state=state, highlight = arg_student if highlight else None)
+                 incorrect_msg[ind], state=state, highlight = arg_student if highlight else None,
+                 **kwargs)
 
     # If all is still good, we have a winner!
     state.set_used(name, call_ind, index)
@@ -417,7 +423,7 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
 def test_arg(param, do_eval, 
              arg_student, arg_solution, param_kind, stud_name,
              eq_fun, add_more,
-             incorrect_msg, state=None, highlight = None):
+             incorrect_msg, state=None, highlight = None, **kwargs):
     rep = Reporter.active_reporter
 
     if incorrect_msg is None:
@@ -430,7 +436,8 @@ def test_arg(param, do_eval,
 
     test = build_test(arg_student, arg_solution,
                         state,
-                        do_eval, eq_fun, msg, add_more = add_more, highlight=highlight)
+                        do_eval, eq_fun, msg, add_more = add_more, highlight=highlight,
+                        **kwargs)
     # TODO
     rep.do_test(test)
 
@@ -447,17 +454,17 @@ def bind_args(signature, arguments, keyws):
     bound_args = signature.bind(*arguments, **keyws)
     return(bound_args.arguments, signature.parameters)
 
-def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more, highlight = False):
+def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more, highlight = False, **kwargs):
     got_error = False
     if do_eval:
 
-        eval_solution, str_solution = getResultInProcess(tree = sol, process = state.solution_process)
+        eval_solution, str_solution = getResultInProcess(tree = sol, process = state.solution_process, **kwargs)
         if isinstance(str_solution, Exception):
             raise ValueError("Running an argument in the solution environment raised an error")
         if isinstance(eval_solution, ReprFail):
             raise ValueError("Couldn't figure out the argument: " + eval_solution.info)
 
-        eval_student, str_student = getResultInProcess(tree = stud, process = state.student_process)
+        eval_student, str_student = getResultInProcess(tree = stud, process = state.student_process, **kwargs)
         if isinstance(str_student, Exception):
             got_error = True
 
