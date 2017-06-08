@@ -742,6 +742,13 @@ class TestCheckFunction(unittest.TestCase):
         self.data["DC_SOLUTION"] = "np.array([1,2] if False else [1])"
         self.run_fail(".check_args(0).check_if_exp(0).check_body().has_equal_ast()")
 
+    def test_test_function_kwargs(self):
+        self.data["DC_SCT"] = "test_function('np.array', copy = False)"
+
+    def test_test_function2_kwargs(self):
+        self.data["DC_SCT"] = "test_function2('np.array', params = ['object'], copy = False)"
+
+
 class TestCheckFunctionCases(unittest.TestCase):
     def setup_color(self):
         self.data = {

@@ -9,7 +9,8 @@ def test_object_after_expression(name,
                                  expr_code=None,
                                  pre_code=None,
                                  keep_objs_in_env=None,
-                                 state=None):
+                                 state=None,
+                                 **kwargs):
     """Test object after expression.
 
     The code of the student is ran in the active state and the the value of the given object is
@@ -41,6 +42,7 @@ def test_object_after_expression(name,
         keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
           the expression is evaluated. All primitive types are copied automatically, other objects have to
           be passed explicitely.
+        kwargs: named arguments which are the same as those used by ``has_equal_value``.
 
     :Example:
 
@@ -86,4 +88,5 @@ def test_object_after_expression(name,
             name = name,
             highlight = ass_node,
             expr_code = expr_code,
-            state=state)
+            state=state,
+            **kwargs)

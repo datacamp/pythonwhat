@@ -15,7 +15,8 @@ def test_expression_result(extra_env=None,
                            pre_code=None,
                            keep_objs_in_env=None,
                            error_msg=None,
-                           state=None):
+                           state=None,
+                           **kwargs):
     """Test result of expression.
 
     The code of the student is ran in the active state and the result of the evaluation is
@@ -46,6 +47,7 @@ def test_expression_result(extra_env=None,
           the expression is evaluated. All primitive types are copied automatically, other objects have to
           be passed explicitely.
         error_msg (str): Message to override the default error message that is thrown if the expression resulted in an error.
+        kwargs: named arguments which are the same as those used by ``has_equal_value``.
 
     :Example:
         Student code::
@@ -90,4 +92,4 @@ def test_expression_result(extra_env=None,
                     expr_code=expr_code,
                     pre_code=pre_code,
                     keep_objs_in_env=keep_objs_in_env,
-                    state = state)
+                    state = state, **kwargs)
