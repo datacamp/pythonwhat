@@ -85,8 +85,8 @@ class F(Chain):
         func_chain._stack.append(f)
         return func_chain
 
-def Ex():
-    return Chain(State.root_state)
+def Ex(state = None):
+    return Chain(state or State.root_state)
 
 # Prepare SCTs that may be chained attributes ----------------------
 # decorate functions that may try to run test_* function nodes as subtests
