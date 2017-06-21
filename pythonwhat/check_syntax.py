@@ -68,9 +68,9 @@ class Chain:
         if self._waiting_on_call:
             self._double_attr_error()
         elif type(f) == Chain:
-            raise BaseException("did you use a result of the Ex() function on the right hand side of the + operator?")
+            raise BaseException("did you use a result of the Ex() function on the right hand side of the >> operator?")
         elif not callable(f):
-            raise BaseException("right hand side of + operator should be an SCT, so must be callable!")
+            raise BaseException("right hand side of >> operator should be an SCT, so must be callable!")
         else:
             chain = self._sct_copy(f)
             return chain()
