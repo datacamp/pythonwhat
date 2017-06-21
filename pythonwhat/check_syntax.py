@@ -47,23 +47,39 @@ class Chain:
         self._crnt_sct = None
         self._waiting_on_call = False
 
+    def _double_attr_error(self):
+        raise AttributeError("Did you forget to call a statement? "
+                                "e.g. Ex().check_list_comp.check_body()")
+
     def __getattr__(self, attr):
         if attr not in ATTR_SCTS: raise AttributeError("No SCT named %s"%attr)
-        elif self._waiting_on_call: 
-            raise AttributeError("Did you forget to call a statement? "
-                                 "e.g. Ex().check_list_comp.check_body()")
+        elif self._waiting_on_call: self._double_attr_error()
         else:
             # make a copy to return, 
             # in case someone does: a = chain.a; b = chain.b
-            chain = copy.copy(self)
-            chain._crnt_sct = ATTR_SCTS[attr]
-            chain._waiting_on_call = True
-            return chain
+            return self._sct_copy(ATTR_SCTS[attr])
 
     def __call__(self, *args, **kwargs):
         self._state = self._crnt_sct(state=self._state, *args, **kwargs)
         self._waiting_on_call = False
         return self
+
+    def __rshift__(self, f):
+        if self._waiting_on_call:
+            self._double_attr_error()
+        elif type(f) == Chain:
+            raise BaseException("did you use a result of the Ex() function on the right hand side of the + operator?")
+        elif not callable(f):
+            raise BaseException("right hand side of + operator should be an SCT, so must be callable!")
+        else:
+            chain = self._sct_copy(f)
+            return chain()
+
+    def _sct_copy(self, f):
+        chain = copy.copy(self)
+        chain._crnt_sct = f
+        chain._waiting_on_call = True
+        return chain
 
 class F(Chain):
     def __init__(self, stack = None):
