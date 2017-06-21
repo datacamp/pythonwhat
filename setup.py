@@ -11,10 +11,10 @@ with open('pythonwhat/__init__.py', 'rb') as f:
         f.read().decode('utf-8')).group(1)))
 
 setup(
-	name='pythonwhat',
-	version=version,
-	packages=['pythonwhat', 'pythonwhat.test_funcs'],
-	install_requires=["dill", "IPython", "numpy", "pandas", "markdown2", "jinja2"],
+        name='pythonwhat',
+        version=version,
+        packages=['pythonwhat', 'pythonwhat.test_funcs'],
+        install_requires=["dill", "IPython", "numpy", "pandas", "markdown2", "jinja2"],
         maintainer = 'Michael Chow',
         maintainer_email = 'michael@datacamp.com',
         url = 'https://github.com/datacamp/pythonwhat')
