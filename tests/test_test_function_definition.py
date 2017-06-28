@@ -30,6 +30,14 @@ eargs = {'args': ['a', 'b'], 'kwargs': {}}
 """
         self.test_step_x()
 
+    def test_step_x_spec2_func_arg(self):
+        self.data['DC_SCT'] = """
+import numpy as np
+Ex().check_function_def('test').call("f(1,2)", func = lambda x, y: np.allclose(x, y))
+                                
+"""
+        self.test_step_x()
+
 
 class TestExercise1(unittest.TestCase):
 

@@ -144,16 +144,17 @@ class EqualTest(Test):
         result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
 
-    def __init__(self, obj1, obj2, feedback):
+    def __init__(self, obj1, obj2, feedback, func = None):
         super().__init__(feedback)
         self.obj1 = obj1
         self.obj2 = obj2
+        self.func = func if func is not None else is_equal
 
     def specific_test(self):
         """
         Perform the actual test. result is set to False if the objects differ, True otherwise.
         """
-        self.result = is_equal(self.obj1, self.obj2)
+        self.result = self.func(self.obj1, self.obj2)
 
 
 

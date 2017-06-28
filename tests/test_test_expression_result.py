@@ -41,5 +41,20 @@ class TestExpressionOutputBasic(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_test_custom_equality_func(self):
+        self.data["DC_SOLUTION"] = "a = [1.01]"
+        self.data["DC_CODE"] = "a = [1.011]"
+        self.data["DC_SCT"] = "import numpy as np; Ex().check_object('a').has_equal_value(func = lambda x, y: np.allclose(x, y, atol = .001))"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_test_custom_equality_func_fail(self):
+        self.data["DC_SOLUTION"] = "a = [1.01]"
+        self.data["DC_CODE"] = "a = [1.011]"
+        self.data["DC_SCT"] = "import numpy as np; Ex().check_object('a').has_equal_value(func = lambda x, y: np.allclose(x, y, atol = .0001))"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+
 if __name__ == "__main__":
     unittest.main()
