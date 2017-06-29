@@ -485,6 +485,7 @@ def has_expr(incorrect_msg="__JINJA__:Unexpected expression {{test}}: expected `
           student and solution code. This could be thought of as post code.
         copy (bool): whether to try to deep copy objects in the environment, such as lists, that could
           accidentally be mutated. Disable to speed up SCTs. Disabling may lead to cryptic mutation issues.
+        func: custom binary function of form f(stu_result, sol_result), for equality testing.
     """
     rep = Reporter.active_reporter
 
