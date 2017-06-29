@@ -358,6 +358,7 @@ def call(args,
          error_msg=MSG_CALL_ERROR, 
          # TODO kept for backwards compatibility in test_function_definition/lambda
          argstr='',
+         func=None,
          state=None, **kwargs):
     rep = Reporter.active_reporter
     test_type = ('value', 'output', 'error')
@@ -389,7 +390,7 @@ def call(args,
 
     # incorrect result
     _msg = state.build_message(incorrect_msg, fmt_kwargs)
-    rep.do_test(EqualTest(eval_sol, eval_stu, Feedback(_msg, stu_node)))
+    rep.do_test(EqualTest(eval_sol, eval_stu, Feedback(_msg, stu_node), func))
 
     return state
 
@@ -452,6 +453,7 @@ def has_expr(incorrect_msg="__JINJA__:Unexpected expression {{test}}: expected `
              name=None,
              highlight=None,
              copy=True,
+             func=None,
              state=None,
              test=None):
     """Run student and solution code, compare returned value, printed output, or errors.
@@ -483,6 +485,7 @@ def has_expr(incorrect_msg="__JINJA__:Unexpected expression {{test}}: expected `
           student and solution code. This could be thought of as post code.
         copy (bool): whether to try to deep copy objects in the environment, such as lists, that could
           accidentally be mutated. Disable to speed up SCTs. Disabling may lead to cryptic mutation issues.
+        func: custom binary function of form f(stu_result, sol_result), for equality testing.
     """
     rep = Reporter.active_reporter
 
@@ -537,7 +540,7 @@ def has_expr(incorrect_msg="__JINJA__:Unexpected expression {{test}}: expected `
 
     # test equality of results
     _msg = state.build_message(incorrect_msg, fmt_kwargs)
-    rep.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, highlight)))
+    rep.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, highlight), func))
 
     return state
 
