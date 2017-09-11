@@ -16,7 +16,7 @@ def test_mc(correct, msgs, state=None):
     Args:
         correct (int): the index of the correct answer (should be an instruction). Starts at 1.
         msgs (list(str)): a list containing all feedback messages belonging to each choice of the
-        student. The list should have the same length as the number of instructions.
+                          student. The list should have the same length as the number of instructions.
     """
     if not issubclass(type(correct), int):
         raise ValueError("correct should be an integer")
