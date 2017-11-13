@@ -13,6 +13,13 @@ Visit [DataCamp Teach](https://www.datacamp.com/teach) to create your own DataCa
 * [pythonwhat documentation](http://pythonwhat.readthedocs.io)
 * [full tutorial](https://github.com/datacamp/courses-pythonwhat-tutorial)
 
+To generate the documentation, install pythonwhat and run..
+
+```
+cd docs
+make html
+```
+
 ## Installation
 
 ```
