@@ -49,11 +49,11 @@ def test_exercise(sct,
     Reporter.active_reporter = rep
 
     state = State(
-        student_code = check_str(student_code),
-        solution_code = check_str(solution_code),
-        full_student_code = check_str(student_code),
-        full_solution_code = check_str(solution_code),
-        pre_exercise_code = check_str(pre_exercise_code),
+        student_code = student_code,
+        solution_code = solution_code,
+        full_student_code = student_code,
+        full_solution_code = solution_code,
+        pre_exercise_code = pre_exercise_code,
         student_process = check_process(student_process),
         solution_process = check_process(solution_process),
         raw_student_output = check_str(raw_student_output))

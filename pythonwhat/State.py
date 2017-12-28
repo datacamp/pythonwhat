@@ -87,11 +87,8 @@ class State(object):
         self.messages = messages if messages else []
 
         # parse code if didn't happen yet
-        if not hasattr(self, 'student_tree'):
-            self.student_tree = State.parse_ext(self.student_code)
-
-        if not hasattr(self, 'solution_tree'):
-            self.solution_tree = State.parse_int(self.solution_code)
+        self.set_parse_tree('student')
+        self.set_parse_tree('solution')
 
         if not hasattr(self, 'pre_exercise_tree'):
             self.pre_exercise_tree = State.parse_int(self.pre_exercise_code)
@@ -109,6 +106,14 @@ class State(object):
         self.fun_usage = {}
         self.manual_sigs = None
         self._parser_cache = {}
+
+    def set_parse_tree(self, kind='student'):
+        if not hasattr(self, kind + '_tree'):
+            parse_func = self.parse_ext if kind == 'student' else self.parse_int
+            code = getattr(self, kind + '_code')
+            tree = parse_func(code) if isinstance(code, str) else None
+            setattr(self, kind + '_tree', tree)
+            return tree
 
     def set_used(self, name, stud_index, sol_index):
         if name in self.fun_usage.keys():
