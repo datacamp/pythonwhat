@@ -1,6 +1,7 @@
 ![banner](https://s3.amazonaws.com/assets.datacamp.com/img/github/content-engineering-repos/pythonwhat_banner_v2.png)
 
 [![Build Status](https://travis-ci.org/datacamp/pythonwhat.svg?branch=master)](https://travis-ci.org/datacamp/pythonwhat)
+[![PyPI version](https://badge.fury.io/py/pythonwhat.svg)](https://badge.fury.io/py/pythonwhat)
 
 The `pythonwhat` package provides rich functionality to write Submission Correctness Tests for interactive Python exercises on the DataCamp platform. DataCamp operates with **Python 3**.
 
