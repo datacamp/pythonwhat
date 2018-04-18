@@ -487,12 +487,3 @@ test_generator_exp(index=1,
 
 if __name__ == "__main__":
      unittest.main()
-
-# import ast
-# from pythonwhat import utils_ast
-
-# code = "[key + str(val) for key,val in x.items()]"
-# res = ast.parse(code)
-# utils_ast.mark_text_ranges(res, code, debug = True)
-# print(ast.dump(res))
-

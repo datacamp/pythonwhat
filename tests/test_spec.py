@@ -1,5 +1,6 @@
 import unittest
 import helper
+import pytest
 
 class TestFChain(unittest.TestCase):
 
@@ -143,6 +144,7 @@ Ex().check_list_comp(0).check_body()\
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+@pytest.mark.debug
 class TestTestNot(unittest.TestCase):
     def setUp(self):
         self.data = {
@@ -155,9 +157,20 @@ class TestTestNot(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_pass2(self):
+        self.data["DC_SCT"] = """Ex().test_not(test_student_typed("y"), msg = "don't type 'y'")"""
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
     def test_fail(self):
         # obviously this would be a terrible sct...
         self.data["DC_SCT"] = """Ex().test_not(test_object('x'), msg="no")"""
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
+    def test_fail2(self):
+        # obviously this would be a terrible sct...
+        self.data["DC_SCT"] = """Ex().test_not(test_student_typed("x"), msg="x is defined")"""
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
 

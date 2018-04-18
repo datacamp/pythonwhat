@@ -5,7 +5,6 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord, get_num
-from pythonwhat.utils_ast import extract_text_from_node
 from pythonwhat.tasks import getResultInProcess, getSignatureInProcess, ReprFail
 from .test_or import test_or
 

@@ -74,3 +74,6 @@ tests/.DS_Store
 
 # pytest
 .pytest_cache/
+
+# datasets
+*.csv

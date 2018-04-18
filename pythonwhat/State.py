@@ -6,12 +6,13 @@ from functools import partial
 from pythonwhat.parsing import TargetVars, FunctionParser, ObjectAccessParser, parser_dict
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
-from pythonwhat import utils_ast
 from pythonwhat import signatures
 from pythonwhat.converters import get_manual_converters
 from collections.abc import Mapping
 from itertools import chain
 from jinja2 import Template
+import asttokens
+from pythonwhat.utils_ast import wrap_in_module
 
 class Context(Mapping):
     def __init__(self, context=None, prev=None):
@@ -88,13 +89,13 @@ class State(object):
 
         # parse code if didn't happen yet
         if not hasattr(self, 'student_tree'):
-            self.student_tree = State.parse_ext(self.student_code)
+            self.student_tree_tokens, self.student_tree = State.parse_external(self.student_code)
 
         if not hasattr(self, 'solution_tree'):
-            self.solution_tree = State.parse_int(self.solution_code)
+            _, self.solution_tree = State.parse_internal(self.solution_code)
 
         if not hasattr(self, 'pre_exercise_tree'):
-            self.pre_exercise_tree = State.parse_int(self.pre_exercise_code)
+            _, self.pre_exercise_tree = State.parse_internal(self.pre_exercise_code)
 
         if not hasattr(self, 'parent_state'):
             self.parent_state = None
@@ -170,9 +171,9 @@ class State(object):
         """
 
         if isinstance(student_subtree, list):
-            student_subtree = ast.Module(student_subtree)
+            student_subtree = wrap_in_module(student_subtree)
         if isinstance(solution_subtree, list):
-            solution_subtree = ast.Module(solution_subtree)
+            solution_subtree = wrap_in_module(solution_subtree)
 
         # get new contexts
         if solution_context is not None: 
@@ -196,8 +197,9 @@ class State(object):
                                highlight = highlight, messages = messages)
 
         klass = State if not node_name else self.SUBCLASSES[node_name]
-        child = klass(student_code = utils_ast.extract_text_from_node(self.full_student_code, student_subtree),
+        child = klass(student_code = self.student_tree_tokens.get_text(student_subtree),
                       full_student_code = self.full_student_code,
+                      student_tree_tokens = self.student_tree_tokens,
                       pre_exercise_code = self.pre_exercise_code,
                       student_context = student_context,
                       solution_context  = solution_context,
@@ -222,14 +224,13 @@ class State(object):
         return child
 
     @staticmethod
-    def parse_ext(x):
+    def parse_external(x):
         rep = Reporter.active_reporter
 
-        res = None
+        res = (None, None)
         try:
-            res = ast.parse(x)
-            # enrich tree with end lines and end columns
-            utils_ast.mark_text_ranges(res, x + '\n')
+            res = asttokens.ASTTokens(x, parse = True)
+            return(res, res._tree)
 
         except IndentationError as e:
             e.filename = "script.py"
@@ -249,26 +250,19 @@ class State(object):
             rep.feedback.message = "Something went wrong while parsing your code."
             rep.failed_test = True
 
-        finally:
-            if (res is None):
-                res = False
-
         return(res)
 
     @staticmethod
-    def parse_int(x):
-        res = None
+    def parse_internal(x):
+        res = (None, None)
         try:
-            res = ast.parse(x)
-            utils_ast.mark_text_ranges(res, x + '\n')
+            res = asttokens.ASTTokens(x, parse = True)
+            return(res, res._tree)
 
         except SyntaxError as e:
             raise SyntaxError(str(e))
         except TypeError as e:
             raise TypeError(str(e))
-        finally:
-            if (res is None):
-                res = False
 
         return(res)
 

@@ -30,7 +30,6 @@ def check_part(name, part_msg, state=None, missing_msg="Are you sure it's define
     append_message = {'msg': expand_msg, 'kwargs': {'part': part_msg,}}
 
     has_part(name, missing_msg, state, append_message['kwargs'])
-
     stu_part = state.student_parts[name]
     sol_part = state.solution_parts[name]
 
@@ -231,7 +230,7 @@ def with_context(*args, state=None):
     solution_res = setUpNewEnvInProcess(process = state.solution_process,
                                         context = state.solution_parts['with_items'])
     if isinstance(solution_res, Exception):
-        raise Exception("error in the solution, running test_with() on with %d: %s" % (index - 1, str(solution_res)))
+        raise Exception("error in the solution, running test_with(): %s" % str(solution_res))
 
     student_res = setUpNewEnvInProcess(process = state.student_process,
                                        context = state.student_parts['with_items'])

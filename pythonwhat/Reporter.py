@@ -29,7 +29,6 @@ class Reporter(object):
         Execute a given test, unless some previous test has failed. If the test has failed,
         the state of the reporter changes and the feedback is kept.
         """
-
         if prepend_on_fail: self.failure_msg = prepend_on_fail
         if fallback_ast: self.fallback_ast = fallback_ast
 
@@ -40,7 +39,7 @@ class Reporter(object):
                 self.failed_test = True
                 self.feedback = testobj.get_feedback()
                 self.feedback.message = self.failure_msg + self.feedback.message
-                if not self.feedback.line_info and self.fallback_ast: 
+                if not self.feedback.line_info and self.fallback_ast:
                     self.feedback = Feedback(self.feedback.message, self.fallback_ast)
                 raise TestFail
 

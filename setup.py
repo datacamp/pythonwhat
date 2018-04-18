@@ -14,7 +14,7 @@ setup(
         name='pythonwhat',
         version=version,
         packages=['pythonwhat', 'pythonwhat.test_funcs'],
-        install_requires=["dill", "numpy", "pandas", "markdown2", "jinja2"],
+        install_requires=["dill", "numpy", "pandas", "markdown2", "jinja2", "asttokens"],
         maintainer = 'Michael Chow',
         maintainer_email = 'michael@datacamp.com',
         url = 'https://github.com/datacamp/pythonwhat')
