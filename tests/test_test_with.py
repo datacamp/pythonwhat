@@ -10,32 +10,32 @@ class TestExercise1(unittest.TestCase):
 from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'moby_dick.txt')
             ''',
             "DC_CODE": '''
-# # Read & print the first 3 lines
+# Read & print the first 3 lines
 with open('moby_dick.txt') as file:
     print(file.readline())
     print(file.readline())
     print('test')
 
-# # The rows that you wish to print
+# The rows that you wish to print
 I = [0,1,3,5,6,7,8,9]
 
-# # Print out these rows
+# Print out these rows
 with open('moby_dick.txt') as file:
     for i, row in enumerate(file):
         if i in I:
             print(row)
             ''',
             "DC_SOLUTION": '''
-# # Read & print the first 3 lines
+# Read & print the first 3 lines
 with open('moby_dick.txt') as file:
     print(file.readline())
     print(file.readline())
     print(file.readline())
 
-# # The rows that you wish to print
+# The rows that you wish to print
 I = [0,1,3,5,6,7,8,9]
 
-# # Print out these rows
+# Print out these rows
 with open('moby_dick.txt') as file:
     for i, row in enumerate(file):
         if i in I:
@@ -128,32 +128,32 @@ class TestExercise2(unittest.TestCase):
 from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'moby_dick.txt')
 ''',
             "DC_CODE": '''
-# # Read & print the first 3 lines
+# Read & print the first 3 lines
 with open('moby_dick.txt') as file, open('moby_dick.txt'):
     print(file.readline())
     print(file.readline())
     print('test')
 
-# # The rows that you wish to print
+# The rows that you wish to print
 I = [0,1,3,5,6,7,8,9]
 
-# # Print out these rows
+# Print out these rows
 with open('moby_dick.txt') as not_file:
     for i, row in enumerate(not_file):
         if i in I:
             print(row)
             ''',
             "DC_SOLUTION": '''
-# # Read & print the first 3 lines
+# Read & print the first 3 lines
 with open('moby_dick.txt') as file:
     print(file.readline())
     print(file.readline())
     print(file.readline())
 
-# # The rows that you wish to print
+# The rows that you wish to print
 I = [0,1,3,5,6,7,8,9]
 
-# # Print out these rows
+# Print out these rows
 with open('moby_dick.txt') as file:
     for i, row in enumerate(file):
         if i in I:
@@ -190,32 +190,32 @@ from urllib.request import urlretrieve; urlretrieve('http://s3.amazonaws.com/ass
 from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/moby_opens.txt', 'not_moby_dick.txt')
             ''',
             "DC_CODE": '''
-# # Read & print the first 3 lines
+# Read & print the first 3 lines
 with open('moby_dick.txt') as file:
     print(file.readline())
     print(file.readline())
     print('test')
 
-# # The rows that you wish to print
+# The rows that you wish to print
 I = [0,1,3,5,6,7,8,9]
 
-# # Print out these rows
+# Print out these rows
 with open('moby_dick.txt') as not_file, open('moby_dick.txt') as file:
     for i, row in enumerate(not_file):
         if i in I:
             print(row)
             ''',
             "DC_SOLUTION": '''
-# # Read & print the first 3 lines
+# Read & print the first 3 lines
 with open('moby_dick.txt') as file, open('moby_dick.txt'):
     print(file.readline())
     print(file.readline())
     print(file.readline())
 
-# # The rows that you wish to print
+# The rows that you wish to print
 I = [0,1,3,5,6,7,8,9]
 
-# # Print out these rows
+# Print out these rows
 with open('moby_dick.txt') as file, open('not_moby_dick.txt') as not_file:
     for i, row in enumerate(file):
         if i in I:
@@ -308,43 +308,28 @@ test_with(1,
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-@pytest.mark.dep_matplotlib
 class TestExercise5(unittest.TestCase):
 
     def setUp(self):
         self.data = {
             "DC_PEC": '''
 import pandas as pd
-import matplotlib.pyplot as plt
 from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/sales.sas7bdat', 'sales.sas7bdat')
             ''',
             "DC_CODE": '''
-# Import sas7bdat package
 from sas7bdat import SAS7BDAT
 
-# Save file to a dataframe df_sas
 with SAS7BDAT('sales.sas7bdat') as file:
     df_sas = file.to_data_frame()
 
-# Print head of dataframe
 print(df_sas.head())
-
-# Plot histograms of dataframe features (pandas and pyplot are already imported)
-pd.DataFrame.hist(df_sas)
             ''',
             "DC_SOLUTION": '''
-# Import sas7bdat package
 from sas7bdat import SAS7BDAT
-
-# Save file to a dataframe df_sas
 with SAS7BDAT('sales.sas7bdat') as file:
     df_sas = file.to_data_frame()
 
-# Print head of dataframe
 print(df_sas.head())
-
-# Plot histograms of dataframe features (pandas and pyplot are already imported)
-pd.DataFrame.hist(df_sas)
 '''
         }
 
@@ -355,7 +340,6 @@ test_with(1, context_tests = lambda: test_function('SAS7BDAT'))
 test_with(1, body = lambda: test_object_after_expression('df_sas'))
 test_function('print')
 test_function('df_sas.head')
-test_function('pandas.DataFrame.hist')
 success_msg("NICE WORK!!!!")
         '''
         sct_payload = helper.run(self.data)
@@ -397,13 +381,11 @@ class TestHasContext(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-    @pytest.mark.feedback
     def test_fail(self):
         self.data["DC_CODE"] = "with StringIO() as f1: pass"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
 
-    @pytest.mark.feedback
     def test_fail_exact_names(self):
         self.data["DC_CODE"] = "with StringIO() as f3, StringIO() as f4: pass"
         self.data["DC_SCT"] = "Ex().check_with(0).has_context(exact_names=True)"

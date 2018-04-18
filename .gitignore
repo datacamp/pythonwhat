@@ -71,3 +71,6 @@ target/
 # Mac stuff
 .DS_Store
 tests/.DS_Store
+
+# pytest
+.pytest_cache/

@@ -956,18 +956,6 @@ class TestTestMapping(unittest.TestCase):
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>pad.DataFrame()</code> with the correct arguments?", sct_payload['message'])
 
-    @pytest.mark.dep_matplotlib
-    def test_mpl(self):
-        self.data = {
-            "DC_PEC": "",
-            "DC_SOLUTION": "import matplotlib.pyplot as plt; plt.hist([1, 2, 3])",
-            "DC_CODE": "import matplotlib.pyplot as plttt; plttt.hist([4, 5, 6])",
-            "DC_SCT": "test_function_v2('matplotlib.pyplot.hist', params = ['x'])"
-        }
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertIn("Did you call <code>plttt.hist()</code> with the correct arguments?", sct_payload['message'])
-
     def test_numpy(self):
         self.data = {
             "DC_PEC": "",
@@ -978,6 +966,17 @@ class TestTestMapping(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>nump.random.rand()</code> with the correct arguments?", sct_payload['message'])
+
+    def test_numpy2(self):
+        self.data = {
+            "DC_PEC": "",
+            "DC_SOLUTION": "import numpy.random as rd; x = rd.rand(1)",
+            "DC_CODE": "import numpy.random as rnd; x = rnd.rand(2)",
+            "DC_SCT": "test_function_v2('numpy.random.rand', params = ['d0'])"
+        }
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertIn("Did you call <code>rnd.rand()</code> with the correct arguments?", sct_payload['message'])
 
 if __name__ == "__main__":
     unittest.main()

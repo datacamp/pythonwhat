@@ -1,14 +1,14 @@
 sudo: false
-language: python
-python:
-- '3.5'
+
+services:
+  - docker
+
 before_install:
-- pip install -e .
-- git clone https://$GH_TOKEN@github.com/datacamp/pythonbackend.git && pip install
-  ./pythonbackend && rm -rf pythonbackend
-install: pip install -r requirements.txt
-script: pytest
-after_script: export PYTHONWHAT_DEBUG_FEEDBACK='True' && pytest tests -s -m 'feedback'
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin dockerhub.datacamp.com:443
+  - docker build --build-arg GH_TOKEN=$GH_TOKEN -t local/pythonwhat .
+
+script: docker run -it local/pythonwhat pytest
+
 deploy:
   provider: pypi
   user: machow
