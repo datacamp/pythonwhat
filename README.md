@@ -24,27 +24,25 @@ make html
 ## Installation
 
 ```
-pip3 install markdown2
-pip3 install numpy
-pip3 install pandas
-pip3 install matplotlib
-pip3 install git+https://github.com/datacamp/pythonwhat
+pip install git+https://github.com/datacamp/pythonwhat
 ```
 
 ## Run tests
 
+Use Python 3.5
+
 ```
-# install python backend (private) + required packages
-sudo pip3 install boto3
-sudo pip3 install bs4
-sudo pip3 install h5py
+# install packages used in tests (should be reduced)
+pip install -r requirements.txt
+
+# install pythonbackend (private, for now)
 cd path/to/pythonbackend
 python3 setup.py install
 
+# install pythonwhat
 cd /path/to/pythonwhat
-python3 setup.py install
-cd tests
-python3 run_all.py
+pip install -e .
+pytest
 ```
 
 To disable deprecation warnings: `$ export PYTHONWARNINGS="ignore"`

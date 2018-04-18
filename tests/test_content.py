@@ -2,36 +2,6 @@ import unittest
 import helper
 import pytest
 
-@pytest.mark.dep_matplotlib
-class TestTemplate(unittest.TestCase):
-    def setUp(self):
-        self.data = {
-            "DC_PEC": '''
-import pandas as pd
-movies = pd.read_csv("http://s3.amazonaws.com/assets.datacamp.com/course/introduction_to_r/movies.csv")
-import numpy as np
-            ''',
-            "DC_SOLUTION": '''
-_, ints = np.unique(movies.genre, return_inverse = True)
-import matplotlib.pyplot as plt
-plt.scatter(movies.runtime, movies.rating, c=ints)
-#plt.show()
-            ''',
-            "DC_SCT": '''
-test_function("numpy.unique")
-test_object("ints")
-test_import("matplotlib.pyplot", same_as = True)
-test_function("matplotlib.pyplot.scatter")
-# test_function("matplotlib.pyplot.show")
-success_msg("Great work!")
-            '''
-        }
-
-    def test_pass(self):
-        self.data["DC_CODE"] = self.data["DC_SOLUTION"]
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
 class TestToolbox1(unittest.TestCase):
 
     def setUp(self):

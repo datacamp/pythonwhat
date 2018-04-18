@@ -89,14 +89,12 @@ for i in range(10):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-    @pytest.mark.feedback
     def test_has_context_fail(self):
         self.data["DC_CODE"] = "for i in range(10): pass"
         self.data["DC_SCT"] = "Ex().check_for_loop(0).has_context(exact_names=True)"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
 
-    @pytest.mark.feedback
     def test_has_context_mult_fail(self):
         self.data["DC_SOLUTION"] = "for x,y in zip(range(10), range(10)): pass"
         self.data["DC_CODE"] = "for i,j in zip(range(10), range(10)): pass"
