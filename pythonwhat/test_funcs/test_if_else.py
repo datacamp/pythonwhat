@@ -70,7 +70,6 @@ def test_if_else(index=1,
     """
     rep = Reporter.active_reporter
 
-
     # get state with specific if block
     node_name = 'if_exps' if use_if_exp else 'if_elses'
     # TODO original typestr for check_node used if rather than `if`

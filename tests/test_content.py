@@ -1,19 +1,15 @@
 import unittest
 import helper
-import pytest
 
 class TestToolbox1(unittest.TestCase):
 
     def setUp(self):
         self.data = {
             "DC_PEC": '''
-fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_1342/datasets/tweets.csv'
-from urllib.request import urlretrieve
-urlretrieve(fn, 'tweets.csv')
             ''',
             "DC_SOLUTION": '''
 import pandas as pd
-df = pd.read_csv('tweets.csv')
+df = pd.DataFrame({'lang': ['en', 'de', 'it']})
 langs_count = {}
 col = df['lang']
 for entry in col:
@@ -25,7 +21,6 @@ print(langs_count)
             ''',
             "DC_SCT": '''
 test_import("pandas")
-test_function("pandas.read_csv")
 test_object("df")
 
 test_object("col")
@@ -67,13 +62,10 @@ class TestToolbox2(unittest.TestCase):
     def setUp(self):
         self.data = {
             "DC_PEC": '''
-fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_1342/datasets/tweets.csv'
-from urllib.request import urlretrieve
-urlretrieve(fn, 'tweets.csv')
             ''',
             "DC_SOLUTION": '''
 import pandas as pd
-df = pd.read_csv('tweets.csv')
+df = pd.DataFrame({'lang': ['en', 'de', 'it']})
 langs_count = {}
 col = df['lang']
 for entry in col:
@@ -85,7 +77,6 @@ print(langs_count)
             ''',
             "DC_SCT": '''
 test_import("pandas")
-test_function("pandas.read_csv")
 test_object("df")
 
 test_object("col")
@@ -253,11 +244,8 @@ class TestToolbox7(unittest.TestCase):
     def test_pass(self):
         self.data = {
             "DC_PEC": '''
-fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_1342/datasets/tweets.csv'
-from urllib.request import urlretrieve
-urlretrieve(fn, 'tweets.csv')
 import pandas as pd
-tweets_df = pd.read_csv('tweets.csv')
+tweets_df = pd.DataFrame({'lang': ['en', 'de', 'it']})
             ''',
             "DC_SOLUTION": '''
 def count_entries(df, col_name):
@@ -541,11 +529,8 @@ class TestToolbox11(unittest.TestCase):
     def test_pass(self):
         self.data = {
             "DC_PEC": '''
-fn = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_1342/datasets/tweets.csv'
-from urllib.request import urlretrieve
-urlretrieve(fn, 'tweets.csv')
 import pandas as pd
-tweets_df = pd.read_csv('tweets.csv')
+tweets_df = pd.DataFrame({'lang': ['en', 'de', 'it']})
             ''',
             "DC_SOLUTION": '''
 def count_entries(df, col_name='lang'):

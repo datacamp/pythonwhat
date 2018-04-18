@@ -1,4 +1,5 @@
 import ast
+from pythonwhat.utils_ast import wrap_in_module
 from collections.abc import Sequence, Mapping
 from collections import OrderedDict
 from contextlib import ExitStack
@@ -472,7 +473,6 @@ class ObjectAssignmentParser(Parser):
         name = getattr(name_node, 'id', name_node)
         load_name = ast.Name(id=name, ctx=ast.Load())
         ast.fix_missing_locations(load_name)
-        # 
         return {'name': name,
                 'node': load_name,
                 'highlight': ass_node or name_node,
@@ -610,7 +610,9 @@ class FunctionDefParser(Parser):
         all_args = [*args, varargs, *kw_args, kwargs]
         
         if isinstance(node, ast.Lambda): body_node = node.body
-        else: body_node = FunctionBodyTransformer().visit(ast.Module(node.body))
+        else:
+            bodyMod = wrap_in_module(node.body)
+            body_node = FunctionBodyTransformer().visit(bodyMod)
 
         return {
             "node": node,
@@ -757,13 +759,10 @@ class FunctionBodyTransformer(ast.NodeTransformer):
         new_node = ast.copy_location(ast.Expr(value = node.value), node)
         return FunctionBodyTransformer.decorate(new_node, node)
 
+    @staticmethod
     def decorate(new_node, node):
-        try:
-            # only possible on the student side!
-            new_node.end_lineno = node.end_lineno
-            new_node.end_col_offset = node.end_col_offset
-        except:
-            pass
+        new_node.first_token = node.first_token
+        new_node.last_token = node.last_token
         return new_node
 
 class WithParser(Parser):
