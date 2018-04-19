@@ -11,5 +11,5 @@ RUN pip3 install ./pythonwhat
 RUN pip3 install protobackend
 RUN git clone https://$GH_TOKEN@github.com/datacamp/pythonbackend.git && pip3 install ./pythonbackend && rm -rf pythonbackend
 
-WORKDIR /usr/local/pkg/pythonwhat/tests
-RUN rm -rf __pycache__
+WORKDIR /usr/local/pkg/pythonwhat
+RUN rm -rf tests/__pycache__
