@@ -7,7 +7,7 @@ before_install:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin dockerhub.datacamp.com:443
   - docker build --build-arg GH_TOKEN=$GH_TOKEN -t local/pythonwhat .
 
-script: docker run -it local/pythonwhat /bin/bash -c "pytest --cov=./ && codecov --token=$CODECOV_TOKEN"
+script: docker run -it local/pythonwhat /bin/bash -c "pip3 install -e . && pytest --cov=./ && codecov --token=$CODECOV_TOKEN"
 deploy:
   provider: pypi
   user: machow
