@@ -7,6 +7,9 @@ markdown2==2.3.5
 IPython==4.2.1
 
 pytest==3.5.0
+codecov==2.0.15
+pytest-cov==2.5.1
+
 boto3==1.7.4
 bs4==0.0.1
 h5py==2.7.1
