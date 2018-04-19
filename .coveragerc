@@ -1,2 +1,3 @@
 [run]
 source=pythonwhat
+omit=*tests*
