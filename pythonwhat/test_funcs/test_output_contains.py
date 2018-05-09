@@ -13,8 +13,7 @@ def test_output_contains(text,
 
     Args:
         text (str): the text that is searched for
-        pattern (bool): if True, the text is treated as a pattern. If False, it is treated as plain text.
-          Defaults to False.
+        pattern (bool): if True (default), the text is treated as a pattern. If False, it is treated as plain text.
         no_output_msg (str): feedback message to be displayed if the output is not found.
     """
     rep = Reporter.active_reporter

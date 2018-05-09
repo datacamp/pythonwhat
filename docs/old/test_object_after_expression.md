@@ -21,21 +21,15 @@ test_object_after_expression
 
 Suppose you want to student to code up a function `shout()`, that adds three exclamation marks to every word you pass it:
 
-    *** =solution
-    ```{python}
     def shout(word):
         shout_word = word + '!!!'
         return shout_word
-    ```
 
 To test whether the student did this appropriately, you want to first test whether `shout` is a user-defined function, and then whether inside the function, a new variable `shout_word` is created. Finally, you also want to check whether the result of calling `shout('hello')` is correct. The following SCT will do that for us:
 
-    *** =sct
-    ```{python}
     test_function_definition('shout',
                              body = test_object_after_expression('shout_word', context_vals = ['anything']),
                              results = [('hello')])
-    ```
 
 Let's focus on the `body` argument of `test_function_definition()` here, that uses `test_object_after_expression()`. For the other elements, refer to the [`test_function_definition()`](https://github.com/datacamp/pythonwhat/wiki/test_function_definition) article.
 
@@ -47,8 +41,6 @@ The first argument of `test_object_after_expression()` tells the system to check
 
 Suppose you want the student to build up a dictionary of word counts based on a list, as follows:
 
-    *** =solution
-    ```{python}
     words = ['it', 'is', 'a', 'the', 'is', 'the', 'a', 'the', 'it']
     counts = {}
     for word in words:
@@ -56,12 +48,9 @@ Suppose you want the student to build up a dictionary of word counts based on a 
             counts[word] += 1
         else:
             counts[word] = 1
-    ```
 
 To check whether the `counts` list was correctly built, you can simply use `test_object()`, but you can also go deeper if it goes wrong. This calls for a `test_correct()` in combination with `test_object()` and `test_for()`, that in its turn uses `test_object_after_expression()`:
 
-
-    ``` =solution
     def check_test():
         test_object('counts')
 
@@ -78,7 +67,6 @@ To check whether the `counts` list was correctly built, you can simply use `test
                       body = body_test)
 
     test_correct(check_test, diagnose_test)
-    ```
 
 Let's focus on the `body_test` for the for loop. Here, we're using `test_object_after_expression()` twice.
 

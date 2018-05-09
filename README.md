@@ -4,16 +4,13 @@
 [![codecov](https://codecov.io/gh/datacamp/pythonwhat/branch/master/graph/badge.svg)](https://codecov.io/gh/datacamp/pythonwhat)
 [![PyPI version](https://badge.fury.io/py/pythonwhat.svg)](https://badge.fury.io/py/pythonwhat)
 
-The `pythonwhat` package provides rich functionality to write Submission Correctness Tests for interactive Python exercises on the DataCamp platform. DataCamp operates with **Python 3**.
+The `pythonwhat` package helps you to write Submission Correctness Tests (SCTs) for interactive Python exercises on the DataCamp platform.
 
-For a detailed guide on how to use `pythonwhat`, head over to [the online documentation](http://pythonwhat.readthedocs.io). Before, all documentation was on the [wiki](https://github.com/datacamp/pythonwhat/wiki), but things are steadily being moved to the _readthedocs_ format.
-
-Visit [DataCamp Teach](https://www.datacamp.com/teach) to create your own DataCamp Python course, powered by `pythonwhat`.
+- If you are new to teaching on DataCamp, check out https://authoring.datacamp.com.
+- If you want to learn what SCTs are and how they work, visit https://authoring.datacamp.com/courses/sct.html.
+- For a complete overview of all functionality inside `pythonwhat` and articles about what to use when, consult https://pythonwhat.readthedocs.io.
 
 ## Documentation
-
-* [pythonwhat documentation](http://pythonwhat.readthedocs.io)
-* [full tutorial](https://github.com/datacamp/courses-pythonwhat-tutorial)
 
 To generate the documentation, install pythonwhat and run..
 
