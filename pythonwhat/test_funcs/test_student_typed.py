@@ -13,8 +13,7 @@ def test_student_typed(text,
 
     Args:
         text (str): the text that is searched for
-        pattern (bool): if True, the text is treated as a pattern. If False, it is treated as plain text.
-          Defaults to False.
+        pattern (bool): if True (the default), the text is treated as a pattern. If False, it is treated as plain text.
         not_typed_msg (str): feedback message to be displayed if the student did not type the text.
     """
     rep = Reporter.active_reporter

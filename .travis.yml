@@ -8,6 +8,7 @@ before_install:
   - docker build --build-arg GH_TOKEN=$GH_TOKEN -t local/pythonwhat .
 
 script: docker run -it local/pythonwhat /bin/bash -c "pip3 install -e . && pytest --cov=pythonwhat && codecov --token=$CODECOV_TOKEN"
+
 deploy:
   provider: pypi
   user: machow

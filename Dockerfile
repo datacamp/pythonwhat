@@ -7,6 +7,8 @@ WORKDIR /usr/local/pkg
 
 COPY . pythonwhat/
 RUN pip3 install -r pythonwhat/requirements.txt
+
+# install pythonbackend
 RUN pip3 install protobackend
 RUN git clone https://$GH_TOKEN@github.com/datacamp/pythonbackend.git && pip3 install --no-dependencies ./pythonbackend && rm -rf pythonbackend
 
