@@ -1,4 +1,4 @@
-sudo: required
+sudo: false
 
 services:
   - docker
@@ -9,8 +9,13 @@ before_install:
 
 script: docker run -it local/pythonwhat /bin/bash -c "pip3 install -e . && pytest --cov=pythonwhat && codecov --token=$CODECOV_TOKEN"
 
+# reason for 'edge' field:
+# - https://github.com/travis-ci/travis-ci/issues/9303
+# - https://github.com/travis-ci/travis-ci/issues/9139
 deploy:
   provider: pypi
+  edge:
+    branch: v1.8.45
   user: machow
   password:
     secure: Jk24S6GmgT7MPym5ZCE1Rm4jeKISu/cJcEsrmMa/Tl3SQClGqvdgXjfyqEbe+xyEcdx4XWzyDsKT9dST/w6ngn5HmYkw9+JcqROfhANY5z9pTq7vT2wab2EjJcKxFXgMtgmojm1galUCsRhxB45t4nF7t8oDnQvRqAIoCxMJ3XFhdAgOatGMFDzCielEE60gyuEMVMXUoYEcyDIdCeWzdKHpzXTNVPWlKWGro1omGnJ3KwOLHi9Vw+Bmi7KavNGuHOZvouMkcBDJhDBqGE/OMtL4pc17PSgCKHeSxhw5mH+RQAwHAlL1obHahFACyfHbK2q2Wt/rWPkJqsGjPeXZGcgNyzKD+ily0aORXgY7jc9WEp6asWY65LjgiPqAMTspiYuBvioqro+TzKlpfase9UFRXioUwuFvFqLZO47mEgpbrEV5NX8uvCJ0TZs8WJNQ6AecJXl2Ql94aAgSkJ0BJfv9u5m4MSz6Ntdg/I6dXz8C9WgYkuMvSzCJfTdBLbPtzczi+vFvu8sxNlC9Sf+8EB+HC8gerSnPlFBz3Fzi7kvNqRC8/nmZfXNfsLlNNASb+iCpWrIkcS488oGi3sPdd3ESfOi51UMKaFDGoRS53Br38fbLoMWg1pvMXtyvSpIn3XR2racJuIVvd/qyaSG7t//5B2JT86eNlGGWE4RStlI=
