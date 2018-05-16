@@ -511,7 +511,6 @@ test_function(
         }
         self.data["DC_CODE"] = self.data["DC_SOLUTION"]
         sct_payload = helper.run(self.data)
-        print(sct_payload['message'])
         self.assertTrue(sct_payload['correct'])
 
 class TestToolbox10(unittest.TestCase):
@@ -536,7 +535,6 @@ for a,b in my_dict.items():
     print(a + ' - ' + str(b))
 '''
         sct_payload = helper.run(self.data)
-        print(sct_payload['message'])
         self.assertTrue(sct_payload['correct'])
 
 class TestToolbox11(unittest.TestCase):
@@ -606,7 +604,6 @@ success_msg("Great work!")
         }
         self.data["DC_CODE"] = self.data["DC_SOLUTION"]
         sct_payload = helper.run(self.data)
-        print(sct_payload['message'])
         self.assertTrue(sct_payload['correct'])
 
 class TestToolbox12(unittest.TestCase):

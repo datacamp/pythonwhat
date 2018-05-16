@@ -1,16 +1,11 @@
+# pythonwhat deps
 scipy==1.0.1
 numpy==1.14.2
 pandas==0.22.0
-jinja2==2.10
 dill==0.2.7.1
 markdown2==2.3.5
-IPython==4.2.1
 
-pytest==3.5.0
-codecov==2.0.15
-pytest-cov==2.5.1
-
-boto3==1.7.4
+# test deps
 bs4==0.0.1
 h5py==2.7.1
 sqlalchemy==1.2.6
@@ -19,6 +14,16 @@ xlrd==1.1.0
 tweepy==3.6.0
 sas7bdat==2.0.7
 
+# test-utils deps
+pytest==3.5.0
+codecov==2.0.15
+pytest-cov==2.5.1
+
 # building documentation
 sphinx==1.7.4
 sphinx_rtd_theme==v0.3.1
+
+# pythonbackend deps
+jinja2==2.10
+IPython==4.2.1
+protobackend==0.2.0

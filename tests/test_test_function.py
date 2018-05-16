@@ -679,7 +679,6 @@ class TestCheckFunction(unittest.TestCase):
 
     def run_pass(self, sct):
         sct_payload = self.run_append(sct)
-        print(sct_payload)
         self.assertTrue(sct_payload['correct'])
         return sct_payload
 
