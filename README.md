@@ -5,7 +5,7 @@
 [![PyPI version](https://badge.fury.io/py/pythonwhat.svg)](https://badge.fury.io/py/pythonwhat)
 [![Documentation Status](https://readthedocs.org/projects/pythonwhat/badge/?version=stable)](http://pythonwhat.readthedocs.io/en/stable/?badge=stable)
 
-The `pythonwhat` package helps you to write Submission Correctness Tests (SCTs) for interactive Python exercises on the DataCamp platform.
+`pythonwhat` enables you to write Submission Correctness Tests (SCTs) for interactive Python exercises on DataCamp.
 
 - If you are new to teaching on DataCamp, check out https://authoring.datacamp.com.
 - If you want to learn what SCTs are and how they work, visit https://authoring.datacamp.com/courses/sct.html.
