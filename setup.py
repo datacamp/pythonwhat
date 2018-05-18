@@ -18,7 +18,7 @@ with open(path.join(HERE, PACKAGE_NAME, '__init__.py'), 'rb') as fp:
 setup(name=PACKAGE_NAME,
       version=VERSION,
       packages=[PACKAGE_NAME, 'pythonwhat.test_funcs'],
-      install_requires=["dill", "numpy", "pandas", "markdown2", "jinja2", "asttokens"],
+      install_requires=["dill", "numpy", "pandas", "markdown2", "jinja2", "asttokens>=1.1.10"],
       long_description=README,
       long_description_content_type='text/markdown',
       license='GNU version 3',

@@ -4,6 +4,7 @@ numpy==1.14.2
 pandas==0.22.0
 dill==0.2.7.1
 markdown2==2.3.5
+asttokens==1.1.10
 
 # test deps
 bs4==0.0.1
