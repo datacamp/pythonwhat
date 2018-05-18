@@ -7,6 +7,10 @@ In ``pythonbackend``, both the student's submission as well as the solution code
 ``check_object()`` looks at these processes and checks if the object specified in ``name`` is available in the student process.
 Next, through ``has_equal_value()``, you can assert whether the objects in the student and solution process correspond.
 
+.. note::
+
+    For more information how DataCamp's coding backends run code, check out `this article <https://authoring.datacamp.com/courses/exercises/technical-details/sct.html>`_
+
 Example 1: Basic
 ================
 
