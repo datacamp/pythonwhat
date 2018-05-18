@@ -23,7 +23,9 @@ Next, it checks if the ``matplotlib.pyplot`` package was imported and under whic
 If the student did this and imported it as ``plt``, all is good.
 If, however, the student submitted ``import matplotlib`` (import entire package instead of module) or ``import matplotlib.pyplot as pppplot`` (incorrect alias), ``test_import()`` will fail and generate the appropriate messages. 
 
-With ``same_as``, you can control whether or not the alias should be exactly the same. By default ``same_as=True``, so the alias (``plt`` in the example) should also be used by student. If you set it to ``False``:
+With ``same_as``, you can control whether or not the alias should be exactly the same.
+By default ``same_as=True``, so the alias (``plt`` in the example) should also be used by student.
+If you set it to ``False``:
 
 .. code::
 

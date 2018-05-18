@@ -29,6 +29,5 @@ Therefore, it's a good idea to use [regular expressions](https://docs.python.org
 
     Ex().test_output_contains(r"This is some \w* stuff",
                               no_output_msg = "Print out ``This is some ... stuff`` to the output, fill in ``...`` with a word you like.")
-    success_msg("Great job!")
 
 Now, different printouts will be accepted. Notice that we also specified ``no_output_msg`` here. If the pattern is not found in the output generated, this message will be shown instead of a (typically unhelpful) message that's automatically generated.

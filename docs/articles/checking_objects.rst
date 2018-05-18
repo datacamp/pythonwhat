@@ -99,7 +99,7 @@ Example 4: Pandas Data Frames
 .. code::
 
     import pandas as pd
-    my_df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5,  6]})
+    my_df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
 
 The following SCT checks that `my_df` is a `DataFrame`, that column `a` is specified, and that column `b` is specified and correct:
 

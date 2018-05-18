@@ -36,7 +36,6 @@ This SCT is not that robust though, it won't accept something like ``sum(  range
 .. code::
 
     test_student_typed("sum\s*\(\s*range\s*\(", not_typed_msg="You didn't use ``range()`` inside ``sum()``.")
-    success_msg("Great job!")
 
 We also used ``not_typed_msg`` here, which will control the feedback given to the student when ``test_student_typed()`` doesn't pass.
 

@@ -8,7 +8,7 @@ The ``pythonwhat`` package helps you to write Submission Correctness Tests (SCTs
 
 This documentation features:
 
-- Articles that gradually expose you to all of `pythonwhat`'s functionality and best practices.
+- Articles that gradually expose you to all of ``pythonwhat``'s functionality and best practices.
 - A glossary with typical use-cases and corresponding SCT constructs.
 - Reference documentation of all actively maintained ``pythonwhat`` functions.
 

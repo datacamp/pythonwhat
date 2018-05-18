@@ -9,7 +9,6 @@ When all tests in an SCT pass, ``pythonwhat`` will automatically generate a cong
 .. code::
 
     Ex().check_object("x").has_equal_value()
-    success_msg("Great job! You're getting goot at object assignment!")
 
 Multiple choice exercises
 =========================
