@@ -3,8 +3,8 @@ pythonwhat
 
 The ``pythonwhat`` package helps you to write Submission Correctness Tests (SCTs) for interactive Python exercises on the DataCamp platform.
 
-- Check out https://authoring.datacamp.com to discover teaching on DataCamp.
-- Visit https://authoring.datacamp.com/courses/sct.html to understand the concept of SCTs.
+- If you are new to teaching on DataCamp, check out https://authoring.datacamp.com.
+- If you want to learn what SCTs are and how they work, visit `this article <https://authoring.datacamp.com/courses/exercises/technical-details/sct.html>`_ specifically.
 
 This documentation features:
 
@@ -13,7 +13,7 @@ This documentation features:
 - Reference documentation of all actively maintained ``pythonwhat`` functions.
 
 If you are new to writing SCTs for Python exercises, work your way through the articles first.
-The reference docs become useful when you understand all concepts but want to look up details on how to call certain functions.
+The reference docs become useful when you understand all concepts and want to look up details on how to call certain functions.
 
 .. toctree::
    :maxdepth: 1

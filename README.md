@@ -8,7 +8,7 @@
 `pythonwhat` enables you to write Submission Correctness Tests (SCTs) for interactive Python exercises on DataCamp.
 
 - If you are new to teaching on DataCamp, check out https://authoring.datacamp.com.
-- If you want to learn what SCTs are and how they work, visit https://authoring.datacamp.com/courses/sct.html.
+- If you want to learn what SCTs are and how they work, visit [this article](https://authoring.datacamp.com/courses/exercises/technical-details/sct.html) specifically.
 - For a complete overview of all functionality inside `pythonwhat` and articles about what to use when, consult https://pythonwhat.readthedocs.io.
 
 ## Documentation
