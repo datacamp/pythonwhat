@@ -186,6 +186,7 @@ with_context
 ============
 
 .. autofunction:: pythonwhat.check_funcs.with_context
+    :noindex:
 
 Runs subtests after setting the context for a ``with`` statement.
 

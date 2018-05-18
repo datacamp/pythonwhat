@@ -17,9 +17,6 @@ Part Checks
 TODO add part on default signature of every ``check_<statement>`` function
 
 .. autofunction:: pythonwhat.check_funcs.has_expr
-.. autofunction:: pythonwhat.check_funcs.has_equal_value
-.. autofunction:: pythonwhat.check_funcs.has_equal_output
-.. autofunction:: pythonwhat.check_funcs.has_equal_error
 .. autofunction:: pythonwhat.check_funcs.set_context
 .. autofunction:: pythonwhat.check_has_context.has_context
 .. autofunction:: pythonwhat.check_funcs.with_context
