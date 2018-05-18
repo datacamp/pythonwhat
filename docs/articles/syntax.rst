@@ -4,18 +4,64 @@ Syntax
 .. role:: python(code)
    :language: python
 
-``pythonwhat`` uses the ``.`` to 'chain together' SCT functions. Every chain starts with the `Ex()` function call, which holds the exercise state. This exercise state contains all the information that is required to check if an exercise is correct, which are:
+``pythonwhat`` uses the ``.`` to 'chain together' SCT functions. Every chain starts with the ``Ex()`` function call, which holds the exercise state. This exercise state contains all the information that is required to check if an exercise is correct, which are:
 
 + the student submission and the solution as text, and their corresponding parse trees.
 + a reference to the student workspace and the solution workspace.
 + the output and errors that were generated when executing the student code.
 
-As SCT functions are chained together with `.`, the exercise state is copied and adapted into so-called child states to zoom in on particular parts of the code.
+As SCT functions are chained together with ``.``, the exercise state is copied and adapted into so-called child states to zoom in on particular parts of the state.
 
-Example
-=======
+Example 1: function call
+========================
 
-Consider the following snippet of markdown that represents part of an exercise:
+Consider the following snippet of markdown that represents part of an exercise
+
+.. code::
+
+    `@solution`
+    ```{python}
+    import pandas as pd
+    pd.DataFrame([1, 2, 3])
+    ```
+
+    `@sct`
+    ```{python}
+    Ex().check_function('pandas.DataFrame').check_args('data').has_equal_value()
+    ```
+
+Assuming the student submitted the exact same code as the solution, the following happens when this SCT is executed:
+
+- `Ex()` returns the 'root state', which considers the entire student submission and solution code:
+
+  .. code::
+
+      import pandas as pd
+      pd.DataFrame([1, 2, 3])
+
+- `check_function()` continues from the root state (considering the entire student submission and solution),
+  and looks for a call of `DataFrame` in the `pandas` package. Afterwards, it 'zooms in' on the arguments.
+  In simplified terms, this is the state it produces:
+
+  .. code::
+
+      { "data": [1, 2, 3] }
+
+- `check_args()` continues from the state produced by ``test_function()`` and zooms in on the expression used to specify the argument `data`:
+
+  .. code::
+
+      [1, 2, 3]
+
+- Finally, ``has_equal_value()`` evaluates the expression that is used to specify the argument (e.g. ``[1, 2, 3]`` for `data`),
+  executes these expressions and verifies if they correspond between student and solution. As the student submission and solution code are the same, 
+  the expression `[1, 2, 3]` evaluate to the same list, so the SCT passes.
+
+
+Example 2: if statement
+=======================
+
+As a more advanced example, consider the following snippet of markdown that represents part of an exercise:
 
 .. code::
 
@@ -34,18 +80,13 @@ Consider the following snippet of markdown that represents part of an exercise:
         )
     ```
 
-- ``check_if_else()`` will check whether an ``if`` statement was coded, and will afterwards 'zoom in' on the if statement only.
-- ``multi()`` allows your SCT chains to branch out: both ``check_body()`` and ``check_test()`` continue from th estate produced by ``check_if_else()``.
-- Chain A: ``check_test()`` will zoom in on the test part of the ``if`` statement, so ``test_student_typed()`` will only look inside this fragment of the student submission.
-- Chain B: Similarly, ``check_body()`` starts from the `if` statement and zooms in on the body of the ``if`` statement, after which ``check_function()`` will only look for the ``print`` call inside this fragment of the student submission.
+Notice how this time, ``multi()`` is used to have the SCT chains 'branch out'.
+Both ``check_body()`` and ``check_test()`` continue from the state produced by ``check_if_else()``.
 
-.. note::
+Case 1
+~~~~~~
 
-    - ``test_`` functions always return the state that they were intially passed.
-    - ``check_`` functions on the other hand zoom in on a particular part of the student and solution submission and return a child state that can be further chained.
-    - Functions with another prefix, such as ``has_equal_ast()`` should only be used at the end of a chain.
-
-To further explain the example, assume the following student submission:
+Int he first case, ssume the following student submission:
 
 .. code::
 
@@ -55,31 +96,37 @@ To further explain the example, assume the following student submission:
 
 In chain A, this is what happens:
 
-- ``check_if_else()`` considers the entire submission received from ``Ex()``, and produces a child state that contains the `if` statements in student and solution:
+- ``check_if_else()`` considers the entire submission received from ``Ex()``
+  and produces a child state that contains the ``if`` statements in student and solution:
 
-    .. code::
+  .. code::
 
-        # solution
-        if x > 0:
-            print("x is positive")
-        
-        # student
-        if x < 0:
-            print("x is negative")
+      # solution
+      if x > 0:
+          print("x is positive")
 
-- ``check_test()`` considers the state above produced by ``check_if_else()``, and produces a child state with only the condition parts of the ``if`` statements:
+      # student
+      if x < 0:
+          print("x is negative")
 
-    .. code::
+- ``check_test()`` considers the state above produced by ``check_if_else()``
+  and produces a child state with only the condition parts of the ``if`` statements:
 
-        # solution
-        x > 0
-        
-        # student
-        x < 0
+  .. code::
 
-- ``test_student_typed()`` considers the state above produced by ``check_test()``, and tries to match the regexes to the ``x < 0`` student snippet. The regex does not match, so the test fails.
+      # solution
+      x > 0
 
-Assume now that the student corrects the mistake, and submits the following (which is still not correct):
+      # student
+      x < 0
+
+- ``test_student_typed()`` considers the state above produced by ``check_test()``
+  and tries to match the regexes to the ``x < 0`` student snippet. The regex does not match, so the test fails.
+
+Case 2
+~~~~~~
+
+Assume now that the student corrects the mistake and submits the following (which is still not correct):
 
 .. code::
 
@@ -89,36 +136,43 @@ Assume now that the student corrects the mistake, and submits the following (whi
 
 Chain A will go through the same steps and will pass this time as ``x > 0`` in the student submission now matches the regex. In Chain B, this is what happens:
 
-- ``check_body()` considers the state produced by ``check_if_else()``, and produces a child state with only the body parts of the ``if`` statements:
+- ``check_body()`` considers the state produced by ``check_if_else()``, and produces a child state with only the body parts of the ``if`` statements:
 
-    .. code::
+  .. code::
 
-        # solution
-        print("x is positive")
+      # solution
+      print("x is positive")
 
-        # student
-        print("x is negative")
+      # student
+      print("x is negative")
 
 - ``check_function()`` considers the state above produced by ``check_if()``, and tries to find the function ``print()``. Next, it produces a state with references to the different arguments that were specified and their values:
 
-    .. code::
+  .. code::
 
-        # solution
-        { "x": "x is positive" }
+      # solution
+      { "x": "x is positive" }
 
-        # student
-        { "x": "x is negative" }
+      # student
+      { "x": "x is negative" }
   
 - ``check_args()`` checks if the argument ``x`` is specified, and produces a child state that zooms in on the actual value of ``x``:
 
-    .. code::
+  .. code::
 
-        # solution
-        "x is positive"
+      # solution
+      "x is positive"
 
-        # student
-        "x is negative"
+      # student
+      "x is negative"
   
 - Finally, ``has_equal_ast()`` compares the equality of the two 'focused' arguments. They are not equal, so the check fails.
 
+Test vs Check?
+==============
 
+As a general rule:
+
+- ``test_`` functions always **return the state that they were intially passed**.
+- ``check_`` functions on the other hand produce a child state that 'dives' deeper into a part of the state it was passed.
+- Functions with another prefix, such as ``has_equal_ast()`` should only be used at the end of a chain.
