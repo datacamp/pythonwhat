@@ -264,7 +264,7 @@ if True:
         self.assertEqual(sct_payload['message'], "The contents of <code>d</code> aren't correct.")
         helper.test_lines(self, sct_payload, 11, 11, 5, 9)
 
-    def test_fail_for(self):
+    def test_fail_for_2(self):
         self.data["DC_SCT"] = 'test_object("e")'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])

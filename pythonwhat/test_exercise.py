@@ -84,7 +84,6 @@ def success_msg(message):
     rep = Reporter.active_reporter
     rep.success_msg = message
 
-
 def allow_errors():
     rep = Reporter.active_reporter
     rep.errors_allowed = True

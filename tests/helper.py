@@ -1,5 +1,5 @@
 from pythonbackend.Exercise import Exercise
-from pythonbackend import utils
+
 import re
 import os
 

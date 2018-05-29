@@ -37,13 +37,14 @@ def check_function(name, index = 0,
     fmt_kwargs['typestr'] = typestr.format(**fmt_kwargs)
 
     # Get Parts ----
+    sol_parts = sol_out[name][index]
+
     try:
         stu_parts = stu_out[name][index]
     except (KeyError, IndexError):
         _msg = state.build_message(missing_msg, fmt_kwargs)
         rep.do_test(Test(Feedback(_msg, state.highlight)))
 
-    sol_parts = sol_out[name][index]
 
     # Signatures -----
     if signature:
@@ -56,13 +57,13 @@ def check_function(name, index = 0,
             sol_parts['args'], _ = bind_args(sol_sig, sol_parts['args'])
         except:
             raise ValueError("Something went wrong in matching call index {index} of {name} to its signature. "
-                            "You might have to manually specify or correct the signature."
+                             "You might have to manually specify or correct the signature."
                                     .format(index=index, name=name))
 
         try:
             stu_sig = get_sig(mapped_name=stu_parts['name'], process=state.student_process)
             stu_parts['args'], _ = bind_args(stu_sig, stu_parts['args'])
-        except Exception as e:
+        except Exception:
             _msg = state.build_message(params_not_matched_msg, fmt_kwargs)
             rep.do_test(Test(Feedback(_msg, stu_parts['node'])))
 

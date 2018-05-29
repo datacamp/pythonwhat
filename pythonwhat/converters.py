@@ -15,5 +15,5 @@ def get_manual_converters():
         'h5py._hl.group.Group': lambda x: x.file.filename + '_' + str([x for x in x.keys()]),
         'sqlalchemy.engine.base.Engine': lambda x: x.url.database
     }
-    #'
+
     return(converters)

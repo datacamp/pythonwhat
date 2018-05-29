@@ -181,8 +181,8 @@ class State(object):
         else:
             solution_context = self.solution_context
 
-        if student_context  is not None: 
-            student_context  = self.student_context.update_ctx(student_context)
+        if student_context is not None:
+            student_context = self.student_context.update_ctx(student_context)
         else:
             student_context = self.student_context
 

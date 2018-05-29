@@ -822,20 +822,20 @@ class TryExceptParser(Parser):
                 }
 
 parser_dict = {
-        "object_accesses": ObjectAccessParser,
-        "object_assignments": ObjectAssignmentParser,
-        "operators": OperatorParser,
-        "imports": ImportParser,
-        "if_elses": IfParser,
-        "if_exps": IfExpParser,
-        "whiles": WhileParser,
-        "for_loops": ForParser,
-        "function_defs": FunctionDefParser,
-        "lambda_functions": LambdaFunctionParser,
-        "list_comps": ListCompParser,
-        "dict_comps": DictCompParser,
-        "generator_exps": GeneratorExpParser,
-        "withs": WithParser,
-        "try_excepts": TryExceptParser,
-        "function_calls": FunctionParser
+    "object_accesses": ObjectAccessParser,
+    "object_assignments": ObjectAssignmentParser,
+    "operators": OperatorParser,
+    "imports": ImportParser,
+    "if_elses": IfParser,
+    "if_exps": IfExpParser,
+    "whiles": WhileParser,
+    "for_loops": ForParser,
+    "function_defs": FunctionDefParser,
+    "lambda_functions": LambdaFunctionParser,
+    "list_comps": ListCompParser,
+    "dict_comps": DictCompParser,
+    "generator_exps": GeneratorExpParser,
+    "withs": WithParser,
+    "try_excepts": TryExceptParser,
+    "function_calls": FunctionParser
 }
