@@ -9,7 +9,6 @@ def wrap_in_module(node):
         else:
             pass # do nothing
     else:
-        import pdb; pdb.set_trace()
         new_node.first_token = node.first_token
         new_node.last_token = node.first_token
     return new_node

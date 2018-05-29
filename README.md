@@ -11,20 +11,27 @@
 - If you want to learn what SCTs are and how they work, visit [this article](https://authoring.datacamp.com/courses/exercises/technical-details/sct.html) specifically.
 - For a complete overview of all functionality inside `pythonwhat` and articles about what to use when, consult https://pythonwhat.readthedocs.io.
 
-## Documentation
-
-To generate the documentation, install pythonwhat and run..
-
-```
-cd docs
-make html
-```
-
 ## Installation
 
-```
+```bash
+# latest stable version from PyPi
+pip install pythonwhat
+
+# latest development version from GitHub
 pip install git+https://github.com/datacamp/pythonwhat
 ```
+
+## Demo
+
+Experimenting locally:
+
+```python
+from pythonwhat.local import setup_state
+s = setup_state(stu_code = "x = 5", sol_code = "x = 4")
+s.check_object('x').has_equal_value()
+```
+
+To include an SCT in a DataCamp course, visit https://authoring.datacamp.com.
 
 ## Run tests
 

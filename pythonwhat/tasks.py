@@ -77,18 +77,18 @@ def isInstanceInProcess(name, klass, process, shell):
 # Get the keys() of a dictionary in the process
 @process_task
 def getKeysInProcess(name, process, shell):
-        try:
-            return list(get_env(shell.user_ns)[name].keys())
-        except:
-            return None
+    try:
+        return list(get_env(shell.user_ns)[name].keys())
+    except:
+        return None
 
 # Get the columns of a Pandas data frame in the process
 @process_task
 def getColumnsInProcess(name, process, shell):
-        try:
-            return list(get_env(shell.user_ns)[name].columns)
-        except:
-            return None
+    try:
+        return list(get_env(shell.user_ns)[name].columns)
+    except:
+        return None
 
 # Is a key defined in a collection in the process?
 @process_task
