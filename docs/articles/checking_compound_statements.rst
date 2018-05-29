@@ -123,7 +123,7 @@ Let's recap the ``if`` statement example in the `Syntax article <syntax.html>`_:
     
     # sct
     Ex().check_if_else().multi(
-        check_test().test_student_typed(/x\s+>\s+0/), # chain A
+        check_test().check_code(/x\s+>\s+0/), # chain A
         check_body().check_function('print', 0).check_args('value').has_equal_value() # chain B
         )
 
@@ -143,7 +143,7 @@ As an example, consider this improved SCT of the example above:
         check_body().check_function('print', 0).check_args('value').has_equal_value() # chain B
         )
 
-Chain A has been updated to use ``has_equal_value()`` instead of ``test_student_typed()``.
+Chain A has been updated to use ``has_equal_value()`` instead of ``check_code()``.
 ``has_equal_value()`` will execute the ``test`` portion of the ``if`` statement in both
 the student and solution coding process and will compare their results, making it more robust.
 If the student sets ``x = 4`` and the test condition to ``x > 0`` (or ``0 < x``), it will evaluate to ``True``, the same as the solution, and ``has_equal_value()`` will pass.
