@@ -20,10 +20,8 @@ TEST_NAMES = [
     "test_function",
     "test_print",
     "test_function_v2",
-    "test_operator",
     "test_try_except",
     "test_data_frame",
-    "test_dictionary",
     "test_while_loop",
     "test_student_typed",
     "test_object_accessed",
@@ -245,8 +243,6 @@ class Probe(object):
 
 def create_test_probes(context):
     tree = Tree()
-    all_tests = [context[s] for s in TEST_NAMES]
-    new_context = {f.__name__: Probe(tree, f) for f in all_tests} 
+    new_context = {s: Probe(tree, context[s]) for s in TEST_NAMES}
     new_context.update({k:v for k,v in context.items() if k not in new_context})
-    #new_context['success_msg'] =  lambda s: s
     return tree, new_context

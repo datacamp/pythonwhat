@@ -3,10 +3,10 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 
 
-def test_student_typed(text,
-                       pattern=True,
-                       not_typed_msg=None,
-                       state=None):
+def check_code(text,
+               pattern=True,
+               not_typed_msg=None,
+               state=None):
     """Test the student code.
 
     Tests if the student typed a (pattern of) text.
@@ -28,3 +28,5 @@ def test_student_typed(text,
 
     _msg = state.build_message(not_typed_msg)
     rep.do_test(StringContainsTest(student_code, text, pattern, _msg))
+
+test_student_typed = check_code

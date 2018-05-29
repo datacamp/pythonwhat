@@ -100,6 +100,7 @@ def test_fun_def_2():
 def test_fun_def_3():
     s = "def my_fun(a, b = 2):\n  return a + (abs(b))"
     parsesWithoutError(s)
+    
 def test_lambda_1():
     s = "echo_word = lambda word, echo = 1: word * echo"
     parsesWithoutError(s)

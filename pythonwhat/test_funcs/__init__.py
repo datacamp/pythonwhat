@@ -13,10 +13,8 @@ from .test_for_loop import test_for_loop
 from .test_function import test_function
 from .test_function import test_print
 from .test_function import test_function_v2
-from .test_operator import test_operator
 from .test_try_except import test_try_except
 from .test_data_frame import test_data_frame
-from .test_dictionary import test_dictionary
 from .test_while_loop import test_while_loop
 from .test_student_typed import test_student_typed
 from .test_object_accessed import test_object_accessed
