@@ -106,14 +106,14 @@ test_or
     print(4)
 		
 
-To test this in a robust way, you could use ``test_output_contains()`` with a suitable regular expression that covers everything,
-or you can use ``test_or()`` with three separate ``test_output_contains()`` functions:
+To test this in a robust way, you could use ``check_code()`` with a suitable regular expression that covers everything,
+or you can use ``test_or()`` with three separate ``check_code()`` functions:
 
 .. code::
 
-	test_or(test_output_contains('4'),
-            test_output_contains('5'),
-            test_output_contains('6'))
+	Ex().test_or(check_code('4'),
+               check_code('5'),
+               check_code('6'))
 
 You can consider ``test_or()`` a logic-inducing function. The different calls to ``pythonwhat`` functions that are in your SCT are actually all tests that _have_ to pass:
 they are ``AND`` tests. With ``test_or()`` you can add chunks of ``OR`` tests in there.

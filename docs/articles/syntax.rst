@@ -75,7 +75,7 @@ As a more advanced example, consider the following snippet of markdown that repr
     `@sct`
     ```{python}
     Ex().check_if_else().multi(
-        check_test().test_student_typed(/x\s+>\s+0/), # chain A
+        check_test().check_code(/x\s+>\s+0/), # chain A
         check_body().check_function('print', 0).check_args('value').has_equal_value() # chain B
         )
     ```
@@ -120,7 +120,7 @@ In chain A, this is what happens:
       # student
       x < 0
 
-- ``test_student_typed()`` considers the state above produced by ``check_test()``
+- ``check_code()`` considers the state above produced by ``check_test()``
   and tries to match the regexes to the ``x < 0`` student snippet. The regex does not match, so the test fails.
 
 Case 2

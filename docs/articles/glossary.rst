@@ -98,7 +98,7 @@ Check output
     print("This is weird stuff")
 
     # sct
-    Ex().test_output_contains(r"This is \w* stuff")
+    Ex().check_output(r"This is \w* stuff")
 
     # passing submissions
     print("This is weird stuff")
@@ -118,7 +118,7 @@ Check import
     import matplotlib.pyplot as plt
 
     # sct
-    Ex().test_import("matplotlib.pyplot", same_as=False)
+    Ex().check_import("matplotlib.pyplot", same_as=False)
 
     # passing submissions
     import matplotlib.pyplot as plt
@@ -160,7 +160,7 @@ Check list comprehensions
 
     # sct
     Ex().check_list_comp(0).multi(
-        check_body().test_student_typed('i\*2'),
+        check_body().check_code('i\*2'),
         check_iter().has_equal_value(),
         check_ifs(0).multi([has_equal_value(context_vals=[i]) for i in range(0,10)])
     )
