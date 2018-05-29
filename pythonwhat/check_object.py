@@ -12,6 +12,37 @@ MSG_INCORRECT_VAL = """FMT: Have you specified the correct value for "{key}" ins
 MSG_KEY_MISSING = "__JINJA__:There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} inside {{parent.index}}."
 
 def check_object(index, missing_msg=MSG_UNDEFINED, expand_msg=MSG_PREPEND, state=None, typestr="variable"):
+    """Check object existence (and equality)
+
+    Check whether an object is defined in the student's environment, and zoom in on its value in both
+    student and solution environment to inspect quality (with has_equal_value().
+
+    Args:
+        index (str): the name of the object which value has to be checked.
+        missing_msg (str): feedback message when the object is not defined in the student's environment.
+        expect_msg (str): prepending message to put in front.
+
+    :Example:
+
+        Student code::
+
+            b = 1
+            c = 3
+
+        Solution code::
+
+            a = 1
+            b = 2
+            c = 3
+
+        SCT::
+
+            Ex().check_object("a")                    # fail
+            Ex().check_object("b")                    # pass
+            Ex().check_object("b").has_equal_value()  # fail
+            Ex().check_object("c").has_equal_value()  # pass
+
+    """
     rep = Reporter.active_reporter
 
     if not isDefinedInProcess(index, state.solution_process):

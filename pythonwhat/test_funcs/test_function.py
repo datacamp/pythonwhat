@@ -21,50 +21,6 @@ def test_function(name,
                   highlight=True,
                   state=None,
                   **kwargs):
-    """Test if function calls match.
-
-    This function compares a function call in the student's code with the corresponding one in the solution
-    code. It will cause the reporter to fail if the corresponding calls do not match. The fail message
-    that is returned will depend on the sort of fail.
-
-    Args:
-        name (str): the name of the function to be tested.
-        index (int): index of the function call to be checked. Defaults to 1.
-        args (list(int)): the indices of the positional arguments that have to be checked. If it is set to
-          None, all positional arguments which are in the solution will be checked.
-        keywords (list(str)): the indices of the keyword arguments that have to be checked. If it is set to
-          None, all keyword arguments which are in the solution will be checked.
-        eq_condition (str): how arguments/keywords are compared. Currently, only "equal" is supported,
-          meaning that the result in student and solution process should have exactly the same value.
-        do_eval (bool): True: arguments are evaluated and compared. False: arguments are not evaluated but
-            'string-matched'. None: arguments are not evaluated; it is only checked if they are specified.
-        not_called_msg (str): feedback message if the function is not called.
-        args_not_specified_msg (str): feedback message if the function is called but not all required arguments are specified
-        incorrect_msg (str): feedback message if the arguments of the function in the solution doesn't match
-          the one of the student.
-        kwargs: named arguments which are the same as those used by ``has_equal_value``.
-
-    :Example:
-
-        Student code::
-
-            import numpy as np
-            np.mean([1,2,3])
-            np.std([2,3,4])
-
-        Solution code::
-
-            import numpy
-            numpy.mean([1,2,3], axis = 0)
-            numpy.std([4,5,6])
-
-        SCT::
-
-            test_function("numpy.mean", index = 1, keywords = []) # pass
-            test_function("numpy.mean", index = 1)                # fail
-            test_function(index = 1, incorrect_op_msg = "Use the correct operators")       # fail
-            test_function(index = 1, used = [], incorrect_result_msg = "Incorrect result") # fail
-    """
     rep = Reporter.active_reporter
 
     index = index - 1

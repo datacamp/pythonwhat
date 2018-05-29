@@ -106,8 +106,8 @@ To test both these function calls, you'll need the following SCT:
     )
 
 The first ``check_function()`` chain, where ``index=0``, checks the solution code for the first function call of ``round()``, finds it - ``round(3.14159, 3)`` - and then goes to look through the student code to find a function call of ``round()`` that matches the arguments.
-It is perfectly possible that there are 5 function calls of ``round()`` in the student's submission, and that only the fourth call matches the requirements for ``test_function_v2()``.
-As soon as a function call is found in the student code that passes all tests, ``pythonwhat`` heads over to the second ``test_function_v2()`` call, where ``index=2``.
+It is perfectly possible that there are 5 function calls of ``round()`` in the student's submission, and that only the fourth call matches the requirements for ``check_function()``.
+As soon as a function call is found in the student code that passes all tests, ``pythonwhat`` heads over to the second ``check_function()`` call, where ``index=2``.
 The same thing happens: the second call of ``round()`` is found from the solution code, and a match is sought for in the student code.
 
 This means that all of the following student submissions would be accepted:
@@ -165,7 +165,7 @@ You can pass ``sig_from_params()`` as many parameters as you want.
 
 ``param`` is an alias of the ``Parameter`` class that's inside the ``inspect`` module.
 - The first argument of ``param()`` should be the name of the parameter,
-- The second argument should be the 'kind' of parameter. ``param.POSITIONAL_OR_KEYWORD`` tells ``test_function_v2`` that the parameter can be specified either through a positional argument or through a keyword argument.
+- The second argument should be the 'kind' of parameter. ``param.POSITIONAL_OR_KEYWORD`` tells ``check_function`` that the parameter can be specified either through a positional argument or through a keyword argument.
 Other common possibilities are ``param.POSITIONAL_ONLY`` and ``param.KEYWORD_ONLY`` (for a full list, refer to the `docs <https://docs.python.org/3.4/library/inspect.html#inspect.Parameter>`_).
 - The third optional argument allows you to specify a default value for the parameter.  
 

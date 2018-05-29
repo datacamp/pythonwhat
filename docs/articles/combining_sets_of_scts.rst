@@ -53,7 +53,7 @@ Let's see what happens in case of different student submissions:
 - The student submits ``result = np.sum(arr) / arr.size``
 
   - ``test_correct()`` runs the ``check_object()`` chain.
-  - This test passes, so ``test_correct()`` stops before running ``test_function()``.
+  - This test passes, so ``test_correct()`` stops before running ``check_fucntion()``.
   - The entire SCT passes even though ``np.mean()`` was not used.
 
 - The student submits ``result = np.mean(arr + 1)``
@@ -82,7 +82,7 @@ It is perfectly possible for your ``check`` and ``diagnose`` SCT chains to branc
     Ex().test_correct(
             multi(check_object('a').has_equal_value(), # multiple check SCTs
                   check_object('b').has_equal_value()),
-            test_function('numpy.mean')
+            check_function("numpy.mean").check_args("a").has_equal_value()
          )
 
 

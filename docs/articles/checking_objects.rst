@@ -61,7 +61,7 @@ Example 3: Exotic objects
 =========================
 
 Python objects are compared using the ``==`` operator and objects can overwrite its implementation to fit the object's needs. 
-Internally, ``test_object()`` uses the ``==`` operation to compare objects, this means you could encounter undesirable behaviour. 
+Internally, ``check_object()`` uses the ``==`` operation to compare objects, this means you could encounter undesirable behaviour. 
 For more complex objects,  ``==`` just compares the actual object instances, and objects which are semantically alike won't be according to ``has_equal_value()``.
 
 The the following example solution:

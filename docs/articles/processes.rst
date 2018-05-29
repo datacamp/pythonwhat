@@ -41,7 +41,7 @@ This is the corresponding SCT:
 
 Suppose now that objects such as ``xl``, which are of the type ``pandas.io.excel.ExcelFile``, can't be properly dilled and undilled.
 (Because of hardcoded converters inside ``pythonwhat``, they can, see below).
-To make sure that you can still use ``test_object('xl')`` to test the equality of the ``xl`` object between student and solution process,
+To make sure that you can still use ``check_object('xl')`` to test the equality of the ``xl`` object between student and solution process,
 you can manually define a converter with the ``set_converter()`` function. You can extend the SCT as follows:
 
 .. code::
@@ -56,7 +56,7 @@ With a lambda function, it's even easier:
 .. code::
 
     set_converter(key = "pandas.io.excel.ExcelFile", fundef = lambda x: x.sheet_names)
-    Ex().test_object('xl')
+    Ex().check_object('xl').has_equal_value()
 
 The first arguemnt of ``set_converter()``, the ``key`` takes the type of the object you want to add a manual converter for as a string.
 The second argument, ``fundef``, takes a function definition, taking one argument and returning a single object. This function definition converts the exotic object into something more standard. In this case, the function converts the object of type ``pandas.io.excel.ExcelFile`` into a simple list of strings. A list of strings is something that can easily be converted into a bytestream and back into a Python object again, hence solving the problem.
@@ -87,7 +87,7 @@ You can easily write a manual converter that overrides the typical dilling and u
 
     # sct
     set_converter(key = "numpy.ndarray", fundef = lambda x: x.shape)
-    Ex().test_object('my_array')
+    Ex().check_object('my_array').has_equal_value()
 
     # both these submissions will pass
     my_array = np.array([[1,2], [3,4], [5,6]])

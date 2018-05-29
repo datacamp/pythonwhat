@@ -47,7 +47,7 @@ Assuming the student submitted the exact same code as the solution, the followin
 
       { "data": [1, 2, 3] }
 
-- `check_args()` continues from the state produced by ``test_function()`` and zooms in on the expression used to specify the argument `data`:
+- `check_args()` continues from the state produced by ``check_function()`` and zooms in on the expression used to specify the argument `data`:
 
   .. code::
 
