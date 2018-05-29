@@ -6,7 +6,6 @@ from pythonwhat.tasks import isDefinedInProcess, getOptionFromProcess
 
 MC_VAR_NAME = "selected_option"
 
-
 def test_mc(correct, msgs, state=None):
     """Test multiple choice exercise.
 

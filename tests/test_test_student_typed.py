@@ -11,13 +11,14 @@ class TestStudentTypedComment(unittest.TestCase):
         }
 
     def test_success(self):
-        self.data["DC_SCT"] = '''
-test_student_typed("# (A|a)ddition works to(o?)\sprint\(7", not_typed_msg = "Make sure to add the instructed comment before `print(7+10)`.")
-success_msg("You typed the correct comment.")
-        '''
+        self.data["DC_SCT"] = 'test_student_typed("# (A|a)ddition works to(o?)\sprint\(7")'
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "You typed the correct comment.")
+
+    def test_success_new(self):
+        self.data["DC_SCT"] = 'Ex().check_code("# (A|a)ddition works to(o?)\sprint\(7")'
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
 class TestStudentDidntTypeComment(unittest.TestCase):
 
@@ -29,13 +30,16 @@ class TestStudentDidntTypeComment(unittest.TestCase):
         }
 
     def test_fail(self):
-        self.data["DC_SCT"] = '''
-test_student_typed("# (A|a)ddition works to(o?)\sprint\(7", not_typed_msg = "Make sure to add the instructed comment before `print(7+10)`.")
-success_msg("You typed the correct comment.")
-        '''
+        self.data["DC_SCT"] = 'test_student_typed("# (A|a)ddition works to(o?)\sprint\(7", not_typed_msg = "Wrong.")'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Make sure to add the instructed comment before <code>print(7+10)</code>.")
+        self.assertEqual(sct_payload['message'], "Wrong.")
+
+    def test_fail_new(self):
+        self.data["DC_SCT"] = 'Ex().check_code("# (A|a)ddition works to(o?)\sprint\(7", not_typed_msg = "Wrong.")'
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+        self.assertEqual(sct_payload['message'], "Wrong.")
 
 class TestWikiExample(unittest.TestCase):
 
@@ -43,7 +47,7 @@ class TestWikiExample(unittest.TestCase):
         self.data = {
             "DC_PEC": '',
             "DC_SOLUTION": 's = sum(range(10))\nprint(s)',
-            "DC_SCT": 'test_student_typed("sum(range(", pattern = False)',
+            "DC_SCT": 'Ex().check_code("sum(range(", pattern = False)',
             "DC_CODE": 's = sum(range(10))\nprint(s)'
         }
         sct_payload = helper.run(self.data)
@@ -53,7 +57,7 @@ class TestWikiExample(unittest.TestCase):
         self.data = {
             "DC_PEC": '',
             "DC_SOLUTION": 's = sum(range(10))\nprint(s)',
-            "DC_SCT": 'test_student_typed("sum\s*\(\s*range\s*\(")',
+            "DC_SCT": 'Ex().check_code("sum\s*\(\s*range\s*\(")',
             "DC_CODE": 's = sum(range(10))\nprint(s)'
         }
         sct_payload = helper.run(self.data)
@@ -63,7 +67,7 @@ class TestWikiExample(unittest.TestCase):
         self.data = {
             "DC_PEC": '',
             "DC_SOLUTION": 's = sum(range(10))\nprint(s)',
-            "DC_SCT": 'test_student_typed("sum\s+\(\s*range\s*\(")',
+            "DC_SCT": 'Ex().check_code("sum\s+\(\s*range\s*\(")',
             "DC_CODE": 's = sum(range(10))\nprint(s)'
         }
         sct_payload = helper.run(self.data)
