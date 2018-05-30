@@ -167,12 +167,3 @@ Chain A will go through the same steps and will pass this time as ``x > 0`` in t
       "x is negative"
   
 - Finally, ``has_equal_ast()`` compares the equality of the two 'focused' arguments. They are not equal, so the check fails.
-
-Test vs Check?
-==============
-
-As a general rule:
-
-- ``test_`` functions always **return the state that they were intially passed**.
-- ``check_`` functions on the other hand produce a child state that 'dives' deeper into a part of the state it was passed.
-- Functions with another prefix, such as ``has_equal_ast()`` should only be used at the end of a chain.
