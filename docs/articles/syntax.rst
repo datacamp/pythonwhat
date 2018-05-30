@@ -75,7 +75,7 @@ As a more advanced example, consider the following snippet of markdown that repr
     `@sct`
     ```{python}
     Ex().check_if_else().multi(
-        check_test().check_code(/x\s+>\s+0/), # chain A
+        check_test().has_code(/x\s+>\s+0/), # chain A
         check_body().check_function('print', 0).check_args('value').has_equal_value() # chain B
         )
     ```
@@ -120,7 +120,7 @@ In chain A, this is what happens:
       # student
       x < 0
 
-- ``check_code()`` considers the state above produced by ``check_test()``
+- ``has_code()`` considers the state above produced by ``check_test()``
   and tries to match the regexes to the ``x < 0`` student snippet. The regex does not match, so the test fails.
 
 Case 2
@@ -167,3 +167,12 @@ Chain A will go through the same steps and will pass this time as ``x > 0`` in t
       "x is negative"
   
 - Finally, ``has_equal_ast()`` compares the equality of the two 'focused' arguments. They are not equal, so the check fails.
+
+
+Test vs Has?	
+============
+
+As a general rule:
+
+- ``check_`` functions produce a child state that 'dives' deeper into a part of the state it was passed.	They are typically chained off of for further checking.	
+- ``has_`` functions always **return the state that they were intially passed** and are used at the 'end' of a chain.

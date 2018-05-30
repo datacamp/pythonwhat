@@ -6,7 +6,7 @@ class TestCheckOutput(unittest.TestCase):
     def setUp(self):
         self.data = {
             "DC_PEC": '',
-            "DC_SCT": "Ex().check_output(r'[H|h]i,*\\s+there!')",
+            "DC_SCT": "Ex().has_output(r'[H|h]i,*\\s+there!')",
             "DC_SOLUTION": ''
         }
 

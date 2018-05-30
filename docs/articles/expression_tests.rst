@@ -31,7 +31,7 @@ In the example below, we re-run the entire student and submission code, and chec
     # sct
     Ex().has_equal_output()
 
-Note that while we could have used ``check_output()`` to verify that the student printed ``"[1, 2, 3]"``,
+Note that while we could have used ``has_output()`` to verify that the student printed ``"[1, 2, 3]"``,
 using ``has_equal_output`` simply requires that the student output matches the solution output.
 
 Running part of the code

@@ -189,8 +189,7 @@ with_context
 
 Runs subtests after setting the context for a ``with`` statement.
 
-This function takes arguments in the same form as ``multi``. 
-Note also that ``with_context`` was the default behavior for ``test_with`` in pythonwhat version 1.
+This function takes arguments in the same form as ``multi``.
 
 Context Managers Explained
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

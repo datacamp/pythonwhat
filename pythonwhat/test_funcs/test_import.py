@@ -3,12 +3,12 @@ from pythonwhat.Test import Test, DefinedCollTest, EqualTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 
-def check_import(name,
+def has_import(name,
                  same_as=True,
                  not_imported_msg=None,
                  incorrect_as_msg=None,
                  state=None):
-    """Check import statements.
+    """Check whether code has certain import statement.
 
     Test whether an import statement is used the same in the student's environment as in the solution
     environment.
@@ -34,9 +34,9 @@ def check_import(name,
 
         SCT::
 
-            Ex().check_imports("numpy")  # pass
-            Ex().check_imports("pandas") # fail
-            Ex().check_imports("pandas", same_as = False) # pass
+            Ex().has_import("numpy")  # pass
+            Ex().has_import("pandas") # fail
+            Ex().has_import("pandas", same_as = False) # pass
 
     """
     rep = Reporter.active_reporter
@@ -64,4 +64,6 @@ def check_import(name,
                 student_imports[name],
                 _msg))
 
-test_import = check_import
+    return state
+
+test_import = has_import

@@ -3,10 +3,10 @@ from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 
 
-def check_output(text,
-                 pattern=True,
-                 no_output_msg=None,
-                 state=None):
+def has_output(text,
+               pattern=True,
+               no_output_msg=None,
+               state=None):
     """Search student output.
 
     Checks if the output contains a (pattern of) text.
@@ -20,7 +20,7 @@ def check_output(text,
 
         SCT::
 
-            Ex().check_output(r'[H|h]i,*\\s+there!')
+            Ex().has_output(r'[H|h]i,*\\s+there!')
 
         Submissions::
 
@@ -43,4 +43,6 @@ def check_output(text,
             pattern,
             _msg))
 
-test_output_contains = check_output
+    return state
+
+test_output_contains = has_output

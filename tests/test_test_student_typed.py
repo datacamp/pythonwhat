@@ -16,7 +16,7 @@ class TestStudentTypedComment(unittest.TestCase):
         self.assertTrue(sct_payload['correct'])
 
     def test_success_new(self):
-        self.data["DC_SCT"] = 'Ex().check_code("# (A|a)ddition works to(o?)\sprint\(7")'
+        self.data["DC_SCT"] = 'Ex().has_code("# (A|a)ddition works to(o?)\sprint\(7")'
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
@@ -36,7 +36,7 @@ class TestStudentDidntTypeComment(unittest.TestCase):
         self.assertEqual(sct_payload['message'], "Wrong.")
 
     def test_fail_new(self):
-        self.data["DC_SCT"] = 'Ex().check_code("# (A|a)ddition works to(o?)\sprint\(7", not_typed_msg = "Wrong.")'
+        self.data["DC_SCT"] = 'Ex().has_code("# (A|a)ddition works to(o?)\sprint\(7", not_typed_msg = "Wrong.")'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual(sct_payload['message'], "Wrong.")
@@ -47,7 +47,7 @@ class TestWikiExample(unittest.TestCase):
         self.data = {
             "DC_PEC": '',
             "DC_SOLUTION": 's = sum(range(10))\nprint(s)',
-            "DC_SCT": 'Ex().check_code("sum(range(", pattern = False)',
+            "DC_SCT": 'Ex().has_code("sum(range(", pattern = False)',
             "DC_CODE": 's = sum(range(10))\nprint(s)'
         }
         sct_payload = helper.run(self.data)
@@ -57,7 +57,7 @@ class TestWikiExample(unittest.TestCase):
         self.data = {
             "DC_PEC": '',
             "DC_SOLUTION": 's = sum(range(10))\nprint(s)',
-            "DC_SCT": 'Ex().check_code("sum\s*\(\s*range\s*\(")',
+            "DC_SCT": 'Ex().has_code("sum\s*\(\s*range\s*\(")',
             "DC_CODE": 's = sum(range(10))\nprint(s)'
         }
         sct_payload = helper.run(self.data)
@@ -67,7 +67,7 @@ class TestWikiExample(unittest.TestCase):
         self.data = {
             "DC_PEC": '',
             "DC_SOLUTION": 's = sum(range(10))\nprint(s)',
-            "DC_SCT": 'Ex().check_code("sum\s+\(\s*range\s*\(")',
+            "DC_SCT": 'Ex().has_code("sum\s+\(\s*range\s*\(")',
             "DC_CODE": 's = sum(range(10))\nprint(s)'
         }
         sct_payload = helper.run(self.data)

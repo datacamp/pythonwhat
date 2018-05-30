@@ -7,10 +7,11 @@ Simple tests
 .. autofunction:: pythonwhat.check_object.has_equal_key
 .. autofunction:: pythonwhat.check_function.check_function
 .. autofunction:: pythonwhat.check_funcs.check_args
-.. autofunction:: pythonwhat.test_funcs.test_import.check_import
 .. autofunction:: pythonwhat.check_funcs.has_equal_ast
-.. autofunction:: pythonwhat.test_funcs.test_student_typed.check_code
-.. autofunction:: pythonwhat.test_funcs.test_output_contains.check_output
+.. autofunction:: pythonwhat.test_funcs.test_student_typed.has_code
+.. autofunction:: pythonwhat.test_funcs.test_output_contains.has_output
+.. autofunction:: pythonwhat.test_funcs.test_import.has_import
+
 
 Part Checks
 -----------

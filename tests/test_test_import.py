@@ -38,7 +38,7 @@ class TestImportingStepByStep(unittest.TestCase):
         self.data = {
             "DC_PEC": "",
             "DC_SOLUTION": "import pandas as pd",
-            "DC_SCT": "Ex().check_import('pandas')"
+            "DC_SCT": "Ex().has_import('pandas')"
         }
 
     def test_step_1(self):
