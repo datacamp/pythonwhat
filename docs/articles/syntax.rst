@@ -86,7 +86,7 @@ Both ``check_body()`` and ``check_test()`` continue from the state produced by `
 Case 1
 ~~~~~~
 
-Int he first case, ssume the following student submission:
+In the first case, ssume the following student submission:
 
 .. code::
 
