@@ -6,9 +6,9 @@ python:
 
 before_install:
   - pip install -r requirements.txt
-  - python setup.py install # dill complains for some tests if not using compiled files
+  - pip install -e .
 
-script: pytest --cov=pythonwhat && codecov --token=$CODECOV_TOKEN
+script: pytest -m "not compiled" --cov=pythonwhat && codecov --token=$CODECOV_TOKEN
 
 deploy:
   provider: pypi

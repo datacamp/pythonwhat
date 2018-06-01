@@ -1,5 +1,6 @@
 import unittest
 import helper
+import pytest
 
 class TestObjectStepByStep(unittest.TestCase):
 
@@ -100,6 +101,8 @@ class TestTestObjectNonDillable(unittest.TestCase):
         self.assertTrue(sct_payload['correct'])
 
 class TestTestObjectManualConverter(unittest.TestCase):
+
+    @pytest.mark.compiled
     def test_pass_1(self):
         self.data = {
             "DC_PEC": "import pandas as pd; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath.xlsx'); from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath2.xlsx')",
@@ -116,6 +119,8 @@ test_object('xl')
         self.assertTrue(sct_payload['correct'])
 
 class TestTestObjectManualConverter2(unittest.TestCase):
+
+    @pytest.mark.compiled
     def test_pass_1(self):
         self.data = {
             "DC_PEC": "import numpy as np",
