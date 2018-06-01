@@ -1,6 +1,7 @@
 import pytest
 import helper
 
+@pytest.mark.compiled
 def test_converter_err():
     data = {
             "DC_SOLUTION": "import numpy as np; x = np.array([1, 2, 3])",
