@@ -7,7 +7,6 @@ python:
 before_install:
   - pip install -r requirements.txt
   - python setup.py install # dill complains for some tests if not using compiled files
-  - git clone https://$GH_TOKEN@github.com/datacamp/pythonbackend.git && pip install ./pythonbackend && rm -rf pythonbackend
 
 script: pytest --cov=pythonwhat && codecov --token=$CODECOV_TOKEN
 

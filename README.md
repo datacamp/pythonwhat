@@ -28,7 +28,17 @@ Experimenting locally:
 ```python
 from pythonwhat.local import setup_state
 s = setup_state(stu_code = "x = 5", sol_code = "x = 4")
+
+s.check_object('x')
+# No error: x is defined in both student and solution process
+
 s.check_object('x').has_equal_value()
+# Throws error, because value of x is not the same
+
+# Debugging state
+s._state               # access state object
+dir(s._state)          # list all attributes of the state object
+s._state.student_code  # access attribute of state object
 ```
 
 To include an SCT in a DataCamp course, visit https://authoring.datacamp.com.
@@ -40,10 +50,6 @@ Use Python 3.5
 ```
 # install packages used in tests (should be reduced)
 pip install -r requirements.txt
-
-# install pythonbackend (private, for now)
-cd path/to/pythonbackend
-python3 setup.py install
 
 # install pythonwhat
 cd /path/to/pythonwhat
