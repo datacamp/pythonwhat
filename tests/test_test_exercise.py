@@ -1,5 +1,4 @@
 import unittest
-from pythonbackend.Exercise import Exercise
 import helper
 
 class TestTestExerciseError(unittest.TestCase):
@@ -11,12 +10,9 @@ class TestTestExerciseError(unittest.TestCase):
 			"DC_SOLUTION": 'x = 4',
 			"DC_SCT": 'test_object("x")\nsuccess_msg("nice")'
 		}
-		self.exercise = Exercise(self.data)
-		self.exercise.runInit()
-		output = self.exercise.runSubmit(self.data)
-		self.assertEqual(output[0]['type'], 'sct')
-		self.assertTrue(output[0]['payload']['correct'])
-		self.assertEqual(output[0]['payload']['message'], 'nice')
+		output = helper.run(self.data)
+		self.assertTrue(output['correct'])
+		self.assertEqual(output['message'], 'nice')
 
 	def test_normal_fail(self):
 		self.data = {
@@ -25,11 +21,8 @@ class TestTestExerciseError(unittest.TestCase):
 			"DC_SOLUTION": 'x = 6',
 			"DC_SCT": 'test_object("x")\nsuccess_msg("nice")'
 		}
-		self.exercise = Exercise(self.data)
-		self.exercise.runInit()
-		output = self.exercise.runSubmit(self.data)
-		self.assertEqual(output[0]['type'], 'sct')
-		self.assertFalse(output[0]['payload']['correct'])
+		output = helper.run(self.data)
+		self.assertFalse(output['correct'])
 
 	def test_syntax_error(self):
 		self.data = {
@@ -38,12 +31,9 @@ class TestTestExerciseError(unittest.TestCase):
 			"DC_SOLUTION": 'x = 6',
 			"DC_SCT": 'test_object("x")'
 		}
-		self.exercise = Exercise(self.data)
-		self.exercise.runInit()
-		output = self.exercise.runSubmit(self.data)
-		self.assertEqual(output[0]['type'], "error")
-		self.assertFalse(output[1]['payload']['correct'])
-		self.assertEqual(output[1]['payload']['message'], "Your code can not be executed due to a syntax error:<br><code>Missing parentheses in call to 'print' (script.py, line 1).</code>") 
+		output = helper.run(self.data)
+		self.assertFalse(output['correct'])
+		self.assertEqual(output['message'], "Your code can not be executed due to a syntax error:<br><code>Missing parentheses in call to 'print' (script.py, line 1).</code>") 
 
 	def test_indentation_error(self):
 		self.data = {
@@ -52,12 +42,9 @@ class TestTestExerciseError(unittest.TestCase):
 			"DC_SOLUTION": 'x = 6',
 			"DC_SCT": 'test_object("x")'
 		}
-		self.exercise = Exercise(self.data)
-		self.exercise.runInit()
-		output = self.exercise.runSubmit(self.data)
-		self.assertEqual(output[0]['type'], "script-output")
-		self.assertFalse(output[1]['payload']['correct'])
-		self.assertEqual(output[1]['payload']['message'], "Your code could not be parsed due to an error in the indentation:<br><code>unexpected indent (script.py, line 1).</code>")
+		output = helper.run(self.data)
+		self.assertFalse(output['correct'])
+		self.assertEqual(output['message'], "Your code could not be parsed due to an error in the indentation:<br><code>unexpected indent (script.py, line 1).</code>")
 
 	def test_enrichment_error(self):
 		self.data = {
@@ -66,12 +53,9 @@ class TestTestExerciseError(unittest.TestCase):
 			"DC_SOLUTION": 'x = 6',
 			"DC_SCT": 'test_object("x")'
 		}
-		self.exercise = Exercise(self.data)
-		self.exercise.runInit()
-		output = self.exercise.runSubmit(self.data)
-		self.assertEqual(output[0]['type'], 'sct')
-		self.assertFalse(output[0]['payload']['correct'])
-		helper.test_absent_lines(self, output[0]['payload'])
+		output = helper.run(self.data)
+		self.assertFalse(output['correct'])
+		helper.test_absent_lines(self, output)
 
 if __name__ == "__main__":
     unittest.main()

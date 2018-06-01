@@ -152,27 +152,29 @@ class TestTestFunctionInWith(unittest.TestCase):
     def setUp(self):
         self.data = {
             "DC_PEC": '''
-from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/data.p', 'data.p')
+import pickle
+pickle.dump('test', open( "test.p", "wb" ))
             ''',
             "DC_CODE": '''
 import pickle
-with open('data.p','rb') as file:
-        d = pickle.load(file)
+with open('test.p','rb') as file:
+    d = pickle.load(file)
 print(d)
 print(type(d))
             ''',
             "DC_SOLUTION": '''
 import pickle
-with open('data.p','rb') as file:
-        d = pickle.load(file)
+with open('test.p','rb') as file:
+    d = pickle.load(file)
 print(d)
 print(type(d))
 '''
         }
         self.CODE_FAIL = '''
 import pickle
-with open('data.p','rb') as file:
-        d = pickle.load('something_else')
+with open('test.p','rb') as file:
+    d = pickle.load('something_else')
+
 print(d)
 print(type(d))
             '''

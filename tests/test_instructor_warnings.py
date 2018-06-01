@@ -3,11 +3,11 @@ import helper
 
 def test_converter_err():
     data = {
-            "DC_SOLUTION": "d = dict()",
-            "DC_SCT": """set_converter('builtins.dict', lambda: abc); test_object('d') """
+            "DC_SOLUTION": "import numpy as np; x = np.array([1, 2, 3])",
+            "DC_SCT": """def convert(): return abc\nset_converter('numpy.ndarray', convert); test_object('x') """
             }
     data['DC_CODE'] = data['DC_SOLUTION']
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         helper.run(data)
 
 def test_check_syntax_double_getattr():

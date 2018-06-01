@@ -193,7 +193,7 @@ class TestHasEqualAst(unittest.TestCase):
 
     def failing_submission(self):
         self.data["DC_CODE"] = "dict(A = 'a').keys(somearg = 2)"""
-        sct_payload = helper.run(self.data)
+        sct_payload = helper.run(self.data, run_code=False)
         self.assertFalse(sct_payload['correct'])
 
     def test_simple_pass(self):

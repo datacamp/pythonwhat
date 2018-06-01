@@ -36,8 +36,8 @@ class TestBuiltInConverters(unittest.TestCase):
     def test_beautiful_soup(self):
         self.data = {
             "DC_PEC": "import requests; from bs4 import BeautifulSoup",
-            "DC_SOLUTION": "soup = BeautifulSoup(requests.get('https://www.python.org/~guido/').text); print(soup.title); a_tags = soup.find_all('a')",
-            "DC_CODE": "soup = BeautifulSoup(requests.get('https://www.python.org/~guido/').text); print(soup.title); a_tags = soup.find_all('a')",
+            "DC_SOLUTION": "soup = BeautifulSoup(requests.get('https://www.python.org/~guido/').text, 'html5lib'); print(soup.title); a_tags = soup.find_all('a')",
+            "DC_CODE": "soup = BeautifulSoup(requests.get('https://www.python.org/~guido/').text, 'html5lib'); print(soup.title); a_tags = soup.find_all('a')",
             "DC_SCT": "test_object('soup'); test_function_v2('print', params = ['value']); test_object('a_tags')"
         }
         sct_payload = helper.run(self.data)
@@ -52,8 +52,6 @@ class TestBuiltInConverters(unittest.TestCase):
         }
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
-
-
 
 if __name__ == "__main__":
     unittest.main()

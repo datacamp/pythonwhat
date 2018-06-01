@@ -5,9 +5,11 @@ pandas==0.22.0
 dill==0.2.7.1
 markdown2==2.3.5
 asttokens==1.1.10
+jinja2==2.10
 
 # test deps
 bs4==0.0.1
+html5lib==1.0.1
 h5py==2.7.1
 sqlalchemy==1.2.6
 requests==2.18.4
@@ -24,7 +26,3 @@ pytest-cov==2.5.1
 sphinx==1.7.4
 sphinx_rtd_theme==v0.3.1
 
-# pythonbackend deps
-jinja2==2.10
-IPython==4.2.1
-protobackend==0.2.0

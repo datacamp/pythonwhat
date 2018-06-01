@@ -58,5 +58,5 @@ def check_dict(x):
     return(x)
 
 def check_process(x):
-    assert x.__class__.__name__ == "WorkerProcess"
+    assert "Process" in x.__class__.__name__
     return(x)
