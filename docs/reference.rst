@@ -30,6 +30,7 @@ Logic tests
 -----------
 
 .. autofunction:: pythonwhat.check_funcs.set_context
+.. autofunction:: pythonwhat.check_funcs.set_env
 .. autofunction:: pythonwhat.check_funcs.multi
 .. autofunction:: pythonwhat.test_funcs.test_correct.test_correct
 .. autofunction:: pythonwhat.test_funcs.test_or.test_or

@@ -76,6 +76,7 @@ class State(object):
     """
     def __init__(self, 
                  student_context=None, solution_context=None,
+                 student_env=None, solution_env=None,
                  student_parts=None, solution_parts=None, 
                  highlight = None, messages=None, 
                  **kwargs):
@@ -102,6 +103,8 @@ class State(object):
 
         self.student_context  = Context(student_context)  if student_context is None else student_context
         self.solution_context = Context(solution_context) if solution_context is None else solution_context
+        self.student_env = Context(student_env) if student_env is None else student_env
+        self.solution_env = Context(solution_env) if solution_env is None else solution_env
 
         self.highlight = self.student_tree if (not highlight) and self.parent_state else highlight
 
@@ -158,8 +161,9 @@ class State(object):
 
         return "".join(out_list)
 
-    def to_child_state(self, student_subtree, solution_subtree, 
+    def to_child_state(self, student_subtree=None, solution_subtree=None,
                              student_context=None, solution_context=None,
+                             student_env=None, solution_env=None,
                              student_parts=None, solution_parts=None,
                              highlight = None,
                              append_message="", node_name=""):
@@ -186,6 +190,17 @@ class State(object):
         else:
             student_context = self.student_context
 
+        # get new envs
+        if solution_env is not None:
+            solution_env = self.solution_env.update_ctx(solution_env)
+        else:
+            solution_env = self.solution_env
+
+        if student_env is not None:
+            student_env = self.student_env.update_ctx(student_env)
+        else:
+            student_env = self.student_env
+
         if not isinstance(append_message, dict): 
             append_message =  {'msg': append_message, 'kwargs': {}}
 
@@ -193,6 +208,7 @@ class State(object):
 
         if not (solution_subtree and student_subtree):
             return self.update(student_context = student_context, solution_context = solution_context,
+                               student_env = student_env, solution_env = solution_env,
                                student_parts = student_parts, solution_parts = solution_parts,
                                highlight = highlight, messages = messages)
 
@@ -203,6 +219,8 @@ class State(object):
                       pre_exercise_code = self.pre_exercise_code,
                       student_context = student_context,
                       solution_context  = solution_context,
+                      student_env = student_env,
+                      solution_env = solution_env,
                       student_process = self.student_process,
                       solution_process = self.solution_process,
                       raw_student_output = self.raw_student_output,
