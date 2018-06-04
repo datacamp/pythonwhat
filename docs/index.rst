@@ -30,6 +30,7 @@ The reference docs become useful when you understand all concepts and want to lo
    articles/expression_tests.rst
    articles/processes.rst
    articles/electives.rst
+   articles/test_to_check.rst
    articles/glossary.rst
 
 .. toctree::
