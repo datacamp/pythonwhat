@@ -226,6 +226,9 @@ def override(solution, state=None):
 
 from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
 def with_context(*args, state=None):
+
+    rep = Reporter.active_reporter
+
     # set up context in processes
     solution_res = setUpNewEnvInProcess(process = state.solution_process,
                                         context = state.solution_parts['with_items'])
@@ -261,7 +264,7 @@ def set_context(*args, state=None, **kwargs):
     """Update context values for student and solution environments.
     
     Note that excess args and unmatched kwargs will be unused in the student environment.
-    If an argument is specified both by name and position args, will use named arg.
+    If an argument is specified both by name and position args, ``set_context()`` will use the named arg.
     """
     stu_crnt = state.student_context.context
     sol_crnt = state.solution_context.context
@@ -286,6 +289,13 @@ def set_context(*args, state=None, **kwargs):
 
     return state.to_child_state(student_subtree = None, solution_subtree = None,
                                 student_context = out_stu, solution_context = out_sol)
+
+def set_env(state = None, **kwargs):
+    """Update/set environemnt variables for student and solution environments.
+
+    ``set_env()`` creates a 'sub environment'.
+    """
+    pass
 
 
 def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
@@ -390,6 +400,11 @@ def call(args,
          argstr='',
          func=None,
          state=None, **kwargs):
+    """Call function definition so you can compare value/output/error generated.
+
+    TODO
+    """
+
     rep = Reporter.active_reporter
     test_type = ('value', 'output', 'error')
 
@@ -501,7 +516,6 @@ def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
              context_vals=None,
              expr_code=None,
              pre_code=None,
-             keep_objs_in_env=None,
              name=None,
              highlight=None,
              copy=True,
@@ -522,8 +536,7 @@ def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
                        context_vals = context_vals,
                        pre_code = pre_code,
                        expr_code = expr_code,
-                       keep_objs_in_env = keep_objs_in_env,
-                       name=name,
+                       name = name,
                        copy=copy,
                        do_exec = True if test == 'output' else False)
     
@@ -532,8 +545,8 @@ def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
                                  context = state.solution_context)
 
     if (test == 'error') ^ isinstance(str_sol, Exception):
-        raise ValueError("evaluating expression raised error in solution process (or not an error if testing for one). "
-                         "Error: %s - %s"%(type(str_sol), str_sol))
+        raise ValueError("Evaluating expression raised error in solution process (or not an error if testing for one). "
+                         "Error: {} - {}".format(type(str_sol), str_sol))
     if isinstance(eval_sol, ReprFail):
         raise ValueError("Couldn't figure out the value of a default argument: " + eval_sol.info)
 
@@ -571,7 +584,7 @@ def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
 args_string = """
 
     Args:
-        incorrect_msg (str): feedback message if the {} of the expression in the solution
+        incorrect_msg (str): feedback message if the {0} of the expression in the solution
           doesn't match the one of the student. This feedback message will be expanded if it is used
           in the context of another check function, like ``check_if_else``.
         error_msg (str): feedback message if there was an error when running the targeted student code.
@@ -581,14 +594,17 @@ args_string = """
         expr_code (str): if this argument is set, the expression in the student/solution code will not
           be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
           and the result will be compared.
+        context_vals (list): set variables which are bound in a ``for`` loop to certain values.
+          This argument is only useful when checking a for loop (or list comprehensions).
+          It contains a list with the values of the bound variables.
         pre_code (str): the code in string form that should be executed before the expression is executed.
           This is the ideal place to set a random seed, for example.
-        name (str): the name of a variable, or expression, whose {} will be tested after running the
-          targeted student and solution code. This could be thought of as post code.
+        name (str): If this is specified, the {1} of running this expression after running the focused expression
+          is returned, instead of the {1} of the focussed expression in itself. This is typically used to inspect the
+          {1} of an object after executing the body of e.g. a ``for`` loop.
         copy (bool): whether to try to deep copy objects in the environment, such as lists, that could
           accidentally be mutated. Disable to speed up SCTs. Disabling may lead to cryptic mutation issues.
         func: custom binary function of form f(stu_result, sol_result), for equality testing.
-
     """
 
 has_equal_value =  partial(has_expr, test = 'value')

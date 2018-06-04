@@ -13,7 +13,6 @@ def test_expression_result(extra_env=None,
                            eq_condition="equal",
                            expr_code=None,
                            pre_code=None,
-                           keep_objs_in_env=None,
                            error_msg=None,
                            state=None,
                            **kwargs):
@@ -24,6 +23,8 @@ def test_expression_result(extra_env=None,
     like test_if_else. In these kind of calls, the code of the active state is set to
     the code in a part of the sub statement (e.g. the condition of an if statement). It
     has various parameters to control the execution of the (sub)expression.
+
+    Use the new ``has_equal_value()`` function instead.
 
     Args:
         extra_env (dict): set variables to the extra environment. They will update the student
@@ -43,9 +44,6 @@ def test_expression_result(extra_env=None,
           and the result will be compared.
         pre_code (str): the code in string form that should be executed before the expression is executed.
           This is the ideal place to set a random seed, for example.
-        keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
-          the expression is evaluated. All primitive types are copied automatically, other objects have to
-          be passed explicitely.
         error_msg (str): Message to override the default error message that is thrown if the expression resulted in an error.
         kwargs: named arguments which are the same as those used by ``has_equal_value``.
 
@@ -91,5 +89,4 @@ def test_expression_result(extra_env=None,
                     context_vals=context_vals,
                     expr_code=expr_code,
                     pre_code=pre_code,
-                    keep_objs_in_env=keep_objs_in_env,
                     state = state, **kwargs)

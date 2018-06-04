@@ -29,9 +29,7 @@ def get_num(num):
     else:
         return(str(num))
 
-def copy_env(env, keep_objs=None):
-    if keep_objs is None:
-        keep_objs = []
+def copy_env(env):
     mutableTypes = (tuple, list, dict)
     # One list comprehension to filter list. Might need some cleaning, but it
     # works
@@ -39,8 +37,8 @@ def copy_env(env, keep_objs=None):
     update_env = { key: copy.deepcopy(value) 
             for key, value in env.items() 
             if  not any((key.startswith("_"), isinstance(value, ModuleType), key in ipy_ignore))
-                and ( key in keep_objs or isinstance( value, mutableTypes) )
-             }
+                and isinstance( value,mutableTypes)
+                }
     updated_env = dict(env)
     updated_env.update(update_env)
     return(updated_env)

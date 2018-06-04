@@ -12,8 +12,7 @@ test_object_after_expression
                                  undefined_msg=None,
                                  incorrect_msg=None,
                                  eq_condition="equal",
-                                 pre_code=None,
-                                 keep_objs_in_env=None)
+                                 pre_code=None)
 
 `test_object_after_expression()` is a function that is primarily used to check the correctness of the body of control statements. Through `extra_env` and `context_vals` you can adapt the student/solution environment with manual elements. Next, the 'currently active expression tree', such as the body of a for loop, is executed, and the resulting environment is inspected. This is done for both the student and the solution code, and afterwards the value of the object that you specify in `name` is checked for equality. With pre_code, you can prepend the execution of the default expression tree with some extra code, for example to set some variables.
 
