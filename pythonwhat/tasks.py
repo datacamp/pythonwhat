@@ -329,7 +329,7 @@ def get_error(f, *args, **kwargs):
 @process_task
 def taskRunEval(tree,
                 process, shell,
-                env, extra_env = None, context=None, context_vals=None,
+                env=None, extra_env = None, context=None, context_vals=None,
                 pre_code = "", expr_code = "", name="", copy=True, tempname='_evaluation_object_', 
                 do_exec=False, call=None):
     try: 
