@@ -224,20 +224,22 @@ extra_env
 =========
 
 As illustrated in the `Advanced part checking section <checking_compound_statements.html#advanced-part-checking>`_  of the Checking compound statements article,
-`extra_env` can be used to temporarily override the student and solution process to run an expression in multiple situations.
+``set_env()`` (as a function) or ``extra_env`` (as an arugment) can be used to temporarily override the student and solution process to
+run an expression in multiple situations.
 
-The ``extra_env`` argument is similar to ``pre_code``, in that you can (re)define objects in the student and submission environment before running an expression.
-The difference is that, rather than passing a string that is executed in each environment, extra_env lets you pass objects directly.
-For example, the two SCT chains below are equivalent...
+Setting extra environment variables is similar to ``pre_code``, in that you can (re)define objects in the student and submission environment before running an expression.
+The difference is that, rather than passing a string that is executed in each environment, ``extra_env`` lets you pass objects directly.
+For example, the three SCT chains below are equivalent...
 
 .. code::
 
-   Ex().has_equal_value(pre_code="x = 10")
-   Ex().has_equal_value(extra_env = {'x': 10})
+    Ex().has_equal_value(pre_code="x = 10")
+    Ex().set_env(x = 10).has_equal_value()
+    Ex().has_equal_value(extra_env = {'x': 10})
 
 In practice they can often be used interchangably.
 However, one area where ``extra_env`` may shine is in mocking up data objects before running tests.
-For example, if the SCT below didn't use extra_env, then it would take a long time to run.
+For example, if the SCT below didn't use ``extra_env``, then it would take a long time to run.
 
 .. code::
 
@@ -253,8 +255,7 @@ For example, if the SCT below didn't use extra_env, then it would take a long ti
 
    `@sct`
    ```{python}
-   extra_env = {'a_list': list(range(10))}
-   Ex().has_equal_output(extra_env = extra_env)
+   Ex().set_env(a_list = list(range(10))).has_equal_output()
    ```
    
 The reason extra_env is important here, is that ``pythonwhat`` tries to make a deepcopy of lists, so that course developers don't get bit by unexpected mutations.

@@ -329,7 +329,7 @@ def get_error(f, *args, **kwargs):
 @process_task
 def taskRunEval(tree,
                 process, shell,
-                extra_env = None, context=None, context_vals=None, 
+                env, extra_env = None, context=None, context_vals=None,
                 pre_code = "", expr_code = "", name="", copy=True, tempname='_evaluation_object_', 
                 do_exec=False, call=None):
     try: 
@@ -353,6 +353,8 @@ def taskRunEval(tree,
         else:
             new_env = utils.copy_env(get_env(shell.user_ns))
 
+        if env is not None:
+            new_env.update(deepcopy(env))
         if extra_env is not None:
             new_env.update(deepcopy(extra_env))
         if context is not None: 

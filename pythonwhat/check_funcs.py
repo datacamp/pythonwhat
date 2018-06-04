@@ -12,14 +12,20 @@ def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
 
     # if the parts are dictionaries, use to deck out child state
     if all(isinstance(p, dict) for p in [stu_part, sol_part]):
-        return state.to_child_state(stu_part['node'], sol_part['node'],
-                                    stu_part.get('target_vars'), sol_part.get('target_vars'),
-                                    stu_part, sol_part,
+        return state.to_child_state(student_subtree=stu_part['node'],
+                                    solution_subtree=sol_part['node'],
+                                    student_context=stu_part.get('target_vars'),
+                                    solution_context=sol_part.get('target_vars'),
+                                    student_parts=stu_part,
+                                    solution_parts=sol_part,
                                     highlight = stu_part.get('highlight'),
-                                    append_message = append_message, node_name=node_name)
+                                    append_message = append_message,
+                                    node_name=node_name)
 
     # otherwise, assume they are just nodes
-    return state.to_child_state(stu_part, sol_part, append_message = append_message)
+    return state.to_child_state(student_subtree=stu_part,
+                                solution_subtree=sol_part,
+                                append_message = append_message)
 
 
 def check_part(name, part_msg, state=None, missing_msg="Are you sure it's defined?", expand_msg=""):
@@ -238,11 +244,11 @@ def with_context(*args, state=None):
     student_res = setUpNewEnvInProcess(process = state.student_process,
                                        context = state.student_parts['with_items'])
     if isinstance(student_res, AttributeError):
-        rep.do_test(Test(Feedback("In your %s `with` statement, you're not using a correct context manager." % (get_ord(index)), child.highlight)))
+        rep.do_test(Test(Feedback("In your `with` statement, you're not using a correct context manager.", child.highlight)))
 
     if isinstance(student_res, (AssertionError, ValueError, TypeError)):
-        rep.do_test(Test(Feedback("In your %s `with` statement, the number of values in your context manager " + \
-            "doesn't correspond to the number of variables you're trying to assign it to." % (get_ord(index)), child.highlight)))
+        rep.do_test(Test(Feedback("In your `with` statement, the number of values in your context manager "
+                                  "doesn't correspond to the number of variables you're trying to assign it to.", child.highlight)))
 
     # run subtests
     try:
@@ -250,13 +256,12 @@ def with_context(*args, state=None):
     finally:
         # exit context
         if breakDownNewEnvInProcess(process = state.solution_process):
-            raise Exception("error in the solution, closing the %s with fails with: %s" %
-                (get_ord(index), close_solution_context))
+            raise Exception("error in the solution, closing the `with` fails with: %s" % (close_solution_context))
 
         if breakDownNewEnvInProcess(process = state.student_process):
 
-            rep.do_test(Test(Feedback("Your %s `with` statement can not be closed off correctly, you're " + \
-                            "not using the context manager correctly." % (get_ord(index)), state.highlight)),
+            rep.do_test(Test(Feedback("Your `with` statement can not be closed off correctly, you're " + \
+                            "not using the context manager correctly.", state.highlight)),
                         fallback_ast = state.highlight)
     return state
 
@@ -287,16 +292,24 @@ def set_context(*args, state=None, **kwargs):
     match_keys = dict(zip(sol_crnt.keys(), stu_crnt.keys()))
     out_stu = upd_stu.update({match_keys[k]: v for k,v in kwargs.items() if k in match_keys})
 
-    return state.to_child_state(student_subtree = None, solution_subtree = None,
-                                student_context = out_stu, solution_context = out_sol)
+    return state.to_child_state(student_context = out_stu, solution_context = out_sol)
 
 def set_env(state = None, **kwargs):
     """Update/set environemnt variables for student and solution environments.
 
-    ``set_env()`` creates a 'sub environment'.
+    When ``has_equal_x()`` is used after this, the variables specified through this function will
+    be available in the student and solution process. Note that you will not see these variables
+    in the student process of the state produced by this function: the values are saved on the state
+    and are only added to the student and solution processes when ``has_equal_ast()`` is called.
     """
-    pass
 
+    stu_crnt = state.student_env.context
+    sol_crnt = state.solution_env.context
+
+    stu_new = stu_crnt.update(kwargs)
+    sol_new = sol_crnt.update(kwargs)
+
+    return state.to_child_state(student_env = stu_new, solution_env = sol_new)
 
 def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
     """Check whether a function argument is specified.
@@ -514,8 +527,8 @@ def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
              undefined_msg=DEFAULT_UNDEFINED_MSG,
              extra_env=None,
              context_vals=None,
-             expr_code=None,
              pre_code=None,
+             expr_code=None,
              name=None,
              highlight=None,
              copy=True,
@@ -542,7 +555,8 @@ def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
     
     eval_sol, str_sol = get_func(tree = state.solution_tree,
                                  process = state.solution_process,
-                                 context = state.solution_context)
+                                 context = state.solution_context,
+                                 env = state.solution_env)
 
     if (test == 'error') ^ isinstance(str_sol, Exception):
         raise ValueError("Evaluating expression raised error in solution process (or not an error if testing for one). "
@@ -552,7 +566,8 @@ def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
 
     eval_stu, str_stu = get_func(tree = state.student_tree,
                                  process = state.student_process,
-                                 context = state.student_context)
+                                 context = state.student_context,
+                                 env = state.student_env)
 
     # kwargs ---
     fmt_kwargs = {'stu_part': state.student_parts, 'sol_part': state.solution_parts, 
@@ -591,14 +606,19 @@ args_string = """
           Note that when testing for an error, this message is displayed when none is raised.
         undefined_msg (str): feedback message if the ``name`` argument is defined, but a variable
           with that name doesn't exist after running the targeted student code.
-        expr_code (str): if this argument is set, the expression in the student/solution code will not
-          be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
-          and the result will be compared.
+        extra_env (dict): set variables to the extra environment. They will update the student and solution environment in
+          the active state before the student/solution code in the active state is ran. This argument should contain a
+          dictionary with the keys the names of the variables you want to set, and the values are the values of these variables.
+          You can also use ``set_env()`` for this.
         context_vals (list): set variables which are bound in a ``for`` loop to certain values.
           This argument is only useful when checking a for loop (or list comprehensions).
           It contains a list with the values of the bound variables.
+          You can also use ``set_context()`` for this.
         pre_code (str): the code in string form that should be executed before the expression is executed.
           This is the ideal place to set a random seed, for example.
+        expr_code (str): if this argument is set, the expression in the student/solution code will not
+          be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
+          and the result will be compared.
         name (str): If this is specified, the {1} of running this expression after running the focused expression
           is returned, instead of the {1} of the focussed expression in itself. This is typically used to inspect the
           {1} of an object after executing the body of e.g. a ``for`` loop.
