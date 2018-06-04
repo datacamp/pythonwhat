@@ -20,15 +20,6 @@ def test_check_syntax_double_getattr():
     with pytest.raises(AttributeError):
         helper.run(data)
 
-def test_check_syntax_check_index_no_index():
-    data = {
-            "DC_SOLUTION": "[i for i in range(1)]",
-            "DC_CODE": "[i for i in range(1)]",
-            "DC_SCT": """Ex().check_list_comp()"""
-            }
-    with pytest.raises(TypeError):
-        helper.run(data)
-
 def test_context_vals_wrong_place_in_chain():
     data = {"DC_SOLUTION": "[(i,j) for i,j in enumerate(range(10))]"}
     data["DC_CODE"] = data["DC_SOLUTION"]
