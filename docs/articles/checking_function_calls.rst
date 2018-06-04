@@ -288,5 +288,5 @@ This SCT verifies that the first argument passed to sum is a list comprehension.
 
 .. code::
 
-   Ex().check_function('sum').check_args(0).check_list_comp(0).has_equal_ast()
+   Ex().check_function('sum').check_args().check_list_comp().has_equal_ast()
 
