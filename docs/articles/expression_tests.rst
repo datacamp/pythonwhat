@@ -148,8 +148,8 @@ may be tested by setting context values at each level,
         )
 
 
-pre_code: fixing mutations
-==========================
+``pre_code``: fixing mutations
+===============================
 
 Python code commonly mutates, or changes values within an object. 
 For example, the variable ``x`` points to an object that is mutated every time a function is called.
@@ -220,8 +220,8 @@ More generally, it can be helpful to define a pre_code variable to use before ex
    Ex().check_if_else(0).check_body().has_equal_value(pre_code = pre_code)
 
 
-extra_env
-=========
+``extra_env``
+=============
 
 As illustrated in the `Advanced part checking section <checking_compound_statements.html#advanced-part-checking>`_  of the Checking compound statements article,
 ``set_env()`` (as a function) or ``extra_env`` (as an arugment) can be used to temporarily override the student and solution process to
@@ -262,8 +262,8 @@ The reason extra_env is important here, is that ``pythonwhat`` tries to make a d
 However, the larger the list, the longer it takes to make a deepcopy. 
 If an SCT is running slowly, there's a good chance it uses a very large object that is being copied for every expression test.
 
-expr_code: change expression
-============================
+``expr_code``: change expression
+================================
 
 The ``expr_code`` argument takes a string, and uses it to replace the code that would be run by an expression test.
 For example, the markdown source for the following exercise simply runs ``len(x)`` in the solution and student environments.
@@ -287,8 +287,8 @@ For example, the markdown source for the following exercise simply runs ``len(x)
    This means that ``Ex().for_loop(0).has_equal_value(expr_code="x[0]")`` would highlight the body of the checked for loop.
 
 
-`call` Syntax
-=============
+``call`` Syntax
+===============
 
 Testing a function definition or lambda may require calling it with some arguments.
 In order to do this, use the ``call()`` SCT.
