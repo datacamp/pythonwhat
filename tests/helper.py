@@ -50,17 +50,17 @@ def run(data, run_code = True):
                 sol_process = StubProcess()
                 error = None
 
-            sct_output = io.StringIO()
-            with redirect_stdout(sct_output):
-                res = test_exercise(sct=sct,
-                                    student_code=stu_code,
-                                    solution_code=sol_code,
-                                    pre_exercise_code=pec,
-                                    student_process=stu_process,
-                                    solution_process=sol_process,
-                                    raw_student_output = raw_stu_output,
-                                    ex_type = "NormalExercise",
-                                    error = error)
+            #sct_output = io.StringIO()
+            #with redirect_stdout(sct_output):
+            res = test_exercise(sct=sct,
+                                student_code=stu_code,
+                                solution_code=sol_code,
+                                pre_exercise_code=pec,
+                                student_process=stu_process,
+                                solution_process=sol_process,
+                                raw_student_output = raw_stu_output,
+                                ex_type = "NormalExercise",
+                                error = error)
 
     return res
 

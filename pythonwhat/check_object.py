@@ -54,7 +54,7 @@ def check_object(index, missing_msg=MSG_UNDEFINED, expand_msg=MSG_PREPEND, state
     fallback = lambda: ObjectAssignmentParser.get_part(index)
     stu_part = state.student_object_assignments.get(index, fallback())
     sol_part = state.solution_object_assignments.get(index, fallback())
-    
+
     # test object exists
     _msg = state.build_message(missing_msg, append_message['kwargs'])
     rep.do_test(DefinedProcessTest(index, state.student_process, Feedback(_msg)))
@@ -63,11 +63,35 @@ def check_object(index, missing_msg=MSG_UNDEFINED, expand_msg=MSG_PREPEND, state
 
     return child
 
-def is_instance(inst, not_instance_msg="FMT:Is it a {inst.__name__}?", name=None, state=None):
+def is_instance(inst, not_instance_msg="FMT:Is it a {inst.__name__}?", state=None):
+    """Check whether an object is an instance of a certain class.
+
+    ``is_instance()`` can currently only be used when chained from ``check_object()``, the function that is
+    used to 'zoom in' on the object of interest.
+
+    Args:
+        inst (class): The class that the object should have.
+        not_instance_msg (str): When specified, this overrides the automatically generated message in case
+            the object does not have the expected class.
+        state (State): The state that is passed in through the SCT chain (don't specify this).
+
+    :Example:
+
+        Student code and solution code::
+
+            import numpy as np
+            arr = np.array([1, 2, 3, 4, 5])
+
+        SCT::
+
+            # Verify the class of arr
+            import numpy
+            Ex().check_object('arr').is_instance(numpy.ndarray)
+    """
     rep = Reporter.active_reporter
 
-    sol_name = name or state.solution_parts.get('name')
-    stu_name = name or state.student_parts.get('name')
+    sol_name = state.solution_parts.get('name')
+    stu_name = state.student_parts.get('name')
 
     if not isInstanceInProcess(sol_name, inst, state.solution_process):
         raise ValueError("%r is not a %s in the solution environment" % (sol_name, type(inst)))
@@ -78,11 +102,34 @@ def is_instance(inst, not_instance_msg="FMT:Is it a {inst.__name__}?", name=None
 
     return state
 
-def has_key(key, key_missing_msg=MSG_KEY_MISSING, name = None, state=None):
+def has_key(key, key_missing_msg=MSG_KEY_MISSING, state=None):
+    """Check whether an object (dict, DataFrame, etc) has a key.
+
+    ``has_key()`` can currently only be used when chained from ``check_object()``, the function that is
+    used to 'zoom in' on the object of interest.
+
+    Args:
+        key (str): Name of the key that the object should have.
+        key_missing_msg (str): When specified, this overrides the automatically generated
+            message in case the key does not exist.
+        state (State): The state that is passed in through the SCT chain (don't specify this).
+
+    :Example:
+
+        Student code and solution code::
+
+            x = {'a': 2}
+
+        SCT::
+
+            # Verify that x contains a key a
+            Ex().check_object('x').has_key('a')
+
+    """
     rep = Reporter.active_reporter
 
-    sol_name = name or state.solution_parts.get('name')
-    stu_name = name or state.student_parts.get('name')
+    sol_name = state.solution_parts.get('name')
+    stu_name = state.student_parts.get('name')
 
     if not isDefinedCollInProcess(sol_name, key, state.solution_process):
         raise NameError("Not all keys you specified are actually keys in %s in the solution process" % sol_name)
@@ -94,11 +141,37 @@ def has_key(key, key_missing_msg=MSG_KEY_MISSING, name = None, state=None):
 
     return state
 
-def has_equal_key(key, incorrect_value_msg=MSG_INCORRECT_VAL, key_missing_msg=MSG_KEY_MISSING, name=None, state=None):
+def has_equal_key(key, incorrect_value_msg=MSG_INCORRECT_VAL, key_missing_msg=MSG_KEY_MISSING, state=None):
+    """Check whether an object (dict, DataFrame, etc) has a key, and whether this
+    key is correct when comparing to the solution code.
+
+    ``has_equal_key()`` can currently only be used when chained from ``check_object()``, the function that is
+    used to 'zoom in' on the object of interest.
+
+    Args:
+        key (str): Name of the key that the object should have.
+        incorrect_value_msg (str): When specified, this overrides the automatically generated
+            message in case the key does not correspond to the value of the key in the solution process.
+        key_missing_msg (str): When specified, this overrides the automatically generated
+            message in case the key does not exist.
+        state (State): The state that is passed in through the SCT chain (don't specify this).
+
+    :Example:
+
+        Student code and solution code::
+
+            x = {'a': 2}
+
+        SCT::
+
+            # Verify that x contains a key a and whether it is correct
+            Ex().check_object('x').has_equal_key('a')
+
+    """
     rep = Reporter.active_reporter
 
-    sol_name = name or state.solution_parts.get('name')
-    stu_name = name or state.student_parts.get('name')
+    sol_name = state.solution_parts.get('name')
+    stu_name = state.student_parts.get('name')
 
     has_key(key, key_missing_msg, state=state)
 

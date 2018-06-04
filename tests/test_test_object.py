@@ -328,94 +328,52 @@ df2.columns = ["c", "d"]
             }
 
     def test_pass(self):
-        self.data["DC_SCT"] = 'test_object("df")'
+        self.data["DC_SCT"] = 'Ex().check_object("df").has_equal_value()'
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
     def test_fail(self):
-        self.data["DC_SCT"] = 'test_object("df2")'
+        self.data["DC_SCT"] = 'Ex().check_object("df2").has_equal_value()'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         helper.test_absent_lines(self, sct_payload)
 
-    def test_fail_spec2(self):
-        self.data["DC_SCT"] = "Ex().check_object('df2').has_equal_value()"
+
+class TestObjectInPec(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": "x = 4",
+            "DC_SOLUTION": "",
+            "DC_SCT": "Ex().check_object('x').has_equal_value()"
+        }
+
+    def test_pass(self):
+        self.data["DC_CODE"] = ""
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_fail(self):
+        self.data["DC_CODE"] = "x = 5"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
 
 
+class TestIsInstance(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_SOLUTION": "import numpy as np; arr = np.array([1, 2, 3, 4])",
+            "DC_SCT": "import numpy; Ex().check_object('arr').is_instance(numpy.ndarray)"
+        }
 
-# This is for some day
+    def test_pass(self):
+        self.data["DC_CODE"] = "import numpy as np; arr = np.array([1, 2, 3, 4])"
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
 
-# class TestTestObjectAttribute1(unittest.TestCase):
-#     def setUp(self):
-#         self.data = {
-#             "DC_PEC": '',
-#             "DC_CODE": '''
-# import numpy as np
-# arr = np.array([1, 2, 3, 4])
-#             ''',
-#             "DC_SOLUTION": '''
-# import numpy as np
-# arr = np.array([1, 2, 3])
-#             '''
-#             }
-
-#     def test_fail_incorrect(self):
-#         self.data["DC_SCT"] = 'test_object("arr.shape")'
-#         sct_payload = helper.run(self.data)
-#         self.assertFalse(sct_payload['correct'])
-#         self.assertEqual(sct_payload['message'], "The contents of <code>arr.shape</code> aren't correct.")
-#         helper.test_absent_lines(self, sct_payload)
-
-#     def test_pass(self):
-#         self.data["DC_SCT"] = 'test_object("np.dtype")'
-#         sct_payload = helper.run(self.data)
-#         self.assertTrue(sct_payload['correct'])
-
-
-# class TestTestObjectAttribute2(unittest.TestCase):
-#     def setUp(self):
-#         self.data = {
-#             "DC_PEC": '',
-#             "DC_CODE": '''
-# class Try():
-
-#     def __init__(self):
-#         self.savings2 = 110
-#         self.savings3 = 140
-
-# tryobj = Try()
-#             ''',
-#             "DC_SOLUTION": '''
-# class Try():
-
-#     def __init__(self):
-#         self.savings = 100
-#         self.savings2 = 110
-#         self.savings3 = 140
-
-# tryobj = Try()
-#             '''
-#             }
-
-#     def test_fail_undef(self):
-#         self.data["DC_SCT"] = 'test_object("tryobj.savings")'
-#         sct_payload = helper.run(self.data)
-#         self.assertFalse(sct_payload['correct'])
-#         self.assertEqual(sct_payload['message'], "Have you defined <code>tryobj.savings</code>?")
-#         helper.test_absent_lines(self, sct_payload)
-
-#     def test_fail_incorr(self):
-#         self.data["DC_SCT"] = 'test_object("tryobj.savings2")'
-#         sct_payload = helper.run(self.data)
-#         self.assertFalse(sct_payload['correct'])
-#         self.assertEqual(sct_payload['message'], "The contents of <code>tryobj.savings2</code> aren't correct.")
-#         helper.test_absent_lines(self, sct_payload)
-
-#     def test_pass(self):
-#         self.data["DC_SCT"] = 'test_object("tryobj.savings3")'
-#         sct_payload = helper.run(self.data)
-#         self.assertTrue(sct_payload['correct'])
-
+    def test_fail(self):
+        self.data["DC_CODE"] = "arr = 4"
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
 
 if __name__ == "__main__":
     unittest.main()

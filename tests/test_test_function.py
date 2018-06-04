@@ -823,6 +823,32 @@ file = BytesIO(pickle.dumps('abc'))
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
 
+class TestCheckFunctionWithHasEqualValue(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '',
+            "DC_CODE": '''
+import numpy as np
+arr = np.array([1, 2, 3, 4, 5])
+np.mean(arr)
+''',
+            "DC_SOLUTION": '''
+import numpy as np
+arr = np.array([1, 2, 3, 4, 5])
+np.mean(arr)
+'''
+            }
+
+    def test_pass(self):
+        self.data["DC_SCT"] = 'Ex().check_function("numpy.mean").has_equal_value()'
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_pass2(self):
+        self.data["DC_SCT"] = 'Ex().check_function("numpy.mean").check_args("a").has_equal_value()'
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
 
 if __name__ == "__main__":
     unittest.main()
