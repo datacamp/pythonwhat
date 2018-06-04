@@ -47,7 +47,7 @@ The example below first uses ``has_equal_value`` to run an entire if expression,
     sum(x) if x else None
     
     # sct to test body of if expression
-    (Ex().check_if_exp(0)     # focus on if expression
+    (Ex().check_if_exp()       # focus on if expression
          .has_equal_value()   # run entire if expression, check value
          .check_body()        # focus on body "sum(x)"
          .has_equal_value()   # run body, check value
@@ -79,7 +79,7 @@ An appropriate SCT for this exercise could be the following (for clarity, we're 
          .check_function_def('print_dict')          # ensure 'print_dict' is defined
          .check_body()                              # get student/solution code in body
          .set_context(my_dict = {'a': 2, 'b': 3})   # set print_dict's my_dict arg
-         .check_for_loop(0)                         # ensure for loop is defined
+         .check_for_loop()                         # ensure for loop is defined
          )
     
     # test for loop iterator
@@ -111,7 +111,7 @@ Context values are matched by position. For example, the submission and solution
    # student submission
    for jj, y in enumerate(range(3)): print(jj)
 
-Using ``Ex().check_for_loop(0).check_body().set_context(...)`` will do the following...
+Using ``Ex().check_for_loop().check_body().set_context(...)`` will do the following...
 
 ====================== ======================= ==========================
  statement              solution (ii, x)        submission (jj, y)
@@ -142,8 +142,8 @@ may be tested by setting context values at each level,
 .. code::
 
     (Ex()
-        .check_for_loop(0).check_body().set_context(i = 1)    # outer for
-        .check_for_loop(0).check_body().set_context(j = 2)    # inner for
+        .check_for_loop().check_body().set_context(i = 1)    # outer for
+        .check_for_loop().check_body().set_context(j = 2)    # inner for
             .has_equal_output()
         )
 
@@ -187,7 +187,7 @@ For example, calling ``np.random.random()`` will advance numpy's random number g
     ```{python}
     # Should pass but fails, because random generator has advanced
     # twice in solution, but only once in submission
-    Ex().check_if_else(0).check_body().has_equal_value()
+    Ex().check_if_else().check_body().has_equal_value()
     ```
 
 Assume this student submission:
@@ -206,7 +206,7 @@ In the case above, the SCT may be fixed as follows
 
 .. code:: 
 
-   Ex().check_if_else(0).check_body().has_equal_value(pre_code = "np.random.seed(42)")
+   Ex().check_if_else().check_body().has_equal_value(pre_code = "np.random.seed(42)")
 
 More generally, it can be helpful to define a pre_code variable to use before expression tests...
 
@@ -217,7 +217,7 @@ More generally, it can be helpful to define a pre_code variable to use before ex
    """
    
    Ex().has_equal_output(pre_code=pre_code)
-   Ex().check_if_else(0).check_body().has_equal_value(pre_code = pre_code)
+   Ex().check_if_else().check_body().has_equal_value(pre_code = pre_code)
 
 
 ``extra_env``
@@ -284,7 +284,7 @@ For example, the markdown source for the following exercise simply runs ``len(x)
 .. note::
 
    Using ``expr_code`` does not change how expression tests perform highlighting. 
-   This means that ``Ex().for_loop(0).has_equal_value(expr_code="x[0]")`` would highlight the body of the checked for loop.
+   This means that ``Ex().for_loop().has_equal_value(expr_code="x[0]")`` would highlight the body of the checked for loop.
 
 
 ``call`` Syntax

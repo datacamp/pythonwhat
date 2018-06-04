@@ -62,15 +62,15 @@ Most commonly, ``multi()`` is used to convert this code
 
 .. code::
 
-    Ex().check_if_exp(0).check_body().has_equal_value()
-    Ex().check_if_exp(0).check_test().has_equal_value()
+    Ex().check_if_exp().check_body().has_equal_value()
+    Ex().check_if_exp().check_test().has_equal_value()
 
 
 into this equivalent (and more performant) SCT:
 
 .. code::
 
-    Ex().check_if_exp(0).multi(
+    Ex().check_if_exp().multi(
             check_body().has_equal_value(),
             check_test().has_equal_value()
             )
@@ -84,7 +84,7 @@ for 10 possible values of the iterator variable, ``i``.
 
 .. code::
 
-    Ex().check_list_comp(0)
+    Ex().check_list_comp()
         .check_body()
         .multi(set_context(i=x).has_equal_value() for x in range(10))
 
@@ -97,7 +97,7 @@ followed by its iterator.
 
 .. code::
 
-    Ex().check_list_comp(0) \
+    Ex().check_list_comp() \
         .multi(check_body().has_equal_value()) \
         .check_iter().has_equal_value()
 
@@ -122,7 +122,7 @@ This is illustrated below.
     for ii, ltr in enumerate(['a']): pass
 
     # sct
-    Ex().check_for_loop(0).check_body().has_context()
+    Ex().check_for_loop().check_body().has_context()
 
     # passing submission
     # still 2 variables, just different names
@@ -160,7 +160,7 @@ Example
         print(ii)
 
     # sct
-    Ex().check_for_loop(0).check_body() \
+    Ex().check_for_loop().check_body() \
         .set_context(ii=0, ltr='a').has_equal_output() \
         .set_context(ii=1, ltr='b').has_equal_output()
 
@@ -170,7 +170,7 @@ by name in the SCT above, they may also be given by position..
 
 .. code::
 
-    Ex().check_for_loop(0).check_body().set_context(0, 'a').has_equal_output()
+    Ex().check_for_loop().check_body().set_context(0, 'a').has_equal_output()
 
 
 Instructor Errors
@@ -226,7 +226,7 @@ As a trivial SCT example,
 
 .. code::
 
-    Ex().check_for_loop(0).check_body().fail()     # fails boo
+    Ex().check_for_loop().check_body().fail()     # fails boo
 
 This can also be helpful for debugging SCTs, as it can be used to stop testing as a given point.
 

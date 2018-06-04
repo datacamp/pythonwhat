@@ -31,12 +31,12 @@ Similar to how ``if`` statements has a ``check_if_else`` associated with it, all
 
 The table below summarizes all compound statements that ``pythonwhat`` supports.
 Code in all caps indicates the name of a piece of code that may be inspected using, ``check_{part}``, 
-where ``{part}`` is replaced by the name in caps (e.g. ``check_if_else(0).check_test()``). The concept of target variables will be explained later in this article.
+where ``{part}`` is replaced by the name in caps (e.g. ``check_if_else().check_test()``). The concept of target variables will be explained later in this article.
 
 +------------------------+------------------------------------------------------+-------------------+
 | check                  | parts                                                | target variables  |
 +========================+======================================================+===================+
-|check_if_else(0)        | .. code::                                            |                   |
+|check_if_else()         | .. code::                                            |                   |
 |                        |                                                      |                   |
 |                        |     if TEST:                                         |                   |
 |                        |         BODY                                         |                   |
@@ -45,7 +45,7 @@ where ``{part}`` is replaced by the name in caps (e.g. ``check_if_else(0).check_
 |                        |                                                      |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_while(0)          | .. code::                                            |                   |
+|check_while()           | .. code::                                            |                   |
 |                        |                                                      |                   |
 |                        |      while TEST:                                     |                   |
 |                        |          BODY                                        |                   |
@@ -53,22 +53,22 @@ where ``{part}`` is replaced by the name in caps (e.g. ``check_if_else(0).check_
 |                        |          ORELSE                                      |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_list_comp(0)      | .. code::                                            | ``i``             |
+|check_list_comp()       | .. code::                                            | ``i``             |
 |                        |                                                      |                   |
 |                        |     [BODY for i in ITER if IFS[0] if IFS[1]]         |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_generator_exp(0)  | .. code::                                            | ``i``             |
+|check_generator_exp()   | .. code::                                            | ``i``             |
 |                        |                                                      |                   |
 |                        |     (BODY for i in ITER if IFS[0] if IFS[1])         |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_dict_comp(0)      | .. code::                                            | ``k``, ``v``      |
+|check_dict_comp()       | .. code::                                            | ``k``, ``v``      |
 |                        |                                                      |                   |
 |                        |     {KEY : VALUE for k, v in ITER if IFS[0]}         |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_for_loop(0)       | .. code::                                            | ``i``, ``j``      |
+|check_for_loop()        | .. code::                                            | ``i``, ``j``      |
 |                        |                                                      |                   |
 |                        |     for i, j in ITER:                                |                   |
 |                        |         BODY                                         |                   |
@@ -76,7 +76,7 @@ where ``{part}`` is replaced by the name in caps (e.g. ``check_if_else(0).check_
 |                        |         ORELSE                                       |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_try_except(0)     | .. code::                                            | ``e``             |
+|check_try_except()      | .. code::                                            | ``e``             |
 |                        |                                                      |                   |
 |                        |    try:                                              |                   |
 |                        |        BODY                                          |                   |
@@ -90,7 +90,7 @@ where ``{part}`` is replaced by the name in caps (e.g. ``check_if_else(0).check_
 |                        |        FINALBODY                                     |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_with(0)           | .. code::                                            | ``f``             |
+|check_with()            | .. code::                                            | ``f``             |
 |                        |                                                      |                   |
 |                        |     with CONTEXT[0] as f1, CONTEXT[1] as f2:         |                   |
 |                        |         BODY                                         |                   |
@@ -102,7 +102,7 @@ where ``{part}`` is replaced by the name in caps (e.g. ``check_if_else(0).check_
 |                        |           BODY                                       |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_lambda(0)         | .. code::                                            | argument names    |
+|check_lambda()          | .. code::                                            | argument names    |
 |                        |                                                      |                   |
 |                        |     lambda ARGS[0], ARGS[1]: BODY                    |                   |
 |                        |                                                      |                   |
@@ -199,7 +199,7 @@ To illustrate this point, have a look at this ``for`` loop example that iterates
 
     # sct
     Ex().check_object('my_dict').has_equal_value()
-    Ex().check_for_loop(0).multi(
+    Ex().check_for_loop().multi(
         check_iter().has_equal_value(),                                      # run iterator (my_dict.items())
         check_body().set_context(key = 'c', value = 3).has_equal_output()    # run print statement
     )
@@ -238,9 +238,9 @@ in order to test running the inline if expression we could go from ``list_comp =
 
 .. code::
 
-   (Ex().check_list_comp(0)                 # first comprehension
+   (Ex().check_list_comp()                 # first comprehension
         .check_body().set_context(i=6)      # comp's body
-        .check_if_exp(0).has_equal_value()  # body's inline IFS
+        .check_if_exp().has_equal_value()  # body's inline IFS
         )
 
 Note that we use ``set_context`` to define the context variable (``i`` in the solution code) on the body of the list comprehension.
@@ -275,9 +275,9 @@ can be checked with the following SCT
 
 .. code::
 
-   (Ex().check_if_else(0)                    # lines 1-3
-        .check_orelse().check_if_else(0)     # lines 2-3
-        .check_orelse().has_equal_output()       # line 3
+   (Ex().check_if_else()                    # lines 1-3
+        .check_orelse().check_if_else()     # lines 2-3
+        .check_orelse().has_equal_output()  # line 3
         )
 
 
