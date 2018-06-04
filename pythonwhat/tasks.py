@@ -328,8 +328,8 @@ def get_error(f, *args, **kwargs):
 # Eval an expression tree or node (with setting envs, pre_code and/or expr_code)
 @process_task
 def taskRunEval(tree,
-                process, shell, 
-                keep_objs_in_env = None, extra_env = None, context=None, context_vals=None, 
+                process, shell,
+                extra_env = None, context=None, context_vals=None, 
                 pre_code = "", expr_code = "", name="", copy=True, tempname='_evaluation_object_', 
                 do_exec=False, call=None):
     try: 
@@ -351,7 +351,7 @@ def taskRunEval(tree,
         if not copy or (isinstance(tree, ast.Name) and isinstance(tree.ctx, ast.Load)):
             new_env = dict(get_env(shell.user_ns))
         else:
-            new_env = utils.copy_env(get_env(shell.user_ns), keep_objs_in_env)
+            new_env = utils.copy_env(get_env(shell.user_ns))
 
         if extra_env is not None:
             new_env.update(deepcopy(extra_env))

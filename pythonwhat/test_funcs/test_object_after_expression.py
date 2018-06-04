@@ -8,7 +8,6 @@ def test_object_after_expression(name,
                                  eq_condition="equal",
                                  expr_code=None,
                                  pre_code=None,
-                                 keep_objs_in_env=None,
                                  state=None,
                                  **kwargs):
     """Test object after expression.
@@ -19,6 +18,8 @@ def test_object_after_expression(name,
     the code in a part of the sub statement (e.g. the body of a for loop). It has various
     parameters to control the execution of the (sub)expression. This test function is ideal to check if
     a value is updated correctly in the body of a for loop.
+
+    Use ``has_equal_value()`` with the ``name`` argument instead.
 
     Args:
         name (str): the name of the object which value has to be checked after evaluation of the expression.
@@ -39,9 +40,6 @@ def test_object_after_expression(name,
           and the result will be compared.
         pre_code (str): the code in string form that should be executed before the expression is executed.
           This is the ideal place to set a random seed, for example.
-        keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
-          the expression is evaluated. All primitive types are copied automatically, other objects have to
-          be passed explicitely.
         kwargs: named arguments which are the same as those used by ``has_equal_value``.
 
     :Example:
@@ -84,7 +82,6 @@ def test_object_after_expression(name,
             extra_env=extra_env,
             context_vals=context_vals,
             pre_code=pre_code,
-            keep_objs_in_env=keep_objs_in_env,
             name = name,
             highlight = ass_node,
             expr_code = expr_code,

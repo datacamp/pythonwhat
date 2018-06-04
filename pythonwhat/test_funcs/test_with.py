@@ -2,7 +2,6 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import EqualTest, Test
 from pythonwhat import utils
-from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
 from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, quiet, has_equal_part, with_context, has_equal_part_len
 from pythonwhat.check_has_context import has_context
 
@@ -35,13 +34,11 @@ with open_file('...') as file:
     [ ]
 
     """
-    rep = Reporter.active_reporter
 
     check_with = partial(check_node, 'withs', index-1, "`with` statement", MSG_MISSING, state=state)
 
     child =  check_with(MSG_PREPEND  if expand_message else "")
     child2 = check_with(MSG_PREPEND2 if expand_message else "")
-    quiet_child = quiet(1, child)
 
     if context_vals:
         # test context var names ----
