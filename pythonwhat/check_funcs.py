@@ -68,7 +68,7 @@ def check_part_index(name, index, part_msg,
 
 MSG_MISSING = "FMT:The system wants to check the {typestr} you defined but hasn't found it."
 MSG_PREPEND = "__JINJA__:Check your code in the{{' ' + child['part']+ ' of the' if child['part']}} {{typestr}}. "
-def check_node(name, index, typestr, missing_msg=MSG_MISSING, expand_msg=MSG_PREPEND, state=None):
+def check_node(name, index=0, typestr='{ordinal} node', missing_msg=MSG_MISSING, expand_msg=MSG_PREPEND, state=None):
     rep = Reporter.active_reporter
     stu_out = getattr(state, 'student_'+name)
     sol_out = getattr(state, 'solution_'+name)
@@ -314,19 +314,23 @@ def set_env(state = None, **kwargs):
 def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
     """Check whether a function argument is specified.
 
-    This function follows ``check_function()`` in an SCT chain and verifies whether an argument is specified.
+    This function can follow ``check_function()`` in an SCT chain and verifies whether an argument is specified.
     If you want to go on and check whether the argument was correctly specified, you can can continue chaining with
     ``has_equal_value()`` (value-based check) or ``has_equal_ast()`` (AST-based check)
 
+    This function can also follow ``check_function_def()`` or ``check_lambda_exp()`` to see if arguments have been
+    specified.
+
     Args:
-        name (str): the name of the arugment for which you want to check it is specified.
+        name (str): the name of the argument for which you want to check it is specified. This can also be
+            a number, in which case it refers to the positional arguments. Named argumetns take precedence.
         missing_msg (str): If specified, this overrides an automatically generated feedback message in case
             the student did specify the argument.
         state (State): State object that is passed from the SCT Chain (don't specify this).
 
     :Examples:
 
-        Student code and solution code::
+        Student and solution code::
 
             import numpy as np
             arr = np.array([1, 2, 3, 4, 5])
@@ -341,6 +345,19 @@ def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
             # Verify whether arr was correctly set in np.mean
             # has_equal_ast() checks the expression used to set argument a
             Ex().check_function('numpy.mean').check_args('a').has_equal_ast()
+
+        Student and solution code::
+
+            def my_power(x):
+                print("calculating sqrt...")
+                return(x * x)
+
+        SCT::
+
+            Ex().check_function_def('my_power').multi(
+                check_args('x')  # Argument specified by name, will fail if student used y instead.
+                check_args(0)    # Argument specified by position, still passes if student used y instead.
+            )
 
     """
     if name in ['*args', '**kwargs']:
@@ -415,11 +432,41 @@ def call(args,
          state=None, **kwargs):
     """Call function definition so you can compare value/output/error generated.
 
-    TODO
+    This function is chained from ``check_function_def()``.
+
+    Args:
+        args: call string or argument list that specifies how the function definition should be called.
+        test (str): Either 'value', 'output' or 'error', specifying if you want to compare the return value,
+            the output generated or the error generated when calling the function.
+        incorrect_msg (str): If specified, this overrides the automatic feedback message when the
+            comparison (value, output or error) is not correct.
+        error_msg (str): If specified, this overrides the automatic message that is generated when
+            the call generated an error (when it shouldn't) or didn't generate one (when it should).
+        argstr (str): argument for backwards compatibility.
+        func (function): binary function that tells you how the comparison should be.
+        state (State): state object that is chained from.
+
+    :Example:
+
+        Student and solution code::
+
+            def my_power(x):
+                print("calculating sqrt...")
+                return(x * x)
+
+        SCT::
+
+            Ex().check_function_def('my_power').multi(
+                call("my_power(3)", "value"),  # specified as string, compare return value
+                call([3], "value"),            # specifies as list, compare return value
+                call([3], "output")            # specified as list, compare output generated
+            )
+
     """
 
     rep = Reporter.active_reporter
-    test_type = ('value', 'output', 'error')
+
+    assert test in ('value', 'output', 'error')
 
     get_func = evalCalls[test]
 

@@ -19,7 +19,7 @@ def bind_args(signature, args_part):
     return (IndexedDict(bound_args.arguments), signature)
 
 MSG_PREPEND = "__JINJA__:Check your code in the {{child['part']+ ' of the' if child['part']}} {{typestr}}. "
-def check_function(name, index = 0, 
+def check_function(name, index=0,
                    missing_msg = "FMT:Did you define the {typestr}?", 
                    params_not_matched_msg = "FMT:Something went wrong in figuring out how you specified the "
                                             "arguments for `{name}`; have another look at your code and its output.",

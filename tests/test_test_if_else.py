@@ -168,6 +168,52 @@ else:
         self.test_Fail3b()
 
 
+class CheckIfElse(unittest.TestCase):
+
+    def setUp(self):
+        self.data = {
+            "DC_PEC": '',
+            "DC_SOLUTION": '''
+offset = 8
+if offset > 8:
+    x = 5
+else:
+    x = round(2.123)
+            ''',
+            "DC_SCT": '''
+Ex().check_if_else().multi(
+    check_test().multi(
+        set_env(offset = 7).has_equal_value(),
+        set_env(offset = 8).has_equal_value(),
+        set_env(offset = 9).has_equal_value()),
+    check_body().has_code('x\s*=\s*5'),
+    check_orelse().check_function('round').check_args('number').has_equal_value()
+)
+            '''
+        }
+
+    def test_Pass(self):
+        self.data["DC_CODE"] = '''
+# Initialize offset
+offset = 8
+
+# Code the while loop
+if offset > 8:
+    x = 5
+else:
+    x = round(2.123)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
+    def test_Fail0(self):
+        self.data["DC_CODE"] = '''
+# Initialize offset
+offset = 8
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+ 
 
 class TestIfElseEmbedded(unittest.TestCase):
 

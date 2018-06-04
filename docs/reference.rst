@@ -26,6 +26,12 @@ Checking function calls
 .. autofunction:: pythonwhat.check_function.check_function
 .. autofunction:: pythonwhat.check_funcs.check_args
 
+Checking function definitions
+=============================
+
+.. autofunction:: pythonwhat.check_function.check_function
+.. autofunction:: pythonwhat.check_funcs.call
+
 Logic tests
 -----------
 
