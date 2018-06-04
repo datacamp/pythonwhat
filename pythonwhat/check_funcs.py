@@ -289,6 +289,37 @@ def set_context(*args, state=None, **kwargs):
 
 
 def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
+    """Check whether a function argument is specified.
+
+    This function follows ``check_function()`` in an SCT chain and verifies whether an argument is specified.
+    If you want to go on and check whether the argument was correctly specified, you can can continue chaining with
+    ``has_equal_value()`` (value-based check) or ``has_equal_ast()`` (AST-based check)
+
+    Args:
+        name (str): the name of the arugment for which you want to check it is specified.
+        missing_msg (str): If specified, this overrides an automatically generated feedback message in case
+            the student did specify the argument.
+        state (State): State object that is passed from the SCT Chain (don't specify this).
+
+    :Examples:
+
+        Student code and solution code::
+
+            import numpy as np
+            arr = np.array([1, 2, 3, 4, 5])
+            np.mean(arr)
+
+        SCT::
+
+            # Verify whether arr was correctly set in np.mean
+            # has_equal_value() checks the value of arr, used to set argument a
+            Ex().check_function('numpy.mean').check_args('a').has_equal_value()
+
+            # Verify whether arr was correctly set in np.mean
+            # has_equal_ast() checks the expression used to set argument a
+            Ex().check_function('numpy.mean').check_args('a').has_equal_ast()
+
+    """
     if name in ['*args', '**kwargs']:
         return check_part(name, name, state=state, missing_msg = missing_msg)
     else: 
@@ -400,6 +431,11 @@ from pythonwhat import utils
 def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solution.", code=None, exact=True, state=None):
     """Test whether abstract syntax trees match between the student and solution code.
 
+    ``has_equal_ast()`` can be used in two ways:
+
+    * As a robust version of ``has_code()``. By setting ``code``, you can look for the AST representation of ``code`` in the student's submission.
+    * As an expression-based check when using more advanced SCT chain, e.g. to compare the equality of expressions to set function arguments.
+
     Args:
         incorrect_msg: message displayed when ASTs mismatch.
         code: optional code to use instead of the solution AST
@@ -418,6 +454,20 @@ def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solut
             Ex().has_equal_ast()
             Ex().has_equal_ast(code = "dict(a = 'value').keys()")
             Ex().has_equal_ast(code = "dict(a = 'value')", exact = False)
+
+        Student and Solution Code::
+
+            import numpy as np
+            arr = np.array([1, 2, 3, 4, 5])
+            np.mean(arr)
+
+        SCT::
+
+            # Check underlying value of arugment a of np.mean:
+            Ex().check_function('numpy.mean').check_args('a').has_equal_ast()
+
+            # Only check AST equality of expression used to specify argument a:
+            Ex().check_function('numpy.mean').check_args('a').has_equal_ast()
 
     """
     rep = Reporter.active_reporter
@@ -441,9 +491,12 @@ def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solut
 
     return state
 
-def has_expr(incorrect_msg="__JINJA__:Unexpected expression {{test}}: expected `{{sol_eval}}`, got `{{stu_eval}}`{{' with values ' + extra_env if extra_env}}.",
-             error_msg="Running an expression in the student process caused an issue.",
-             undefined_msg="FMT:Have you defined `{name}` without errors?",
+DEFAULT_INCORRECT_MSG="__JINJA__:Unexpected expression {{test}}: expected `{{sol_eval}}`, got `{{stu_eval}}`{{' with values ' + extra_env if extra_env}}."
+DEFAULT_ERROR_MSG="Running an expression in the student process caused an issue."
+DEFAULT_UNDEFINED_MSG="FMT:Have you defined `{name}` without errors?"
+def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
+             error_msg=DEFAULT_ERROR_MSG,
+             undefined_msg=DEFAULT_UNDEFINED_MSG,
              extra_env=None,
              context_vals=None,
              expr_code=None,
@@ -455,37 +508,7 @@ def has_expr(incorrect_msg="__JINJA__:Unexpected expression {{test}}: expected `
              func=None,
              state=None,
              test=None):
-    """Run student and solution code, compare returned value, printed output, or errors.
 
-    Args:
-        incorrect_msg (str): feedback message if the output of the expression in the solution doesn't match
-          the one of the student. This feedback message will be expanded if it is used in the context of
-          another test function, like test_if_else.
-        error_msg (str): feedback message if there was an error when running the student code.
-          Note that when testing for an error, this message is displayed when none is raised.
-        undefined_msg (str): feedback message if the name argument is defined, but a variable 
-          with that name doesn't exist after running the student code.
-        extra_env (dict): set variables to the extra environment. They will update the student
-          and solution environment in the active state before the student/solution code in the active
-          state is ran. This argument should contain a dictionary with the keys the names of
-          the variables you want to set, and the values are the values of these variables.
-        context_vals (list): set variables which are bound in a for loop to certain values. This argument is
-          only useful if you use the function in a test_for_loop. It contains a list with the values
-          of the bound variables.
-        expr_code (str): if this variable is not None, the expression in the student/solution code will not
-          be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
-          and the result will be compared.
-        pre_code (str): the code in string form that should be executed before the expression is executed.
-          This is the ideal place to set a random seed, for example.
-        keep_obj_in_env (list()): a list of variable names that should be hold in the copied environment where
-          the expression is evaluated. All primitive types are copied automatically, other objects have to
-          be passed explicitely.
-        name (str): the name of a variable, or expression, whose value will be tested after running the
-          student and solution code. This could be thought of as post code.
-        copy (bool): whether to try to deep copy objects in the environment, such as lists, that could
-          accidentally be mutated. Disable to speed up SCTs. Disabling may lead to cryptic mutation issues.
-        func: custom binary function of form f(stu_result, sol_result), for equality testing.
-    """
     rep = Reporter.active_reporter
 
     # run function to highlight a block of code
@@ -543,6 +566,69 @@ def has_expr(incorrect_msg="__JINJA__:Unexpected expression {{test}}: expected `
 
     return state
 
+
+
+args_string = """
+
+    Args:
+        incorrect_msg (str): feedback message if the {} of the expression in the solution
+          doesn't match the one of the student. This feedback message will be expanded if it is used
+          in the context of another check function, like ``check_if_else``.
+        error_msg (str): feedback message if there was an error when running the targeted student code.
+          Note that when testing for an error, this message is displayed when none is raised.
+        undefined_msg (str): feedback message if the ``name`` argument is defined, but a variable
+          with that name doesn't exist after running the targeted student code.
+        expr_code (str): if this argument is set, the expression in the student/solution code will not
+          be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
+          and the result will be compared.
+        pre_code (str): the code in string form that should be executed before the expression is executed.
+          This is the ideal place to set a random seed, for example.
+        name (str): the name of a variable, or expression, whose {} will be tested after running the
+          targeted student and solution code. This could be thought of as post code.
+        copy (bool): whether to try to deep copy objects in the environment, such as lists, that could
+          accidentally be mutated. Disable to speed up SCTs. Disabling may lead to cryptic mutation issues.
+        func: custom binary function of form f(stu_result, sol_result), for equality testing.
+
+    """
+
 has_equal_value =  partial(has_expr, test = 'value')
+has_equal_value.__doc__ = """Run targeted student and solution code, and compare returned value.
+
+    When called on an SCT chain, ``has_equal_value()`` will execute the student and solution
+    code that is 'zoomed in on' and compare the returned values.
+    """ + args_string.format("returned value", "value") + """
+    :Example:
+
+        Student code and solution code::
+
+            import numpy as np
+            arr = np.array([1, 2, 3, 4, 5])
+            np.mean(arr)
+
+        SCT::
+
+            # Verify equality of arr:
+            Ex().check_object('arr').has_equal_value()
+
+            # Verify whether arr was correctly set in np.mean
+            Ex().check_function('numpy.mean').check_args('a').has_equal_value()
+
+            # Verify whether np.mean(arr) produced the same result
+            Ex().check_function('numpy.mean').has_equal_value()
+
+    """
+
+
 has_equal_output = partial(has_expr, test = 'output')
+has_equal_output.__doc__ = """Run targeted student and solution code, and compare output.
+
+    When called on an SCT chain, ``has_equal_output()`` will execute the student and solution
+    code that is 'zoomed in on' and compare the output.
+    """ + args_string.format("output", "output")
+
 has_equal_error  = partial(has_expr, test = 'error')
+has_equal_error.__doc__ = """Run targeted student and solution code, and compare generated errors.
+
+    When called on an SCT chain, ``has_equal_error()`` will execute the student and solution
+    code that is 'zoomed in on' and compare the errors that they generate.
+    """ + args_string.format("error", "error")

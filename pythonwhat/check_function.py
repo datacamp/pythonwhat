@@ -25,8 +25,45 @@ def check_function(name, index = 0,
                                             "arguments for `{name}`; have another look at your code and its output.",
                    expand_msg  = MSG_PREPEND, 
                    signature=True,
-                   typestr = "{ordinal} function call `{name}()`",
+                   typestr = "{ordinal} function call of `{name}()`",
                    state=None):
+    """Check whether a particular function is called.
+
+    This function is typically followed by ``check_args()`` to check whether the argumetns were
+    specified correctly.
+
+    Args:
+        name (str): the name of the function to be tested. When checking functions in packages, always
+            use the 'full path' of the function.
+        index (int): index of the function call to be checked. Defaults to 0.
+        missing_msg (str): If specified, this overrides an automatically generated feedback message in case
+            the student did not call the function correctly.
+        params_not_matched_msg (str): If specified, this overrides an automatically generated feedback message
+            in case the function parameters were not successfully matched.
+        expand_msg (str): If specified, this overrides any messages that are prepended by previous SCT chains.
+        signature (Signature): Normally, test_function() can figure out what the function signature is,
+            but it might be necessary to use build_sig to manually build a signature and pass this along.
+        typestr (formatted string): If specified, this overrides how the function call is automatically referred to.
+        state (State): State object that is passed from the SCT Chain (don't specify this).
+
+    :Examples:
+
+        Student code and solution code::
+
+            import numpy as np
+            arr = np.array([1, 2, 3, 4, 5])
+            np.mean(arr)
+
+        SCT::
+
+            # Verify whether arr was correctly set in np.mean
+            Ex().check_function('numpy.mean').check_args('a').has_equal_value()
+
+            # Verify whether np.mean(arr) produced the same result
+            Ex().check_function('numpy.mean').has_equal_value()
+
+    """
+
     rep = Reporter.active_reporter
     stu_out = state.student_function_calls
     sol_out = state.solution_function_calls

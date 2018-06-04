@@ -53,7 +53,7 @@ Let's see what happens in case of different student submissions:
 - The student submits ``result = np.sum(arr) / arr.size``
 
   - ``test_correct()`` runs the ``check_object()`` chain.
-  - This test passes, so ``test_correct()`` stops before running ``check_fucntion()``.
+  - This test passes, so ``test_correct()`` stops before running ``check_function()``.
   - The entire SCT passes even though ``np.mean()`` was not used.
 
 - The student submits ``result = np.mean(arr + 1)``
