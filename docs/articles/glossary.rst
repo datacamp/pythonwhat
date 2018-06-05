@@ -149,6 +149,25 @@ Check if statement
     if 0 < x:
         print("x is positive")
 
+Check function definition
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code::
+
+    # solution
+    def my_power(x):\n    print("calculating sqrt...")\n    return(x * x)
+
+    # sct
+    Ex().check_function_def('my_power').multi(
+        check_args('x'),
+        call([3], 'value'),   # Check that calling my_power(3) returns correct result.
+        call([3], 'output'),  # Check that calling my_power(3) does correct printouts
+        # Check that print is used
+        check_body().check_function('print') \
+            # correctly, assuming x = 3
+            .check_args('value').set_env(x = 3).has_equal_value()
+        )
+    )
 
 Check list comprehensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -159,7 +178,7 @@ Check list comprehensions
     L2 = [ i*2 for i in range(0,10) if i>2 ]
 
     # sct
-    Ex().check_list_comp(0).multi(
+    Ex().check_list_comp().multi(
         check_body().has_code('i\*2'),
         check_iter().has_equal_value(),
         check_ifs(0).multi([has_equal_value(context_vals=[i]) for i in range(0,10)])
