@@ -23,7 +23,8 @@ pip install git+https://github.com/datacamp/pythonwhat
 
 ## Demo
 
-Experimenting locally:
+To experiment locally, you can use `setup_state()` and write SCTs interactively.
+The code throws an error when the underlying checks fail.
 
 ```python
 from pythonwhat.local import setup_state
@@ -33,15 +34,15 @@ s.check_object('x')
 # No error: x is defined in both student and solution process
 
 s.check_object('x').has_equal_value()
-# Throws error, because value of x is not the same
+# TestFail: Check the variable `x`. Unexpected expression value: expected `4`, got `5`.
 
 # Debugging state
 s._state               # access state object
 dir(s._state)          # list all attributes of the state object
-s._state.student_code  # access attribute of state object
+s._state.student_code  # access student_code of state object
 ```
 
-To include an SCT in a DataCamp course, visit https://authoring.datacamp.com.
+To learn how to include an SCT in a DataCamp course, visit https://authoring.datacamp.com.
 
 ## Run tests
 

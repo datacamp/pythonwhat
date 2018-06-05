@@ -6,6 +6,7 @@ from functools import partial
 from pythonwhat.parsing import TargetVars, FunctionParser, ObjectAccessParser, parser_dict
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
+from pythonwhat.Test import Test
 from pythonwhat import signatures
 from pythonwhat.converters import get_manual_converters
 from collections.abc import Mapping
@@ -253,20 +254,17 @@ class State(object):
         except IndentationError as e:
             e.filename = "script.py"
             # no line info for now
-            rep.feedback = Feedback("Your code could not be parsed due to an error in the indentation:<br>`%s.`" % str(e))
-            rep.failed_test = True
+            rep.do_test(Test(Feedback("Your code could not be parsed due to an error in the indentation:<br>`%s.`" % str(e))))
 
         except SyntaxError as e:
             e.filename = "script.py"
             # no line info for now
-            rep.feedback = Feedback("Your code can not be executed due to a syntax error:<br>`%s.`" % str(e))
-            rep.failed_test = True
+            rep.do_test(Test(Feedback("Your code can not be executed due to a syntax error:<br>`%s.`" % str(e))))
 
         # Can happen, can't catch this earlier because we can't differentiate between
         # TypeError in parsing or TypeError within code (at runtime).
         except:
-            rep.feedback.message = "Something went wrong while parsing your code."
-            rep.failed_test = True
+            rep.do_test(Test(Feedback("Something went wrong while parsing your code.")))
 
         return(res)
 
