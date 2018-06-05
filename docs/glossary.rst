@@ -3,7 +3,7 @@ Glossary
 
 This article lists some example solutions. For each of these solutions, an SCT
 is included, as well as some example student submissions that would pass and fail. In all of these,
-a submission that is identical to the solution will evidently pass.
+a submission that is identical to the solution will pass.
 
 .. note::
 
