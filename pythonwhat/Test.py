@@ -13,7 +13,10 @@ show when the test failed.
 """
 
 class TestFail(Exception):
-    pass
+    def __init__(self, feedback, payload):
+        super().__init__(feedback.message)
+        self.feedback = feedback
+        self.payload = payload
 
 class Test(object):
     """

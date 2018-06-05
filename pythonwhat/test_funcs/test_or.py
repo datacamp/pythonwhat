@@ -1,5 +1,5 @@
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import TestFail
+from pythonwhat.Test import TestFail, Test
 from pythonwhat.check_funcs import multi
 
 def test_or(*tests, state=None):
@@ -14,12 +14,8 @@ def test_or(*tests, state=None):
             multi(test, state=state)
             success = True
         except TestFail as e:
-            if not first_feedback: first_feedback = rep.feedback
-            rep.failed_test = False
-
+            if not first_feedback: first_feedback = e.feedback
         if success: 
             return
     
-    rep.failed_test = True
-    rep.feedback = first_feedback
-    raise TestFail
+    rep.do_test(Test(first_feedback))

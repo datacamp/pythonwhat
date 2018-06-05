@@ -45,34 +45,36 @@ def test_exercise(sct,
               tags - the tags belonging to the SCT execution.
     """
 
-    rep = Reporter()
+    rep = Reporter(error)
     Reporter.active_reporter = rep
 
-    state = State(
-        student_code = check_str(student_code),
-        solution_code = check_str(solution_code),
-        full_student_code = check_str(student_code),
-        full_solution_code = check_str(solution_code),
-        pre_exercise_code = check_str(pre_exercise_code),
-        student_process = check_process(student_process),
-        solution_process = check_process(solution_process),
-        raw_student_output = check_str(raw_student_output))
-
-    State.root_state = state
-
-    # Populate sct context with 'old' functions (in terms of probes) and check functions.
-    tree, sct_cntxt = create_test_probes(cntxt)
-    sct_cntxt.update(spec_2_context)
-
     try:
-        # if statement detects, for example, if State hit a parsing error w/student code
-        if not rep.failed_test:
-            exec(sct, sct_cntxt)         # Spec v2 tests run immediately
-            for test in tree.crnt_node:  # Spec v1 tests run after
-                test(state)
-    except TestFail: pass
+        state = State(
+            student_code = check_str(student_code),
+            solution_code = check_str(solution_code),
+            full_student_code = check_str(student_code),
+            full_solution_code = check_str(solution_code),
+            pre_exercise_code = check_str(pre_exercise_code),
+            student_process = check_process(student_process),
+            solution_process = check_process(solution_process),
+            raw_student_output = check_str(raw_student_output)
+        )
 
-    return(rep.build_payload(error))
+        State.root_state = state
+
+        # Populate sct context with 'old' functions (in terms of probes) and check functions.
+        tree, sct_cntxt = create_test_probes(cntxt)
+        sct_cntxt.update(spec_2_context)
+
+        # Actually execute SCTs
+        exec(sct, sct_cntxt)         # Spec v2 tests run immediately
+        for test in tree.crnt_node:  # Spec v1 tests run after
+            test(state)
+
+    except TestFail as e:
+        return e.payload
+
+    return rep.build_final_payload()
 
 
 def success_msg(message):

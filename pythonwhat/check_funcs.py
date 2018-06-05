@@ -176,7 +176,6 @@ def test_not(*args, msg, state=None):
 
     try: multi(*args, state=state)
     except TestFail as e:
-        rep.failed_test = False          # protect against old behavior
         return state
     
     _msg = state.build_message(msg)
