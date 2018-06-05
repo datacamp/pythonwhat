@@ -92,8 +92,7 @@ test_object("baseball", undefined_msg = msg, incorrect_msg = msg)
 test_import("numpy", same_as = False)
 
 test_object("np_baseball", do_eval = False)
-test_function("numpy.array", not_called_msg = "Be sure to call [`np.array()`](http://docs.scipy.org/doc/numpy-1.10.0/glossary.html#term-array).",
-                                                         incorrect_msg = "You should call `np.array(baseball)` to make a 2D numpy array out of `baseball`.")
+test_function("numpy.array", not_called_msg = "wrong")
 test_object("np_baseball", incorrect_msg = "Assign the correct value to `np_baseball`.")
 
 msg = "Make sure to print out the type of `np_baseball` like this: `print(type(np_baseball))`."

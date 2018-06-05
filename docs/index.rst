@@ -13,7 +13,14 @@ This documentation features:
 - Reference documentation of all actively maintained ``pythonwhat`` functions.
 
 If you are new to writing SCTs for Python exercises, work your way through the articles first.
-The reference docs become useful when you understand all concepts and want to look up details on how to call certain functions.
+The glossary is good to get a quick overview of how all functions play together after you have a basic understanding.
+The reference docs become useful when you grasp all concepts and want to look up details on how to call certain functions and specify custom feedback messages.
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Glossary
+
+   glossary
 
 .. toctree::
    :maxdepth: 1
@@ -31,7 +38,6 @@ The reference docs become useful when you understand all concepts and want to lo
    articles/processes.rst
    articles/electives.rst
    articles/test_to_check.rst
-   articles/glossary.rst
 
 .. toctree::
    :maxdepth: 2
