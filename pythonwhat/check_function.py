@@ -13,12 +13,11 @@ def bind_args(signature, args_part):
     for k, arg in args_part.items():
         if isinstance(k, int): pos_args.append(arg)
         else: kw_args[k] = arg
-
+    
     bound_args = signature.bind(*pos_args, **kw_args)
+    return IndexedDict(bound_args.arguments)
 
-    return (IndexedDict(bound_args.arguments), signature)
-
-MSG_PREPEND = "__JINJA__:Check your code in the {{child['part']+ ' of the' if child['part']}} {{typestr}}. "
+MSG_PREPEND = "__JINJA__:Check the {{child['part']+ ' of the' if child['part']}} {{typestr}}. "
 def check_function(name, index=0,
                    missing_msg = "FMT:Did you define the {typestr}?", 
                    params_not_matched_msg = "FMT:Something went wrong in figuring out how you specified the "
@@ -29,7 +28,7 @@ def check_function(name, index=0,
                    state=None):
     """Check whether a particular function is called.
 
-    This function is typically followed by ``check_args()`` to check whether the argumetns were
+    This function is typically followed by ``check_args()`` to check whether the arguments were
     specified correctly.
 
     Args:
@@ -41,7 +40,7 @@ def check_function(name, index=0,
         params_not_matched_msg (str): If specified, this overrides an automatically generated feedback message
             in case the function parameters were not successfully matched.
         expand_msg (str): If specified, this overrides any messages that are prepended by previous SCT chains.
-        signature (Signature): Normally, test_function() can figure out what the function signature is,
+        signature (Signature): Normally, check_function() can figure out what the function signature is,
             but it might be necessary to use build_sig to manually build a signature and pass this along.
         typestr (formatted string): If specified, this overrides how the function call is automatically referred to.
         state (State): State object that is passed from the SCT Chain (don't specify this).
@@ -91,7 +90,7 @@ def check_function(name, index=0,
 
         try:
             sol_sig = get_sig(mapped_name=sol_parts['name'], process=state.solution_process)
-            sol_parts['args'], _ = bind_args(sol_sig, sol_parts['args'])
+            sol_parts['args'] = bind_args(sol_sig, sol_parts['args'])
         except:
             raise ValueError("Something went wrong in matching call index {index} of {name} to its signature. "
                              "You might have to manually specify or correct the signature."
@@ -99,7 +98,7 @@ def check_function(name, index=0,
 
         try:
             stu_sig = get_sig(mapped_name=stu_parts['name'], process=state.student_process)
-            stu_parts['args'], _ = bind_args(stu_sig, stu_parts['args'])
+            stu_parts['args'] = bind_args(stu_sig, stu_parts['args'])
         except Exception:
             _msg = state.build_message(params_not_matched_msg, fmt_kwargs)
             rep.do_test(Test(Feedback(_msg, stu_parts['node'])))

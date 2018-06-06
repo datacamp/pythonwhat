@@ -1,5 +1,5 @@
 from pythonwhat.Reporter import Reporter
-from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_part, has_equal_part_len, has_equal_part, has_equal_value, call, fix_format
+from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_equal_part_len, has_equal_part, has_equal_value, call, fix_format
 
 from functools import partial
 

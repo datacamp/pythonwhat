@@ -32,7 +32,7 @@ test_list_comp(index=1,
         self.data["DC_CODE"] = "[key for key in x.keys()]"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check your code in the iterable part of the first list comprehension.", sct_payload['message'])
+        self.assertIn("Check the iterable part of the first list comprehension.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 17, 24)
 
     def test_fail_3(self):
@@ -45,7 +45,7 @@ test_list_comp(index=1,
     def test_fail_4(self):
         self.data["DC_CODE"] = "[key + '_' + str(val) for key,val in x.items()]"
         sct_payload = helper.run(self.data)
-        self.assertIn("Check your code in the body of the first list comprehension.", sct_payload['message'])
+        self.assertIn("Check the body of the first list comprehension.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 2, 21)
 
     def test_fail_5(self):
@@ -59,21 +59,21 @@ test_list_comp(index=1,
         self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if hasattr(key, 'test') if hasattr(key, 'test')]"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your code in the first if of the first list comprehension. Have you called <code>isinstance()</code>?", sct_payload['message'])
+        self.assertEqual("Check the first if of the first list comprehension. Have you called <code>isinstance()</code>?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 45, 64)
 
     def test_fail_7(self):
         self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if isinstance(key, str) if hasattr(key, 'test')]"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your code in the second if of the first list comprehension. Have you called <code>isinstance()</code>?", sct_payload['message'])
+        self.assertEqual("Check the second if of the first list comprehension. Have you called <code>isinstance()</code>?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 69, 88)
 
     def test_fail_8(self):
         self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if isinstance(key, str) if isinstance(key, str)]"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your code in the second if of the first list comprehension. Did you call <code>isinstance()</code> with the correct arguments?", sct_payload['message'])
+        self.assertEqual("Check the second if of the first list comprehension. Did you call <code>isinstance()</code> with the correct arguments?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 80, 82)
 
     def test_pass(self):
@@ -140,7 +140,7 @@ test_list_comp(index=1,
         self.data["DC_CODE"] = "[key for key in x.keys()]"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check your code in the iterable part of the first list comprehension. iterincorrect", sct_payload['message'])
+        self.assertIn("Check the iterable part of the first list comprehension. iterincorrect", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 17, 24)
 
     def test_fail_3(self):
@@ -153,7 +153,7 @@ test_list_comp(index=1,
     def test_fail_4(self):
         self.data["DC_CODE"] = "[key + '_' + str(val) for key,val in x.items()]"
         sct_payload = helper.run(self.data)
-        self.assertIn("Check your code in the body of the first list comprehension. bodyincorrect", sct_payload['message'])
+        self.assertIn("Check the body of the first list comprehension. bodyincorrect", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 2, 21)
 
     def test_fail_5(self):
@@ -167,21 +167,21 @@ test_list_comp(index=1,
         self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if hasattr(key, 'test') if hasattr(key, 'test')]"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your code in the first if of the first list comprehension. notcalled1", sct_payload['message'])
+        self.assertEqual("Check the first if of the first list comprehension. notcalled1", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 45, 64)
 
     def test_fail_7(self):
         self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if isinstance(key, str) if hasattr(key, 'test')]"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your code in the second if of the first list comprehension. notcalled2", sct_payload['message'])
+        self.assertEqual("Check the second if of the first list comprehension. notcalled2", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 69, 88)
 
     def test_fail_8(self):
         self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if isinstance(key, str) if isinstance(key, str)]"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your code in the second if of the first list comprehension. incorrect2", sct_payload['message'])
+        self.assertEqual("Check the second if of the first list comprehension. incorrect2", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 80, 82)
 
     def test_pass(self):
@@ -343,7 +343,7 @@ test_dict_comp(index=1,
         self.data["DC_CODE"] = "{ a:a for a in lst[1:2] }"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check your code in the iterable part of the first dictionary comprehension", sct_payload['message'])
+        self.assertIn("Check the iterable part of the first dictionary comprehension", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 16, 23)
 
     def test_fail_3(self):
@@ -357,14 +357,14 @@ test_dict_comp(index=1,
         self.data["DC_CODE"] = "{ el + 'a':str(el) for el in lst }"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check your code in the key part of the first dictionary comprehension.", sct_payload['message'])
+        self.assertIn("Check the key part of the first dictionary comprehension.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 3, 10)
 
     def test_fail_5(self):
         self.data["DC_CODE"] = "{ el:str(el) for el in lst }"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check your code in the value part of the first dictionary comprehension.", sct_payload['message'])
+        self.assertIn("Check the value part of the first dictionary comprehension.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 6, 12)
 
     def test_fail_6(self):
@@ -378,7 +378,7 @@ test_dict_comp(index=1,
         self.data["DC_CODE"] = "{ el:len(el) for el in lst if isinstance('a', str)}"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your code in the first if of the first dictionary comprehension. Did you call <code>isinstance()</code> with the correct arguments?", sct_payload['message'])
+        self.assertEqual("Check the first if of the first dictionary comprehension. Did you call <code>isinstance()</code> with the correct arguments?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 42, 44)
 
     def test_pass(self):
@@ -428,7 +428,7 @@ test_generator_exp(index=1,
         self.data["DC_CODE"] = "(key for key in x.keys())"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check your code in the iterable part of the first generator expression.", sct_payload['message'])
+        self.assertIn("Check the iterable part of the first generator expression.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 17, 24)
 
     def test_fail_3(self):
@@ -441,7 +441,7 @@ test_generator_exp(index=1,
     def test_fail_4(self):
         self.data["DC_CODE"] = "(key + '_' + str(val) for key,val in x.items())"
         sct_payload = helper.run(self.data)
-        self.assertIn("Check your code in the body of the first generator expression.", sct_payload['message'])
+        self.assertIn("Check the body of the first generator expression.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 2, 21)
 
     def test_fail_5(self):
@@ -455,21 +455,21 @@ test_generator_exp(index=1,
         self.data["DC_CODE"] = "(key + str(val) for key,val in x.items() if hasattr(key, 'test') if hasattr(key, 'test'))"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your code in the first if of the first generator expression. Have you called <code>isinstance()</code>?", sct_payload['message'])
+        self.assertEqual("Check the first if of the first generator expression. Have you called <code>isinstance()</code>?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 45, 64)
 
     def test_fail_7(self):
         self.data["DC_CODE"] = "(key + str(val) for key,val in x.items() if isinstance(key, str) if hasattr(key, 'test'))"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your code in the second if of the first generator expression. Have you called <code>isinstance()</code>?", sct_payload['message'])
+        self.assertEqual("Check the second if of the first generator expression. Have you called <code>isinstance()</code>?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 69, 88)
 
     def test_fail_8(self):
         self.data["DC_CODE"] = "(key + str(val) for key,val in x.items() if isinstance(key, str) if isinstance(key, str))"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your code in the second if of the first generator expression. Did you call <code>isinstance()</code> with the correct arguments?", sct_payload['message'])
+        self.assertEqual("Check the second if of the first generator expression. Did you call <code>isinstance()</code> with the correct arguments?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 80, 82)
 
     def test_fail_8_no_lam(self):

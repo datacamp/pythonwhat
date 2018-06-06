@@ -106,7 +106,7 @@ Ex().check_with(0).check_body().with_context([test_function('print', index = i+1
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check your code in the body of the first <code>with</code> statement.", sct_payload['message'])
+        self.assertIn("Check the body of the first <code>with</code> statement.", sct_payload['message'])
         # line info should be specific to test_function
         helper.test_lines(self, sct_payload, 6, 6, 11, 16)
 

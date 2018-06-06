@@ -44,12 +44,19 @@ def check_part(name, part_msg, state=None, missing_msg="Are you sure it's define
 def check_part_index(name, index, part_msg,
                      missing_msg="FMT:Are you sure it is defined?",
                      state=None, expand_msg=""):
-    """Return child state with indexed name part as its ast tree"""
+    """Return child state with indexed name part as its ast tree.
+
+    ``index`` can be:
+
+    - an integer, in which case the student/solution_parts are indexed by position.
+    - a string, in which case the student/solution_parts are expected to be a dictionary.
+    - a list of indices (which can be integer or string), in which case the student parts are indexed step by step.
+    """
 
     rep = Reporter.active_reporter
 
     # create message
-    ordinal = "" if isinstance(index, str) else get_ord(index+1)
+    ordinal = get_ord(index+1) if isinstance(index, int) else ""
     fmt_kwargs = {'index': index, 'ordinal': ordinal}
     fmt_kwargs['part'] = part_msg.format(**fmt_kwargs)
 
@@ -60,14 +67,22 @@ def check_part_index(name, index, part_msg,
     has_part(name, missing_msg, state, append_message['kwargs'], index)
 
     # get part at index
-    stu_part = state.student_parts[name][index]
-    sol_part = state.solution_parts[name][index]
+    stu_part = state.student_parts[name]
+    sol_part = state.solution_parts[name]
+
+    if isinstance(index, list):
+        for ind in index:
+            stu_part = stu_part[ind]
+            sol_part = sol_part[ind]
+    else:
+        stu_part = stu_part[index]
+        sol_part = sol_part[index]
 
     # return child state from part
     return part_to_child(stu_part, sol_part, append_message, state)
 
 MSG_MISSING = "FMT:The system wants to check the {typestr} you defined but hasn't found it."
-MSG_PREPEND = "__JINJA__:Check your code in the{{' ' + child['part']+ ' of the' if child['part']}} {{typestr}}. "
+MSG_PREPEND = "__JINJA__:Check the{{' ' + child['part']+ ' of the' if child['part']}} {{typestr}}. "
 def check_node(name, index=0, typestr='{ordinal} node', missing_msg=MSG_MISSING, expand_msg=MSG_PREPEND, state=None):
     rep = Reporter.active_reporter
     stu_out = getattr(state, 'student_'+name)
@@ -107,7 +122,12 @@ def has_part(name, msg, state=None, fmt_kwargs=None, index=None):
 
     try: 
         part = state.student_parts[name]
-        if index is not None: part = part[index]
+        if index is not None:
+            if isinstance(index, list):
+                for ind in index:
+                    part = part[ind]
+            else:
+                part = part[index]
         if part is None: raise KeyError
     except (KeyError, IndexError):
         _msg = state.build_message(msg, d)
@@ -436,8 +456,13 @@ def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
     """
     if name in ['*args', '**kwargs']:
         return check_part(name, name, state=state, missing_msg = missing_msg)
-    else: 
-        arg_str = "%s argument"%get_ord(name+1) if isinstance(name, int) else "argument `%s`"%name
+    else:
+        def build_arg_str(name):
+            return "%s argument"%get_ord(name+1) if isinstance(name, int) else "argument `%s`"%name
+        if isinstance(name, list):
+            arg_str = "{} matched through the `{}`".format(build_arg_str(name[1]), name[0])
+        else:
+            arg_str = build_arg_str(name)
         return check_part_index('args', name, arg_str, state=state, missing_msg = missing_msg)
 
 
@@ -673,7 +698,7 @@ def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
                        name = name,
                        copy=copy,
                        do_exec = True if test == 'output' else False)
-    
+
     eval_sol, str_sol = get_func(tree = state.solution_tree,
                                  process = state.solution_process,
                                  context = state.solution_context,
