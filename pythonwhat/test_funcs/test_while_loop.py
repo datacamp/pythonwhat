@@ -2,7 +2,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.check_funcs import check_part, check_node, multi
 
 MSG_MISSING = "FMT:Define more {typestr}."
-MSG_PREPEND = "FMT:Check your code in the {child[part]} of the {ordinal} while loop. "
+MSG_PREPEND = "FMT:Check the {child[part]} of the {ordinal} while loop. "
 
 def test_while_loop(index=1,
                     test=None,

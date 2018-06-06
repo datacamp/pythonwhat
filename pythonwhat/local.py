@@ -22,7 +22,7 @@ class StubProcess(object):
     def executeTask(self, task):
         return task(self.shell)
 
-def setup_state(stu_code, sol_code, pec = ""):
+def setup_state(stu_code = "", sol_code = "", pec = ""):
 
     stu_output = io.StringIO()
     with redirect_stdout(stu_output):

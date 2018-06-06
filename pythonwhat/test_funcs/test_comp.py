@@ -7,7 +7,7 @@ from pythonwhat.check_has_context import has_context
 
 
 MSG_NOT_CALLED = "FMT:The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
-MSG_PREPEND = "FMT:Check your code in the {child[part]} of the {ordinal} {typestr}. "
+MSG_PREPEND = "FMT:Check the {child[part]} of the {ordinal} {typestr}. "
 
 MSG_INCORRECT_ITER_VARS = "FMT:Have you used the correct iterator variables in the {parent[ordinal]} {parent[typestr]}? Be sure to use the correct names."
 MSG_INCORRECT_NUM_ITER_VARS = "FMT:Have you used {num_vars} iterator variables in the {parent[ordinal]} {parent[typestr]}?"

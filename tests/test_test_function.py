@@ -745,42 +745,6 @@ class TestCheckFunction(unittest.TestCase):
         self.data["DC_SCT"] = "test_function2('np.array', params = ['object'], copy = False)"
 
 
-class TestCheckFunctionCases(unittest.TestCase):
-    def setup_color(self):
-        self.data = {
-                'DC_PEC': "def f(*args, **kwargs): pass",
-                'DC_CODE': "f(color = 'blue')"
-                }
-        self.data["DC_SOLUTION"] = self.data["DC_CODE"]
-
-    def test_pass_sig_false(self):
-        self.setup_color()
-        self.data['DC_SCT'] =  "Ex().check_function('f', 0, signature=False).check_args('color').has_equal_ast()"
-
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_pass_sig_false_override(self):
-        self.setup_color()
-        self.data["DC_CODE"] = self.data["DC_CODE"].replace('color', 'c')
-        self.data['DC_SCT'] =  """
-Ex().override("f(c = 'blue')").check_function('f', 0, signature=False).check_args('c').has_equal_ast()
-"""
-
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    @unittest.skip("TODO: override code isn't parsed, so can't get args part")
-    def test_pass_sig_false_override_after_check(self):
-        self.setup_color()
-        self.data["DC_CODE"] = self.data["DC_CODE"].replace('color', 'c')
-        self.data['DC_SCT'] =  """
-Ex().check_function('f', 0, signature=False).override("f(c = 'blue')").check_args('c').has_equal_ast()
-"""
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-
 class TestFunctionComplexArgs(unittest.TestCase):
     def setUp(self):
         self.data = {
@@ -821,32 +785,6 @@ file = BytesIO(pickle.dumps('abc'))
                 }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-
-class TestCheckFunctionWithHasEqualValue(unittest.TestCase):
-    def setUp(self):
-        self.data = {
-            "DC_PEC": '',
-            "DC_CODE": '''
-import numpy as np
-arr = np.array([1, 2, 3, 4, 5])
-np.mean(arr)
-''',
-            "DC_SOLUTION": '''
-import numpy as np
-arr = np.array([1, 2, 3, 4, 5])
-np.mean(arr)
-'''
-            }
-
-    def test_pass(self):
-        self.data["DC_SCT"] = 'Ex().check_function("numpy.mean").has_equal_value()'
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_pass2(self):
-        self.data["DC_SCT"] = 'Ex().check_function("numpy.mean").check_args("a").has_equal_value()'
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
 
 
 if __name__ == "__main__":
