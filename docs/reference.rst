@@ -29,7 +29,6 @@ Checking function calls
 Checking function definitions
 =============================
 
-.. autofunction:: pythonwhat.check_function.check_function
 .. autofunction:: pythonwhat.check_funcs.call
 
 Logic tests
