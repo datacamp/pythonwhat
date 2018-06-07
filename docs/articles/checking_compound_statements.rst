@@ -25,7 +25,7 @@ The ``body`` part that ``check_if_else()`` unearths can be inspected with ``chec
 
 Similar to how ``if`` statements has a ``check_if_else`` associated with it, all other compound statements have corresponding ``check_`` functions to perform this action of looking up a statement, and chopping it up into its constituents that can be inspected with ``check_<part>()``:
 
-- ``check_for()`` will look for a ``for`` loop, an break it up into a ``iter``, ``body`` and ``orelse`` part, that can be zoomed in on using ``check_iter()``, ``check_body()`` and ``check_orelse()`` respectively.
+- ``check_for_loop()`` will look for a ``for`` loop, an break it up into a ``iter``, ``body`` and ``orelse`` part, that can be zoomed in on using ``check_iter()``, ``check_body()`` and ``check_orelse()`` respectively.
 - ``check_list_comp()`` will look for a list comprehension and break it up into a ``iter``, ``ifs`` and ``body`` part, that can be zoomed in on using ``check_iter()``, ``check_ifs()`` and ``check_body()`` respectively.
 - etc.
 
@@ -239,7 +239,7 @@ in order to test running the inline if expression we could go from ``list_comp =
 .. code::
 
    (Ex().check_list_comp()                 # first comprehension
-        .check_body().set_context(i=6)      # comp's body
+        .check_body().set_context(i=6)     # comp's body
         .check_if_exp().has_equal_value()  # body's inline IFS
         )
 
