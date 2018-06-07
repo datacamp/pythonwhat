@@ -397,7 +397,6 @@ def fix_format(arguments):
 
 # TODO: test string syntax with check_function_def
 #       test argument syntax with check_lambda
-#       implement for error and output
 def run_call(args, node, process, get_func, **kwargs):
     # Get function expression
     if isinstance(node, ast.FunctionDef):                     # function name
@@ -419,8 +418,8 @@ def run_call(args, node, process, get_func, **kwargs):
         return get_func(process = process, tree=func_expr, call = fmt_args, **kwargs)
         
 
-MSG_CALL_INCORRECT = "FMT:Calling it should result in {str_sol}, instead got {str_stu}"
-MSG_CALL_ERROR     = "FMT:Calling it should result in {str_sol}, instead got an error"
+MSG_CALL_INCORRECT = "FMT:Calling it should {action} `{str_sol}`, instead got `{str_stu}`."
+MSG_CALL_ERROR     = "FMT:Calling it should {action} `{str_sol}`, instead got an error."
 def call(args, 
          test='value', 
          incorrect_msg=MSG_CALL_INCORRECT, 
@@ -484,7 +483,8 @@ def call(args,
 
     # Run for Submission ------------------------------------------------------
     eval_stu, str_stu = run_call(args, state.student_parts['node'], state.student_process, get_func, **kwargs)
-    fmt_kwargs = {'part': argstr, 'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu}
+    action = {'value': 'result in', 'output': 'output', 'error': 'error with the message'}
+    fmt_kwargs = {'part': argstr, 'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu, 'action': action}
 
     # either error test and no error, or vice-versa
     stu_node = state.student_parts['node']
