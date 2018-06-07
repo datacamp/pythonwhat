@@ -317,7 +317,7 @@ def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
     If you want to go on and check whether the argument was correctly specified, you can can continue chaining with
     ``has_equal_value()`` (value-based check) or ``has_equal_ast()`` (AST-based check)
 
-    This function can also follow ``check_function_def()`` or ``check_lambda_exp()`` to see if arguments have been
+    This function can also follow ``check_function_def()`` or ``check_lambda()`` to see if arguments have been
     specified.
 
     Args:
