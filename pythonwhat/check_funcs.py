@@ -483,8 +483,8 @@ def call(args,
 
     # Run for Submission ------------------------------------------------------
     eval_stu, str_stu = run_call(args, state.student_parts['node'], state.student_process, get_func, **kwargs)
-    action = {'value': 'result in', 'output': 'output', 'error': 'error with the message'}
-    fmt_kwargs = {'part': argstr, 'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu, 'action': action}
+    action_strs = {'value': 'result in', 'output': 'output', 'error': 'error with the message'}
+    fmt_kwargs = {'part': argstr, 'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu, 'action': action_strs[test]}
 
     # either error test and no error, or vice-versa
     stu_node = state.student_parts['node']
