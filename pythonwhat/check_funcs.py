@@ -127,7 +127,7 @@ def has_equal_part(name, msg, state):
 
     return state
 
-
+# TODO: shouldn't have to hardcode message
 def has_equal_part_len(name, insufficient_msg, state=None):
     rep = Reporter.active_reporter
     d = dict(stu_len = len(state.student_parts[name]),

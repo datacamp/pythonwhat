@@ -134,11 +134,11 @@ success_msg("Nice work!")
         helper.test_lines(self, sct_payload, 2, 4, 1, 23)
 
     def test_Fail_spec2(self):
-        # TODO: shouldn't have to hardcode message
-        self.data["DC_SCT"] = """
-msg = "You should define <code>shout()</code> with 2 arguments, instead got 1."
-Ex().check_function_def("shout").has_equal_part_len('arg', msg)"""
-        self.test_Fail()
+        self.data["DC_SCT"] = "Ex().check_function_def('shout').has_equal_part_len('args', 'wrong')"
+        sct_payload = helper.run(self.data)
+        self.assertTrue('wrong' in sct_payload['message'])
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
 
 class TestExercise3(unittest.TestCase):
 

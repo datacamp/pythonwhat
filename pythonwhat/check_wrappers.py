@@ -1,4 +1,4 @@
-from pythonwhat.check_funcs import check_part, check_part_index, check_node, has_equal_part
+from pythonwhat.check_funcs import check_part, check_part_index, check_node, has_equal_part, has_equal_part_len
 from pythonwhat import check_funcs, check_object
 from pythonwhat.check_function import check_function
 from pythonwhat.check_has_context import has_context
@@ -61,7 +61,7 @@ for k, v in __NODE_WRAPPERS__.items():
 scts['check_function'] = check_function
 
 for k in ['set_context', 'set_env',
-          'has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'call',
+          'has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'has_equal_part_len', 'call',
           'extend', 'multi', 'test_not', 'fail', 'quiet', 'override',
           'with_context',
           'check_args',

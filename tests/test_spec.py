@@ -144,7 +144,6 @@ Ex().check_list_comp(0).check_body()\
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-@pytest.mark.debug
 class TestTestNot(unittest.TestCase):
     def setUp(self):
         self.data = {
