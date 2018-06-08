@@ -128,13 +128,34 @@ def has_equal_part(name, msg, state):
     return state
 
 # TODO: shouldn't have to hardcode message
-def has_equal_part_len(name, insufficient_msg, state=None):
+def has_equal_part_len(name, unequal_msg, state=None):
+    """Verify that a part that is zoomed in on has equal length.
+
+    Typically used in the context of ``check_function_def()``
+
+    Arguments:
+        name (str): name of the part for which to check the length to the corresponding part in the solution.
+        unequal_msg (str): Message in case the lengths do not match.
+        state (State): state as passed by the SCT chain. Don't specify this.
+
+    :Examples:
+
+        Student and solution code::
+
+            def shout(word):
+                return word + '!!!'
+
+        SCT that checks number of arguments::
+
+            Ex().check_function_def('shout').has_equal_part_len('args', 'not enough args!')
+
+    """
     rep = Reporter.active_reporter
     d = dict(stu_len = len(state.student_parts[name]),
              sol_len = len(state.solution_parts[name]))
 
     if d['stu_len'] != d['sol_len']:
-        _msg = state.build_message(insufficient_msg, d)
+        _msg = state.build_message(unequal_msg, d)
         rep.do_test(Test(Feedback(_msg, state.highlight)))
 
     return state
@@ -267,8 +288,41 @@ def with_context(*args, state=None):
 def set_context(*args, state=None, **kwargs):
     """Update context values for student and solution environments.
     
-    Note that excess args and unmatched kwargs will be unused in the student environment.
-    If an argument is specified both by name and position args, ``set_context()`` will use the named arg.
+    When ``has_equal_x()`` is used after this, the context values (in ``for`` loops and function definitions, for example)
+    will have the values specified throught his function. It is the function equivalent of the ``context_vals`` argument of
+    the ``has_equal_x()`` functions.
+
+    - Note 1: excess args and unmatched kwargs will be unused in the student environment.
+    - Note 2: positional arguments are more robust to the student using different names for context values.
+    - Note 3: If an argument is specified both by name and position args, ``set_context()`` will use the named arg.
+
+    :Example:
+
+        Solution code::
+
+            total = 0
+            for i in range(10):
+                print(i ** 2)
+
+        Student submission that will pass (different iterator, different calculation)::
+
+            total = 0
+            for j in range(10):
+                print(j * j)
+
+        SCT::
+
+            # set_context is robust against different names of context values.
+            Ex().check_for_loop().check_body().multi(
+                set_context(1).has_equal_output(),
+                set_context(2).has_equal_output(),
+                set_context(3).has_equal_output()
+            )
+
+            # equivalent SCT, by setting context_vals in has_equal_output()
+            Ex().check_for_loop().check_body().\\
+                multi([s.has_equal_output(context_vals=[i]) for i in range(1, 4)])
+
     """
     stu_crnt = state.student_context.context
     sol_crnt = state.solution_context.context
@@ -300,6 +354,27 @@ def set_env(state = None, **kwargs):
     be available in the student and solution process. Note that you will not see these variables
     in the student process of the state produced by this function: the values are saved on the state
     and are only added to the student and solution processes when ``has_equal_ast()`` is called.
+
+    :Example:
+
+        Student and Solution Code::
+
+            a = 1
+            if a > 4:
+                print('pretty large')
+
+        SCT::
+
+            # check if condition works with different values of a
+            Ex().check_if_else().check_test().multi(
+                set_env(a = 3).has_equal_value()
+                set_env(a = 4).has_equal_value()
+                set_env(a = 5).has_equal_value()
+            )
+
+            # equivalent SCT, by setting extra_env in has_equal_value()
+            Ex().check_if_else().check_test().\\
+                multi([has_equal_value(extra_env={'a': i}) for i in range(3, 6)])
     """
 
     stu_crnt = state.student_env.context
@@ -317,7 +392,7 @@ def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
     If you want to go on and check whether the argument was correctly specified, you can can continue chaining with
     ``has_equal_value()`` (value-based check) or ``has_equal_ast()`` (AST-based check)
 
-    This function can also follow ``check_function_def()`` or ``check_lambda_exp()`` to see if arguments have been
+    This function can also follow ``check_function_def()`` or ``check_lambda()`` to see if arguments have been
     specified.
 
     Args:
@@ -354,8 +429,8 @@ def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
         SCT::
 
             Ex().check_function_def('my_power').multi(
-                check_args('x')  # Argument specified by name, will fail if student used y instead.
-                check_args(0)    # Argument specified by position, still passes if student used y instead.
+                check_args('x') # will fail if student used y as arg
+                check_args(0)   # will still pass if student used y as arg
             )
 
     """
@@ -455,9 +530,9 @@ def call(args,
         SCT::
 
             Ex().check_function_def('my_power').multi(
-                call("my_power(3)", "value"),  # specified as string, compare return value
-                call([3], "value"),            # specifies as list, compare return value
-                call([3], "output")            # specified as list, compare output generated
+                call("my_power(3)", "value"), # as string, compare return value
+                call([3], "value"),           # as list, compare return value
+                call([3], "output")           # as list, compare output generated
             )
 
     """

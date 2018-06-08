@@ -74,7 +74,7 @@ class Reporter(object):
 
     def build_final_payload(self):
         if (self.error and not self.errors_allowed):
-            feedback_msg = "Your code contains an error: `%s`" % str(self.error[1])
+            feedback_msg = "Have a look at the console: your code contains an error. Fix it and try again!"
             return {
                 "correct": False,
                 "message": Reporter.to_html(feedback_msg)
