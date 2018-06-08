@@ -11,11 +11,12 @@ jinja2==2.10
 bs4==0.0.1
 html5lib==1.0.1
 h5py==2.7.1
-sqlalchemy==1.2.6
 requests==2.18.4
-xlrd==1.1.0
-tweepy==3.6.0
 sas7bdat==2.0.7
+seaborn==0.8.1
+sqlalchemy==1.2.6
+tweepy==3.6.0
+xlrd==1.1.0
 
 # test-utils deps
 pytest==3.5.0

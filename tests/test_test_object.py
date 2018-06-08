@@ -375,5 +375,32 @@ class TestIsInstance(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
 
+def test_check_custom_compare():
+    code = """
+dfs_comp = []
+for f in range(3):
+    dfs_comp.append(pd.DataFrame({'a': [1, 2, 3]}))
+"""
+    data = {
+		"DC_PEC": "import pandas as pd",
+		"DC_CODE": code,
+        "DC_SOLUTION": code,
+		"DC_SCT": """
+import numpy as np
+def compare(x, y):
+    # check if same length
+    if (len(x) != len(y)): return False
+
+    # check if underlying data frames are equal
+    for i in range(len(x)):
+        if not x[i].equals(y[i]): return False
+
+    return True
+Ex().check_object("dfs_comp").is_instance(list).has_equal_value(func = compare)
+"""
+	}
+    output = helper.run(data)
+    assert output['correct']
+
 if __name__ == "__main__":
     unittest.main()
