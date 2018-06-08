@@ -2,6 +2,18 @@
 
 All notable changes to the `pythonwhat` project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.12.1
+
+### Added
+
+- Reference documentation now contains examples for `set_context()` and `set_env()`.
+- A `tests/test_debug.py` file has been added to easily test questions that CDs might have.
+
+### Changed
+
+- There was a bug in the feedback message generation for errors. It now just refers to the console.
+
+
 ## 2.12.0
 
 ### Added
