@@ -155,7 +155,7 @@ def has_equal_part_len(name, unequal_msg, state=None):
              sol_len = len(state.solution_parts[name]))
 
     if d['stu_len'] != d['sol_len']:
-        _msg = state.build_message(insufficient_msg, d)
+        _msg = state.build_message(unequal_msg, d)
         rep.do_test(Test(Feedback(_msg, state.highlight)))
 
     return state
