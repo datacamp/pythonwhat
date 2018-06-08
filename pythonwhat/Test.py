@@ -221,8 +221,7 @@ def is_equal(x, y):
                 return x == y
 
         except Exception:
-            self.result = False
-
+            return False
 
 ## Others
 

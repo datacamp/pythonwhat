@@ -22,7 +22,6 @@ def test_normal_fail():
 	output = helper.run(data)
 	assert not output['correct']
 
-@pytest.mark.debug
 def test_normal_error():
 	data = {
 		"DC_PEC": '#no pec',
