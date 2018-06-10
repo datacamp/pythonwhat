@@ -22,7 +22,7 @@ The following SCT tests whether the student prints out ``This is some weird stuf
 
 The ``pattern`` is set to ``False`` which causes ``has_output()`` to search for the pure string.
 This SCT is not robust, because it won't be accepted if the student submits ``print("This is some cool stuff")``, for example.
-Therefore, it's a good idea to use [regular expressions](https://docs.python.org/3.5/library/re.html).
+Therefore, it's a good idea to use `regular expressions <https://docs.python.org/3.5/library/re.html>`_.
 `pattern=True` by default, so there's no need to specify this:
 
 .. code::
