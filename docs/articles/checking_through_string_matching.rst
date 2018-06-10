@@ -31,7 +31,8 @@ The following SCT tests whether the student typed ``"sum(range("``:
     Ex().has_code("sum(range(", pattern = False)
 
 Notice that we set ``pattern`` to ``False``, this will cause ``has_code()`` to search for the pure string, no patterns are used.
-This SCT is not that robust though, it won't accept something like ``sum(  range(10) )``. This is why we should almost always use [regular expressions](https://docs.python.org/3.5/library/re.html) in ``has_code()``:
+This SCT is not that robust though, it won't accept something like ``sum(  range(10) )``.
+This is why we should almost always use `regular expressions <https://docs.python.org/3.5/library/re.html>`_ in ``has_code()``:
 
 .. code::
 
