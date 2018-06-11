@@ -392,7 +392,7 @@ def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
     If you want to go on and check whether the argument was correctly specified, you can can continue chaining with
     ``has_equal_value()`` (value-based check) or ``has_equal_ast()`` (AST-based check)
 
-    This function can also follow ``check_function_def()`` or ``check_lambda()`` to see if arguments have been
+    This function can also follow ``check_function_def()`` or ``check_lambda_function()`` to see if arguments have been
     specified.
 
     Args:
@@ -471,7 +471,7 @@ def fix_format(arguments):
     return(arguments)
 
 # TODO: test string syntax with check_function_def
-#       test argument syntax with check_lambda
+#       test argument syntax with check_lambda_function
 def run_call(args, node, process, get_func, **kwargs):
     # Get function expression
     if isinstance(node, ast.FunctionDef):                     # function name

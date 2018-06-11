@@ -102,7 +102,7 @@ where ``{part}`` is replaced by the name in caps (e.g. ``check_if_else().check_t
 |                        |           BODY                                       |                   |
 |                        |                                                      |                   |
 +------------------------+------------------------------------------------------+-------------------+
-|check_lambda()          | .. code::                                            | argument names    |
+|check_lambda_function() | .. code::                                            | argument names    |
 |                        |                                                      |                   |
 |                        |     lambda ARGS[0], ARGS[1]: BODY                    |                   |
 |                        |                                                      |                   |
