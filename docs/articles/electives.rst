@@ -4,11 +4,16 @@ Electives
 Success message
 ===============
 
-When all tests in an SCT pass, ``pythonwhat`` will automatically generate a congratulatory message to present to the student. If you want to override this 'success message', you can use the ``success_msg()`` function:
+When all tests in an SCT pass, ``pythonwhat`` will automatically generate a congratulatory message to present to the student. If you want to override this 'success message', you can use the ``success_msg()`` function.
 
 .. code::
 
     Ex().check_object("x").has_equal_value()
+    Ex().success_msg("You are a hero when it comes to variable assignment!")
+
+
+`This article <https://authoring.datacamp.com/courses/exercises/all-exercise-types/success-message.html>`_ on the authoring docs describes how to write good success messages.
+
 
 Multiple choice exercises
 =========================
