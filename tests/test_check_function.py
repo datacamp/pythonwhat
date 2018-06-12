@@ -99,15 +99,23 @@ def test_check_function_with_has_equal_value():
     s = setup_state(stu_code=code, sol_code=code)
     passes(s.check_function('numpy.mean').has_equal_value())
 
-def test_function_sig_false():
+def check_function_sig_false():
     code = "f(color = 'blue')"
     s = setup_state(pec="def f(*args, **kwargs): pass",
                     sol_code=code, stu_code=code)
     passes(s.check_function('f', 0, signature=False).check_args('color').has_equal_ast())
 
-def test_function_sig_false_override():
+def check_function_sig_false_override():
     s = setup_state(pec="def f(*args, **kwargs): pass",
                     sol_code="f(color = 'blue')",
                     stu_code="f(c = 'blue')")
     passes(s.override("f(c = 'blue')").check_function('f', 0, signature=False)\
                 .check_args('c').has_equal_ast())
+
+def check_function_multiple_times():
+    from pythonwhat.local import setup_state
+    s = setup_state(sol_code = "print('test')",
+                    stu_code = "print('test')")
+    passes(s.check_function('print'))
+    passes(s.check_function('print').check_args(0))
+    passes(s.check_function('print').check_args('value'))
