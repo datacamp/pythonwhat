@@ -173,7 +173,6 @@ class TestTestObjectEqualityChallenges(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-
 class TestTestObjectDeep(unittest.TestCase):
     def setUp(self):
         self.data = {
