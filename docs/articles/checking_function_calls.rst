@@ -7,8 +7,8 @@ with the correct arguments and whether these arguments are correct.
 To assess all of these aspects, ``pythonwhat`` goes through the solution code to see which functions were called there and how,
 and also checks the solution process to see what the value of the parameters is. This makes the comparison of function calls concise yet robust.
 
-Example 1: Basic
-================
+Basic functionality
+===================
 
 Suppose you want the student to call the ``round()`` function on ``2.718282``, as follows:
 
@@ -26,10 +26,9 @@ The following SCT tests whether the ``round()`` function is used correctly:
         check_args("ndigits").has_equal_value()
     )
 
-When a student submits his code and SCT is executed, `check_function()` tests whether the student has called the function `round()`.
+When a student submits his code and SCT is executed, `check_function()` checks whether the student has called the function `round()`.
 Next, `check_args()` checks whether each argument was specified (you can also refer to positional arguments by passing an integer).
-Finally, `has_equal_value()` checks whether the values of the argument are the same as in the solution.
-So in this case, it tests whether `round()` is used with the `number` argument equal to `pi` and the second argument equal to `3`.
+Finally, `has_equal_value()` will rerun the expressions used to specify the arguments in both student and solution process, and compare them.
 The above SCT would accept all of the following submissions:
 
 - `round(2.718282, 3)`
@@ -41,25 +40,32 @@ The above SCT would accept all of the following submissions:
 - `int_part = 2; dec_part = 0.718282; round(int_part + dec_part, 3)`
 
 .. note::
-    
+
     To find out which arguments you have to specify in `check_args()`, you can check out the reference documentation of the function you're trying to check.
 
 Customizations
 ~~~~~~~~~~~~~~
 
-If you only want to check the ``number`` parameter, just don't include a second chain with `check_args("ndigits")`:
+If you only want to check the ``number`` parameter, just don't include a second chain with ``check_args("ndigits")``:
 
 .. code::
 
     Ex().check_function("round").check_args("number").has_equal_value()
 
-If you just want to check whether the function was called, but you don't want to check any arguments, don't use `check_args()` in the first place:
+If you only want to check whether the ``number`` parameter was specified, but not that it was specified correctly, drop ``has_equal_value()``:
+
+.. code::
+
+    Ex().check_function("round").check_args("number")
+
+If you just want to check whether the function was called, drop ``check_args()``:
 
 .. code::
 
     Ex().check_function("round")
 
-If you want to compare the 'string versions' of arguments instead of the actual values of the arguments after evaluating them, use ``has_equal_ast()`` instead of ``has_equal_value()``.
+If you want to compare the 'string versions' of the expressions used to set the arguments instead of the evaluated result of these expressions,
+you can use ``has_equal_ast()`` instead of ``has_equal_value()``:
 
 .. code:
 
@@ -78,8 +84,183 @@ As you can see, doing exact string comparison of arguments is not a good idea, a
 There are cases, however, where it makes sense to use this, e.g. when there are very big objects passed to functions,
 and you don't want to spend the processing power to fetch these objects from the coding processes.
 
-Example 2: Multiple function calls
-==================================
+Functions in packages
+=====================
+
+If you're testing whether function calls of particular packages are used correctly, you should always refer to these functions with their 'full name'.
+Suppose you want to test whether the function ``show`` of ``matplotlib.pyplot`` was called, use this SCT:
+
+.. code::
+
+    Ex().check_function("matplotlib.pyplot.show")
+
+``check_function()`` can handle it when a student used aliases for the python packages (all ``import`` and ``import * from *`` calls are supported).
+If the student did not properly call the function, ``check_function()`` will automatically generate a feedback message that corresponds to how the student imported the modules/functions.
+
+.. note:
+
+    No matter how you import the function, you always have to refer to the function with its full name, e.g. ``package.subpackage1.subpackage2.function``.
+
+Signatures
+==========
+
+The ``round()`` example earlier in this article showed that a student can call the function in a multitude of ways,
+specifying arguments by position, by keyword or a mix of those. To be robust against this, ``pythonwhat`` uses the concept of _argument binding_.
+
+More specifically, each function has a function signature. Given this signature and the way the function was called,
+argument binding can map each parameter you specified to an argument. This small demo fetches the signature of the ``open`` function and tries to
+bind arguments that have been specified in two different ways. Notice how the resulting bound arguments are the same:
+
+.. code::
+
+    >>> import inspect
+
+    >>> sig = inspect.signature(open)
+
+    >>> sig
+    <Signature (file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, closefd=True, opener=None)>
+
+    >>> sig.bind('my_file.txt', mode = 'r')
+    <BoundArguments (file='my_file.txt', mode='r')>
+
+    >>> sig.bind(file = 'my_file.txt', mode = 'r')
+    <BoundArguments (file='my_file.txt', mode='r')>
+
+
+When you're using ``check_args()`` you are actually selecting these bound arguments.
+This works fine for functions like ``round()`` and ``open()`` that have a list of named arguments,
+but things get tricky when dealing with functions that take ``*args`` and ``*kwargs``.
+
+``*args`` example
+~~~~~~~~~~~~~~~~~
+
+Python allows functions to take a variable number of unnamed arguments through ``*args``, like this function:
+
+.. code::
+
+    def multiply(*args):
+        res = 1
+        for num in args:
+            res *= num
+        return res
+
+Let's see what happens when different calls are bound to their arguments:
+
+.. code::
+
+    >>> import inspect
+
+    >>> inspect.signature(multiply)
+    <Signature (*args)>
+
+    >>> sig = inspect.signature(multiply)
+
+    >>> sig
+    <Signature (*args)>
+
+    >>> sig.bind(1, 2)
+    <BoundArguments (args=(1, 2))>    
+
+    >>> sig.bind(3, 4, 5)
+    <BoundArguments (args=(3, 4, 5))>
+
+Notice how now the list of arguments is grouped under a tuple with the name `args` in the bound arguments.
+To be able to check each of these arguments individually, ``pythonwhat`` allows you to do repeated indexing in ``check_args()``.
+Instead of specifying the name of an argument, you can specify a list of indices:
+
+.. code::
+
+    # solution to check against
+    multiply(2, 3, 4)
+
+    # corresponding SCT
+    Ex().check_function("multiply").multi(
+        check_args(["args", 0]).has_equal_value(),
+        check_args(["args", 1]).has_equal_value(),
+        check_args(["args", 2]).has_equal_value()
+    )
+
+The `check_args()` subchains each zoom in on a particular tuple element of the bound `args` argument.
+
+``**kwargs`` example
+~~~~~~~~~~~~~~~~~~~~
+
+Python allows functions to take a variable number of named arguments through ``**kwargs``, like this function:
+
+.. code::
+
+    def my_dict(**kwargs):
+        return dict(**kwargs)
+
+Let's see what happens when different calls are bound to their arguments:
+
+.. code::
+
+    >>> import inspect
+
+    >>> sig = inspect.signature(my_dict)
+
+    >>> sig.bind(a = 1, b = 2)
+    <BoundArguments (kwargs={'b': 2, 'a': 1})>
+
+    >>> sig.bind(c = 2, b = 3)
+    <BoundArguments (kwargs={'b': 3, 'c': 2})>
+
+Notice how now the list of arguments is grouped under a dictionary name `kwargs` in the bound arguments.
+To be able to check each of these arguments individually, ``pythonwhat`` allows you to do repeated indexing in ``check_args()``.
+Instead of specifying the name of an argument, you can specify a list of indices:
+
+.. code::
+
+    # solution to check against
+    my_dict(a = 1, b = 2)
+
+    # corresponding SCT
+    Ex().check_function("my_dict").multi(
+        check_args(["kwargs", "a"]).has_equal_value(),
+        check_args(["kwargs", "b"]).has_equal_value()
+    )
+
+The `check_args()` subchains each zoom in on a particular dictionary element of the bound `kwargs` argument.
+
+Manual signatures
+~~~~~~~~~~~~~~~~~
+
+Unfortunately for a lot of Python's built-in functions no function signature is readily available because the function has been implemented in C code.
+To work around this, ``pythonwhat`` already includes manually specified signatures for functions such as ``print()``, ``str()``, ``hasattr()``, etc,
+but it's still possible that some signatures are missing.
+
+That's why ``check_function()`` features a ``signature`` parameter, that is ``True`` by default.
+If ``pythonwhat`` can't retrieve a signature for the function you want to test,
+you can pass an object of the class ``inspect.Signature`` to the ``signature`` parameter.
+
+Suppose, for the sake of example, that ``check_function()`` can't find a signature for the ``round()`` function.
+In a real situation, you will be informed about a missing signature through a backend error.
+To be able to implement this SCT, you can use the ``sig_from_params()`` function:
+
+.. code::
+
+    sig = sig_from_params(param("number", param.POSITIONAL_OR_KEYWORD),
+                          param("ndigits", param.POSITIONAL_OR_KEYWORD, default=0))
+    Ex().check_function("round", signature=sig).multi(
+        check_args("number").has_equal_value(),
+        check_args("ndigits").has_equal_value()
+    )
+
+You can pass ``sig_from_params()`` as many parameters as you want.
+
+``param`` is an alias of the ``Parameter`` class that's inside the ``inspect`` module.
+- The first argument of ``param()`` should be the name of the parameter,
+- The second argument should be the 'kind' of parameter. ``param.POSITIONAL_OR_KEYWORD`` tells ``check_function`` that the parameter can be specified either through a positional argument or through a keyword argument.
+Other common possibilities are ``param.POSITIONAL_ONLY`` and ``param.KEYWORD_ONLY`` (for a full list, refer to the `docs <https://docs.python.org/3.4/library/inspect.html#inspect.Parameter>`_).
+- The third optional argument allows you to specify a default value for the parameter.  
+
+.. note:: 
+
+    If you find vital Python functions that are used very often and that are not included in ``pythonwhat`` by default, you can `let us know <mailto:content-engineering@datacamp.com>`_ and we'll add the function to our `list of manual signatures <https://github.com/datacamp/pythonwhat/blob/master/pythonwhat/signatures.py>`_.
+
+Multiple function calls
+=======================
 
 Inside ``check_function()`` the ``index`` argument (``0`` by default), becomes important when there are several calls of the same function.
 Suppose that your exercise requires the student to call the ``round()`` function twice: once on ``pi`` and once on Euler's number:
@@ -105,79 +286,14 @@ To test both these function calls, you'll need the following SCT:
         check_args("ndigits").has_equal_value()
     )
 
-The first ``check_function()`` chain, where ``index=0``, checks the solution code for the first function call of ``round()``, finds it - ``round(3.14159, 3)`` - and then goes to look through the student code to find a function call of ``round()`` that matches the arguments.
-It is perfectly possible that there are 5 function calls of ``round()`` in the student's submission, and that only the fourth call matches the requirements for ``check_function()``.
-As soon as a function call is found in the student code that passes all tests, ``pythonwhat`` heads over to the second ``check_function()`` call, where ``index=2``.
-The same thing happens: the second call of ``round()`` is found from the solution code, and a match is sought for in the student code.
+The first ``check_function()`` chain, where ``index=0``, looks for the first call of ``round()`` in both student solution code,
+while ``check_funtion()`` with ``index=1`` will look for the second function call. After this, the rest of the SCT chain behaves as before.
 
-This means that all of the following student submissions would be accepted:
+Methods
+=======
 
-  - `round(3.14159, 3); round(2.71828, 3)`
-  - `round(2.71828, 3); round(3.14159, 3)`
-  - `round(number=3.14159, ndigts=3); round(number=2.71828, 3)`
-  - `round(number=2.71828, 3); round(number=3.14159, 3)`
-  - `round(3.14159, 3); round(123.456); round(2.71828, 3)`
-  - `round(2.71828, 3); round(123.456); round(3.14159, 3)`
-
-Example 3: Functions in packages
-================================
-
-If you're testing whether function calls of particular packages are used correctly, you should always refer to these functions with their 'full name'.
-Suppose you want to test whether the function ``show`` of ``matplotlib.pyplot`` was called, use this SCT:
-
-.. code::
-
-    Ex().check_function("matplotlib.pyplot.show")
-
-``check_function()`` can handle it when a student used aliases for the python packages (all ``import`` and ``import * from *`` calls are supported).
-If the student did not properly call the function, ``check_function()`` will automatically generate a feedback message that corresponds to how the student imported the modules/functions.
-
-.. note:
-
-    No matter how you import the function, you always have to refer to the function with its full name, e.g. ``package.subpackage1.subpackage2.function``.
-
-Example 4: Manual signatures
-============================
-
-To implement resilience against different ways of specify function parameters, the ``inspect`` module is used, that is part of Python's basic distribution.
-Through ``inspect.signature()`` a function's parameters can be inferred, and then 'bound' to the arguments that the student specified.
-However, this signature is not available for all of Python's functions. More specifically, Python's built-in functions that are implemented in C don't allow a signature to be extracted from them.
-``pythonwhat`` already includes manually specified signatures for functions such as ``print()``, ``str()``, ``hasattr()``, etc, but it's still possible that some signatures are missing.
-
-That's why ``check_function()`` features a ``signature`` parameter, that is ``None`` by default.
-If ``pythonwhat`` can't retrieve a signature for the function you want to test,
-you can pass an object of the class ``inspect.Signature`` to the ``signature`` parameter.
-
-Suppose, for the sake of example, that ``check_function()`` can't find a signature for the ``round()`` function.
-In a real situation, you will be informed about a missing signature through a backend error.
-To be able to implement this SCT, you can use the ``sig_from_params()`` function:
-
-.. code::
-
-    sig = sig_from_params(param("number", param.POSITIONAL_OR_KEYWORD),
-                          param("ndigits", param.POSITIONAL_OR_KEYWORD, default=0))
-    Ex().check_function("round", signature=sig).multi(
-        check_args("number").has_equal_value(),
-        check_args("ndigits").has_equal_value()
-    )
-
-You can pass ``sig_from_params()`` as many parameters as you want.
-
-``param`` is an alias of the ``Parameter`` class that's inside the ``inspect`` module.
-- The first argument of ``param()`` should be the name of the parameter,
-- The second argument should be the 'kind' of parameter. ``param.POSITIONAL_OR_KEYWORD`` tells ``check_function`` that the parameter can be specified either through a positional argument or through a keyword argument.
-Other common possibilities are ``param.POSITIONAL_ONLY`` and ``param.KEYWORD_ONLY`` (for a full list, refer to the `docs <https://docs.python.org/3.4/library/inspect.html#inspect.Parameter>`_).
-- The third optional argument allows you to specify a default value for the parameter.  
-
-
-.. note:: 
-
-    If you find vital Python functions that are used very often and that are not included in ``pythonwhat`` by default, you can `let us know <mailto:content-engineering@datacamp.com>`_ and we'll add the function to our `list of manual signatures <https://github.com/datacamp/pythonwhat/blob/master/pythonwhat/signatures.py>`_.
-
-Example 5: Methods
-==================
-
-Python also features methods, i.e. functions that are called on objects. For testing this, you can also use ``check_function()``. Consider the following solution code, that creates a connection to an SQLite Database with ``sqlalchemy``.
+Methods are Python functions that are called on objects. For testing this, you can also use ``check_function()``.
+Consider the following solution code, that creates a connection to an SQLite Database with ``sqlalchemy``.
 
 .. code::
 
@@ -203,10 +319,6 @@ This way, you explicitly list the order in which the methods should have been ca
 
     Ex().check_function("connection.execute").check_args("object")
     Ex().check_function("connection.execute.fetchall")
-
-
-Example 6: Signatures for methods
-=================================
 
 In the previous example, you might have noticed that ``check_function()`` was capable to infer that ``connection`` is a ``Connection`` object, and that ``execute()`` is a method of the ``Connection`` class.
 For checking method calls that aren't chained, this is possible, but for chained method calls, such as ``connection.execute.fetchall``, this is not possible.
@@ -288,5 +400,5 @@ This SCT verifies that the first argument passed to sum is a list comprehension.
 
 .. code::
 
-   Ex().check_function('sum').check_args().check_list_comp().has_equal_ast()
+   Ex().check_function('sum').check_args().check_list_comp()
 
