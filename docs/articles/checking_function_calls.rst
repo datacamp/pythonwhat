@@ -84,6 +84,7 @@ As you can see, doing exact string comparison of arguments is not a good idea, a
 There are cases, however, where it makes sense to use this, e.g. when there are very big objects passed to functions,
 and you don't want to spend the processing power to fetch these objects from the coding processes.
 
+
 Functions in packages
 =====================
 
@@ -356,49 +357,4 @@ The following full example shows how it's done:
     You can also use the ``sig_from_params()`` function to manually build the signature from scratch,
     but this this more work than simply specifying the function object as a string from which to extract the signature.
 
-Example 7: Exotic Argument equality
-===================================
-
-Just as for objects, evaluated arguments are compared using the ``==`` operator. For a lot of complex objects, the implementation of ``==`` causes the object instances to be compared instead of their underlying meaning. Take this solution, for example:
-
-.. code::
-
-    from urllib.request import urlretrieve
-    fn1 = 'https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/Chinook.sqlite'
-    urlretrieve(fn1, 'Chinook.sqlite')
-    from sqlalchemy import create_engine
-    import pandas as pd
-    engine = create_engine('sqlite:///Chinook.sqlite')
-
-    # Execute query and store records in dataframe: df
-    df = pd.read_sql_query("SELECT * FROM Album", engine)
-
-With the following SCT:
-
-.. code::
-
-    Ex().check_function("pandas.read_sql_query").multi(
-        check_args("sql").has_equal_value(),
-        check_args("con").has_equal_ast()
-    )
-
-Notice that we needed to use ``has_equal_ast()`` to comparse the `engine` objects in student and solution code. As explained in `this subsection of the checking objects article <checking_objects.html#example-3-exotic-objects>`_, engine objects can not be properly compared.
-You can work around this by manually defining a so-called converter. To learn more about this, visit the `Processes article <processes.html>`_.
-
-
-Example 8: Deeper argument testing
-==================================
-
-Suppose you want to test whether a list comprehension was used to call the ``sum()`` function was used:
-
-.. code::
-
-    # call sum on a list comp
-    sum([i for i in range(10)])
-
-This SCT verifies that the first argument passed to sum is a list comprehension.
-
-.. code::
-
-   Ex().check_function('sum').check_args().check_list_comp()
 

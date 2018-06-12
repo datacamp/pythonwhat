@@ -98,7 +98,7 @@ When running the bottom two SCTs for the for_loop
 - ``for_loop.check_body().set_context(key = 'c', value = 3).has_equal_value()`` - runs the code in the for loop body, ``print(key + " - " + str(value))`` in the solution, and compares outputs. 
   Since this code may use variables the for loop defined, ``key`` and ``value``, we need to define them using ``set_context``.
 
-How are Context Values Matched?
+How are context values matched?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Context values are matched by position. For example, the submission and solution codes...
@@ -278,7 +278,7 @@ For example, the markdown source for the following exercise simply runs ``len(x)
 
     `@sct`
     ```{python}
-    Ex().has_equal_value(expr_code="len(x)")
+    Ex().check_object('x').has_equal_value(expr_code="len(x)")
     ```
    
 .. note::
@@ -286,6 +286,27 @@ For example, the markdown source for the following exercise simply runs ``len(x)
    Using ``expr_code`` does not change how expression tests perform highlighting. 
    This means that ``Ex().for_loop().has_equal_value(expr_code="x[0]")`` would highlight the body of the checked for loop.
 
+``func``: Override the equality function
+========================================
+
+After running the expression in question, the ``has_equal_x`` function will compare the result/output/error of the expression using a built-in equality function.
+This equality function is geared towards the types of objects you are trying to compare and does its job just fine in 99% of the cases.
+However, there are cases where you want to customize the equality operation. To do this, you can set ``func`` to be function that takes two arguments and returns a boolean.
+
+Reiterating over the example from the ``expr_code`` section above, you can write an equivalent SCT with ``func`` instead of ``expr_code``:
+
+.. code::
+
+    `@solution`
+    ```{python}
+    # keep x the same length
+    x = [1,2,3]
+    ```
+
+    `@sct`
+    ```{python}
+    Ex().check_object('x').has_equal_value(func = lambda x, y: len(x) == len(y))
+    ```
 
 ``call`` Syntax
 ===============
