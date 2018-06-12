@@ -73,14 +73,15 @@ def check_function(name, index=0,
     fmt_kwargs['typestr'] = typestr.format(**fmt_kwargs)
 
     # Get Parts ----
-    sol_parts = sol_out[name][index]
+    # Copy, otherwise signature binding overwrites sol_out[name][index]['args']
+    sol_parts = {**sol_out[name][index]}
 
     try:
-        stu_parts = stu_out[name][index]
+        # Copy, otherwise signature binding overwrites stu_out[name][index]['args']
+        stu_parts = {**stu_out[name][index]}
     except (KeyError, IndexError):
         _msg = state.build_message(missing_msg, fmt_kwargs)
         rep.do_test(Test(Feedback(_msg, state.highlight)))
-
 
     # Signatures -----
     if signature:
