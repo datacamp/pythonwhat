@@ -199,23 +199,27 @@ def objs_are(x, y, list_of_classes):
         any([isinstance(y, klass) for klass in list_of_classes])
     )
 
-
+# For equality of ndarrays, list, dicts, pd Series and pd DataFrames:
+# First try to the faster equality functions. If these don't pass,
+# Run the assertions that are typically slower.
 def is_equal(x, y):
         try:
             if objs_are(x, y, [np.ndarray, dict, list]):
-                # First check if the fast np.array_equal passes.
-                # If it fails, use np.testing.assert_equal as fallback
                 if np.array_equal(x, y): return True
                 np.testing.assert_equal(x, y)
                 return True
             elif objs_are(x, y, [map, filter]):
-                # First check if the fast np.array_equal passes.
-                # If it fails, use np.testing.assert_equal as fallback
                 if np.array_equal(list(x), list(y)): return True
                 np.testing.assert_equal(list(x), list(y))
                 return True
-            elif objs_are(x, y, [pd.DataFrame, pd.Series]):
-                return x.equals(y)
+            elif objs_are(x, y, [pd.DataFrame]):
+                if x.equals(y): return True
+                pd.util.testing.assert_frame_equal(x, y)
+                return True
+            elif objs_are(x, y, [pd.Series]):
+                if x.equals(y): return True
+                pd.util.testing.assert_series_equal(x, y)
+                return True
             elif objs_are(x, y, [Exception]):
                 return type(x) == type(y) and str(x) == str(y)
             else:
