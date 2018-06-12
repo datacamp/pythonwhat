@@ -31,10 +31,11 @@ Similar to how ``if`` statements has a ``check_if_else`` associated with it, all
 
 The table below summarizes all compound statements that ``pythonwhat`` supports.
 Code in all caps indicates the name of a piece of code that may be inspected using, ``check_{part}``, 
-where ``{part}`` is replaced by the name in caps (e.g. ``check_if_else().check_test()``). The concept of target variables will be explained later in this article.
+where ``{part}`` is replaced by the name in caps (e.g. ``check_if_else().check_test()``).
+The concept of context variables will be explained later in this article.
 
 +------------------------+------------------------------------------------------+-------------------+
-| check                  | parts                                                | target variables  |
+| check                  | parts                                                | context variables |
 +========================+======================================================+===================+
 |check_if_else()         | .. code::                                            |                   |
 |                        |                                                      |                   |
@@ -255,31 +256,37 @@ Special cases
 elif statements
 ~~~~~~~~~~~~~~~
 
-In Python, when an if-else statement has an elif clause, it is held in the ORELSE part,
+In Python, when an if-else statement has an ``elif`` clause, it is held in the `orelse` part.
+In this sense, an if-elif-else statement is represented by python as nested if-elses. More specifically, this if-else statement:
 
 .. code::
 
-  if TEST:
-      BODY
-  ORELSE        # elif and else portion
+    if x:
+        print(x)
+    elif y:
+        print(y)
+    else:
+        print('none')
 
-In this sense, an if-elif-else statement is represented by python as nested if-elses. For example, the final ``else`` below
-
-.. code::
-   
-   if x:   print(x)        # line 1
-   elif y: print(y)        #  ""  2
-   else:   print('none')   #  ""  3
-   
-can be checked with the following SCT
+Is syntactically equivalent to:
 
 .. code::
 
-   (Ex().check_if_else()                    # lines 1-3
-        .check_orelse().check_if_else()     # lines 2-3
-        .check_orelse().has_equal_output()  # line 3
-        )
+    if x:
+        print(x)
+    else:
+        if y:
+            print(y)
+        else:
+            print('none')
 
+The second representation has to be followed when writing the corresponding SCT:
+
+.. code::
+
+   Ex().check_if_else() \
+       .check_orelse().check_if_else() \
+       .check_orelse().has_equal_output()
 
 function definition / lambda args
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -292,7 +299,7 @@ For example, the arguments ``a`` and ``b`` below,
   def f(a, b=2, *some_name):
       BODY
 
-Could be tested using,
+Could be tested using:
 
 .. code::
 
@@ -300,7 +307,7 @@ Could be tested using,
           check_args('a').is_default(),
           check_args('b').is_default().has_equal_value(),
           check_args('*args', 'missing a starred argument!')
-          )
+  )
 
 Note that ``check_args('*args')`` and ``check_args('**kwargs')`` may be used to test ``*args``, and ``**kwargs`` style parameters, regardless of their name in the function definition.
 
