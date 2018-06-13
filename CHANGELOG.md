@@ -2,6 +2,21 @@
 
 All notable changes to the `pythonwhat` project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.12.2
+
+### Added
+
+- In `check_args()`, you can now use `['args', 0]` and `['kwargs', 'a']` to look for matched positional star args, and matched named star args.
+  The docs have been updated accordingly: https://pythonwhat.readthedocs.io/en/stable/articles/checking_function_calls.html
+
+### Changed
+
+- The equality checks for lists, dicts, numpy arrays, pandas dataframes and pandas series have been made faster, without compromising backwards compatibility.
+
+### Fixed
+
+- There was a nasty bug with signature binding when using `check_function()` for the same function when this function took only positional args. This would alleviate the need of any `signature=False` usage, once and for all!
+
 ## 2.12.1
 
 ### Added

@@ -31,13 +31,13 @@ Next, `check_args()` checks whether each argument was specified (you can also re
 Finally, `has_equal_value()` will rerun the expressions used to specify the arguments in both student and solution process, and compare them.
 The above SCT would accept all of the following submissions:
 
-- `round(2.718282, 3)`
-- `round(number=2.718282, 3)`
-- `round(number=2.718282, ndigits=3)`
-- `round(ndigits=3, number=2.718282)`
-- `val=2.718282; dig=3; round(val, dig)`
-- `val=2.718282; dig=3; round(number=val, dig)`
-- `int_part = 2; dec_part = 0.718282; round(int_part + dec_part, 3)`
+- ``round(2.718282, 3)``
+- ``round(number=2.718282, 3)``
+- ``round(number=2.718282, ndigits=3)``
+- ``round(ndigits=3, number=2.718282)``
+- ``val=2.718282; dig=3; round(val, dig)``
+- ``val=2.718282; dig=3; round(number=val, dig)``
+- ``int_part = 2; dec_part = 0.718282; round(int_part + dec_part, 3)``
 
 .. note::
 
@@ -76,9 +76,9 @@ you can use ``has_equal_ast()`` instead of ``has_equal_value()``:
 
 Now, the following submissions would fail:
 
-- `val=2.718282; dig=3; round(val, dig)` -- the string representation of ``val`` in the student code is compared to ``2.718282`` in the solution code.
-- `val=2.718282; dig=3; round(number=val, dig)` -- same
-- `int_part = 2; dec_part = 0.718282; round(int_part + dec_part, 3)` -- the string representation of ``int_part + dec_part`` in the student code is compered to ``2.718282`` in the solution code.
+- ``val=2.718282; dig=3; round(val, dig)`` -- the string representation of ``val`` in the student code is compared to ``2.718282`` in the solution code.
+- ``val=2.718282; dig=3; round(number=val, dig)`` -- same
+- ``int_part = 2; dec_part = 0.718282; round(int_part + dec_part, 3)`` -- the string representation of ``int_part + dec_part`` in the student code is compered to ``2.718282`` in the solution code.
 
 As you can see, doing exact string comparison of arguments is not a good idea, as it is very inflexible.
 There are cases, however, where it makes sense to use this, e.g. when there are very big objects passed to functions,
