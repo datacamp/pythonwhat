@@ -52,7 +52,7 @@ success_msg("Nice work!")
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check the body of the first <code>with</code> statement.", sct_payload['message'])
         # line info should be specific to test_function
-        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
+        helper.test_absent_lines(self, sct_payload)
 
     def test_Fail2(self):
         self.data["DC_SCT"] = '''
@@ -63,7 +63,7 @@ success_msg("Nice work!")
         self.assertFalse(sct_payload['correct'])
         self.assertNotIn("Check the body of the first <code>with</code>.", sct_payload['message'])
         # line info should be specific to test_function
-        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
+        helper.test_absent_lines(self, sct_payload)
 
     def test_Pass1(self):
         self.data["DC_SCT"] = '''
@@ -82,7 +82,7 @@ success_msg("Nice work!")
         self.assertFalse(sct_payload['correct'])
         self.assertNotIn("Check the body of the first <code>with</code>.", sct_payload['message'])
         # line info should be specific to test_function
-        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
+        helper.test_absent_lines(self, sct_payload)
 
     def test_Pass1_no_lam(self):
         self.data["DC_SCT"] = '''
@@ -108,7 +108,7 @@ Ex().check_with(0).check_body().with_context([test_function('print', index = i+1
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check the body of the first <code>with</code> statement.", sct_payload['message'])
         # line info should be specific to test_function
-        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
+        helper.test_absent_lines(self, sct_payload)
 
     def test_Pass1_spec2_no_ctx(self):
         self.data["DC_SCT"] = '''

@@ -591,14 +591,14 @@ test_function_v2("print", index = 3, params = ['value'])
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>print()</code> with the correct arguments?", sct_payload['message'])
-        helper.test_lines(self, sct_payload, 2, 2, 7, 10)
+        helper.test_absent_lines(self, sct_payload)
 
     def test_multiple_6(self):
         self.data["DC_CODE"] = 'print("abc")\nprint(123)\nprint([1, 2, 3, 4])'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Did you call <code>print()</code> with the correct arguments?", sct_payload['message'])
-        helper.test_lines(self, sct_payload, 3, 3, 7, 18)
+        helper.test_absent_lines(self, sct_payload)
 
 
 class TestStepByStep(unittest.TestCase):
