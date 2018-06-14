@@ -1,5 +1,6 @@
 import unittest
 import helper
+import pytest
 
 class TestIfElse(unittest.TestCase):
 
@@ -26,7 +27,7 @@ def condition_test():
 test_if_else(index=1,
              test = condition_test,
              body = lambda: test_student_typed('x\s*=\s*5', not_typed_msg = "you did something wrong"),
-             orelse = lambda: test_function('round', highlight=True))
+             orelse = lambda: test_function('round'))
 success_msg("Nice")
             '''
         }
@@ -42,7 +43,7 @@ condition_test = [
 test_if_else(index=1,
              test = condition_test,
              body = test_student_typed('x\s*=\s*5', not_typed_msg = "you did something wrong"),
-             orelse = test_function('round', highlight=True))
+             orelse = test_function('round'))
 success_msg("Nice")
             '''
 
@@ -246,7 +247,7 @@ def orelse_test():
     def body_test2():
         test_student_typed('7', not_typed_msg = 'incorrect_elif')
     def orelse_test2():
-        test_function('round', highlight=True)
+        test_function('round')
     test_if_else(index = 1,
                   test = test_test2,
                   body = body_test2,

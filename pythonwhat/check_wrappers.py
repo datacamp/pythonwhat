@@ -60,7 +60,7 @@ for k, v in __NODE_WRAPPERS__.items():
     scts['check_'+k] = partial(check_node, k+'s', typestr=v)
 scts['check_function'] = check_function
 
-for k in ['set_context', 'set_env',
+for k in ['set_context', 'set_env', 'disable_highlighting',
           'has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'has_equal_part_len', 'call',
           'extend', 'multi', 'test_not', 'fail', 'quiet', 'override',
           'with_context',

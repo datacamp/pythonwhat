@@ -16,60 +16,45 @@ class Reporter(object):
     active_reporter = None
 
     def __init__(self, error=None):
-        self.feedback = Feedback("Oh no, your solution is incorrect! Please, try again.")
         self.success_msg = "Great work!"
         self.error = error
         self.errors_allowed = False
-        self.failure_msg = ""
         self.fallback_ast = None
 
-    def do_test(self, testobj, prepend_on_fail="", fallback_ast=None):
+    def do_test(self, testobj):
         """Do test.
 
         Execute a given test, unless some previous test has failed. If the test has failed,
         the state of the reporter changes and the feedback is kept.
         """
-        if prepend_on_fail: self.failure_msg = prepend_on_fail
-        if fallback_ast: self.fallback_ast = fallback_ast
 
         if isinstance(testobj, Test):
             testobj.test()
             result = testobj.result
             if (not result):
-                self.feedback = testobj.get_feedback()
-                self.feedback.message = self.failure_msg + self.feedback.message
-                if not self.feedback.line_info and self.fallback_ast:
-                    self.feedback = Feedback(self.feedback.message, self.fallback_ast)
-
-                raise TestFail(self.feedback, self.build_failed_payload())
+                feedback = testobj.get_feedback()
+                raise TestFail(feedback, self.build_failed_payload(feedback))
 
         else:
             result = None
             testobj()    # run function for side effects
 
-        #self.failure_msg_stack.pop()
         return result
 
-    def build_failed_payload(self):
-        if not self.feedback.line_info:
+    def build_failed_payload(self, feedback):
+        if not feedback.line_info:
             return {
                 "correct": False,
-                "message": Reporter.to_html(self.feedback.message)
+                "message": Reporter.to_html(feedback.message)
                 }
         else:
-            # Hack to make it work with campus app implementation
-            if self.feedback.line_info["column_start"] is None:
-                col_start = None
-            else:
-                col_start = self.feedback.line_info["column_start"] + 1
-
             return {
                 "correct": False,
-                "message": Reporter.to_html(self.feedback.message),
-                "line_start": self.feedback.line_info["line_start"],
-                "column_start": col_start,
-                "line_end": self.feedback.line_info["line_end"],
-                "column_end": self.feedback.line_info["column_end"]
+                "message": Reporter.to_html(feedback.message),
+                "line_start": feedback.line_info["line_start"],
+                "column_start": feedback.line_info["column_start"] + 1,
+                "line_end": feedback.line_info["line_end"],
+                "column_end": feedback.line_info["column_end"]
                 }
 
     def build_final_payload(self):

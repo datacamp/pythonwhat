@@ -97,7 +97,7 @@ def is_instance(inst, not_instance_msg="FMT:Is it a {inst.__name__}?", state=Non
         raise ValueError("%r is not a %s in the solution environment" % (sol_name, type(inst)))
 
     _msg = state.build_message(not_instance_msg, {'inst': inst})
-    feedback = Feedback(_msg, state.highlight)
+    feedback = Feedback(_msg, state)
     rep.do_test(InstanceProcessTest(stu_name, inst, state.student_process, feedback))
 
     return state
@@ -137,7 +137,7 @@ def has_key(key, key_missing_msg=MSG_KEY_MISSING, state=None):
     # check if key available
     _msg = state.build_message(key_missing_msg, {'key': key})
     rep.do_test(DefinedCollProcessTest(stu_name, key, state.student_process, 
-                                       Feedback(_msg, state.highlight)))
+                                       Feedback(_msg, state)))
 
     return state
 
@@ -181,6 +181,6 @@ def has_equal_key(key, incorrect_value_msg=MSG_INCORRECT_VAL, key_missing_msg=MS
 
     # check if value ok
     _msg = state.build_message(incorrect_value_msg, {'key': key})
-    rep.do_test(EqualValueProcessTest(stu_name, key, state.student_process, sol_value, Feedback(_msg, state.highlight)))
+    rep.do_test(EqualValueProcessTest(stu_name, key, state.student_process, sol_value, Feedback(_msg, state)))
 
     return state

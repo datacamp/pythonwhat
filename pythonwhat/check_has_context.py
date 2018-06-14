@@ -18,7 +18,9 @@ def _test(state, incorrect_msg, exact_names, tv_name, highlight_name):
     # TODO: this could be rewritten to use check_part_index -> has_equal_part, etc..
     stu_vars = state.student_parts[tv_name]
     sol_vars = state.solution_parts[tv_name]
-    stu_target = state.student_parts.get(highlight_name) # TODO should be node?
+
+    child_state = state.to_child_state(student_subtree = state.student_parts.get(highlight_name),
+                                       solution_subtree = state.solution_parts.get(highlight_name))
 
     # variables exposed to messages
     d = { 'stu_vars': stu_vars, 
@@ -29,12 +31,12 @@ def _test(state, incorrect_msg, exact_names, tv_name, highlight_name):
         # message for wrong iter var names
         _msg = state.build_message(incorrect_msg, d)
         # test
-        rep.do_test(EqualTest(stu_vars, sol_vars, Feedback(_msg, stu_target)))
+        rep.do_test(EqualTest(stu_vars, sol_vars, Feedback(_msg, child_state)))
     else:
         # message for wrong number of iter vars
         _msg = state.build_message(incorrect_msg, d)
         # test
-        rep.do_test(EqualTest(len(stu_vars), len(sol_vars), Feedback(_msg, stu_target)))
+        rep.do_test(EqualTest(len(stu_vars), len(sol_vars), Feedback(_msg, child_state)))
 
     return state
 

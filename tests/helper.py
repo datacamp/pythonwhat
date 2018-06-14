@@ -50,9 +50,9 @@ def run(data, run_code = True):
                 sol_process = StubProcess()
                 error = None
 
-            sct_output = io.StringIO()
-            with redirect_stdout(sct_output):
-                res = test_exercise(sct=sct,
+            # sct_output = io.StringIO()
+            # with redirect_stdout(sct_output):
+            res = test_exercise(sct=sct,
                                     student_code=stu_code,
                                     solution_code=sol_code,
                                     pre_exercise_code=pec,
@@ -84,6 +84,18 @@ def test_absent_lines(test, sct_payload):
     test.assertFalse('line_end' in sct_payload)
     test.assertFalse('column_start' in sct_payload)
     test.assertFalse('column_end' in sct_payload)
+
+def with_line_info(output, ls, le, cs, ce):
+    assert output['line_start'] == ls
+    assert output['line_end'] == le
+    assert output['column_start'] == cs
+    assert output['column_end'] == ce
+
+def no_line_info(output):
+    assert 'line_start' not in output
+    assert 'line_end' not in output
+    assert 'column_start' not in output
+    assert 'column_end' not in output
 
 def test_builtin(test, name, params, arguments):
     test.data = {

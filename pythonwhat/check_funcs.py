@@ -6,6 +6,11 @@ from types import GeneratorType
 from functools import partial
 import copy
 
+class StubState():
+    def __init__(self, highlight, highlighting_disabled):
+        self.highlight = highlight
+        self.highlighting_disabled = highlighting_disabled
+
 def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
     # stu_part and sol_part will be accessible on all templates
     append_message['kwargs'].update({'stu_part': stu_part, 'sol_part': sol_part})
@@ -30,7 +35,6 @@ def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
 
 def check_part(name, part_msg, state=None, missing_msg="Are you sure it's defined?", expand_msg=""):
     """Return child state with name part as its ast tree"""
-    rep = Reporter.active_reporter
 
     if not part_msg: part_msg = name
     append_message = {'msg': expand_msg, 'kwargs': {'part': part_msg,}}
@@ -52,8 +56,6 @@ def check_part_index(name, index, part_msg,
     - a string, in which case the student/solution_parts are expected to be a dictionary.
     - a list of indices (which can be integer or string), in which case the student parts are indexed step by step.
     """
-
-    rep = Reporter.active_reporter
 
     # create message
     ordinal = get_ord(index+1) if isinstance(index, int) else ""
@@ -98,7 +100,7 @@ def check_node(name, index=0, typestr='{ordinal} node', missing_msg=MSG_MISSING,
     try: stu_out[index]
     except (KeyError, IndexError):                  # TODO comment errors
         _msg = state.build_message(missing_msg, fmt_kwargs)
-        rep.do_test(Test(Feedback(_msg, state.highlight)))
+        rep.do_test(Test(Feedback(_msg, state)))
 
     # get node at index
     stu_part = stu_out[index]
@@ -131,7 +133,7 @@ def has_part(name, msg, state=None, fmt_kwargs=None, index=None):
         if part is None: raise KeyError
     except (KeyError, IndexError):
         _msg = state.build_message(msg, d)
-        rep.do_test(Test(Feedback(_msg, state.highlight)))
+        rep.do_test(Test(Feedback(_msg, state)))
 
     return state
 
@@ -143,7 +145,7 @@ def has_equal_part(name, msg, state):
          'name': name}
 
     _msg = state.build_message(msg, d)
-    rep.do_test(EqualTest(d['stu_part'][name], d['sol_part'][name], Feedback(_msg, state.highlight)))
+    rep.do_test(EqualTest(d['stu_part'][name], d['sol_part'][name], Feedback(_msg, state)))
 
     return state
 
@@ -176,7 +178,7 @@ def has_equal_part_len(name, unequal_msg, state=None):
 
     if d['stu_len'] != d['sol_len']:
         _msg = state.build_message(unequal_msg, d)
-        rep.do_test(Test(Feedback(_msg, state.highlight)))
+        rep.do_test(Test(Feedback(_msg, state)))
 
     return state
 
@@ -203,8 +205,7 @@ def multi(*args, state=None):
         for test in args:
             # assume test is function needing a state argument
             # partial state so reporter can test
-            closure = partial(test, state=state)
-            rep.do_test(closure, "", state.highlight)
+            rep.do_test(partial(test, state=state))
 
     # return original state, so can be chained
     return state
@@ -235,7 +236,7 @@ def fail(msg="", state=None):
     """Fail test with message"""
     rep = Reporter.active_reporter
     _msg = state.build_message(msg)
-    rep.do_test(Test(Feedback(_msg, state.highlight)))
+    rep.do_test(Test(Feedback(_msg, state)))
 
     return state
 
@@ -301,8 +302,7 @@ def with_context(*args, state=None):
         if breakDownNewEnvInProcess(process = state.student_process):
 
             rep.do_test(Test(Feedback("Your `with` statement can not be closed off correctly, you're " + \
-                            "not using the context manager correctly.", state.highlight)),
-                        fallback_ast = state.highlight)
+                            "not using the context manager correctly.", state)))
     return state
 
 def set_context(*args, state=None, **kwargs):
@@ -404,6 +404,9 @@ def set_env(state = None, **kwargs):
     sol_new = sol_crnt.update(kwargs)
 
     return state.to_child_state(student_env = stu_new, solution_env = sol_new)
+
+def disable_highlighting(state = None):
+    return state.to_child_state(highlighting_disabled = True)
 
 def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
     """Check whether a function argument is specified.
@@ -588,13 +591,14 @@ def call(args,
 
     # either error test and no error, or vice-versa
     stu_node = state.student_parts['node']
+    stu_state = StubState(stu_node, state.highlighting_disabled)
     if (test == 'error') ^ isinstance(str_stu, Exception):
         _msg = state.build_message(error_msg, fmt_kwargs)
-        rep.do_test(Test(Feedback(_msg, stu_node)))
+        rep.do_test(Test(Feedback(_msg, stu_state)))
 
     # incorrect result
     _msg = state.build_message(incorrect_msg, fmt_kwargs)
-    rep.do_test(EqualTest(eval_sol, eval_stu, Feedback(_msg, stu_node), func))
+    rep.do_test(EqualTest(eval_sol, eval_stu, Feedback(_msg, stu_state), func))
 
     return state
 
@@ -659,9 +663,9 @@ def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solut
     _msg = state.build_message(incorrect_msg)
 
     if exact:
-        rep.do_test(EqualTest(stu_rep, sol_rep, Feedback(_msg, state.highlight)))
+        rep.do_test(EqualTest(stu_rep, sol_rep, Feedback(_msg, state)))
     elif not sol_rep in stu_rep:
-        rep.do_test(Test(Feedback(_msg, state.highlight)))
+        rep.do_test(Test(Feedback(_msg, state)))
 
     return state
 
@@ -676,19 +680,12 @@ def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
              pre_code=None,
              expr_code=None,
              name=None,
-             highlight=None,
              copy=True,
              func=None,
              state=None,
              test=None):
 
     rep = Reporter.active_reporter
-
-    # run function to highlight a block of code
-    if callable(highlight):
-        try:    highlight = highlight(state=state).student_tree
-        except: pass
-    highlight = highlight or state.highlight
 
     get_func = partial(evalCalls[test], 
                        extra_env = extra_env,
@@ -726,17 +723,17 @@ def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
     # error in process
     if (test == 'error') ^ isinstance(str_stu, Exception):
         _msg = state.build_message(error_msg, fmt_kwargs)
-        feedback = Feedback(_msg, highlight)
+        feedback = Feedback(_msg, state)
         rep.do_test(Test(feedback))
 
     # name is undefined after running expression
     if isinstance(str_stu, UndefinedValue):
         _msg = state.build_message(undefined_msg, fmt_kwargs)
-        rep.do_test(Test(Feedback(_msg, highlight)))
+        rep.do_test(Test(Feedback(_msg, state)))
 
     # test equality of results
     _msg = state.build_message(incorrect_msg, fmt_kwargs)
-    rep.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, highlight), func))
+    rep.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, state), func))
 
     return state
 

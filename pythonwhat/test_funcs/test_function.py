@@ -7,6 +7,7 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord, get_num
 from pythonwhat.tasks import getResultInProcess, getSignatureInProcess, ReprFail
 from .test_or import test_or
+from pythonwhat.check_funcs import StubState
 
 def test_function(name,
                   index=1,
@@ -18,7 +19,6 @@ def test_function(name,
                   args_not_specified_msg=None,
                   incorrect_msg=None,
                   add_more=False,
-                  highlight=True,
                   state=None,
                   **kwargs):
     rep = Reporter.active_reporter
@@ -29,8 +29,6 @@ def test_function(name,
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
     eq_fun = eq_map[eq_condition]
-
-    student_process, solution_process = state.student_process, state.solution_process
 
     solution_calls = state.solution_function_calls
     student_calls = state.student_function_calls
@@ -50,11 +48,11 @@ def test_function(name,
         raise NameError("%r not in solution environment (often enough)" % name)
 
     _msg = state.build_message(not_called_msg)
-    rep.do_test(DefinedCollTest(name, student_calls, _msg))
+    rep.do_test(DefinedCollTest(name, student_calls, Feedback(_msg, state)))
 
-    rep.do_test(BiggerTest(len(student_calls[name]), index, _msg))
+    rep.do_test(BiggerTest(len(student_calls[name]), index, Feedback(_msg, state)))
 
-    solution_call, args_solution, keyw_solution, sol_name = solution_calls[name][index]['_spec1']
+    _, args_solution, keyw_solution, _ = solution_calls[name][index]['_spec1']
     keyw_solution = {keyword.arg: keyword.value for keyword in keyw_solution}
 
 
@@ -85,7 +83,8 @@ def test_function(name,
                 if feedback is None:
                     if not args_not_specified_msg:
                         args_not_specified_msg = dflt
-                    feedback = Feedback(args_not_specified_msg, student_call if highlight else None)
+                    _st = StubState(student_call, state.highlighting_disabled)
+                    feedback = Feedback(args_not_specified_msg, _st)
                 success = False
                 continue
 
@@ -106,7 +105,6 @@ def test_function(name,
                 test = build_test(arg_student, arg_solution,
                                   state,
                                   do_eval, eq_fun, msg, add_more=add_more,
-                                  highlight=arg_student if highlight else None,
                                   **kwargs)
                 test.test()
 
@@ -127,10 +125,9 @@ def test_function(name,
                         msg = incorrect_msg
                         add_more = False
 
-                    test = build_test(key_student, key_solution,
-                                      state,
+                    test = build_test(key_student, key_solution, state,
                                       do_eval, eq_fun, msg, add_more=add_more,
-                                      highlight=key_student if highlight else None, **kwargs)
+                                      **kwargs)
                     test.test()
 
                     if not test.result:
@@ -147,7 +144,7 @@ def test_function(name,
         if not success:
             if feedback is None:
                 _msg = state.build_message("You haven't used enough appropriate calls of `%s()`" % stud_name)
-                feedback = Feedback(_msg)
+                feedback = Feedback(_msg, state)
             rep.do_test(Test(feedback))
 
 def test_print(index = 1,
@@ -157,7 +154,6 @@ def test_print(index = 1,
                params_not_matched_msg="Have you correctly called `print()`?",
                params_not_specified_msg="Have you correctly called `print()`?",
                incorrect_msg="Have you printed out the correct object?",
-               highlight=True,
                state=None):
     test_function_v2("print",
                      index=index,
@@ -169,7 +165,7 @@ def test_print(index = 1,
                      params_not_matched_msg=params_not_matched_msg,
                      params_not_specified_msg=params_not_specified_msg,
                      incorrect_msg=incorrect_msg,
-                     highlight=highlight, state=state)
+                     state=state)
     """Test print() calls
 
     Utility function to test the print() function. For arguments, check test_function_v2()
@@ -186,7 +182,6 @@ def test_function_v2(name,
                      params_not_specified_msg=None,
                      incorrect_msg=None,
                      add_more=False,
-                     highlight=True,
                      state=None,
                      **kwargs):
     rep = Reporter.active_reporter
@@ -244,17 +239,17 @@ def test_function_v2(name,
         raise NameError("%r not in solution environment (often enough)" % name)
     # TODO: test if function name in dict of calls
     _msg = state.build_message(not_called_msg)
-    rep.do_test(DefinedCollTest(name, student_calls, _msg))
+    rep.do_test(DefinedCollTest(name, student_calls, Feedback(_msg, state)))
 
     # TODO: test if number of specific function calls is less than index
-    rep.do_test(BiggerTest(len(student_calls[name]), index, _msg))  # TODO
+    rep.do_test(BiggerTest(len(student_calls[name]), index, Feedback(_msg, state)))  # TODO
 
     # TODO pull into own function
     if len(params) > 0:
 
         # Parse Signature -----------------------------------------------------
         try:
-            sol_call, arguments, keywords, sol_name = solution_calls[name][index]['_spec1']
+            _, arguments, keywords, sol_name = solution_calls[name][index]['_spec1']
             sol_sig = getSignatureInProcess(name=name, mapped_name=sol_name,
                                             signature=signature,
                                             manual_sigs = state.get_manual_sigs(),
@@ -271,34 +266,28 @@ def test_function_v2(name,
         # Get all options (some function calls may be blacklisted)
         call_indices = state.get_options(name, list(range(len(student_calls[name]))), index)
 
-        feedback = None
-
         # Test all calls ------------------------------------------------------
         from functools import partial
         sub_tests = [partial(test_call, name, call_ind, signature, params, do_eval, solution_args, 
                              eq_fun, add_more, index,
                              params_not_specified_msg, params_not_matched_msg, incorrect_msg, 
-                             keywords, state=state, highlight = highlight, **kwargs)
+                             keywords, state=state, **kwargs)
                      for call_ind in call_indices]
         test_or(*sub_tests, state=state)
-
-        # TODO: AFAIK this was never called (and it isn't in the unit tests)
-        #if feedback is None:
-        #    feedback = Feedback("You haven't used enough appropriate calls of `%s()`." % stud_name)
-        #rep.do_test(Test(feedback))    # TODO: sub_call
-
 
 def test_call(name, call_ind, signature, params, do_eval, solution_args, 
               eq_fun, add_more, index,
               params_not_specified_msg, params_not_matched_msg, incorrect_msg, 
               keywords,  # pulled from solution process
-              state, highlight, **kwargs):
+              state, **kwargs):
     #stud_name = get_mapped_name(name, state.student_mappings)
 
     rep = Reporter.active_reporter
+    student_call, arguments, keywords, stud_name = state.student_function_calls[name][call_ind]['_spec1']
+    _student_call_state = StubState(student_call, state.highlighting_disabled)
+
     # Parse Signature for Submission. TODO: more info
     try:
-        student_call, arguments, keywords, stud_name = state.student_function_calls[name][call_ind]['_spec1']
         student_sig = getSignatureInProcess(name = name, mapped_name = stud_name,
                                             signature=signature,
                                             manual_sigs = state.get_manual_sigs(),
@@ -310,7 +299,8 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
             params_not_matched_msg = ("Something went wrong in figuring out how you specified the " + \
                 "arguments for `%s()`; have another look at your code and its output.") % stud_name
         _msg = state.build_message(params_not_matched_msg)
-        feedback = Feedback(_msg, student_call if highlight else None)
+
+        feedback = Feedback(_msg, _student_call_state)
         # run subtest
         rep.do_test(Test(feedback))    # TODO: sub_call
 
@@ -328,10 +318,10 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
         else:
             msg = params_not_specified_msg[param_ind]
         _msg = state.build_message(msg)
-        feedback = Feedback(_msg, student_call if highlight else None)
+        feedback = Feedback(_msg, _student_call_state)
         # run subtest
         rep.do_test(Test(feedback))    # TODO: sub_call
-    
+
     # TEST EACH PARAM
     for ind, param in enumerate(params):
         if do_eval[ind] is None: continue
@@ -341,7 +331,7 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
         test_arg(param, do_eval[ind],
                  arg_student, arg_solution, param_kind, stud_name,
                  eq_fun, add_more,
-                 incorrect_msg[ind], state=state, highlight = arg_student if highlight else None,
+                 incorrect_msg[ind], state=state,
                  **kwargs)
 
     # If all is still good, we have a winner!
@@ -350,7 +340,7 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
 def test_arg(param, do_eval, 
              arg_student, arg_solution, param_kind, stud_name,
              eq_fun, add_more,
-             incorrect_msg, state=None, highlight = None, **kwargs):
+             incorrect_msg, state=None, **kwargs):
     rep = Reporter.active_reporter
 
     if incorrect_msg is None:
@@ -363,7 +353,7 @@ def test_arg(param, do_eval,
 
     test = build_test(arg_student, arg_solution,
                         state,
-                        do_eval, eq_fun, msg, add_more = add_more, highlight=highlight,
+                        do_eval, eq_fun, msg, add_more = add_more,
                         **kwargs)
     # TODO
     rep.do_test(test)
@@ -381,7 +371,7 @@ def bind_args(signature, arguments, keyws):
     bound_args = signature.bind(*arguments, **keyws)
     return(bound_args.arguments, signature.parameters)
 
-def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more, highlight = False, **kwargs):
+def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more, **kwargs):
     got_error = False
     if do_eval:
 
@@ -410,13 +400,7 @@ def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more, highli
         eval_solution = ast.dump(sol)
 
     _msg = state.build_message(feedback_msg)
-    return(Test(Feedback(_msg, stud if highlight else None)) if got_error else
-        eq_fun(eval_student, eval_solution, Feedback(_msg, stud if highlight else None)))
-
-
-
-
-
-
-
+    _st = StubState(stud, state.highlighting_disabled)
+    return(Test(Feedback(_msg, _st)) if got_error else
+        eq_fun(eval_student, eval_solution, Feedback(_msg, _st)))
 

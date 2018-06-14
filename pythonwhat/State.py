@@ -79,7 +79,8 @@ class State(object):
                  student_context=None, solution_context=None,
                  student_env=None, solution_env=None,
                  student_parts=None, solution_parts=None, 
-                 highlight = None, messages=None, 
+                 highlight = None,
+                 highlighting_disabled = None, messages=None,
                  **kwargs):
 
         # Set basic fields from kwargs
@@ -108,6 +109,7 @@ class State(object):
         self.solution_env = Context(solution_env) if solution_env is None else solution_env
 
         self.highlight = self.student_tree if (not highlight) and self.parent_state else highlight
+        self.highlighting_disabled = highlighting_disabled
 
         self.converters = get_manual_converters()    # accessed only from root state
 
@@ -167,6 +169,7 @@ class State(object):
                              student_env=None, solution_env=None,
                              student_parts=None, solution_parts=None,
                              highlight = None,
+                             highlighting_disabled = None,
                              append_message="", node_name=""):
         """Dive into nested tree.
 
@@ -174,6 +177,10 @@ class State(object):
         student tree and solution tree. This is necessary when testing if statements or
         for loops for example.
         """
+
+        if highlighting_disabled:
+            pass
+            # import pdb; pdb.set_trace()
 
         if isinstance(student_subtree, list):
             student_subtree = wrap_in_module(student_subtree)
@@ -202,16 +209,22 @@ class State(object):
         else:
             student_env = self.student_env
 
+        if highlighting_disabled is None:
+            highlighting_disabled = self.highlighting_disabled
+
         if not isinstance(append_message, dict): 
             append_message =  {'msg': append_message, 'kwargs': {}}
 
         messages = [*self.messages, append_message]
 
         if not (solution_subtree and student_subtree):
+            if student_parts and solution_parts:
+                self.update(student_parts = student_parts, solution_parts = solution_parts)
             return self.update(student_context = student_context, solution_context = solution_context,
                                student_env = student_env, solution_env = solution_env,
-                               student_parts = student_parts, solution_parts = solution_parts,
-                               highlight = highlight, messages = messages)
+                               highlight = highlight,
+                               highlighting_disabled = highlighting_disabled,
+                               messages = messages)
 
         klass = State if not node_name else self.SUBCLASSES[node_name]
         child = klass(student_code = self.student_tree_tokens.get_text(student_subtree),
@@ -231,6 +244,7 @@ class State(object):
                       student_parts = student_parts,
                       solution_parts = solution_parts,
                       highlight = highlight,
+                      highlighting_disabled = highlighting_disabled,
                       messages = messages,
                       parent_state = self)
         return(child)

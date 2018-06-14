@@ -1,6 +1,5 @@
 from pythonwhat.Reporter import Reporter
-from pythonwhat.check_funcs import part_to_child
-from pythonwhat.test_funcs.test_function import bind_args
+from pythonwhat.check_funcs import part_to_child, StubState
 from pythonwhat.tasks import getSignatureInProcess
 from pythonwhat.utils import get_ord
 from pythonwhat.Test import Test
@@ -81,7 +80,7 @@ def check_function(name, index=0,
         stu_parts = {**stu_out[name][index]}
     except (KeyError, IndexError):
         _msg = state.build_message(missing_msg, fmt_kwargs)
-        rep.do_test(Test(Feedback(_msg, state.highlight)))
+        rep.do_test(Test(Feedback(_msg, state)))
 
     # Signatures -----
     if signature:
@@ -102,7 +101,7 @@ def check_function(name, index=0,
             stu_parts['args'] = bind_args(stu_sig, stu_parts['args'])
         except Exception:
             _msg = state.build_message(params_not_matched_msg, fmt_kwargs)
-            rep.do_test(Test(Feedback(_msg, stu_parts['node'])))
+            rep.do_test(Test(Feedback(_msg, StubState(stu_parts['node'], state.highlighting_disabled))))
 
     # three types of parts: pos_args, keywords, args (e.g. these are bound to sig)
     append_message = {'msg': expand_msg, 'kwargs': fmt_kwargs}
