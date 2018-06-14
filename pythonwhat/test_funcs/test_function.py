@@ -25,6 +25,8 @@ def test_function(name,
 
     index = index - 1
 
+    do_highlight = index == 0
+
     eq_map = {"equal": EqualTest}
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
@@ -83,7 +85,7 @@ def test_function(name,
                 if feedback is None:
                     if not args_not_specified_msg:
                         args_not_specified_msg = dflt
-                    _st = StubState(student_call, state.highlighting_disabled)
+                    _st = StubState(student_call, state.highlighting_disabled if do_highlight else True)
                     feedback = Feedback(args_not_specified_msg, _st)
                 success = False
                 continue
@@ -105,6 +107,7 @@ def test_function(name,
                 test = build_test(arg_student, arg_solution,
                                   state,
                                   do_eval, eq_fun, msg, add_more=add_more,
+                                  do_highlight=do_highlight,
                                   **kwargs)
                 test.test()
 
@@ -127,6 +130,7 @@ def test_function(name,
 
                     test = build_test(key_student, key_solution, state,
                                       do_eval, eq_fun, msg, add_more=add_more,
+                                      do_highlight=do_highlight,
                                       **kwargs)
                     test.test()
 
@@ -189,6 +193,8 @@ def test_function_v2(name,
     index = index - 1
     eq_map = {"equal": EqualTest}
 
+    do_highlight = index == 0
+
     # ARG CHECKS --------------------------------------------------------------
     if eq_condition not in eq_map:
         raise NameError("%r not a valid equality condition " % eq_condition)
@@ -218,15 +224,13 @@ def test_function_v2(name,
         raise NameError("Inside test_function_v2, make sure that incorrect_msg has the same length as params.")
 
     # STATE STUFF -------------------------------------------------------------
-    student_process, solution_process = state.student_process, state.solution_process
+    solution_process = state.solution_process
 
     solution_calls = state.solution_function_calls
     student_calls = state.student_function_calls
     student_mappings = state.student_mappings
-    solution_mappings = state.solution_mappings
 
     stud_name = get_mapped_name(name, student_mappings)
-    #sol_name = get_mapped_name(name, solution_mappings)
 
     if not_called_msg is None:
         if index == 0:
@@ -271,20 +275,21 @@ def test_function_v2(name,
         sub_tests = [partial(test_call, name, call_ind, signature, params, do_eval, solution_args, 
                              eq_fun, add_more, index,
                              params_not_specified_msg, params_not_matched_msg, incorrect_msg, 
-                             keywords, state=state, **kwargs)
+                             keywords, do_highlight=do_highlight, state=state, **kwargs)
                      for call_ind in call_indices]
         test_or(*sub_tests, state=state)
 
 def test_call(name, call_ind, signature, params, do_eval, solution_args, 
               eq_fun, add_more, index,
               params_not_specified_msg, params_not_matched_msg, incorrect_msg, 
-              keywords,  # pulled from solution process
+              keywords, # pulled from solution process
+              do_highlight,
               state, **kwargs):
     #stud_name = get_mapped_name(name, state.student_mappings)
 
     rep = Reporter.active_reporter
     student_call, arguments, keywords, stud_name = state.student_function_calls[name][call_ind]['_spec1']
-    _student_call_state = StubState(student_call, state.highlighting_disabled)
+    _student_call_state = StubState(student_call, state.highlighting_disabled if do_highlight else True)
 
     # Parse Signature for Submission. TODO: more info
     try:
@@ -331,7 +336,9 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
         test_arg(param, do_eval[ind],
                  arg_student, arg_solution, param_kind, stud_name,
                  eq_fun, add_more,
-                 incorrect_msg[ind], state=state,
+                 incorrect_msg[ind],
+                 do_highlight=do_highlight,
+                 state=state,
                  **kwargs)
 
     # If all is still good, we have a winner!
@@ -340,7 +347,8 @@ def test_call(name, call_ind, signature, params, do_eval, solution_args,
 def test_arg(param, do_eval, 
              arg_student, arg_solution, param_kind, stud_name,
              eq_fun, add_more,
-             incorrect_msg, state=None, **kwargs):
+             incorrect_msg, do_highlight,
+             state=None, **kwargs):
     rep = Reporter.active_reporter
 
     if incorrect_msg is None:
@@ -354,6 +362,7 @@ def test_arg(param, do_eval,
     test = build_test(arg_student, arg_solution,
                         state,
                         do_eval, eq_fun, msg, add_more = add_more,
+                        do_highlight=do_highlight,
                         **kwargs)
     # TODO
     rep.do_test(test)
@@ -371,7 +380,7 @@ def bind_args(signature, arguments, keyws):
     bound_args = signature.bind(*arguments, **keyws)
     return(bound_args.arguments, signature.parameters)
 
-def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more, **kwargs):
+def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more, do_highlight, **kwargs):
     got_error = False
     if do_eval:
 
@@ -400,7 +409,7 @@ def build_test(stud, sol, state, do_eval, eq_fun, feedback_msg, add_more, **kwar
         eval_solution = ast.dump(sol)
 
     _msg = state.build_message(feedback_msg)
-    _st = StubState(stud, state.highlighting_disabled)
+    _st = StubState(stud, state.highlighting_disabled if do_highlight else True)
     return(Test(Feedback(_msg, _st)) if got_error else
         eq_fun(eval_student, eval_solution, Feedback(_msg, _st)))
 
