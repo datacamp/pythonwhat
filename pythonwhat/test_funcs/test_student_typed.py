@@ -1,7 +1,7 @@
 from pythonwhat.Test import StringContainsTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
-
+from pythonwhat.Feedback import Feedback
 
 def has_code(text,
              pattern=True,
@@ -40,7 +40,7 @@ def has_code(text,
     student_code = state.student_code
 
     _msg = state.build_message(not_typed_msg)
-    rep.do_test(StringContainsTest(student_code, text, pattern, _msg))
+    rep.do_test(StringContainsTest(student_code, text, pattern, Feedback(_msg, state)))
 
     return state
 

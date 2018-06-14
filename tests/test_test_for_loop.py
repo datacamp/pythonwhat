@@ -16,7 +16,7 @@ for n in range(10):
 ''',
             "DC_SCT": '''
 test_for_loop(1,
-              lambda: test_function("range", highlight=True),
+              lambda: test_function("range"),
               lambda: test_object_after_expression("size", {"size": 1}, [1]))
 success_msg("Great!")
 '''
@@ -114,7 +114,7 @@ for index, area in enumerate(areas) :
             ''',
             "DC_SCT": '''
 msg = "loopinggonewrong"
-test_for_loop(1, for_iter=lambda msg=msg: test_function("enumerate", incorrect_msg = msg, highlight=True))
+test_for_loop(1, for_iter=lambda msg=msg: test_function("enumerate", incorrect_msg = msg))
 
 msg = "blabla"
 test_for_loop(1, body=lambda msg=msg: test_expression_output(incorrect_msg = msg, context_vals = [2, "test"]))
@@ -163,7 +163,7 @@ msg = "loopinggonewrong"
 forl = Ex().check_for_loop(0)
 
 forl.check_iter()\
-    .multi(test_function("enumerate", incorrect_msg=msg, highlight=True))
+    .multi(test_function("enumerate", incorrect_msg=msg))
 
 msg = "blabla"
 forl.check_body()\
@@ -191,7 +191,7 @@ Ex().check_for_loop(0)\
         .check_for_loop(0)\
         .check_body()\
         .set_context(jj=2)\
-        .multi(test_function('sum', incorrect_msg="wronginnerfor", highlight=True))
+        .multi(test_function('sum', incorrect_msg="wronginnerfor"))
         '''
         }
 

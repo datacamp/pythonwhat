@@ -1,6 +1,6 @@
 import unittest
 import helper
-
+import pytest
 
 class TestListCompStepByStep(unittest.TestCase):
 
@@ -15,8 +15,8 @@ test_list_comp(index=1,
                iter_vars_names=True,
                incorrect_iter_vars_msg=None,
                body=lambda: test_expression_result(context_vals = ['a', 2]),
-               ifs=[lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False], highlight=True),
-                    lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False], highlight=True)],
+               ifs=[lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False]),
+                    lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False])],
                insufficient_ifs_msg=None,
                expand_message=True)
             '''
@@ -96,8 +96,8 @@ test_list_comp(index=1,
                iter_vars_names=True,
                incorrect_iter_vars_msg=None,
                body=test_expression_result(context_vals = ['a', 2]),
-               ifs=[test_function_v2('isinstance', params = ['obj'], do_eval = [False], highlight=True),
-                    test_function_v2('isinstance', params = ['obj'], do_eval = [False], highlight=True)],
+               ifs=[test_function_v2('isinstance', params = ['obj'], do_eval = [False]),
+                    test_function_v2('isinstance', params = ['obj'], do_eval = [False])],
                insufficient_ifs_msg=None,
                expand_message=True)
             '''
@@ -124,8 +124,8 @@ test_list_comp(index=1,
                iter_vars_names=True,
                incorrect_iter_vars_msg='incorrectitervars',
                body=lambda: test_expression_result(context_vals = ['a', 2], incorrect_msg = 'bodyincorrect'),
-               ifs=[lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False], not_called_msg = 'notcalled1', incorrect_msg = 'incorrect2', highlight=True),
-                    lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False], not_called_msg = 'notcalled2', incorrect_msg = 'incorrect2', highlight=True)],
+               ifs=[lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False], not_called_msg = 'notcalled1', incorrect_msg = 'incorrect2'),
+                    lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False], not_called_msg = 'notcalled2', incorrect_msg = 'incorrect2')],
                insufficient_ifs_msg='insufficientifs')
             '''
         }
@@ -327,7 +327,7 @@ test_dict_comp(index=1,
                incorrect_iter_vars_msg=None,
                key=lambda: test_expression_result(context_vals = ['a']),
                value=lambda: test_expression_result(context_vals = ['a']),
-               ifs=[lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False], highlight=True)],
+               ifs=[lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False])],
                insufficient_ifs_msg=None,
                expand_message=True)
             '''
@@ -411,8 +411,8 @@ test_generator_exp(index=1,
                    iter_vars_names=True,
                    incorrect_iter_vars_msg=None,
                    body=lambda: test_expression_result(context_vals = ['a', 2]),
-                   ifs=[lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False], highlight=True),
-                        lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False], highlight=True)],
+                   ifs=[lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False]),
+                        lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False])],
                    insufficient_ifs_msg=None,
                    expand_message=True)
             '''

@@ -73,7 +73,7 @@ def test_object_after_expression(name,
     if not incorrect_msg:
         incorrect_msg = "Are you sure you assigned the correct value to `%s`?" % name
 
-    ass_node = state.student_object_assignments.get(name, {}).get('highlight')
+    state.highlight = state.student_object_assignments.get(name, {}).get('highlight')
 
     has_equal_value(
             incorrect_msg = incorrect_msg,
@@ -83,7 +83,6 @@ def test_object_after_expression(name,
             context_vals=context_vals,
             pre_code=pre_code,
             name = name,
-            highlight = ass_node,
             expr_code = expr_code,
             state=state,
             **kwargs)
