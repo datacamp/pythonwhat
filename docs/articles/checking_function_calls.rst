@@ -106,7 +106,7 @@ Signatures
 ==========
 
 The ``round()`` example earlier in this article showed that a student can call the function in a multitude of ways,
-specifying arguments by position, by keyword or a mix of those. To be robust against this, ``pythonwhat`` uses the concept of _argument binding_.
+specifying arguments by position, by keyword or a mix of those. To be robust against this, ``pythonwhat`` uses the concept of `argument binding`.
 
 More specifically, each function has a function signature. Given this signature and the way the function was called,
 argument binding can map each parameter you specified to an argument. This small demo fetches the signature of the ``open`` function and tries to
@@ -165,7 +165,7 @@ Let's see what happens when different calls are bound to their arguments:
     >>> sig.bind(3, 4, 5)
     <BoundArguments (args=(3, 4, 5))>
 
-Notice how now the list of arguments is grouped under a tuple with the name `args` in the bound arguments.
+Notice how now the list of arguments is grouped under a tuple with the name ``args`` in the bound arguments.
 To be able to check each of these arguments individually, ``pythonwhat`` allows you to do repeated indexing in ``check_args()``.
 Instead of specifying the name of an argument, you can specify a list of indices:
 
@@ -181,7 +181,7 @@ Instead of specifying the name of an argument, you can specify a list of indices
         check_args(["args", 2]).has_equal_value()
     )
 
-The `check_args()` subchains each zoom in on a particular tuple element of the bound `args` argument.
+The ``check_args()`` subchains each zoom in on a particular tuple element of the bound ``args`` argument.
 
 ``**kwargs`` example
 ~~~~~~~~~~~~~~~~~~~~
@@ -207,7 +207,7 @@ Let's see what happens when different calls are bound to their arguments:
     >>> sig.bind(c = 2, b = 3)
     <BoundArguments (kwargs={'b': 3, 'c': 2})>
 
-Notice how now the list of arguments is grouped under a dictionary name `kwargs` in the bound arguments.
+Notice how now the list of arguments is grouped under a dictionary name ``kwargs`` in the bound arguments.
 To be able to check each of these arguments individually, ``pythonwhat`` allows you to do repeated indexing in ``check_args()``.
 Instead of specifying the name of an argument, you can specify a list of indices:
 
@@ -222,7 +222,7 @@ Instead of specifying the name of an argument, you can specify a list of indices
         check_args(["kwargs", "b"]).has_equal_value()
     )
 
-The `check_args()` subchains each zoom in on a particular dictionary element of the bound `kwargs` argument.
+The ``check_args()`` subchains each zoom in on a particular dictionary element of the bound ``kwargs`` argument.
 
 Manual signatures
 ~~~~~~~~~~~~~~~~~

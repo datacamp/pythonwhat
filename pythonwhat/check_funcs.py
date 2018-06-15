@@ -406,6 +406,22 @@ def set_env(state = None, **kwargs):
     return state.to_child_state(student_env = stu_new, solution_env = sol_new)
 
 def disable_highlighting(state = None):
+    """Disable highlighting in the remainder of the SCT chain.
+
+    Include this function if you want to avoid that ``pythonwhat`` marks which part of the student submission is incorrect.
+
+    :Examples:
+
+        SCT that will mark the 'number' portion if it is incorrect::
+
+            Ex().check_function('round').check_args(0).has_equal_ast()
+
+        SCT chains that will not mark certain mistakes. The earlier you put the function, the more types of mistakes will no longer be highlighted::
+
+            Ex().disable_highlighting().check_function('round').check_args(0).has_equal_ast()
+            Ex().check_function('round').disable_highlighting().check_args(0).has_equal_ast()
+            Ex().check_function('round').check_args(0).disable_highlighting().has_equal_ast()
+    """
     return state.to_child_state(highlighting_disabled = True)
 
 def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
