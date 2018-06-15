@@ -119,3 +119,15 @@ def check_function_multiple_times():
     passes(s.check_function('print'))
     passes(s.check_function('print').check_args(0))
     passes(s.check_function('print').check_args('value'))
+
+@pytest.mark.parametrize('stu', [
+        'round(1.23, 2)',
+        'round(1.23, ndigits=2)',
+        'round(number=1.23, ndigits=2)'
+])
+def test_named_vs_positional(stu):
+    s = setup_state(sol_code = 'round(1.23, 2)', stu_code = stu)
+    passes(s.check_function('round').check_args(0).has_equal_value())
+    passes(s.check_function('round').check_args("number").has_equal_value())
+    passes(s.check_function('round').check_args(1).has_equal_value())
+    passes(s.check_function('round').check_args("ndigits").has_equal_value())
