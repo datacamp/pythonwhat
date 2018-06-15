@@ -2,6 +2,20 @@
 
 All notable changes to the `pythonwhat` project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.12.3
+
+### Added
+
+- Whether or not something should be highlighted can be specified through the state now
+- You can use `<other_fun>.disable_highlighting().<anohter_fun>` anywhere in the SCT chain to disable highlighting.
+
+### Changed
+
+- There are no more `highlight` arguments in any `pythonwhat` SCT functions.
+- `Feedback` now takes a state from which it reads which part should be highlighting and whether it should be highlighted.
+- Use of `StubState` to trick the system somewhat, should be refactored at some point, but works fine.
+- `test_function_v2()` and `test_function()` only higlight if the `index = 1`, i.e. when the first call of a certain function is being checked. Added tests (and updated other tests) accordingly.
+
 ## 2.12.2
 
 ### Added
