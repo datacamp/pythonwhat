@@ -331,26 +331,38 @@ The following full example shows how it's done:
 
     `@pre_exercise_code`
     ```{python}
-    class Test():
-        def __init__(self, a):
-            self.a = a
-
-        def set_a(self, value):
-            self.a = value
-            return(self)
-    x = Test(123)
+    import seaborn as sns
+    import pandas as pd
+    df = sns.load_dataset('tips')
     ```
 
     `@solution`
     ```{python}
-    x.set_a(843).set_a(102)
+    df.groupby(['tip', 'sex']).count()
     ```
 
     `@sct`
     ```{python}
-    sig = sig_from_obj('x.set_a')
-    Ex().check_function('x.set_a.set_a', params=['value'], signature=sig)
+    import pandas as pd
+    sig = sig_from_obj(pd.core.groupby.DataFrameGroupBy.count)
+    Ex().check_function('df.groupby.count', signature = sig).has_equal_value()
     ```
+
+In this example however, it wasn't really necessary to manually specify the signature,
+as there are no arguments to check in the first place. Therefore, you might as well set ``signature``
+to be ``False``, which skips the fetching of a signature and the binding or arguments altogether:
+
+.. code::
+
+    `@sct`
+    ```{python}
+    Ex().check_function('df.groupby.count', signature=False).has_equal_value()
+    ```
+
+**Watch out to do this as a one-stop solution to make your SCT run without errors:**
+if there are arguments to check, argument binding makes sure that various ways of
+calling the function can all work. Setting `signature=False` will skip this binding and your
+SCT will not accept perfectly valid student submissions!
 
 .. note::
 
