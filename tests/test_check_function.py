@@ -1,6 +1,5 @@
 import pytest
 import helper
-import unittest
 from pythonwhat.local import setup_state
 from pythonwhat.Test import TestFail as TF
 from pythonwhat.check_syntax import Chain

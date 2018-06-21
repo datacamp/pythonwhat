@@ -241,6 +241,29 @@ class TestHasEqualAst(unittest.TestCase):
         self.data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a")', exact=False)"""
         self.failing_submission()
 
+class TestNestedTestOrTeestCorrect(unittest.TestCase):
+    def setUp(self):
+        self.data = {
+            "DC_CODE": "x = round(2.23)",
+            "DC_SOLUTION": "x = round(5.234)",
+        }
+
+    def test_nested_test_or(self):
+        self.data["DC_SCT"] = """
+Ex().test_correct(
+    check_object("x").has_equal_value(),
+    test_or(
+        check_function("round").check_args('number').has_equal_value(),
+        test_or(
+            has_code('2'),
+            has_code('3')
+        )
+    )
+)
+        """
+        sct_payload = helper.run(self.data)
+        self.assertFalse(sct_payload['correct'])
+
 class TestOverride(unittest.TestCase):
     """
     This class is used to test overriding w/ correct and incorrect code. Tests are 
