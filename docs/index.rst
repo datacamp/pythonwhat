@@ -23,6 +23,12 @@ The reference docs become useful when you grasp all concepts and want to look up
    glossary
 
 .. toctree::
+   :maxdepth: 2
+   :caption: Reference
+
+   reference
+
+.. toctree::
    :maxdepth: 1
    :caption: Articles
 
@@ -38,11 +44,5 @@ The reference docs become useful when you grasp all concepts and want to look up
    articles/processes.rst
    articles/electives.rst
    articles/test_to_check.rst
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Reference
-
-   reference
 
 For details, questions and suggestions, `contact us <mailto:content-engineering@datacamp.com>`_.

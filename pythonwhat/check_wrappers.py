@@ -4,7 +4,7 @@ from pythonwhat.check_function import check_function
 from pythonwhat.check_has_context import has_context
 from pythonwhat.test_funcs.test_data_frame import check_df
 from pythonwhat.test_funcs.test_student_typed import has_code
-from pythonwhat.test_funcs.test_output_contains import has_output
+from pythonwhat.test_funcs.test_output_contains import has_output, has_printout
 from pythonwhat.test_funcs.test_import import has_import
 
 from pythonwhat import test_funcs
@@ -75,5 +75,6 @@ for k in ['check_object', 'is_instance', 'has_equal_key', 'has_key']:
 scts['check_df'] = check_df
 scts['has_import'] = has_import
 scts['has_output'] = has_output
+scts['has_printout'] = has_printout
 scts['has_code'] = has_code
 scts['has_context'] = has_context

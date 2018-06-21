@@ -6,6 +6,7 @@ Basic building blocks
 
 .. autofunction:: pythonwhat.test_funcs.test_student_typed.has_code
 .. autofunction:: pythonwhat.test_funcs.test_output_contains.has_output
+.. autofunction:: pythonwhat.test_funcs.test_output_contains.has_printout
 .. autofunction:: pythonwhat.test_funcs.test_import.has_import
 .. autofunction:: pythonwhat.check_funcs.has_equal_value
 .. autofunction:: pythonwhat.check_funcs.has_equal_error
