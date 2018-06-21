@@ -473,15 +473,16 @@ def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
             )
 
     """
-    if name in ['*args', '**kwargs']:
+    if name in ['*args', '**kwargs']: # for check_function_def
         return check_part(name, name, state=state, missing_msg = missing_msg)
     else:
-        def build_arg_str(name):
-            return "%s argument"%get_ord(name+1) if isinstance(name, int) else "argument `%s`"%name
         if isinstance(name, list):
-            arg_str = "{} matched through the `{}`".format(build_arg_str(name[1]), name[0])
+            if name[0] == 'args':
+                arg_str = "%s argument matched to the star args"%get_ord(name[1]+1)
+            else:
+                arg_str = "argument `%s`"%name[1]
         else:
-            arg_str = build_arg_str(name)
+            arg_str = "%s argument"%get_ord(name+1) if isinstance(name, int) else "argument `%s`"%name
         return check_part_index('args', name, arg_str, state=state, missing_msg = missing_msg)
 
 

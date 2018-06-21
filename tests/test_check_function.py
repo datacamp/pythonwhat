@@ -82,16 +82,17 @@ def test_args_kwargs_check_function_failing_not_specified():
     with pytest.raises(TF, match=msg):
         x.check_args(['kwargs', 'c'])
 
+@pytest.mark.debug
 def test_args_kwargs_check_function_failing_not_correct():
     s = setup_state(pec = 'def my_fun(a, b, *args, **kwargs): pass',
                     sol_code = 'my_fun(1, 2, 3, 4, c = 5)',
                     stu_code = 'my_fun(1, 2, 4, 5, c = 6)')
     x = s.check_function('my_fun')
-    with pytest.raises(TF):
+    with pytest.raises(TF, match='first argument matched to the star'):
         x.check_args(['args', 0]).has_equal_value()
-    with pytest.raises(TF):
+    with pytest.raises(TF, match='second argument matched to the star'):
         x.check_args(['args', 1]).has_equal_value()
-    with pytest.raises(TF):
+    with pytest.raises(TF, match='Check the argument `c` of the'):
         x.check_args(['kwargs', 'c']).has_equal_value()
 
 def test_check_function_with_has_equal_value():
