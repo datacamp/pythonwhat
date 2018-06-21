@@ -14,7 +14,7 @@ def passes(st):
         "print('1 2', '3')",
         "print('1 2', 3)",
     ])
-def test_basic_check_printout_passing(stu):
+def test_basic_has_printout_passing(stu):
     sol = 'print(1, 2, 3)'
     s = setup_state(stu_code=stu, sol_code=sol)
     passes(s.has_printout(0))
@@ -28,13 +28,13 @@ def test_basic_check_printout_passing(stu):
         "print('1 2 3 4')",
         "print('1 2', 3, 4)"
     ])
-def test_basic_check_printout_failing(stu):
+def test_basic_has_printout_failing(stu):
     sol = 'print(1, 2, 3)'
     s = setup_state(stu_code=stu, sol_code=sol)
     with pytest.raises(TF, match=r'Have you used `print\(1, 2, 3\)`'):
         s.has_printout(0)
 
-def test_basic_check_printout_failing_custom():
+def test_basic_has_printout_failing_custom():
     sol = 'print(1, 2, 3)'
     stu = 'print(1, 2)'
     s = setup_state(stu_code=stu, sol_code=sol)
@@ -49,7 +49,7 @@ def test_basic_check_printout_failing_custom():
         "print('1 2', '3')",
         "print('1 2', 3)",
     ])
-def test_check_printout_multiple(stu):
+def test_has_printout_multiple(stu):
     sol = 'print("randomness")\nprint(1, 2, 3)'
     s = setup_state(stu_code=stu, sol_code=sol)
     passes(s.has_printout(1))

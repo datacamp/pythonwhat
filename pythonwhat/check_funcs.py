@@ -478,7 +478,7 @@ def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
     else:
         if isinstance(name, list):
             if name[0] == 'args':
-                arg_str = "%s argument matched to the star args"%get_ord(name[1]+1)
+                arg_str = "%s argument passed as a variable length argument"%get_ord(name[1]+1)
             else:
                 arg_str = "argument `%s`"%name[1]
         else:
