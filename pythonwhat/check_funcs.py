@@ -158,7 +158,7 @@ def has_equal_part_len(name, unequal_msg, state=None):
     Arguments:
         name (str): name of the part for which to check the length to the corresponding part in the solution.
         unequal_msg (str): Message in case the lengths do not match.
-        state (State): state as passed by the SCT chain. Don't specify this.
+        state (State): state as passed by the SCT chain. Don't specify this explicitly.
 
     :Examples:
 

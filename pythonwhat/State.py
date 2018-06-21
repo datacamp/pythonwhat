@@ -178,10 +178,6 @@ class State(object):
         for loops for example.
         """
 
-        if highlighting_disabled:
-            pass
-            # import pdb; pdb.set_trace()
-
         if isinstance(student_subtree, list):
             student_subtree = wrap_in_module(student_subtree)
         if isinstance(solution_subtree, list):
