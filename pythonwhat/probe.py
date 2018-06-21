@@ -226,17 +226,19 @@ class Probe(object):
             # so need to tell it what its arg_name was on parent test
             test.arg_name = arg_name
             node.add_child(test)
-        elif callable(test): 
-            # test was inside a lambda or function containing subtests
+        elif callable(test):
+            # test was inside a lambda, function containing subtests or v2 F() chain object with subtests
             # since either may contain multiple subtests, we put them in a node list
             nl = NodeList(name = "ListDeferred", arg_name = arg_name)
             node.add_child(nl)
-            if tree is not None:
-                prev_node, tree.crnt_node = tree.crnt_node, nl
-                test()
-                tree.crnt_node = prev_node
-            else:
-                test()
+            # only when lambda or function containing subtests: execute to further build out tree
+            if inspect.isfunction(test):
+                if tree is not None:
+                    prev_node, tree.crnt_node = tree.crnt_node, nl
+                    test()
+                    tree.crnt_node = prev_node
+                else:
+                    test()
         elif test is not None:
             raise Exception("Expected a function or list/tuple/dict of functions")
 
