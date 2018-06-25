@@ -4,6 +4,7 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.utils import get_ord
 from types import GeneratorType
 from functools import partial
+import re
 import copy
 
 class StubState():
@@ -33,8 +34,19 @@ def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
                                 append_message = append_message)
 
 
-def check_part(name, part_msg, state=None, missing_msg="Are you sure it's defined?", expand_msg=""):
+DEFAULT_PART_MISSING_MSG="__JINJA__:Are you sure you defined the {{part}}? "
+DEFAULT_PART_EXPAND_MSG="__JINJA__:Did you correctly specify the {{part}}? "
+
+def check_part(name, part_msg,
+               missing_msg=None,
+               expand_msg=None,
+               state=None):
     """Return child state with name part as its ast tree"""
+
+    if missing_msg is None:
+        missing_msg=DEFAULT_PART_MISSING_MSG
+    if expand_msg is None:
+        expand_msg=DEFAULT_PART_EXPAND_MSG
 
     if not part_msg: part_msg = name
     append_message = {'msg': expand_msg, 'kwargs': {'part': part_msg,}}
@@ -46,8 +58,9 @@ def check_part(name, part_msg, state=None, missing_msg="Are you sure it's define
     return part_to_child(stu_part, sol_part, append_message, state)
 
 def check_part_index(name, index, part_msg,
-                     missing_msg="FMT:Are you sure it is defined?",
-                     state=None, expand_msg=""):
+                     missing_msg=None,
+                     expand_msg=None,
+                     state=None):
     """Return child state with indexed name part as its ast tree.
 
     ``index`` can be:
@@ -56,6 +69,11 @@ def check_part_index(name, index, part_msg,
     - a string, in which case the student/solution_parts are expected to be a dictionary.
     - a list of indices (which can be integer or string), in which case the student parts are indexed step by step.
     """
+
+    if missing_msg is None:
+        missing_msg=DEFAULT_PART_MISSING_MSG
+    if expand_msg is None:
+        expand_msg=DEFAULT_PART_EXPAND_MSG
 
     # create message
     ordinal = get_ord(index+1) if isinstance(index, int) else ""
@@ -83,9 +101,18 @@ def check_part_index(name, index, part_msg,
     # return child state from part
     return part_to_child(stu_part, sol_part, append_message, state)
 
-MSG_MISSING = "FMT:The system wants to check the {typestr} you defined but hasn't found it."
-MSG_PREPEND = "__JINJA__:Check the{{' ' + child['part']+ ' of the' if child['part']}} {{typestr}}. "
-def check_node(name, index=0, typestr='{ordinal} node', missing_msg=MSG_MISSING, expand_msg=MSG_PREPEND, state=None):
+NODE_MISSING_MSG = "FMT:The system wants to check the {typestr} but hasn't found it."
+NODE_PREPEND_MSG = "__JINJA__:Check the {{typestr}}. "
+def check_node(name, index=0, typestr='{ordinal} node',
+               missing_msg=None,
+               expand_msg=None,
+               state=None):
+
+    if missing_msg is None:
+        missing_msg=NODE_MISSING_MSG
+    if expand_msg is None:
+        expand_msg=NODE_PREPEND_MSG
+
     rep = Reporter.active_reporter
     stu_out = getattr(state, 'student_'+name)
     sol_out = getattr(state, 'solution_'+name)
@@ -424,7 +451,7 @@ def disable_highlighting(state = None):
     """
     return state.to_child_state(highlighting_disabled = True)
 
-def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
+def check_args(name, missing_msg='__JINJA__:Did you specify the {{part}}?', state=None):
     """Check whether a function argument is specified.
 
     This function can follow ``check_function()`` in an SCT chain and verifies whether an argument is specified.
@@ -476,14 +503,14 @@ def check_args(name, missing_msg='FMT:Are you sure it is defined?', state=None):
     if name in ['*args', '**kwargs']: # for check_function_def
         return check_part(name, name, state=state, missing_msg = missing_msg)
     else:
-        if isinstance(name, list):
+        if isinstance(name, list): # dealing with args or kwargs
             if name[0] == 'args':
                 arg_str = "%s argument passed as a variable length argument"%get_ord(name[1]+1)
             else:
                 arg_str = "argument `%s`"%name[1]
         else:
-            arg_str = "%s argument"%get_ord(name+1) if isinstance(name, int) else "argument `%s`"%name
-        return check_part_index('args', name, arg_str, state=state, missing_msg = missing_msg)
+            arg_str = "%s argument" % get_ord(name+1) if isinstance(name, int) else "argument `%s`" % name
+        return check_part_index('args', name, arg_str, missing_msg = missing_msg, state=state)
 
 
 # CALL CHECK ==================================================================
@@ -515,6 +542,20 @@ def fix_format(arguments):
 
     return(arguments)
 
+def stringify(arguments):
+    vararg = str(arguments['args'])[1:-1]
+    kwarg = ', '.join(['%s = %s' % (key, value) for key, value in arguments['kwargs'].items()])
+    if len(vararg) == 0:
+        if len(kwarg) == 0:
+            return "()"
+        else:
+            return "(" + kwarg + ")"
+    else :
+        if len(kwarg) == 0:
+            return "(" + vararg + ")"
+        else :
+            return "(" + ", ".join([vararg, kwarg]) + ")"
+
 # TODO: test string syntax with check_function_def
 #       test argument syntax with check_lambda_function
 def run_call(args, node, process, get_func, **kwargs):
@@ -538,14 +579,15 @@ def run_call(args, node, process, get_func, **kwargs):
         return get_func(process = process, tree=func_expr, call = fmt_args, **kwargs)
         
 
-MSG_CALL_INCORRECT = "FMT:Calling it should {action} `{str_sol}`, instead got `{str_stu}`."
-MSG_CALL_ERROR     = "FMT:Calling it should {action} `{str_sol}`, instead got an error."
-def call(args, 
-         test='value', 
-         incorrect_msg=MSG_CALL_INCORRECT, 
-         error_msg=MSG_CALL_ERROR, 
+MSG_CALL_INCORRECT = "__JINJA__:Calling `{{argstr}}` should {{action}} `{{str_sol}}`, instead got {{'no output' if str_stu == 'no output' else '`' + str_stu + '`'}}."
+MSG_CALL_ERROR     = "__JINJA__:Calling `{{argstr}}` should {{action}} `{{str_sol}}`, instead it errored out: `{{str_stu}}`."
+MSG_CALL_ERROR_INV = "__JINJA__:Calling `{{argstr}}` should {{action}} `{{str_sol}}`, instead got `{{str_stu}}`."
+def call(args,
+         test='value',
+         incorrect_msg=None,
+         error_msg=None,
          # TODO kept for backwards compatibility in test_function_definition/lambda
-         argstr='',
+         argstr=None,
          func=None,
          state=None, **kwargs):
     """Call function definition so you can compare value/output/error generated.
@@ -579,8 +621,19 @@ def call(args,
                 call([3], "value"),           # as list, compare return value
                 call([3], "output")           # as list, compare output generated
             )
-
     """
+
+    if incorrect_msg is None:
+        incorrect_msg = MSG_CALL_INCORRECT
+    if error_msg is None:
+        error_msg = MSG_CALL_ERROR_INV if test == 'error' else MSG_CALL_ERROR
+
+    if argstr is None:
+        bracks = stringify(fix_format(args))
+        if hasattr(state.student_parts['node'], 'name'):  # Lambda function doesn't have name
+            argstr = state.student_parts['node'].name + bracks
+        else:
+            argstr = 'with arguments `{}`'.format(bracks)
 
     rep = Reporter.active_reporter
 
@@ -591,25 +644,25 @@ def call(args,
     # Run for Solution --------------------------------------------------------
     eval_sol, str_sol = run_call(args, state.solution_parts['node'], state.solution_process, get_func, **kwargs)
 
-    if (test == 'error') ^ isinstance(str_sol, Exception):
-        _msg = state.build_message("FMT:Calling for arguments {args} resulted in an error (or not an error if testing for one). Error message: {type_err} {str_sol}",
-                                   dict(args=args, type_err=type(str_sol), str_sol=str_sol))
+    if (test == 'error') ^ isinstance(eval_sol, Exception):
+        _msg = state.build_message("FMT:Calling {argstr} resulted in an error (or not an error if testing for one). Error message: {type_err} {str_sol}",
+                                   dict(args=args, type_err=type(eval_sol), str_sol=str_sol))
         raise ValueError(_msg)
 
     if isinstance(eval_sol, ReprFail):
-        _msg = state.build_message("FMT:Can't get the result of calling it for arguments {args}: {eval_sol.info}",
+        _msg = state.build_message("FMT:Can't get the result of calling {argstr}: {eval_sol.info}",
                                    dict(args = args, eval_sol=eval_sol))
         raise ValueError(_msg)
 
     # Run for Submission ------------------------------------------------------
     eval_stu, str_stu = run_call(args, state.student_parts['node'], state.student_process, get_func, **kwargs)
-    action_strs = {'value': 'result in', 'output': 'output', 'error': 'error with the message'}
+    action_strs = {'value': 'return', 'output': 'output', 'error': 'error out with the message'}
     fmt_kwargs = {'part': argstr, 'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu, 'action': action_strs[test]}
 
     # either error test and no error, or vice-versa
     stu_node = state.student_parts['node']
     stu_state = StubState(stu_node, state.highlighting_disabled)
-    if (test == 'error') ^ isinstance(str_stu, Exception):
+    if (test == 'error') ^ isinstance(eval_stu, Exception):
         _msg = state.build_message(error_msg, fmt_kwargs)
         rep.do_test(Test(Feedback(_msg, stu_state)))
 
@@ -686,12 +739,15 @@ def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solut
 
     return state
 
-DEFAULT_INCORRECT_MSG="__JINJA__:Unexpected expression {{test}}: expected `{{sol_eval}}`, got `{{stu_eval}}`{{' with values ' + extra_env if extra_env}}."
-DEFAULT_ERROR_MSG="Running an expression in the student process caused an issue."
-DEFAULT_UNDEFINED_MSG="FMT:Have you defined `{name}` without errors?"
-def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
-             error_msg=DEFAULT_ERROR_MSG,
-             undefined_msg=DEFAULT_UNDEFINED_MSG,
+DEFAULT_INCORRECT_MSG="__JINJA__:Expected {{'' if test == 'value' else 'the {{test}} '}}`{{sol_eval}}`, but got `{{stu_eval}}`."
+DEFAULT_ERROR_MSG="__JINJA__:Rerunning {{'it' if parent['part'] else 'the higlighted expression'}} generated an error: `{{stu_str}}`."
+DEFAULT_ERROR_MSG_INV="__JINJA__:Rerunning {{'it' if parent['part'] else 'the higlighted expression'}} didn't generate an error, but it should!"
+DEFAULT_UNDEFINED_NAME_MSG="__JINJA__:Running {{'it' if parent['part'] else 'the higlighted expression'}} should define a variable `{{name}}` without errors, but it doesn't."
+DEFAULT_INCORRECT_NAME_MSG="__JINJA__:Are you sure you assigned the correct value to `{{name}}`?"
+def has_expr(incorrect_msg=None,
+             error_msg=None,
+             undefined_msg=None,
+             append=None,
              extra_env=None,
              context_vals=None,
              pre_code=None,
@@ -701,6 +757,15 @@ def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
              func=None,
              state=None,
              test=None):
+
+    if append is None: # if not specified, set to False if incorrect_msg was manually specified
+        append = incorrect_msg is None
+    if incorrect_msg is None:
+        incorrect_msg = DEFAULT_INCORRECT_MSG if name is None else DEFAULT_INCORRECT_NAME_MSG
+    if undefined_msg is None:
+        undefined_msg = DEFAULT_UNDEFINED_NAME_MSG
+    if error_msg is None:
+        error_msg = DEFAULT_ERROR_MSG_INV if test == 'error' else DEFAULT_ERROR_MSG
 
     rep = Reporter.active_reporter
 
@@ -718,9 +783,9 @@ def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
                                  context = state.solution_context,
                                  env = state.solution_env)
 
-    if (test == 'error') ^ isinstance(str_sol, Exception):
+    if (test == 'error') ^ isinstance(eval_sol, Exception):
         raise ValueError("Evaluating expression raised error in solution process (or not an error if testing for one). "
-                         "Error: {} - {}".format(type(str_sol), str_sol))
+                         "Error: {} - {}".format(type(eval_sol), str_sol))
     if isinstance(eval_sol, ReprFail):
         raise ValueError("Couldn't figure out the value of a default argument: " + eval_sol.info)
 
@@ -738,18 +803,19 @@ def has_expr(incorrect_msg=DEFAULT_INCORRECT_MSG,
 
     # tests ---
     # error in process
-    if (test == 'error') ^ isinstance(str_stu, Exception):
-        _msg = state.build_message(error_msg, fmt_kwargs)
+    if (test == 'error') ^ isinstance(eval_stu, Exception):
+        fmt_kwargs['stu_str'] = str_stu
+        _msg = state.build_message(error_msg, fmt_kwargs, append=append)
         feedback = Feedback(_msg, state)
         rep.do_test(Test(feedback))
 
     # name is undefined after running expression
-    if isinstance(str_stu, UndefinedValue):
-        _msg = state.build_message(undefined_msg, fmt_kwargs)
+    if isinstance(eval_stu, UndefinedValue):
+        _msg = state.build_message(undefined_msg, fmt_kwargs, append=append)
         rep.do_test(Test(Feedback(_msg, state)))
 
     # test equality of results
-    _msg = state.build_message(incorrect_msg, fmt_kwargs)
+    _msg = state.build_message(incorrect_msg, fmt_kwargs, append=append)
     rep.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, state), func))
 
     return state

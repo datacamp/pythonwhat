@@ -1,7 +1,7 @@
 from pythonwhat.Reporter import Reporter
 from pythonwhat.check_funcs import part_to_child, StubState
 from pythonwhat.tasks import getSignatureInProcess
-from pythonwhat.utils import get_ord
+from pythonwhat.utils import get_ord, get_times
 from pythonwhat.Test import Test
 from pythonwhat.Feedback import Feedback
 from pythonwhat.parsing import IndexedDict
@@ -16,14 +16,15 @@ def bind_args(signature, args_part):
     bound_args = signature.bind(*pos_args, **kw_args)
     return IndexedDict(bound_args.arguments)
 
-MSG_PREPEND = "__JINJA__:Check the {{child['part']+ ' of the' if child['part']}} {{typestr}}. "
+MISSING_MSG = "__JINJA__:Did you call `{{name}}()`{{times if index>0}}?"
+SIG_ISSUE_MSG = "__JINJA__:Have you specified the arguments for `{name}()` using the right syntax?"
+PREPEND_MSG = "__JINJA__:Check your {{ord if index>0}}call of `{{name}}()`. "
 def check_function(name, index=0,
-                   missing_msg = "FMT:Did you define the {typestr}?", 
-                   params_not_matched_msg = "FMT:Something went wrong in figuring out how you specified the "
-                                            "arguments for `{name}`; have another look at your code and its output.",
-                   expand_msg  = MSG_PREPEND, 
+                   missing_msg=None,
+                   params_not_matched_msg=None,
+                   expand_msg=None,
                    signature=True,
-                   typestr = "{ordinal} function call of `{name}()`",
+                   typestr="__JINJA__:`{name} function call{} of `{name}()`",
                    state=None):
     """Check whether a particular function is called.
 
@@ -59,17 +60,23 @@ def check_function(name, index=0,
 
             # Verify whether np.mean(arr) produced the same result
             Ex().check_function('numpy.mean').has_equal_value()
-
     """
+
+    if missing_msg is None:
+        missing_msg = MISSING_MSG
+    if expand_msg is None:
+        expand_msg = PREPEND_MSG
+    if params_not_matched_msg is None:
+        params_not_matched_msg = SIG_ISSUE_MSG
 
     rep = Reporter.active_reporter
     stu_out = state.student_function_calls
     sol_out = state.solution_function_calls
 
-    fmt_kwargs = {'ordinal': get_ord(index+1),
+    fmt_kwargs = {'times': get_times(index+1),
+                  'ord': get_ord(index+1),
                   'index': index,
                   'name': name}
-    fmt_kwargs['typestr'] = typestr.format(**fmt_kwargs)
 
     # Get Parts ----
     # Copy, otherwise signature binding overwrites sol_out[name][index]['args']
@@ -94,7 +101,7 @@ def check_function(name, index=0,
         except:
             raise ValueError("Something went wrong in matching call index {index} of {name} to its signature. "
                              "You might have to manually specify or correct the signature."
-                                    .format(index=index, name=name))
+                             .format(index=index, name=name))
 
         try:
             stu_sig = get_sig(mapped_name=stu_parts['name'], process=state.student_process)

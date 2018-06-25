@@ -142,7 +142,8 @@ class State(object):
 
         return(self.manual_sigs)
 
-    def build_message(self, tail="", fmt_kwargs=None):
+    def build_message(self, tail="", fmt_kwargs=None, append=True):
+
         if not fmt_kwargs: fmt_kwargs = {}
         out_list = []
         # add trailing message to msg list
@@ -162,7 +163,10 @@ class State(object):
 
             out_list.append(out)
 
-        return "".join(out_list)
+        if append:
+            return "".join(out_list)
+        else:
+            return out_list[-1]
 
     def to_child_state(self, student_subtree=None, solution_subtree=None,
                              student_context=None, solution_context=None,

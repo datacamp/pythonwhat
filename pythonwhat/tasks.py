@@ -286,7 +286,7 @@ def getResultFromProcess(res, tempname, process):
         value = getRepresentation(tempname, process)
         return (value, res)
     else: 
-        return (None,  res)
+        return (res, str(res))
 
 # decorator to automatically get value after running process task function
 def get_rep(f):
@@ -313,15 +313,15 @@ def get_output(f, process, shell, *args, **kwargs):
 
     out_str = out[0].strip()
     if not isinstance(res, Exception):
-        str_rep = out_str or "no output"
-        return (out_str, str_rep) 
+        toret = out_str or "no output"
+        return (toret, toret)
     else:
-        return (None, res)
+        return (res, str(res))
 
 @process_task
 def get_error(f, *args, **kwargs):
     res = f(*args, **kwargs)
-    return (res, res) if isinstance(res, Exception) else (None, res)
+    return (res, str(res)) if isinstance(res, Exception) else (None, res)
 
 # General tasks to eval or exec code, with decorated counterparts -------------
 
@@ -373,10 +373,7 @@ def taskRunEval(tree,
         # If name given, get from new_env
         if name:
             try:
-                if isinstance(name, ast.AST):
-                    obj = eval(compile(tree, "<script>", "eval"), new_env)
-                else:
-                    obj = eval(name, new_env)
+                obj = eval(name, new_env)
             except NameError:
                 return UndefinedValue()
 

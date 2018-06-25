@@ -4,9 +4,8 @@ from pythonwhat.utils import get_ord
 from pythonwhat.check_funcs import check_node, multi, check_part, call
 from functools import partial
 
-MSG_MISSING = "FMT:The system wants to check {typestr} you defined but hasn't found it."
+MSG_MISSING = "FMT:The system wants to check {typestr} but hasn't found it."
 MSG_PREPEND = "FMT:Check your definition of {typestr}. "
-MSG_PREPEND_ARG = "FMT:In your definition of {typestr}, "
 
 MSG_RES_ERROR = "FMT:Calling it with arguments `{argstr}` should result in `{str_sol}`, instead got an error."
 MSG_RES_INCORRECT = "FMT:Calling it with arguments `{argstr}` should result in `{str_sol}`, instead got `{str_stu}`."
@@ -72,19 +71,16 @@ def test_lambda_function(index,
 
     # make a temporary child states, to reflect that there were two types of 
     # messages prepended in the original function
-    quiet_child = get_func_child(expand_msg = "")
-    prep_child2 = get_func_child(expand_msg =  MSG_PREPEND_ARG if expand_message else "")
+    quiet_child = get_func_child(expand_msg="")
+    prep_child2 = get_func_child(expand_msg=MSG_PREPEND if expand_message else "")
 
     test_args(arg_names, arg_defaults, 
               nb_args_msg, arg_names_msg, arg_defaults_msg, 
               prep_child2, quiet_child)
 
-    multi(body, state=check_part('body', "", child))
+    multi(body, state=check_part('body', "", expand_msg=None if expand_message else "", state=child))
 
     # Test function calls -----------------------------------------------------
-
-    student_fun  = state.student_lambda_functions[index-1]['node']
-    solution_fun = state.solution_lambda_functions[index-1]['node']
 
     for el in results:
         argstr = el.replace('lam', '')

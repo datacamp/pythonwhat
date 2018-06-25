@@ -1,5 +1,6 @@
 import unittest
 import helper
+import pytest
 
 class TestFunctionDefinitionStepByStep(unittest.TestCase):
     def setUp(self):
@@ -8,35 +9,33 @@ class TestFunctionDefinitionStepByStep(unittest.TestCase):
             "DC_SOLUTION": "def test(a, b = 2):\n    print('prod of ' + str(a) + ' and ' + str(b))\n    return a * b",
             "DC_SCT": "test_function_definition('test', results = [[2, 3]], outputs = [[2,3]], errors = [['a', 'b']])"
         }
-
-    def test_step_x(self):
         self.data["DC_CODE"] = self.data["DC_SOLUTION"]
+
+    def tearDown(self):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
+
+    def test_step_x(self):
+        pass
 
     def test_step_x_spec2(self):
         self.data['DC_SCT'] = """
 cargs = {'args': [2, 3], 'kwargs': {}}
 eargs = {'args': ['a', 'b'], 'kwargs': {}}
-(Ex().check_function_def('test').call(cargs, 'value').call(cargs, 'output')
-                                .call(eargs, 'error'))
+(Ex().check_function_def('test').call(cargs, 'value').call(cargs, 'output').call(eargs, 'error'))
         """
-        self.test_step_x()
 
     def test_step_x_spec2_str_call(self):
         self.data['DC_SCT'] = """
 (Ex().check_function_def('test').call("f(1,2)", 'value').call("f(1,2)", 'output')
                                 .call("f('a','b')", 'error'))
 """
-        self.test_step_x()
 
     def test_step_x_spec2_func_arg(self):
         self.data['DC_SCT'] = """
 import numpy as np
 Ex().check_function_def('test').call("f(1,2)", func = lambda x, y: np.allclose(x, y))
-                                
 """
-        self.test_step_x()
 
 
 class TestExercise1(unittest.TestCase):
@@ -75,7 +74,7 @@ shout( 'help' )
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check your definition of <code>shout()</code>. Make sure to output the correct string.")
+        self.assertEqual(sct_payload['message'], "Make sure to output the correct string.")
         helper.test_lines(self, sct_payload, 3, 4, 5, 30)
 
     def test_Pass_no_lam(self):
@@ -361,7 +360,7 @@ def to_decimal(number, base = 3):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'In your definition of <code>to_decimal()</code>, the argument <code>base</code> does not have the correct default.')
+        self.assertEqual(sct_payload['message'], 'Check your definition of <code>to_decimal()</code>. The argument <code>base</code> does not have the correct default.')
         helper.test_lines(self, sct_payload, 2, 2, 31, 31)
 
     def test_Fail2(self):
@@ -411,7 +410,7 @@ def shout():
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'Check your definition of <code>shout()</code>. Are you sure you assigned the correct value to <code>shout_word</code>?')
+        self.assertEqual(sct_payload['message'], 'Check your definition of <code>shout()</code>. Did you correctly specify the body? Are you sure you assigned the correct value to <code>shout_word</code>?')
         # line info specific to test_object_after_expression!
         helper.test_lines(self, sct_payload, 3, 3, 5, 41)
 
@@ -422,7 +421,7 @@ def shout():
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'Check your definition of <code>shout()</code>. Are you sure you assigned the correct value to <code>shout_word</code>?')
+        self.assertEqual(sct_payload['message'], 'Check your definition of <code>shout()</code>. Did you correctly specify the body? Are you sure you assigned the correct value to <code>shout_word</code>?')
         # line info specific to test_object_after_expression!
         helper.test_lines(self, sct_payload, 3, 3, 5, 41)
 
@@ -472,7 +471,7 @@ def inc(num):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Calling <code>inc(-1)</code> doesn't result in an error, but it should.", sct_payload['message'])
+        self.assertEqual("Calling <code>inc(-1)</code> should error out with the message <code>num is negative</code>, instead got <code>0</code>.", sct_payload['message'])
 
     def test_fail_2(self):
         self.data["DC_CODE"] = '''
@@ -483,7 +482,7 @@ def inc(num):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Calling <code>inc(-1)</code> should result in a <code>ValueError</code>, instead got a <code>NameError</code>.", sct_payload['message'])
+        self.assertEqual("Calling <code>inc(-1)</code> should error out with the message <code>num is negative</code>, instead got <code>num is negative</code>.", sct_payload['message'])
 
 class TestFunctionDefintionError2(unittest.TestCase):
 
@@ -534,6 +533,7 @@ def inc(num):
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("wrongerror!", sct_payload['message'])
 
+@pytest.mark.debug
 class TestFunctionDefinitionOnlyReturn(unittest.TestCase):
     def test_pass(self):
         self.data = {
@@ -557,7 +557,7 @@ def shout(word):
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your definition of <code>shout()</code>. Have you defined <code>shout_word</code> without errors?", sct_payload['message'])
+        self.assertEqual("Check your definition of <code>shout()</code>. Did you correctly specify the body? Rerunning it generated an error: <code>name 'shout_word' is not defined</code>.", sct_payload['message'])
 
 class TestFunctionDefinitionNonLocal(unittest.TestCase):
     def test_pass(self):
@@ -653,7 +653,7 @@ def my_fun(x, y = 4, z = ['a', 'c']):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("In your definition of <code>my_fun()</code>, the argument <code>z</code> does not have the correct default.", sct_payload['message'])
+        self.assertEqual("Check your definition of <code>my_fun()</code>. The argument <code>z</code> does not have the correct default.", sct_payload['message'])
 
     def test_fail_5(self):
         self.data["DC_CODE"] = '''
@@ -662,7 +662,7 @@ def my_fun(x, y = 4, z = ['a', 'b']):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("In your definition of <code>my_fun()</code>, have you specified an argument to take a <code>*</code> argument and named it <code>args</code>?", sct_payload['message'])
+        self.assertEqual("Check your definition of <code>my_fun()</code>. Have you specified an argument to take a <code>*</code> argument and named it <code>args</code>?", sct_payload['message'])
 
     def test_fail_6a(self):
         self.data["DC_CODE"] = '''
@@ -671,7 +671,7 @@ def my_fun(x, y = 4, z = ['a', 'b'], *asdfasdf):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("In your definition of <code>my_fun()</code>, have you specified an argument to take a <code>*</code> argument and named it <code>args</code>?", sct_payload['message'])
+        self.assertEqual("Check your definition of <code>my_fun()</code>. Have you specified an argument to take a <code>*</code> argument and named it <code>args</code>?", sct_payload['message'])
 
 
     def test_fail_6b(self):
@@ -681,7 +681,7 @@ def my_fun(x, y = 4, z = ['a', 'b'], *args):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("In your definition of <code>my_fun()</code>, have you specified an argument to take a <code>**</code> argument and named it <code>kwargs</code>?", sct_payload['message'])
+        self.assertEqual("Check your definition of <code>my_fun()</code>. Have you specified an argument to take a <code>**</code> argument and named it <code>kwargs</code>?", sct_payload['message'])
 
     def test_fail_7a(self):
         self.data["DC_CODE"] = '''
@@ -690,7 +690,7 @@ def my_fun(x, y = 4, z = ['a', 'b'], *args, **asdfasdf):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("In your definition of <code>my_fun()</code>, have you specified an argument to take a <code>**</code> argument and named it <code>kwargs</code>?", sct_payload['message'])
+        self.assertEqual("Check your definition of <code>my_fun()</code>. Have you specified an argument to take a <code>**</code> argument and named it <code>kwargs</code>?", sct_payload['message'])
 
     def test_fail_7b(self):
         self.data["DC_CODE"] = '''
@@ -699,7 +699,7 @@ def my_fun(x, y = 4, z = ['a', 'b'], *args, **kwargs):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your definition of <code>my_fun()</code>. Have you defined <code>k</code> without errors?", sct_payload['message'])
+        self.assertEqual("Check your definition of <code>my_fun()</code>. Did you correctly specify the body? Running it should define a variable <code>k</code> without errors, but it doesn't.", sct_payload['message'])
 
     def test_fail_8(self):
         self.data["DC_CODE"] = '''
@@ -710,7 +710,7 @@ def my_fun(x, y = 4, z = ['a', 'b'], *args, **kwargs):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your definition of <code>my_fun()</code>. Are you sure you assigned the correct value to <code>k</code>?", sct_payload['message'])
+        self.assertEqual("Check your definition of <code>my_fun()</code>. Did you correctly specify the body? Are you sure you assigned the correct value to <code>k</code>?", sct_payload['message'])
 
     def test_fail_9(self):
         self.data["DC_CODE"] = '''

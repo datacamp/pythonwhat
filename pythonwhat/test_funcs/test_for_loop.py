@@ -3,8 +3,8 @@ from pythonwhat.check_funcs import check_part, check_node, multi
 
 from functools import partial
 
-MSG_MISSING = "FMT:Define more {typestr}."
-MSG_PREPEND = "FMT:Check the {child[part]} of the {ordinal} for loop. "
+MSG_MISSING = "FMT:Define more for loops."
+MSG_PREPEND = "FMT:Check the {typestr}. "
 
 def test_for_loop(index=1,
                   for_iter=None,
@@ -61,11 +61,10 @@ def test_for_loop(index=1,
         This SCT will evaluate to True as the function :code:`range` is used in the sequence and the function
         :code:`test_exression_output()` will pass on the body code.
     """
-    rep = Reporter.active_reporter
-    state = check_node('for_loops', index-1, "`for` loops", MSG_MISSING, MSG_PREPEND, state=state)
+    state = check_node('for_loops', index-1, "{ordinal} for loop", MSG_MISSING, MSG_PREPEND, state=state)
 
     # TODO for_iter is a level up, so shouldn't have targets set, but this is done is check_node
-    multi(for_iter, state = check_part('iter', 'sequence part', state))
-    multi(body,     state = check_part('body', 'body', state))
-    multi(orelse,   state = check_part('orelse', 'else part', state))
+    multi(for_iter, state = check_part('iter', 'sequence part', expand_msg=None if expand_message else "", state=state))
+    multi(body,     state = check_part('body', 'body', expand_msg=None if expand_message else "", state=state))
+    multi(orelse,   state = check_part('orelse', 'else part', expand_msg=None if expand_message else "", state=state))
 

@@ -84,7 +84,7 @@ else:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Unexpected expression", sct_payload['message'])
+        self.assertIn("Expected <code>", sct_payload['message'])
         helper.test_lines(self, sct_payload, 6, 6, 4, 14)
 
     def test_Fail2(self):
@@ -100,7 +100,7 @@ else:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check the body of the first <code>if</code> statement. you did something wrong", sct_payload['message'])
+        self.assertIn("Check the first if statement. Did you correctly specify the body? you did something wrong", sct_payload['message'])
         helper.test_lines(self, sct_payload, 7, 7, 5, 9)
 
     def test_Fail2a(self):
@@ -117,7 +117,7 @@ else:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check the body of the first <code>if</code> statement. you did something wrong", sct_payload['message'])
+        self.assertIn("Check the first if statement. Did you correctly specify the body? you did something wrong", sct_payload['message'])
         helper.test_lines(self, sct_payload, 7, 8, 5, 10)
 
     def test_Fail3(self):
@@ -293,7 +293,7 @@ else:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Unexpected expression", sct_payload['message'])
+        self.assertIn("Expected <code>", sct_payload['message'])
         helper.test_lines(self, sct_payload, 3, 3, 4, 13)
 
     def test_fail_if_body(self):
@@ -323,7 +323,7 @@ else:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Unexpected expression", sct_payload['message'])
+        self.assertIn("Expected <code>", sct_payload['message'])
         helper.test_lines(self, sct_payload, 5, 5, 6, 15)
 
     def test_fail_elif_body(self):
@@ -370,7 +370,7 @@ else:
         self.data["DC_SCT"] = helper.replace_test_if(self.data["DC_SCT"])
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Unexpected expression", sct_payload['message'])
+        self.assertIn("Expected <code>", sct_payload['message'])
         #helper.test_lines(self, sct_payload, 3, 3, 4, 13)
 
     def test_fail_if_body_if_exp(self):
@@ -387,7 +387,7 @@ else:
         self.data["DC_SCT"] = helper.replace_test_if(self.data["DC_SCT"])
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Unexpected expression", sct_payload['message'])
+        self.assertIn("Expected <code>", sct_payload['message'])
 
     def test_fail_else_body_if_exp(self):
         self.data["DC_SOLUTION"] = self.IF_EXP_SOLUTION

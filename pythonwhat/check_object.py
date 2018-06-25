@@ -6,9 +6,9 @@ from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getValueIn
 from pythonwhat.check_funcs import part_to_child, has_equal_value
 
 
-MSG_PREPEND = "FMT:Check the variable `{index}`. "
-MSG_UNDEFINED = "FMT:Are you sure you defined the {typestr}, `{index}`?"
-MSG_INCORRECT_VAL = """FMT: Have you specified the correct value for "{key}" inside `{parent[sol_part][name]}`?"""
+MSG_PREPEND = "__JINJA__:Did you correctly define the variable `{{index}}`? "
+MSG_UNDEFINED = "__JINJA__:Did you define the {{typestr}} `{{index}}` without errors?"
+MSG_INCORRECT_VAL = """FMT: Have you specified the correct value for `{key}` inside `{parent[sol_part][name]}`?"""
 MSG_KEY_MISSING = "__JINJA__:There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} inside {{parent.index}}."
 
 def check_object(index, missing_msg=MSG_UNDEFINED, expand_msg=MSG_PREPEND, state=None, typestr="variable"):
@@ -63,7 +63,7 @@ def check_object(index, missing_msg=MSG_UNDEFINED, expand_msg=MSG_PREPEND, state
 
     return child
 
-def is_instance(inst, not_instance_msg="FMT:Is it a {inst.__name__}?", state=None):
+def is_instance(inst, not_instance_msg="__JINJA__:Is it a {{inst.__name__}}?", state=None):
     """Check whether an object is an instance of a certain class.
 
     ``is_instance()`` can currently only be used when chained from ``check_object()``, the function that is

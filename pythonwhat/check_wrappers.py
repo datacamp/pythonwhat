@@ -10,7 +10,6 @@ from pythonwhat.test_funcs.test_import import has_import
 from pythonwhat import test_funcs
 from functools import partial
 import inspect
-#from jinja2 import Template
 
 __PART_WRAPPERS__ = {
         'iter': 'iterable part',

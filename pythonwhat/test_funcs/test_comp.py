@@ -6,12 +6,12 @@ from pythonwhat.check_funcs import check_node, check_part, check_part_index, mul
 from pythonwhat.check_has_context import has_context
 
 
-MSG_NOT_CALLED = "FMT:The system wants to check the {ordinal} {typestr} you defined but hasn't found it."
-MSG_PREPEND = "FMT:Check the {child[part]} of the {ordinal} {typestr}. "
+MSG_NOT_CALLED = "FMT:The system wants to check the {typestr} but hasn't found it."
+MSG_PREPEND = "FMT:Check the {typestr}. "
 
-MSG_INCORRECT_ITER_VARS = "FMT:Have you used the correct iterator variables in the {parent[ordinal]} {parent[typestr]}? Be sure to use the correct names."
-MSG_INCORRECT_NUM_ITER_VARS = "FMT:Have you used {num_vars} iterator variables in the {parent[ordinal]} {parent[typestr]}?"
-MSG_INSUFFICIENT_IFS = "FMT:Have you used {sol_len} ifs inside the {parent[ordinal]} {parent[typestr]}?"
+MSG_INCORRECT_ITER_VARS = "FMT:Have you used the correct iterator variables in the {parent[typestr]}? Be sure to use the correct names."
+MSG_INCORRECT_NUM_ITER_VARS = "FMT:Have you used {num_vars} iterator variables in the {parent[typestr]}?"
+MSG_INSUFFICIENT_IFS = "FMT:Have you used {sol_len} ifs inside the {parent[typestr]}?"
 
 def test_list_comp(index=1,
                    not_called_msg=None,
@@ -28,7 +28,7 @@ def test_list_comp(index=1,
 
     rep = Reporter.active_reporter
 
-    test_comp("list comprehension", 'list_comps', **(locals()))
+    test_comp("{ordinal} list comprehension", 'list_comps', **(locals()))
 
 def test_generator_exp(index=1,
                        not_called_msg=None,
@@ -44,7 +44,7 @@ def test_generator_exp(index=1,
     """
     rep = Reporter.active_reporter
 
-    test_comp("generator expression", 'generator_exps', **(locals()))
+    test_comp("{ordinal} generator expression", 'generator_exps', **(locals()))
 
 
 def test_dict_comp(index=1,
@@ -62,7 +62,7 @@ def test_dict_comp(index=1,
     """
     rep = Reporter.active_reporter
 
-    test_comp("dictionary comprehension", 'dict_comps', **(locals()))
+    test_comp("{ordinal} dictionary comprehension", 'dict_comps', **(locals()))
 
 
 def test_comp(typestr, comptype, index, iter_vars_names,
@@ -78,22 +78,22 @@ def test_comp(typestr, comptype, index, iter_vars_names,
     if not_called_msg is None: not_called_msg = MSG_NOT_CALLED
 
     # TODO MSG: function was not consistent with prepending, so use state w/o expand_message
-    quiet_state = check_node(comptype, index-1, typestr, not_called_msg, "", state)
+    quiet_state = check_node(comptype, index-1, typestr, not_called_msg, expand_msg="", state=state)
 
     # get comprehension
-    state = check_node(comptype, index-1, typestr, not_called_msg, expand_message, state)
+    state = check_node(comptype, index-1, typestr, not_called_msg, expand_msg=None if expand_message else "", state=state)
 
     # test comprehension iter and its variable names (or number of variables)
-    if comp_iter: multi(comp_iter, state=check_part("iter", "iterable part", state))
+    if comp_iter: multi(comp_iter, state=check_part("iter", "iterable part", state=state))
 
     # test iterator variables
     default_msg = MSG_INCORRECT_ITER_VARS if iter_vars_names else MSG_INCORRECT_NUM_ITER_VARS
     has_context(incorrect_iter_vars_msg or default_msg, iter_vars_names, state=quiet_state)
 
     # test the main expressions.
-    if body:   multi(body,  state=check_part("body", "body", state))        # list and gen comp
-    if key:    multi(key,   state=check_part("key", "key part", state))     # dict comp
-    if value:  multi(value, state=check_part("value", "value part", state)) # ""
+    if body:   multi(body,  state=check_part("body", "body", expand_msg=None if expand_message else "", state=state))        # list and gen comp
+    if key:    multi(key,   state=check_part("key", "key part", expand_msg=None if expand_message else "",  state=state))    # dict comp
+    if value:  multi(value, state=check_part("value", "value part", expand_msg=None if expand_message else "", state=state)) # ""
 
     # test a list of ifs. each entry corresponds to a filter in the comprehension.
     for i, if_test in enumerate(ifs or []):

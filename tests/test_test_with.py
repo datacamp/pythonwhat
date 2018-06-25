@@ -50,7 +50,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check the body of the first <code>with</code> statement.", sct_payload['message'])
+        self.assertIn("Check the first <code>with</code> statement. Did you correctly specify the body?", sct_payload['message'])
         # line info should be specific to test_function
         helper.test_absent_lines(self, sct_payload)
 
@@ -61,7 +61,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertNotIn("Check the body of the first <code>with</code>.", sct_payload['message'])
+        self.assertNotIn("Check the first <code>with</code> statement. Did you correctly specify the body?", sct_payload['message'])
         # line info should be specific to test_function
         helper.test_absent_lines(self, sct_payload)
 
@@ -80,7 +80,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertNotIn("Check the body of the first <code>with</code>.", sct_payload['message'])
+        self.assertNotIn("Check the first <code>with</code> statement. Did you correctly specify the body?", sct_payload['message'])
         # line info should be specific to test_function
         helper.test_absent_lines(self, sct_payload)
 
@@ -106,7 +106,7 @@ Ex().check_with(0).check_body().with_context([test_function('print', index = i+1
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check the body of the first <code>with</code> statement.", sct_payload['message'])
+        self.assertIn("Check the first <code>with</code> statement. Did you correctly specify the body?", sct_payload['message'])
         # line info should be specific to test_function
         helper.test_absent_lines(self, sct_payload)
 
@@ -168,7 +168,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "In your first <code>with</code> statement, make sure to use the correct number of context variables. It seems you defined too many.")
+        self.assertEqual(sct_payload['message'], "Check the first <code>with</code> statement. Make sure to use the correct number of context variables. It seems you defined too many.")
         helper.test_lines(self, sct_payload, 3, 6, 1, 17)
 
     def test_Fail2(self):
@@ -178,7 +178,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "In your second <code>with</code> statement, make sure to use the correct context variable names. Was expecting <code>file</code> but got <code>not_file</code>.")
+        self.assertEqual(sct_payload['message'], "Check the second <code>with</code> statement. Did you correctly specify the first context? Make sure to use the correct context variable names. Was expecting <code>file</code> but got <code>not_file</code>.")
         helper.test_lines(self, sct_payload, 12, 15, 1, 22)
 
 class TestExercise3(unittest.TestCase):
@@ -239,7 +239,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "In your first <code>with</code> statement, make sure to use the correct number of context variables. It seems you defined too little.")
+        self.assertEqual(sct_payload['message'], "Check the first <code>with</code> statement. Make sure to use the correct number of context variables. It seems you defined too little.")
         helper.test_lines(self, sct_payload, 3, 6, 1, 17)
 
     def test_Fail2(self):
@@ -251,7 +251,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check the second context of the second <code>with</code> statement. Did you call <code>open()</code> with the correct arguments? The first argument seems to be incorrect.")
+        self.assertEqual(sct_payload['message'], "Check the second <code>with</code> statement. Did you correctly specify the second context? Did you call <code>open()</code> with the correct arguments? The first argument seems to be incorrect.")
         helper.test_lines(self, sct_payload, 12, 12, 46, 60)
 
 class TestExercise4(unittest.TestCase):

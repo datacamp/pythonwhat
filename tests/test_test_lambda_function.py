@@ -20,7 +20,7 @@ test_lambda_function(1,
         self.data["DC_CODE"] = ""
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "The system wants to check the first lambda function you defined but hasn't found it.")
+        self.assertEqual(sct_payload['message'], "The system wants to check the first lambda function but hasn't found it.")
 
     def test_fail_2(self):
         self.data["DC_CODE"] = "echo_word = lambda wrd: wrd * 1"
@@ -33,21 +33,21 @@ test_lambda_function(1,
         self.data["DC_CODE"] = "echo_word = lambda wrd, echo: wrd * echo"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "In your definition of the first lambda function, the first argument should be called <code>word</code>, instead got <code>wrd</code>.")
+        self.assertEqual(sct_payload['message'], "Check your definition of the first lambda function. The first argument should be called <code>word</code>, instead got <code>wrd</code>.")
         helper.test_lines(self, sct_payload, 1, 1, 20, 22)
 
     def test_fail_4(self):
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 2: word * echo"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "In your definition of the first lambda function, the argument <code>echo</code> does not have the correct default.")
+        self.assertEqual(sct_payload['message'], "Check your definition of the first lambda function. The argument <code>echo</code> does not have the correct default.")
         helper.test_lines(self, sct_payload, 1, 1, 33, 33)
 
     def test_fail_5(self):
         self.data["DC_CODE"] = "echo_word = lambda word, echo = 1: 2 * echo"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check your definition of the first lambda function. Could not find the correct pattern in your code.")
+        self.assertEqual(sct_payload['message'], "Check your definition of the first lambda function. Did you correctly specify the body? Could not find the correct pattern in your code.")
         helper.test_lines(self, sct_payload, 1, 1, 36, 43)
 
     def test_fail_6(self):

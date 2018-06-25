@@ -221,7 +221,7 @@ test_function("print", index = 1, incorrect_msg = type_msg)
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'Check the body of the first <code>with</code> statement. Did you call <code>pickle.load()</code> with the correct arguments? The first argument seems to be incorrect.')
+        self.assertEqual(sct_payload['message'], 'Check the first <code>with</code> statement. Did you correctly specify the body? Did you call <code>pickle.load()</code> with the correct arguments? The first argument seems to be incorrect.')
 
     def  test_Fail_no_lam(self):
         self.data["DC_CODE"] = self.CODE_FAIL
@@ -239,7 +239,7 @@ test_function("print", index = 1)
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'Check the body of the first <code>with</code> statement. Did you call <code>pickle.load()</code> with the correct arguments? The first argument seems to be incorrect.')
+        self.assertEqual(sct_payload['message'], 'Check the first <code>with</code> statement. Did you correctly specify the body? Did you call <code>pickle.load()</code> with the correct arguments? The first argument seems to be incorrect.')
 
     def  test_Fail_exchain(self):
         self.data["DC_CODE"] = self.CODE_FAIL
@@ -257,7 +257,7 @@ Ex().test_function("print", index = 1)
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'Check the body of the first <code>with</code> statement. Did you call <code>pickle.load()</code> with the correct arguments? The first argument seems to be incorrect.')
+        self.assertEqual(sct_payload['message'], 'Check the first <code>with</code> statement. Did you correctly specify the body? Did you call <code>pickle.load()</code> with the correct arguments? The first argument seems to be incorrect.')
 
 class TestTestFunctionAndTestCorrectWithoutWith(unittest.TestCase):
     def setUp(self):

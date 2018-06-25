@@ -44,7 +44,7 @@ test_try_except(index = 1,
         self.data["DC_CODE"] = ""
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "The system wants to check the first try-except block you defined but hasn't found it.")
+        self.assertEqual(sct_payload['message'], "The system wants to check the first try-except block but hasn't found it.")
 
     def test_fail_02(self):
         self.data["DC_CODE"] = '''
@@ -55,7 +55,7 @@ except TypeError as e:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check the <code>TypeError</code> <code>except</code> block of the first try-except block. Are you sure you assigned the correct value to <code>x</code>?")
+        self.assertEqual(sct_payload['message'], "Check the first try-except block. Did you correctly specify the <code>TypeError</code> <code>except</code> block? Are you sure you assigned the correct value to <code>x</code>?")
 
     def test_fail_03(self):
         self.data["DC_CODE"] = '''
@@ -79,7 +79,7 @@ except ValueError:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check the <code>ValueError</code> <code>except</code> block of the first try-except block. Are you sure you assigned the correct value to <code>x</code>?")
+        self.assertEqual(sct_payload['message'], "Check the first try-except block. Did you correctly specify the <code>ValueError</code> <code>except</code> block? Are you sure you assigned the correct value to <code>x</code>?")
 
     def test_fail_05(self):
         self.data["DC_CODE"] = '''
@@ -107,7 +107,7 @@ except ZeroDivisionError as e:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check the <code>ZeroDivisionError</code> <code>except</code> block of the first try-except block. Are you sure you assigned the correct value to <code>x</code>?")
+        self.assertEqual(sct_payload['message'], "Check the first try-except block. Did you correctly specify the <code>ZeroDivisionError</code> <code>except</code> block? Are you sure you assigned the correct value to <code>x</code>?")
 
     def test_fail_07(self):
         self.data["DC_CODE"] = '''
@@ -137,7 +137,7 @@ except (ZeroDivisionError, IOError) as e:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check the <code>ZeroDivisionError</code> <code>except</code> block of the first try-except block. Are you sure you assigned the correct value to <code>x</code>?")
+        self.assertEqual(sct_payload['message'], "Check the first try-except block. Did you correctly specify the <code>ZeroDivisionError</code> <code>except</code> block? Are you sure you assigned the correct value to <code>x</code>?")
 
     def test_fail_09(self):
         self.data["DC_CODE"] = '''
@@ -169,7 +169,7 @@ except :
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check the general <code>except</code> block of the first try-except block. Are you sure you assigned the correct value to <code>x</code>?")
+        self.assertEqual(sct_payload['message'], "Check the first try-except block. Did you correctly specify the general <code>except</code> block? Are you sure you assigned the correct value to <code>x</code>?")
 
     def test_fail_11(self):
         self.data["DC_CODE"] = '''
@@ -205,7 +205,7 @@ else :
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check the <code>else</code> part of the first try-except block. Are you sure you assigned the correct value to <code>passed</code>?")
+        self.assertEqual(sct_payload['message'], "Check the first try-except block. Did you correctly specify the <code>else</code> part? Are you sure you assigned the correct value to <code>passed</code>?")
 
     def test_fail_13(self):
         self.data["DC_CODE"] = '''
@@ -245,7 +245,7 @@ finally:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check the <code>finally</code> part of the first try-except block. Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.")
+        self.assertEqual(sct_payload['message'], "Check the first try-except block. Did you correctly specify the <code>finally</code> part? Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.")
 
     def test_pass(self):
         self.data["DC_CODE"] = self.data["DC_SOLUTION"]
