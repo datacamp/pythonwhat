@@ -40,8 +40,8 @@ while offset != 4 :
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check the condition of the first while loop", sct_payload['message'])
-        self.assertIn("Unexpected expression", sct_payload['message'])
+        self.assertIn("Check the first while loop. Did you correctly specify the condition?", sct_payload['message'])
+        self.assertIn("Expected <code>", sct_payload['message'])
         helper.test_lines(self, sct_payload, 3, 3, 7, 17)
 
     def test_Fail2(self):
@@ -52,7 +52,7 @@ while offset != 0 :
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check the body of the first while loop", sct_payload['message'])
+        self.assertIn("Check the first while loop. Did you correctly specify the body?", sct_payload['message'])
         self.assertIn("Are you sure you assigned the correct value to <code>offset</code>", sct_payload['message'])
         helper.test_lines(self, sct_payload, 4, 4, 5, 23)
 

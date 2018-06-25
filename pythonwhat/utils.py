@@ -1,9 +1,9 @@
+from types import ModuleType
+import copy
+
 def shorten_str(text, to_chars=100):
     return (text if len(text) <= 100 else (
         text[:(to_chars // 2)] + "..." + text[-(to_chars // 2):]))
-
-from types import ModuleType
-import copy
 
 def get_ord(num):
     assert num != 0, "use strictly positive numbers in get_ord()"

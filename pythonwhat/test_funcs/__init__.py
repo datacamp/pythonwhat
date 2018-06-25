@@ -20,7 +20,5 @@ from .test_student_typed import test_student_typed
 from .test_object_accessed import test_object_accessed
 from .test_output_contains import test_output_contains
 from .test_lambda_function import test_lambda_function
-from .test_expression_result import test_expression_result
-from .test_expression_output import test_expression_output
+from .test_expression import test_expression_output, test_expression_result, test_object_after_expression
 from .test_function_definition import test_function_definition
-from .test_object_after_expression import test_object_after_expression

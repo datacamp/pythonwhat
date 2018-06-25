@@ -31,19 +31,19 @@ def run(data, run_code = True):
     with tempfile.TemporaryDirectory() as d:
         with ChDir(d):
             if run_code :
-                    stu_output = io.StringIO()
-                    stu_process = StubProcess(init_code = pec)
-                    try:
-                        with redirect_stdout(stu_output):
-                            stu_process.shell.run_code(stu_code)
-                        raw_stu_output = stu_output.getvalue()
-                        error = None
-                    except Exception as e:
-                        raw_stu_output = ""
-                        error = str(e)
-                    sol_output = io.StringIO()
-                    with redirect_stdout(sol_output):
-                        sol_process = StubProcess(init_code =  "%s\n%s" % (pec, sol_code))
+                stu_output = io.StringIO()
+                stu_process = StubProcess(init_code = pec)
+                try:
+                    with redirect_stdout(stu_output):
+                        stu_process.shell.run_code(stu_code)
+                    raw_stu_output = stu_output.getvalue()
+                    error = None
+                except Exception as e:
+                    raw_stu_output = ""
+                    error = str(e)
+                sol_output = io.StringIO()
+                with redirect_stdout(sol_output):
+                    sol_process = StubProcess(init_code =  "%s\n%s" % (pec, sol_code))
             else :
                 raw_stu_output = ""
                 stu_process = StubProcess()

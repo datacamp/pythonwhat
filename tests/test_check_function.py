@@ -73,25 +73,23 @@ def test_args_kwargs_check_function_failing_not_specified():
                     sol_code = 'my_fun(1, 2, 3, 4, c = 5)',
                     stu_code = 'my_fun(1, 2)')
     x = s.check_function('my_fun')
-    msg = "Are you sure it is defined"
-    with pytest.raises(TF, match=msg):
+    with pytest.raises(TF, match="Did you specify the first argument passed as a variable length argument"):
         x.check_args(['args', 0])
-    with pytest.raises(TF, match=msg):
+    with pytest.raises(TF, match="Did you specify the second argument passed as a variable length argument"):
         x.check_args(['args', 1])
-    with pytest.raises(TF, match=msg):
+    with pytest.raises(TF, match="Did you specify the argument `c`"):
         x.check_args(['kwargs', 'c'])
 
-@pytest.mark.debug
 def test_args_kwargs_check_function_failing_not_correct():
     s = setup_state(pec = 'def my_fun(a, b, *args, **kwargs): pass',
                     sol_code = 'my_fun(1, 2, 3, 4, c = 5)',
                     stu_code = 'my_fun(1, 2, 4, 5, c = 6)')
     x = s.check_function('my_fun')
-    with pytest.raises(TF, match='first argument passed as a variable length argument'):
+    with pytest.raises(TF, match='Did you correctly specify the first argument passed as a variable length argument'):
         x.check_args(['args', 0]).has_equal_value()
-    with pytest.raises(TF, match='second argument passed as a variable length argument'):
+    with pytest.raises(TF, match='Did you correctly specify the second argument passed as a variable length argument'):
         x.check_args(['args', 1]).has_equal_value()
-    with pytest.raises(TF, match='Check the argument `c` of the'):
+    with pytest.raises(TF, match='Did you correctly specify the argument `c`'):
         x.check_args(['kwargs', 'c']).has_equal_value()
 
 def test_check_function_with_has_equal_value():
@@ -131,3 +129,4 @@ def test_named_vs_positional(stu):
     passes(s.check_function('round').check_args("number").has_equal_value())
     passes(s.check_function('round').check_args(1).has_equal_value())
     passes(s.check_function('round').check_args("ndigits").has_equal_value())
+

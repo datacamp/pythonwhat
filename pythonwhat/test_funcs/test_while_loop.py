@@ -1,8 +1,8 @@
 from pythonwhat.Reporter import Reporter
 from pythonwhat.check_funcs import check_part, check_node, multi
 
-MSG_MISSING = "FMT:Define more {typestr}."
-MSG_PREPEND = "FMT:Check the {child[part]} of the {ordinal} while loop. "
+MSG_MISSING = "FMT:Define more while loops."
+MSG_PREPEND = "FMT:Check the {typestr}. "
 
 def test_while_loop(index=1,
                     test=None,
@@ -66,10 +66,10 @@ def test_while_loop(index=1,
       This SCT will evaluate to True as condition test will have thes same result in student
       and solution code and `test_exression_output()` will pass on the body code.
     """
-    rep = Reporter.active_reporter
 
-    state = check_node('whiles', index-1, "`while` loops", MSG_MISSING, MSG_PREPEND if expand_message else "", state=state)
+    state = check_node('whiles', index-1, "{ordinal} while loop", MSG_MISSING, MSG_PREPEND if expand_message else "", state=state)
 
-    multi(test, state = check_part('test', 'condition', state))
-    multi(body, state = check_part('body', 'body', state))
-    multi(orelse, state = check_part('orelse', 'else part', state))
+    expand_msg = None if expand_message else ""
+    multi(test, state = check_part('test', 'condition', expand_msg=expand_msg, state=state))
+    multi(body, state = check_part('body', 'body', expand_msg=expand_msg, state=state))
+    multi(orelse, state = check_part('orelse', 'else part', expand_msg=expand_msg, state=state))

@@ -1,5 +1,5 @@
 from pythonwhat.Reporter import Reporter
-from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_equal_part_len, has_equal_part, has_equal_value, call, fix_format
+from pythonwhat.check_funcs import check_node, check_part, check_part_index, multi, has_equal_part_len, has_equal_part, has_equal_value, call, fix_format, stringify
 
 from functools import partial
 
@@ -8,23 +8,14 @@ MSG_PREPEND = "FMT:Check your definition of {typestr}. "
 
 MSG_NUM_ARGS = "FMT:You should define {parent[typestr]} with {sol_len} arguments, instead got {stu_len}."
 
-MSG_PREPEND_ARG = "FMT:In your definition of {typestr}, " 
-MSG_BAD_ARG_NAME = "FMT:the {parent[ordinal]} {parent[part]} should be called `{sol_part[name]}`, instead got `{stu_part[name]}`."
-MSG_BAD_DEFAULT = "FMT:the {parent[part]} `{stu_part[name]}` should have no default."
-MSG_INC_DEFAULT = "FMT:the {parent[part]} `{stu_part[name]}` does not have the correct default."
+MSG_BAD_ARG_NAME = "FMT:The {parent[ordinal]} {parent[part]} should be called `{sol_part[name]}`, instead got `{stu_part[name]}`."
+MSG_BAD_DEFAULT = "FMT:The {parent[part]} `{stu_part[name]}` should have no default."
+MSG_INC_DEFAULT = "FMT:The {parent[part]} `{stu_part[name]}` does not have the correct default."
 
-MSG_NO_VARARG = "FMT:have you specified an argument to take a `*` argument and named it `{sol_part[*args][name]}`?"
-MSG_NO_KWARGS = "FMT:have you specified an argument to take a `**` argument and named it `{sol_part[**kwargs][name]}`?"
-MSG_VARARG_NAME = "FMT:have you specified an argument to take a `*` argument and named it `{sol_part[name]}`?"
-MSG_KWARG_NAME = "FMT:have you specified an argument to take a `**` argument and named it `{sol_part[name]}`?"
-
-# TODO some need to reference the eval rather than str
-MSG_RES_ERROR = "FMT:Calling `{argstr}` should result in `{str_sol}`, instead got an error."
-MSG_RES_INCORRECT = "FMT:Calling `{argstr}` should result in `{str_sol}`, instead got `{str_stu}`."
-MSG_ERR_NONE = "FMT:Calling `{argstr}` doesn't result in an error, but it should."
-MSG_ERR_INCORRECT = "FMT:Calling `{argstr}` should result in a `{str_sol.__class__.__name__}`, instead got a `{str_stu.__class__.__name__}`."
-MSG_OUT_ERROR = "FMT:Calling `{argstr}` should output {str_sol}, instead got an error."
-MSG_OUT_INCORRECT = "FMT:Calling `{argstr}` should output `{str_sol}`, instead got {str_stu}."
+MSG_NO_VARARG = "FMT:Have you specified an argument to take a `*` argument and named it `{sol_part[*args][name]}`?"
+MSG_NO_KWARGS = "FMT:Have you specified an argument to take a `**` argument and named it `{sol_part[**kwargs][name]}`?"
+MSG_VARARG_NAME = "FMT:Have you specified an argument to take a `*` argument and named it `{sol_part[name]}`?"
+MSG_KWARG_NAME = "FMT:Have you specified an argument to take a `**` argument and named it `{sol_part[name]}`?"
 
 def test_function_definition(name,
                              arg_names=True,
@@ -126,13 +117,13 @@ def test_function_definition(name,
     # make a temporary child state, to reflect that there were two types of 
     # messages prepended in the original function
     quiet_child = get_func_child(expand_msg = "")
-    prep_child2 = get_func_child(expand_msg = MSG_PREPEND_ARG)
+    prep_child2 = get_func_child(expand_msg = MSG_PREPEND)
 
     test_args(arg_names, arg_defaults, 
               nb_args_msg, arg_names_msg, arg_defaults_msg,
               prep_child2, quiet_child)
 
-    multi(body, state=check_part('body', "", child))
+    multi(body, state=check_part('body', "", expand_msg=None if expand_message else "", state=child))
 
     # Test function calls -----------------------------------------------------
 
@@ -141,41 +132,26 @@ def test_function_definition(name,
     for el in (results or []):
         el = fix_format(el)
         call(el, 'value',
-                incorrect_msg = wrong_result_msg or MSG_RES_INCORRECT,
-                error_msg = wrong_result_msg or MSG_RES_ERROR,
+                incorrect_msg = wrong_result_msg,
+                error_msg = wrong_result_msg,
                 argstr = name + stringify(el),
                 state = quiet_child)
 
     for el in (outputs or []):
         el = fix_format(el)
         call(el, 'output',
-                incorrect_msg = wrong_output_msg or MSG_OUT_INCORRECT,
-                error_msg = wrong_output_msg or MSG_OUT_ERROR,
+                incorrect_msg = wrong_output_msg,
+                error_msg = wrong_output_msg,
                 argstr = name + stringify(el),
                 state = quiet_child)
 
     for el in (errors or []):
         el = fix_format(el)
         call(el, 'error',
-                incorrect_msg = wrong_error_msg or MSG_ERR_INCORRECT,
-                error_msg = no_error_msg or MSG_ERR_NONE,
+                incorrect_msg = wrong_error_msg,
+                error_msg = no_error_msg,
                 argstr = name + stringify(el),
                 state = quiet_child)
-
-
-def stringify(arguments):
-    vararg = str(arguments['args'])[1:-1]
-    kwarg = ', '.join(['%s = %s' % (key, value) for key, value in arguments['kwargs'].items()])
-    if len(vararg) == 0:
-        if len(kwarg) == 0:
-            return "()"
-        else:
-            return "(" + kwarg + ")"
-    else :
-        if len(kwarg) == 0:
-            return "(" + vararg + ")"
-        else :
-            return "(" + ", ".join([vararg, kwarg]) + ")"
 
 
 def test_args(arg_names, arg_defaults, 
@@ -188,7 +164,7 @@ def test_args(arg_names, arg_defaults,
         # iterate over each arg, testing name and default
         for ii in range(len(child.solution_parts['_spec1_args'])):
             # get argument state
-            arg_state = check_part_index('_spec1_args', ii, 'argument', "NO MISSING MSG", state=child)
+            arg_state = check_part_index('_spec1_args', ii, 'argument', "NO MISSING MSG", expand_msg="", state=child)
             # test exact name
             has_equal_part('name', arg_names_msg or MSG_BAD_ARG_NAME, arg_state)
 
@@ -197,14 +173,14 @@ def test_args(arg_names, arg_defaults,
                 has_equal_part('is_default', arg_defaults_msg or MSG_BAD_DEFAULT, arg_state)
                 # test default value, use if to prevent running a process no default
                 if arg_state.solution_parts['is_default']:
-                    has_equal_value(arg_defaults_msg or MSG_INC_DEFAULT, "error message", state = arg_state)
+                    has_equal_value(incorrect_msg = arg_defaults_msg or MSG_INC_DEFAULT, error_msg="error message", append=True, state=arg_state)
 
         # test *args and **kwargs
         if child.solution_parts['*args']:
-            vararg = check_part('*args', "", missing_msg = MSG_NO_VARARG, state = child)
-            has_equal_part('name', MSG_VARARG_NAME, vararg)
+            vararg = check_part('*args', "", missing_msg=MSG_NO_VARARG, expand_msg="", state=child)
+            has_equal_part('name', MSG_VARARG_NAME, state=vararg)
         
         if child.solution_parts['**kwargs']:
-            kwarg = check_part('**kwargs', "", missing_msg = MSG_NO_KWARGS, state = child)
-            has_equal_part('name', MSG_KWARG_NAME, kwarg)
+            kwarg = check_part('**kwargs', "", missing_msg=MSG_NO_KWARGS, expand_msg="", state=child)
+            has_equal_part('name', MSG_KWARG_NAME, state=kwarg)
 
