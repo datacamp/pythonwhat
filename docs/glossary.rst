@@ -49,6 +49,53 @@ Check function call
     pd.DataFrame(data=[1, 2, 3], columns=['a'])
     pd.DataFrame(columns=['a'], data=[1, 2, 3])
 
+Check pandas chain (1)
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. code::
+
+    # solution
+    import pandas as pd
+    df = pd.DataFrame([1, 2, 3], columns=['a'])
+    df.a.sum()
+
+    # sct
+    Ex().check_function("df.a.sum").has_equal_value()
+
+Check pandas chain (2)
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. code::
+
+    # pec
+    import pandas as pd
+    df = pd.DataFrame({'a': [1, 2, 3], 'b': ['x', 'x', 'y']})
+
+    # solution
+    df.groupby('b').sum()
+
+    # sct
+    import pandas as pd
+    sig = sig_from_obj(pd.Series.sum)
+    Ex().test_correct(
+        # check if group by works
+        check_function("df.groupby.sum", signature = sig).has_equal_value(),
+        # check if group_by called correctly
+        check_function("df.groupby").test_correct(
+            has_equal_value(func = lambda x,y: x.keys == y.keys),
+            check_args(0).has_equal_value()
+        )
+    )
+
+    # passing submissions
+    df.groupby('b').sum()
+    df.groupby(['b']).sum()
+
+    # failing submissions
+    df               # Did you call df.groupby()?
+    df.groupby('a')  # arg of groupby is incorrect
+    df.groupby('b')  # did you call df.groupby.sum()?
+
 Check object created through function call
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
