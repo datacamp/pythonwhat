@@ -579,7 +579,7 @@ def run_call(args, node, process, get_func, **kwargs):
         return get_func(process = process, tree=func_expr, call = fmt_args, **kwargs)
         
 
-MSG_CALL_INCORRECT = "__JINJA__:Calling `{{argstr}}` should {{action}} `{{str_sol}}`, instead got {{'no output' if str_stu == 'no output' else '`' + str_stu + '`'}}."
+MSG_CALL_INCORRECT = "__JINJA__:Calling `{{argstr}}` should {{action}} `{{str_sol}}`, instead got {{str_stu if str_stu == 'no printouts' else '`' + str_stu + '`'}}."
 MSG_CALL_ERROR     = "__JINJA__:Calling `{{argstr}}` should {{action}} `{{str_sol}}`, instead it errored out: `{{str_stu}}`."
 MSG_CALL_ERROR_INV = "__JINJA__:Calling `{{argstr}}` should {{action}} `{{str_sol}}`, instead got `{{str_stu}}`."
 def call(args,
@@ -656,7 +656,7 @@ def call(args,
 
     # Run for Submission ------------------------------------------------------
     eval_stu, str_stu = run_call(args, state.student_parts['node'], state.student_process, get_func, **kwargs)
-    action_strs = {'value': 'return', 'output': 'output', 'error': 'error out with the message'}
+    action_strs = {'value': 'return', 'output': 'print out', 'error': 'error out with the message'}
     fmt_kwargs = {'part': argstr, 'argstr': argstr, 'str_sol': str_sol, 'str_stu': str_stu, 'action': action_strs[test]}
 
     # either error test and no error, or vice-versa
@@ -740,8 +740,8 @@ def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solut
     return state
 
 DEFAULT_INCORRECT_MSG="__JINJA__:Expected {{'' if test == 'value' else 'the {{test}} '}}`{{sol_eval}}`, but got `{{stu_eval}}`."
-DEFAULT_ERROR_MSG="__JINJA__:Rerunning {{'it' if parent['part'] else 'the higlighted expression'}} generated an error: `{{stu_str}}`."
-DEFAULT_ERROR_MSG_INV="__JINJA__:Rerunning {{'it' if parent['part'] else 'the higlighted expression'}} didn't generate an error, but it should!"
+DEFAULT_ERROR_MSG="__JINJA__:Running {{'it' if parent['part'] else 'the higlighted expression'}} generated an error: `{{stu_str}}`."
+DEFAULT_ERROR_MSG_INV="__JINJA__:Running {{'it' if parent['part'] else 'the higlighted expression'}} didn't generate an error, but it should!"
 DEFAULT_UNDEFINED_NAME_MSG="__JINJA__:Running {{'it' if parent['part'] else 'the higlighted expression'}} should define a variable `{{name}}` without errors, but it doesn't."
 DEFAULT_INCORRECT_NAME_MSG="__JINJA__:Are you sure you assigned the correct value to `{{name}}`?"
 def has_expr(incorrect_msg=None,
