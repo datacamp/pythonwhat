@@ -313,7 +313,7 @@ def get_output(f, process, shell, *args, **kwargs):
 
     out_str = out[0].strip()
     if not isinstance(res, Exception):
-        toret = out_str or "no output"
+        toret = out_str or "no printouts"
         return (toret, toret)
     else:
         return (res, str(res))

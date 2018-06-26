@@ -242,7 +242,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Calling <code>shout('help', 'fire')</code> should output <code>helpfire</code>, instead got no output.")
+        self.assertEqual(sct_payload['message'], "Calling <code>shout('help', 'fire')</code> should print out <code>helpfire</code>, instead got no printouts.")
 
 class TestExercise5(unittest.TestCase):
 
@@ -320,7 +320,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Calling <code>shout('help', 'fire')</code> should output <code>helpfire</code>, instead got no output.")
+        self.assertEqual(sct_payload['message'], "Calling <code>shout('help', 'fire')</code> should print out <code>helpfire</code>, instead got no printouts.")
 
 
 class TestExercise7(unittest.TestCase):
@@ -557,7 +557,7 @@ def shout(word):
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Check your definition of <code>shout()</code>. Did you correctly specify the body? Rerunning it generated an error: <code>name 'shout_word' is not defined</code>.", sct_payload['message'])
+        self.assertEqual("Check your definition of <code>shout()</code>. Did you correctly specify the body? Running it generated an error: <code>name 'shout_word' is not defined</code>.", sct_payload['message'])
 
 class TestFunctionDefinitionNonLocal(unittest.TestCase):
     def test_pass(self):
@@ -723,7 +723,7 @@ def my_fun(x, y = 4, z = ['a', 'b'], *args, **kwargs):
         self.assertFalse(sct_payload['correct'])
         # in two pieces because order of dict not fixed
         self.assertIn("Calling <code>my_fun('r', 's', ['c', 'd'], 't', 'u', 'v'", sct_payload['message'])
-        self.assertIn(")</code> should output <code>hello mister</code>, instead got no output.", sct_payload['message'])
+        self.assertIn(")</code> should print out <code>hello mister</code>, instead got no printouts.", sct_payload['message'])
 
     def test_pass(self):
         self.data["DC_CODE"] = self.data["DC_SOLUTION"]

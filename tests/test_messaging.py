@@ -14,7 +14,7 @@ def lines(output, s, e):
 @pytest.mark.parametrize('stu, patt, cols, cole', [
         ('', 'Did you call `round()`?', None, None),
         ('round(1)', 'Check your call of `round()`. Did you specify the second argument?', 1, 8),
-        ('round(1, a)', 'Check your call of `round()`. Did you correctly specify the second argument? Rerunning it generated an error: `name \'a\' is not defined`.', 10, 10),
+        ('round(1, a)', 'Check your call of `round()`. Did you correctly specify the second argument? Running it generated an error: `name \'a\' is not defined`.', 10, 10),
         ('round(1, 2)', 'Check your call of `round()`. Did you correctly specify the second argument? Expected `3`, but got `2`.', 10, 10)
 ])
 def test_check_function_pos(stu, patt, cols, cole):
@@ -29,7 +29,7 @@ def test_check_function_pos(stu, patt, cols, cole):
 
 @pytest.mark.parametrize('stu, patt, cols, cole', [
         ('round(1)', 'Check your call of `round()`. Did you specify the argument `ndigits`?', 1, 8),
-        ('round(1, a)', 'Check your call of `round()`. Did you correctly specify the argument `ndigits`? Rerunning it generated an error: `name \'a\' is not defined`.', 10, 10),
+        ('round(1, a)', 'Check your call of `round()`. Did you correctly specify the argument `ndigits`? Running it generated an error: `name \'a\' is not defined`.', 10, 10),
         ('round(1, 2)', 'Check your call of `round()`. Did you correctly specify the argument `ndigits`? Expected `3`, but got `2`.', 10, 10)
 ])
 def test_check_function_named(stu, patt, cols, cole):
@@ -59,7 +59,7 @@ def test_check_object(stu, patt, cols, cole):
 @pytest.mark.parametrize('stu, patt', [
     ('', 'The system wants to check the definition of `test()` but hasn\'t found it.'),
     ('def test(a, b): return 1', 'Check the definition of `test()`. Calling `test(1, 2)` should return `3`, instead got `1`.'),
-    ('def test(a, b): return a + b', 'Check the definition of `test()`. Calling `test(1, 2)` should output `3`, instead got no output.'),
+    ('def test(a, b): return a + b', 'Check the definition of `test()`. Calling `test(1, 2)` should print out `3`, instead got no printouts.'),
     ('''
 def test(a, b):
     if a == 3:
