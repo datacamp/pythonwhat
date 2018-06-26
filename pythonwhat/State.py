@@ -35,38 +35,6 @@ class Context(Mapping):
     def __len__(self):
         return len(self._items)
 
-
-#class MsgFormatter(string.Formatter):
-#    def vformat(self, format_string, args, kwargs):
-#        """Restricted vformat, which does not format entries with converters or format specs"""
-#        used_args = set()
-#        result = []
-#        for chunk in string._string.formatter_parser(format_string):
-#            orig = self._orig_from_chunk(*chunk)
-#            # return original string if there are converters or format specs,
-#            # otherwise, parse as normal
-#            if chunk[1] and any(chunk[2:]):
-#                result.append(orig)
-#            elif chunk[0] and not any(chunk[1:]):
-#                result.append(chunk[0])
-#            else:
-#                res, _ = self._vformat(orig, args, kwargs, used_args, 1)
-#                result.append(res)
-#        return "".join(result)
-#
-#    def get_field(self, field_name, args, kwargs):
-#        try:
-#            return super().get_field(field_name, args, kwargs)
-#        except (KeyError, AttributeError):
-#            return "{"+field_name+"}", "NA"
-#
-#    @staticmethod
-#    def _orig_from_chunk(literal_text, field_name, format_spec, conversion):
-#        # of form, literal_str {var_name!conversion:format_spec}
-#        conversion = '!' + conversion if conversion else ""
-#        format_spec = ":" + format_spec if format_spec else ""
-#        return "%s{%s%s%s}"%(literal_text, field_name, conversion, format_spec)
-
 class State(object):
     """State of the SCT environment.
 
