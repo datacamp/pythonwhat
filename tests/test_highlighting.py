@@ -61,60 +61,6 @@ def first_solves_second():
 		'DC_CODE': 'round(2)\nround(3)'
 	}
 
-def test_test_function_twice(first_ok, second_ok, second_solves_first, first_solves_second):
-    sct = 'test_function("round", index=1)\ntest_function("round", index=2)'
-    first_ok['DC_SCT'] = sct
-    output = helper.run(first_ok)
-    assert not output['correct']
-    helper.no_line_info(output)
-
-    second_ok['DC_SCT'] = sct
-    output = helper.run(second_ok)
-    assert not output['correct']
-    helper.with_line_info(output, 1, 1, 7, 7)
-
-    second_solves_first['DC_SCT'] = sct
-    output = helper.run(second_solves_first)
-    assert not output['correct']
-    helper.no_line_info(output)
-
-    first_solves_second['DC_SCT'] = sct
-    output = helper.run(first_solves_second)
-    assert not output['correct']
-    helper.with_line_info(output, 1, 1, 7, 7)
-
-    first_ok['DC_SCT'] = 'test_function("round", index=2)'
-    output = helper.run(first_ok)
-    assert not output['correct']
-    helper.no_line_info(output)
-
-def test_test_function_v2_twice(first_ok, second_ok, second_solves_first, first_solves_second):
-    sct = 'test_function_v2("round", index=1, params=["number"])\ntest_function_v2("round", index=2, params=["number"])'
-    first_ok['DC_SCT'] = sct
-    output = helper.run(first_ok)
-    assert not output['correct']
-    helper.no_line_info(output)
-
-    second_ok['DC_SCT'] = sct
-    output = helper.run(second_ok)
-    assert not output['correct']
-    helper.with_line_info(output, 1, 1, 7, 7)
-
-    second_solves_first['DC_SCT'] = sct
-    output = helper.run(second_solves_first)
-    assert not output['correct']
-    helper.no_line_info(output)
-
-    first_solves_second['DC_SCT'] = sct
-    output = helper.run(first_solves_second)
-    assert not output['correct']
-    helper.with_line_info(output, 1, 1, 7, 7)
-
-    first_ok['DC_SCT'] = 'test_function_v2("round", index=2, params=["number"])'
-    output = helper.run(first_ok)
-    assert not output['correct']
-    helper.no_line_info(output)
-
 def test_check_function_twice(first_ok, second_ok, second_solves_first, first_solves_second):
     patt = 'Ex().check_function("round", index={}).check_args("number").has_equal_value()'
     sct = patt.format(0) + "\n" + patt.format(1)

@@ -12,7 +12,7 @@ class TestUtils(unittest.TestCase):
 	def test_get_times(self):
 		self.assertEqual(utils.get_times(1), "once")
 		self.assertEqual(utils.get_times(2), "twice")
-		self.assertEqual(utils.get_times(3), "3 times")
+		self.assertEqual(utils.get_times(3), "three times")
 		self.assertEqual(utils.get_times(11), "11 times")
 
 	def test_get_times(self):
