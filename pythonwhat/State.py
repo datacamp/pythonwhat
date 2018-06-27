@@ -63,7 +63,7 @@ class State(object):
             self.student_tree_tokens, self.student_tree = State.parse_external(self.student_code)
 
         if not hasattr(self, 'solution_tree'):
-            _, self.solution_tree = State.parse_internal(self.solution_code)
+            self.solution_tree_tokens, self.solution_tree = State.parse_internal(self.solution_code)
 
         if not hasattr(self, 'pre_exercise_tree'):
             _, self.pre_exercise_tree = State.parse_internal(self.pre_exercise_code)
@@ -81,28 +81,8 @@ class State(object):
 
         self.converters = get_manual_converters()    # accessed only from root state
 
-        self.fun_usage = {}
         self.manual_sigs = None
         self._parser_cache = {}
-
-    def set_used(self, name, stud_index, sol_index):
-        if name in self.fun_usage.keys():
-            self.fun_usage[name][sol_index] = stud_index
-        else:
-            self.fun_usage[name] = {sol_index: stud_index}
-
-    def get_options(self, name, stud_indices, sol_index):
-        if name in self.fun_usage.keys():
-            if sol_index in self.fun_usage[name].keys():
-                # sol_index has already been used
-                return [self.fun_usage[name][sol_index]]
-            else:
-                # sol_index hasn't been used yet
-                # exclude stud_index that have been hit elsewhere
-                used = set(list(self.fun_usage[name].values()))
-                return list(set(stud_indices) - used)
-        else:
-            return stud_indices
 
     def get_manual_sigs(self):
         if self.manual_sigs is None:
@@ -196,8 +176,9 @@ class State(object):
 
         klass = State if not node_name else self.SUBCLASSES[node_name]
         child = klass(student_code = self.student_tree_tokens.get_text(student_subtree),
-                      full_student_code = self.full_student_code,
+                      solution_code = self.solution_tree_tokens.get_text(solution_subtree),
                       student_tree_tokens = self.student_tree_tokens,
+                      solution_tree_tokens = self.solution_tree_tokens,
                       pre_exercise_code = self.pre_exercise_code,
                       student_context = student_context,
                       solution_context  = solution_context,

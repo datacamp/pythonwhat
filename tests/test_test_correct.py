@@ -28,13 +28,13 @@ class TestExercise1(unittest.TestCase):
         self.data["DC_CODE"] = 'test = 19'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Have you called <code>np.sum()</code>?")
+        self.assertEqual(sct_payload['message'], "Did you call <code>np.sum()</code>?")
 
     def test_Fail2(self):
         self.data["DC_CODE"] = 'test = np.sum([5, 2, 3])'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], 'Did you call <code>np.sum()</code> with the correct arguments? The first argument seems to be incorrect.')
+        self.assertIn('Check your call of <code>np.sum()</code>.', sct_payload['message'])
 
     def test_Fail3(self):
         self.data["DC_SCT"] = "test_correct(lambda: test_object('test'), lambda: test_function('numpy.sum', args=[]))"

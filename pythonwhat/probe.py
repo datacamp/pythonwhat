@@ -18,7 +18,6 @@ TEST_NAMES = [
     "test_if_exp",
     "test_for_loop",
     "test_function",
-    "test_print",
     "test_function_v2",
     "test_try_except",
     "test_data_frame",

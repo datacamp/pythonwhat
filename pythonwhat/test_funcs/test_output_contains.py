@@ -50,7 +50,7 @@ def has_output(text,
 test_output_contains = has_output
 
 def has_printout(index,
-                 not_printed_msg="__JINJA__:Have you used `{{sol_call}}` to do the appropriate printouts?",
+                 not_printed_msg=None,
                  pre_code=None,
                  name=None,
                  copy=False,
@@ -94,6 +94,8 @@ def has_printout(index,
             print("random"); print(1, 2, 3, 4)
     """
 
+    if not_printed_msg is None:
+        not_printed_msg = "__JINJA__:Have you used `{{sol_call}}` to do the appropriate printouts?"
 
     sol_out = state.solution_function_calls
     try:

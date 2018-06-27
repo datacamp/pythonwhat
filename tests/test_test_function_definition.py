@@ -89,11 +89,6 @@ shout( 'help' )
         self.data["DC_SCT"] = """Ex().check_function_def("shout").check_body().set_context(word="help").test_expression_output()"""
         self.test_Pass()
 
-    @unittest.skip("TODO: spec2 prepended messages")
-    def test_Fail_spec2(self):
-        self.data["DC_SCT"] = """Ex().check_function_def("shout").check_body().set_context(word="help").test_expression_output(incorrect_msg='Make sure to output the correct string.')"""
-        self.test_Fail()
-
 class TestExercise2(unittest.TestCase):
 
     def setUp(self):
@@ -533,7 +528,6 @@ def inc(num):
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("wrongerror!", sct_payload['message'])
 
-@pytest.mark.debug
 class TestFunctionDefinitionOnlyReturn(unittest.TestCase):
     def test_pass(self):
         self.data = {

@@ -451,7 +451,7 @@ def disable_highlighting(state = None):
     """
     return state.to_child_state(highlighting_disabled = True)
 
-def check_args(name, missing_msg='__JINJA__:Did you specify the {{part}}?', state=None):
+def check_args(name, missing_msg=None, state=None):
     """Check whether a function argument is specified.
 
     This function can follow ``check_function()`` in an SCT chain and verifies whether an argument is specified.
@@ -500,6 +500,9 @@ def check_args(name, missing_msg='__JINJA__:Did you specify the {{part}}?', stat
             )
 
     """
+    if missing_msg is None:
+        missing_msg = '__JINJA__:Did you specify the {{part}}?'
+
     if name in ['*args', '**kwargs']: # for check_function_def
         return check_part(name, name, state=state, missing_msg = missing_msg)
     else:
@@ -676,7 +679,11 @@ def call(args,
 from pythonwhat.tasks import ReprFail, UndefinedValue
 from pythonwhat import utils
 
-def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solution.", code=None, exact=True, state=None):
+def has_equal_ast(incorrect_msg=None,
+                  code=None,
+                  exact=True,
+                  append=None,
+                  state=None):
     """Test whether abstract syntax trees match between the student and solution code.
 
     ``has_equal_ast()`` can be used in two ways:
@@ -685,7 +692,7 @@ def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solut
     * As an expression-based check when using more advanced SCT chain, e.g. to compare the equality of expressions to set function arguments.
 
     Args:
-        incorrect_msg: message displayed when ASTs mismatch.
+        incorrect_msg: message displayed when ASTs mismatch. When you specify ``code`` yourself, you have to specify this.
         code: optional code to use instead of the solution AST
         exact: whether the representations must match exactly. If false, the solution AST
                only needs to be contained within the student AST (similar to using test student typed).
@@ -720,17 +727,30 @@ def has_equal_ast(incorrect_msg="FMT: Your code does not seem to match the solut
     """
     rep = Reporter.active_reporter
 
-    def parse_tree(n):
+    if code and incorrect_msg is None:
+        raise ValueError("If you manually specify the code to match inside has_equal_ast(), you have to explicitly set the `incorrect_msg` arugment.")
+
+    if append is None: # if not specified, set to False if incorrect_msg was manually specified
+        append = incorrect_msg is None
+    if incorrect_msg is None:
+        incorrect_msg = "__JINJA__:Expected `{{sol_str}}`, but got `{{stu_str}}`."
+
+    def parse_tree(tree):
         # get contents of module.body if only 1 element
-        crnt = n.body[0] if isinstance(n, ast.Module) and len(n.body) == 1 else n
+        crnt = tree.body[0] if isinstance(tree, ast.Module) and len(tree.body) == 1 else tree
 
         # remove Expr if it exists
         return ast.dump(crnt.value if isinstance(crnt, ast.Expr) else crnt)
-        
+
     stu_rep = parse_tree(state.student_tree)
     sol_rep = parse_tree(state.solution_tree if not code else ast.parse(code))
 
-    _msg = state.build_message(incorrect_msg)
+    fmt_kwargs = {
+        'sol_str': state.solution_code if not code else code,
+        'stu_str': state.student_code
+    }
+
+    _msg = state.build_message(incorrect_msg, fmt_kwargs, append=append)
 
     if exact:
         rep.do_test(EqualTest(stu_rep, sol_rep, Feedback(_msg, state)))

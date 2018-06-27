@@ -38,8 +38,6 @@ def setup_state(stu_code = "", sol_code = "", pec = ""):
     state = State(
         student_code = stu_code,
         solution_code = sol_code,
-        full_student_code = stu_code,
-        full_solution_code = sol_code,
         pre_exercise_code = pec,
         student_process = stu_process,
         solution_process = sol_process,

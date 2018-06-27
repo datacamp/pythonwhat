@@ -16,6 +16,13 @@ def bind_args(signature, args_part):
     bound_args = signature.bind(*pos_args, **kw_args)
     return IndexedDict(bound_args.arguments)
 
+def get_mapped_name(name, mappings):
+    # get name by splitting on periods
+    if "." in name:
+        for orig, full_name in mappings.items():
+            if name.startswith(full_name): return name.replace(full_name, orig)
+    return name
+
 MISSING_MSG = "__JINJA__:Did you call `{{name}}()`{{' ' + times if index>0}}?"
 SIG_ISSUE_MSG = "__JINJA__:Have you specified the arguments for `{name}()` using the right syntax?"
 PREPEND_MSG = "__JINJA__:Check your {{ord + ' ' if index>0}}call of `{{name}}()`. "
@@ -62,6 +69,8 @@ def check_function(name, index=0,
             Ex().check_function('numpy.mean').has_equal_value()
     """
 
+    append_missing = missing_msg is None
+    append_params_not_matched = params_not_matched_msg is None
     if missing_msg is None:
         missing_msg = MISSING_MSG
     if expand_msg is None:
@@ -73,10 +82,12 @@ def check_function(name, index=0,
     stu_out = state.student_function_calls
     sol_out = state.solution_function_calls
 
+    student_mappings = state.student_mappings
+
     fmt_kwargs = {'times': get_times(index+1),
                   'ord': get_ord(index+1),
                   'index': index,
-                  'name': name}
+                  'name': get_mapped_name(name, student_mappings)}
 
     # Get Parts ----
     # Copy, otherwise signature binding overwrites sol_out[name][index]['args']
@@ -86,7 +97,7 @@ def check_function(name, index=0,
         # Copy, otherwise signature binding overwrites stu_out[name][index]['args']
         stu_parts = {**stu_out[name][index]}
     except (KeyError, IndexError):
-        _msg = state.build_message(missing_msg, fmt_kwargs)
+        _msg = state.build_message(missing_msg, fmt_kwargs, append=append_missing)
         rep.do_test(Test(Feedback(_msg, state)))
 
     # Signatures -----
@@ -107,7 +118,7 @@ def check_function(name, index=0,
             stu_sig = get_sig(mapped_name=stu_parts['name'], process=state.student_process)
             stu_parts['args'] = bind_args(stu_sig, stu_parts['args'])
         except Exception:
-            _msg = state.build_message(params_not_matched_msg, fmt_kwargs)
+            _msg = state.build_message(params_not_matched_msg, fmt_kwargs, append=append_params_not_matched)
             rep.do_test(Test(Feedback(_msg, StubState(stu_parts['node'], state.highlighting_disabled))))
 
     # three types of parts: pos_args, keywords, args (e.g. these are bound to sig)

@@ -119,9 +119,9 @@ def check_function_multiple_times():
     passes(s.check_function('print').check_args('value'))
 
 @pytest.mark.parametrize('stu', [
-        'round(1.23, 2)',
-        'round(1.23, ndigits=2)',
-        'round(number=1.23, ndigits=2)'
+    'round(1.23, 2)',
+    'round(1.23, ndigits=2)',
+    'round(number=1.23, ndigits=2)'
 ])
 def test_named_vs_positional(stu):
     s = setup_state(sol_code = 'round(1.23, 2)', stu_code = stu)
@@ -130,3 +130,24 @@ def test_named_vs_positional(stu):
     passes(s.check_function('round').check_args(1).has_equal_value())
     passes(s.check_function('round').check_args("ndigits").has_equal_value())
 
+def test_method_1():
+    code = "df.groupby('b').sum()"
+    s = setup_state(sol_code = code,
+                    stu_code = code,
+                    pec = "import pandas as pd; df = pd.DataFrame({'a': [1, 2, 3], 'b': ['x', 'x', 'y']})")
+    passes(s.check_function('df.groupby').check_args(0).has_equal_value())
+    passes(s.check_function('df.groupby.sum', signature = False))
+    from pythonwhat.signatures import sig_from_obj
+    import pandas as pd
+    passes(s.check_function('df.groupby.sum', signature = sig_from_obj(pd.Series.sum)))
+
+@pytest.mark.skip
+def test_method_2():
+    code = "df[df.b == 'x'].a.sum()"
+    s = setup_state(sol_code = code,
+                    stu_code = code,
+                    pec = "import pandas as pd; df = pd.DataFrame({'a': [1, 2, 3], 'b': ['x', 'x', 'y']})")
+    passes(s.check_function('df.a.sum', signature = False))
+    from pythonwhat.signatures import sig_from_obj
+    import pandas as pd
+    passes(s.check_function('df.a.sum', signature = sig_from_obj(pd.Series.sum)))

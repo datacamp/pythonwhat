@@ -184,62 +184,68 @@ class TestTestFail(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
 
-class TestHasEqualAst(unittest.TestCase):
-    def setUp(self):
-        self.data = {
-                "DC_SOLUTION": """dict(a = "a").keys()""",
-                "DC_CODE":     """dict(a = 'a')    .keys()"""}
+@pytest.fixture
+def data():
+    return {
+        "DC_SOLUTION": """dict(a = "a").keys()""",
+        "DC_CODE":     """dict(a = 'a')    .keys()"""
+    }
 
-    def failing_submission(self):
-        self.data["DC_CODE"] = "dict(A = 'a').keys(somearg = 2)"""
-        sct_payload = helper.run(self.data, run_code=False)
-        self.assertFalse(sct_payload['correct'])
+def failing_submission(data):
+    data["DC_CODE"] = "dict(A = 'a').keys(somearg = 2)"""
+    sct_payload = helper.run(data, run_code=False)
+    assert not sct_payload['correct']
 
-    def test_simple_pass(self):
-        self.data["DC_SCT"] = "Ex().has_equal_ast()"
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
+def test_has_equal_ast_code_without_msg(data):
+    data["DC_SCT"] = "Ex().has_equal_ast(code = 'test')"
+    with pytest.raises(ValueError):
+        helper.run(data)
 
-    def test_simple_fail(self):
-        self.data["DC_SCT"] = "Ex().has_equal_ast()"
-        self.failing_submission()
+def test_has_equal_ast_simple_pass(data):
+    data["DC_SCT"] = "Ex().has_equal_ast()"
+    sct_payload = helper.run(data)
+    assert sct_payload['correct']
 
-    def test_function_pass(self):
-        self.data["DC_SCT"] = "Ex().check_function('dict', 0, signature=False).has_equal_ast()"
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
+def test_has_equal_ast_simple_fail(data):
+    data["DC_SCT"] = "Ex().has_equal_ast()"
+    failing_submission(data)
 
-    def test_function_fail(self):
-        self.data["DC_SCT"] = "Ex().check_function('dict', 0, signature=False).has_equal_ast()"
-        self.failing_submission()
+def test_has_equal_ast_function_pass(data):
+    data["DC_SCT"] = "Ex().check_function('dict', 0, signature=False).has_equal_ast()"
+    sct_payload = helper.run(data)
+    assert sct_payload['correct']
 
-    def test_function_code_pass(self):
-        self.data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a").keys()')"""
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
+def test_has_equal_ast_function_fail(data):
+    data["DC_SCT"] = "Ex().check_function('dict', 0, signature=False).has_equal_ast()"
+    failing_submission(data)
 
-    def test_function_code_fail(self):
-        self.data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a").keys()')"""
-        self.failing_submission()
+def test_has_equal_ast_function_code_pass(data):
+    data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a").keys()', incorrect_msg = '')"""
+    sct_payload = helper.run(data)
+    assert sct_payload['correct']
 
-    def test_exact_false_pass(self):
-        self.data["DC_CODE"] = """dict(a = 'a').keys()\nprint('extra')"""
-        self.data["DC_SCT"] = "Ex().has_equal_ast(exact=False)"
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
+def test_has_equal_ast_function_code_fail(data):
+    data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a").keys()', incorrect_msg = '')"""
+    failing_submission(data)
 
-    def test_exact_false_fail(self):
-        self.data["DC_SCT"] = "Ex().has_equal_ast(exact=False)"
-        self.failing_submission()
+def test_has_equal_ast_exact_false_pass(data):
+    data["DC_CODE"] = """dict(a = 'a').keys()\nprint('extra')"""
+    data["DC_SCT"] = "Ex().has_equal_ast(exact=False)"
+    sct_payload = helper.run(data)
+    assert sct_payload['correct']
 
-    def test_part_of_method_pass(self):
-        self.data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a")', exact=False)"""
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
+def test_has_equal_ast_exact_false_fail(data):
+    data["DC_SCT"] = "Ex().has_equal_ast(exact=False)"
+    failing_submission(data)
 
-    def test_part_of_method_fail(self):
-        self.data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a")', exact=False)"""
-        self.failing_submission()
+def test_has_equal_ast_part_of_method_pass(data):
+    data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a")', exact=False, incorrect_msg = '')"""
+    sct_payload = helper.run(data)
+    assert sct_payload['correct']
+
+def test_has_equal_ast_part_of_method_fail(data):
+    data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a")', exact=False, incorrect_msg = '')"""
+    failing_submission(data)
 
 class TestNestedTestOrTeestCorrect(unittest.TestCase):
     def setUp(self):

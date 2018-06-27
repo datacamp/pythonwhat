@@ -133,7 +133,7 @@ else:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Have you called <code>round()</code>", sct_payload["message"])
+        self.assertIn("Did you call <code>round()</code>", sct_payload["message"])
         helper.test_lines(self, sct_payload, 9, 9, 5, 9)
 
     def test_Fail3b(self):
@@ -353,8 +353,7 @@ else:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Did you call <code>round()</code> with the correct arguments?", sct_payload['message'])
-        # should be localized
+        self.assertIn("Check your call of <code>round()</code>.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 8, 8, 15, 16)
 
     def testPass_if_exp(self):
@@ -371,7 +370,7 @@ else:
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Expected <code>", sct_payload['message'])
-        #helper.test_lines(self, sct_payload, 3, 3, 4, 13)
+        helper.test_lines(self, sct_payload, 3, 3, 4, 13)
 
     def test_fail_if_body_if_exp(self):
         self.data["DC_SOLUTION"] = self.IF_EXP_SOLUTION
@@ -395,7 +394,7 @@ else:
         self.data["DC_SCT"] = helper.replace_test_if(self.data["DC_SCT"])
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Did you call <code>round()</code> with the correct arguments?", sct_payload['message'])
+        self.assertIn("Check your call of <code>round()</code>.", sct_payload['message'])
 
 class TestIfExp(unittest.TestCase):
     def setUp(self):

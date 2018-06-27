@@ -36,7 +36,7 @@ print(m.e)
         self.data["DC_SCT"] = 'test_object_accessed("arr", times=3)'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Have you accessed <code>arr</code> at least 3 times?")
+        self.assertEqual(sct_payload['message'], "Have you accessed <code>arr</code> at least three times?")
 
     def test_objectArrThriceCustom(self):
         self.data["DC_SCT"] = 'test_object_accessed("arr", times=3, not_accessed_msg="silly")'

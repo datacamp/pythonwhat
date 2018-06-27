@@ -20,7 +20,7 @@ def get_times(num):
     if num in nums:
         return(nums[num])
     else:
-        return("%d times" % num)
+        return("%s times" % get_num(num))
 
 def get_num(num):
     nums = {0:"no", 1:"one", 2:"two", 3:"three", 4:"four", 5:"five", 6:"six", 7:"seven", 8:"eight"}

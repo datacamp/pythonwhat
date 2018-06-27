@@ -245,7 +245,6 @@ finally:
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check the first try-except block. Did you correctly specify the <code>finally</code> part? Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.")
 
     def test_pass(self):
         self.data["DC_CODE"] = self.data["DC_SOLUTION"]

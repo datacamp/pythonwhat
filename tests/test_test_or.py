@@ -29,22 +29,22 @@ class TestExercise1(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-    def test_Pass4(self):
-        self.data["DC_CODE"] = "test = 3\nprint('not test')"
+    def test_Pass4b(self):
+        self.data["DC_CODE"] = "test = 3\nprint('wrong')"
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
     def test_Fail1(self):
-        self.data["DC_CODE"] = "test = 4\nprint('not test')"
+        self.data["DC_CODE"] = "test = 4\nprint('wrong')"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Did you call <code>print()</code> with the correct arguments? The first argument seems to be incorrect.")
+        self.assertEqual(sct_payload['message'], "Have you used <code>print('test')</code> to do the appropriate printouts?")
 
-    def test_Pass4_no_lam(self):
+    def test_Pass4b_no_lam(self):
         self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])
         self.test_Pass4()
 
-    def test_Pass4_spec2(self):
+    def test_Pass4b_spec2(self):
         self.data["DC_SCT"] = "Ex().test_or(test_function('print'), check_object('test'))"
         self.test_Pass4()
 

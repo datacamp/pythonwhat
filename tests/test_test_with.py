@@ -52,7 +52,7 @@ success_msg("Nice work!")
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check the first <code>with</code> statement. Did you correctly specify the body?", sct_payload['message'])
         # line info should be specific to test_function
-        helper.test_absent_lines(self, sct_payload)
+        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
 
     def test_Fail2(self):
         self.data["DC_SCT"] = '''
@@ -63,7 +63,7 @@ success_msg("Nice work!")
         self.assertFalse(sct_payload['correct'])
         self.assertNotIn("Check the first <code>with</code> statement. Did you correctly specify the body?", sct_payload['message'])
         # line info should be specific to test_function
-        helper.test_absent_lines(self, sct_payload)
+        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
 
     def test_Pass1(self):
         self.data["DC_SCT"] = '''
@@ -82,7 +82,7 @@ success_msg("Nice work!")
         self.assertFalse(sct_payload['correct'])
         self.assertNotIn("Check the first <code>with</code> statement. Did you correctly specify the body?", sct_payload['message'])
         # line info should be specific to test_function
-        helper.test_absent_lines(self, sct_payload)
+        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
 
     def test_Pass1_no_lam(self):
         self.data["DC_SCT"] = '''
@@ -108,7 +108,7 @@ Ex().check_with(0).check_body().with_context([test_function('print', index = i+1
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Check the first <code>with</code> statement. Did you correctly specify the body?", sct_payload['message'])
         # line info should be specific to test_function
-        helper.test_absent_lines(self, sct_payload)
+        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
 
     def test_Pass1_spec2_no_ctx(self):
         self.data["DC_SCT"] = '''
@@ -251,7 +251,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Check the second <code>with</code> statement. Did you correctly specify the second context? Did you call <code>open()</code> with the correct arguments? The first argument seems to be incorrect.")
+        self.assertIn("Check the second <code>with</code> statement. Did you correctly specify the second context? Check your call of <code>open()</code>.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 12, 12, 46, 60)
 
 class TestExercise4(unittest.TestCase):
