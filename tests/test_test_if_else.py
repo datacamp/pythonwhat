@@ -370,7 +370,7 @@ else:
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertIn("Expected <code>", sct_payload['message'])
-        helper.test_lines(self, sct_payload, 3, 3, 4, 13)
+        helper.test_lines(self, sct_payload, 1, 1, 10, 19)
 
     def test_fail_if_body_if_exp(self):
         self.data["DC_SOLUTION"] = self.IF_EXP_SOLUTION
