@@ -2,6 +2,23 @@
 
 All notable changes to the `pythonwhat` project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+
+## 2.12.5
+
+### Changed
+
+- **If manually specifying `incorrect_msg` in has_equal_x: do not prepend previously generated messages. You no longer have to set `expand_msg = ""`.**
+
+- Overall, improvement of automaticlaly generated messages:
+  + Bite-size messages that are pasted together
+  + More meaningful defaults that help (see `tests/test_messaging.py`)
+  + Get rid of default-generated messages scattered all over the place
+  + Better description of arguments
+  + Better description of calls
+  + Get rid of `has_key()` and `check_key()` docs, as they will be phased out
+  + Improved handling of getting results, output and values from process
+  + Simplify old `test_expression_x()` functions and group in one file
+
 ## 2.12.4
 
 ### Added
