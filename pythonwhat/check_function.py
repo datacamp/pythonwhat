@@ -16,9 +16,9 @@ def bind_args(signature, args_part):
     bound_args = signature.bind(*pos_args, **kw_args)
     return IndexedDict(bound_args.arguments)
 
-MISSING_MSG = "__JINJA__:Did you call `{{name}}()`{{times if index>0}}?"
+MISSING_MSG = "__JINJA__:Did you call `{{name}}()`{{' ' + times if index>0}}?"
 SIG_ISSUE_MSG = "__JINJA__:Have you specified the arguments for `{name}()` using the right syntax?"
-PREPEND_MSG = "__JINJA__:Check your {{ord if index>0}}call of `{{name}}()`. "
+PREPEND_MSG = "__JINJA__:Check your {{ord + ' ' if index>0}}call of `{{name}}()`. "
 def check_function(name, index=0,
                    missing_msg=None,
                    params_not_matched_msg=None,

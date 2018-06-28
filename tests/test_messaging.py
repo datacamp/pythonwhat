@@ -101,3 +101,19 @@ Ex().check_object('x', missing_msg='objectnotdefined').has_equal_value('objectin
     })
     assert not output['correct']
     assert message(output, patt)
+
+@pytest.mark.parametrize('stu, patt', [
+    ('', 'Did you call `round()`?'),
+    ('round(1)', 'Did you call `round()` twice?'),
+    ('round(1)\nround(5)', 'Check your second call of `round()`. Did you correctly specify the first argument? Expected `2`, but got `5`.'),
+    ('round(1)\nround(2)', 'Did you call `round()` 3 times?'),
+    ('round(1)\nround(2)\nround(5)', 'Check your third call of `round()`. Did you correctly specify the first argument? Expected `3`, but got `5`.'),
+])
+def test_multiple_check_functions(stu, patt):
+    output = helper.run({
+        'DC_CODE': stu,
+        'DC_SOLUTION': 'round(1)\nround(2)\nround(3)',
+        'DC_SCT': 'Ex().multi([ check_function("round", index=i).check_args(0).has_equal_value() for i in range(3) ])'
+    })
+    assert not output['correct']
+    assert message(output, patt)
