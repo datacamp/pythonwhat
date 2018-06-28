@@ -12,6 +12,8 @@ def lines(output, s, e):
     else:
         return True
 
+# Check Function Call ---------------------------------------------------------
+
 @pytest.mark.parametrize('stu, patt, cols, cole', [
     ('', 'Did you call `round()`?', None, None),
     ('round(1)', 'Check your call of `round()`. Did you specify the second argument?', 1, 8),
@@ -87,32 +89,31 @@ def test_check_function_ast3(stu, patt, cols, cole):
     assert message(output, patt)
     assert lines(output, cols, cole)
 
-def test_check_function_pkg1():
+@pytest.mark.parametrize('stu, patt', [
+    ('import pandas as pd', 'Did you call `pd.DataFrame()`?'),
+    ('import pandas as pad', 'Did you call `pad.DataFrame()`?'),
+])
+def test_check_function_pkg1(stu, patt):
     output = helper.run({
-        'DC_SOLUTION': "import pandas as pd; pd.DataFrame({'a': [1, 2, 3]})",
-        'DC_CODE': 'import pandas as pd',
-        'DC_SCT': 'Ex().check_function("pandas.DataFrame")'
+        "DC_SOLUTION": "import pandas as pd; pd.DataFrame({'a': [1, 2, 3]})",
+        "DC_CODE": stu,
+        "DC_SCT": "test_function_v2('pandas.DataFrame')"
     })
     assert not output['correct']
-    assert message(output, 'Did you call `pd.DataFrame()`?')
+    assert message(output, patt)
 
-def test_check_function_pkg2():
-    output = helper.run({
-        "DC_SOLUTION": "import pandas as pd; pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]})",
-        "DC_CODE": "import pandas as pad",
-        "DC_SCT": "test_function_v2('pandas.DataFrame', params = ['data'])"
-    })
-    assert not output['correct']
-    assert message(output, 'Did you call `pad.DataFrame()`?')
-
-def test_check_function_pkg3():
+@pytest.mark.parametrize('stu, patt', [
+    ('import numpy as nump', 'Did you call `nump.random.rand()`?'),
+    ('from numpy.random import rand as r', 'Did you call `r()`?'),
+])
+def test_check_function_pkg2(stu, patt):
     output = helper.run({
         "DC_SOLUTION": "import numpy as np; x = np.random.rand(1)",
-        "DC_CODE": "import numpy as nump;",
-        "DC_SCT": "test_function_v2('numpy.random.rand', params = ['d0'])"
+        "DC_CODE": stu,
+        "DC_SCT": "test_function_v2('numpy.random.rand')"
     })
     assert not output['correct']
-    assert message(output, 'Did you call `nump.random.rand()`?')
+    assert message(output, patt)
 
 @pytest.mark.parametrize('stu, patt', [
     ('', 'Did you call `round()`?'),
@@ -121,7 +122,7 @@ def test_check_function_pkg3():
     ('round(1)\nround(2)', 'Did you call `round()` three times?'),
     ('round(1)\nround(2)\nround(5)', 'Check your third call of `round()`. Did you correctly specify the first argument? Expected `3`, but got `5`.'),
 ])
-def test_check_function_multiple(stu, patt):
+def test_multiple_check_functions(stu, patt):
     output = helper.run({
         'DC_CODE': stu,
         'DC_SOLUTION': 'round(1)\nround(2)\nround(3)',
@@ -129,6 +130,31 @@ def test_check_function_multiple(stu, patt):
     })
     assert not output['correct']
     assert message(output, patt)
+
+@pytest.mark.debug
+@pytest.mark.parametrize('stu, patt, cols, cole', [
+    ("df.groupby('a')", "Check your call of `df.groupby()`. Did you correctly specify the first argument? Expected `'b'`, but got `'a'`.", 12, 14),
+    ("df.groupby('b').a.value_counts()", 'Check your call of `df.groupby.a.value_counts()`. Did you specify the argument `normalize`?', 1, 32),
+    ("df[df.b == 'x'].groupby('b').a.value_counts()", 'Check your call of `df.groupby.a.value_counts()`. Did you specify the argument `normalize`?', 1, 45),
+])
+def test_check_method(stu, patt, cols, cole):
+    output = helper.run({
+        'DC_PEC': "import pandas as pd; df = pd.DataFrame({'a': [1, 2, 3], 'b': ['x', 'x', 'y']})",
+        'DC_CODE': stu,
+        'DC_SOLUTION': "df.groupby('b').a.value_counts(normalize = True)",
+        'DC_SCT': """
+from pythonwhat.signatures import sig_from_obj
+import pandas as pd
+Ex().check_function('df.groupby').check_args(0).has_equal_ast()
+Ex().check_function('df.groupby.a.value_counts', signature = sig_from_obj(pd.Series.value_counts)).check_args('normalize').has_equal_ast()
+        """
+    })
+    assert not output['correct']
+    assert message(output, patt)
+    assert lines(output, cols, cole)
+
+
+# Check Object ----------------------------------------------------------------
 
 @pytest.mark.parametrize('stu, patt, cols, cole', [
     ('', 'Did you define the variable `x` without errors?', None, None),
