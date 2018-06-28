@@ -2,8 +2,7 @@
 
 All notable changes to the `pythonwhat` project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-
-## 2.12.5
+## 2.12.6
 
 ### Changed
 
