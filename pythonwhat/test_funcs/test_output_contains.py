@@ -35,7 +35,7 @@ def has_output(text,
         no_output_msg = "You did not output the correct things."
         # raise ValueError("Inside has_output(), specify the `no_output_msg` manually.")
 
-    student_output = state.raw_student_output
+    student_output = state.raw_student_output.strip() + '\n'
 
     _msg = state.build_message(no_output_msg)
     rep.do_test(
@@ -118,6 +118,6 @@ def has_printout(index,
                              "Error: {} - {}".format(type(str_sol), str_sol))
 
     _msg = state.build_message(not_printed_msg, {'sol_call': astor.to_source(sol_call).strip()})
-    has_output(out_sol + '\n', pattern = False, no_output_msg=_msg, state=state)
+    has_output(out_sol.strip() + '\n', pattern = False, no_output_msg=_msg, state=state)
 
     return state
