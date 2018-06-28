@@ -328,6 +328,10 @@ class FunctionParser(Parser):
         self.gen_name += "." + node.attr  # Add the function name
         self.raw_name += "." + node.attr
 
+    def visit_Subscript(self, node):
+        # jump over subscripts for the sake of method calls
+        self.visit(node.value)
+
     def visit_Name(self, node):
         self.gen_name = self.mappings.get(node.id) or node.id
         self.raw_name = node.id

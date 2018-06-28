@@ -141,7 +141,6 @@ def test_method_1():
     import pandas as pd
     passes(s.check_function('df.groupby.sum', signature = sig_from_obj(pd.Series.sum)))
 
-@pytest.mark.skip
 def test_method_2():
     code = "df[df.b == 'x'].a.sum()"
     s = setup_state(sol_code = code,
