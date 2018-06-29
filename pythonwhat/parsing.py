@@ -350,8 +350,7 @@ class FunctionParser(Parser):
                 'args': IndexedDict((n['name'], n) for n in [*args, *keywords]),
                 #'pos_args': args,
                 #'keywords': keywords,
-                'name': self.raw_name,
-                '_spec1': (node, node.args, node.keywords, self.raw_name)
+                'name': self.raw_name
                 }
 
     def get_pos_arg_part(self, arg, indx_pos):
