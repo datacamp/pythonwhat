@@ -55,9 +55,9 @@ class TestExercise1(unittest.TestCase):
 class TestNestedOr(unittest.TestCase):
     def setUp(self):
         self.data = {
-                "DC_SOLUTION": """for ii in range(10): print('yes') if ii < 2 else print('no')""",
-                "DC_SCT": """test_for_loop(1, body=test_if_exp(body=test_or(test_student_typed('print'))))"""
-                }
+            "DC_SOLUTION": """for ii in range(10): print('yes') if ii < 2 else print('no')""",
+            "DC_SCT": """test_for_loop(1, body=test_if_exp(body=test_or(test_student_typed('print'))))"""
+        }
 
     def test_pass(self):
         self.data["DC_CODE"] = self.data["DC_SOLUTION"]
