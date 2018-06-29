@@ -6,7 +6,6 @@ dill==0.2.7.1
 markdown2==2.3.5
 asttokens==1.1.10
 jinja2==2.10
-astor==0.6.2
 
 # test deps
 bs4==0.0.1

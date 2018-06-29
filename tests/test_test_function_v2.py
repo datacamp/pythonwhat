@@ -388,56 +388,6 @@ class TestArgsKeywords(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-class TestMultipleCalls(unittest.TestCase):
-    def setUp(self):
-        self.data = {
-            "DC_PEC": '',
-            "DC_SOLUTION": '''
-print("abc")
-print(123)
-print([1, 2, 3])
-            ''',
-             "DC_SCT": '''
-test_function_v2("print", index = 1, params = ['value'])
-test_function_v2("print", index = 2, params = ['value'])
-test_function_v2("print", index = 3, params = ['value'])
-            '''
-        }
-    def test_multiple_1(self):
-        self.data["DC_CODE"] = 'print("abc")'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-
-    def test_multiple_2(self):
-        self.data["DC_CODE"] = 'print("abc")\nprint(123)'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        helper.test_absent_lines(self, sct_payload)
-
-    def test_multiple_3(self):
-        self.data["DC_CODE"] = 'print("abc")\nprint(123)\nprint([1, 2, 3])'
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_multiple_4(self):
-        self.data["DC_CODE"] = 'print("acb")\nprint(1234)\nprint([1, 2, 3])'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        helper.test_absent_lines(self, sct_payload)
-
-    def test_multiple_5(self):
-        self.data["DC_CODE"] = 'print("abc")\nprint(1234)\nprint([1, 2, 3])'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        helper.test_absent_lines(self, sct_payload)
-
-    def test_multiple_6(self):
-        self.data["DC_CODE"] = 'print("abc")\nprint(123)\nprint([1, 2, 3, 4])'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        helper.test_absent_lines(self, sct_payload)
-
-
 class TestStepByStep(unittest.TestCase):
     def setUp(self):
         self.data = {

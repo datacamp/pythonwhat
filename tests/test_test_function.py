@@ -1,5 +1,6 @@
 import unittest
 import helper
+import pytest
 
 class TestFunctionBase(unittest.TestCase):
 
@@ -302,55 +303,6 @@ class TestFunctionDoEval(unittest.TestCase):
         self.assertFalse(sct_payload['correct'])
         helper.test_lines(self, sct_payload, 1, 1, 1, 14)
 
-class Test_MultipleCalls(unittest.TestCase):
-    def setUp(self):
-        self.data = {
-             "DC_PEC": '',
-            "DC_SOLUTION": '''
-print("abc")
-print(123)
-print([1, 2, 3])
-            ''',
-             "DC_SCT": '''
-test_function("print", index = 1)
-test_function("print", index = 2)
-test_function("print", index = 3)
-            '''
-        }
-
-    def test_multiple_1(self):
-        self.data["DC_CODE"] = 'print("abc")'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-
-    def test_multiple_2(self):
-        self.data["DC_CODE"] = 'print("abc")\nprint(123)'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-
-    def test_multiple_3(self):
-        self.data["DC_CODE"] = 'print("abc")\nprint(123)\nprint([1, 2, 3])'
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_multiple_4(self):
-        self.data["DC_CODE"] = 'print("acb")\nprint(1234)\nprint([1, 2, 3])'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        helper.test_absent_lines(self, sct_payload)
-
-    def test_multiple_5(self):
-        self.data["DC_CODE"] = 'print("abc")\nprint(1234)\nprint([1, 2, 3])'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        helper.test_absent_lines(self, sct_payload)
-
-    def test_multiple_6(self):
-        self.data["DC_CODE"] = 'print("abc")\nprint(123)\nprint([1, 2, 3, 4])'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        helper.test_absent_lines(self, sct_payload)
-
 class TestCheckFunction(unittest.TestCase):
     def setUp(self):
         self.data = {
@@ -474,6 +426,38 @@ file = BytesIO(pickle.dumps('abc'))
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
 
+@pytest.mark.parametrize('stu, correct', [
+    ('round(1)', False),
+    ('round(1)\nround(2)', False),
+    ('round(1)\nround(2)\nround(3)', True),
+    ('round(3)\nround(2)\nround(3)', False),
+    ('round(1)\round(1234)\nround(3)', False),
+    ('round(1)\nround(2)\nround(4)', False)
+])
+def test_multiple_calls(stu, correct):
+    data = {
+        'DC_SOLUTION': 'round(1)\nround(2)\nround(3)',
+        'DC_CODE': stu,
+    }
+    data['DC_SCT'] = """
+test_function("round", index = 1)
+test_function("round", index = 2)
+test_function("round", index = 3)
+"""
+    payload = helper.run(data)
+    assert payload['correct'] == correct
+    data['DC_SCT'] = """
+test_function_v2("round", index = 1)
+test_function_v2("round", index = 2)
+test_function_v2("round", index = 3)
+"""
+    payload = helper.run(data)
+
+def test_has_output_fallback():
+    code = "a = 3\nprint(a)\na = 4"
+    data = { "DC_CODE": code, "DC_SOLUTION": code, "DC_SCT": "test_function('print')" }
+    payload = helper.run(data)
+    assert payload['correct']
 
 if __name__ == "__main__":
     unittest.main()
