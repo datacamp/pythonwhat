@@ -38,31 +38,19 @@ def test_function(name,
     index = index - 1
 
     # if root-level (not in compound statement) calls: use has_printout
-    if name == 'print' and state.parent_state is None:
+
+    if name == 'print' and state.parent_state is None and do_eval:
         return has_printout(index=index, not_printed_msg=incorrect_msg, state=state)
 
     fun_state = check_function(name=name, index=index,
                                missing_msg=not_called_msg,
                                signature=False, state=state)
 
-    _, args_solution, keyw_solution, _ = state.solution_function_calls[name][index]['_spec1']
-    keyw_solution = {keyword.arg: keyword.value for keyword in keyw_solution}
-
-    # try binding the signature.
-    # If it works, we override fun_state (as it's more robust)
-    # If it doesn't work, we just continue with the old fun_state
-    try:
-        fun_state = check_function(name=name, index=index,
-                                   missing_msg=not_called_msg,
-                                   signature=True, state=state)
-    except:
-        pass
-
     if args is None:
-        args = list(range(len(args_solution)))
+        args = [ k for k, value in fun_state.solution_parts['args'].items() if isinstance(k, int) ]
 
     if keywords is None:
-        keywords = list(keyw_solution.keys())
+        keywords = [ k for k, value in fun_state.solution_parts['args'].items() if isinstance(k, str) ]
 
     arg_test_partial = partial(arg_test,
                                do_eval=do_eval, missing_msg=args_not_specified_msg,
@@ -113,7 +101,7 @@ def test_function_v2(name,
         raise NameError("Inside test_function_v2, make sure that incorrect_msg has the same length as params.")
 
     # if root-level (not in compound statement) calls: use has_printout
-    if name == 'print' and state.parent_state is None:
+    if name == 'print' and state.parent_state is None and do_eval[0]:
         return has_printout(index=index, not_printed_msg=incorrect_msg[0], state=state)
 
     if len(params) == 0:
