@@ -38,7 +38,7 @@ class TestExercise1(unittest.TestCase):
         self.data["DC_CODE"] = "test = 4\nprint('wrong')"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Have you used <code>print('test')</code> to do the appropriate printouts?")
+        self.assertEqual(sct_payload['message'], "Check your call of <code>print()</code>. Did you correctly specify the first argument? Expected <code>test</code>, but got <code>wrong</code>.")
 
     def test_Pass4b_no_lam(self):
         self.data["DC_SCT"] = helper.remove_lambdas(self.data["DC_SCT"])

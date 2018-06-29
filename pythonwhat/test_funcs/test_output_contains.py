@@ -2,7 +2,6 @@ from pythonwhat.Test import StringContainsTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from pythonwhat.tasks import getOutputInProcess
-import astor
 
 def has_output(text,
                pattern=True,
@@ -113,11 +112,13 @@ def has_printout(index,
         copy = copy
     )
 
-    if isinstance(str_sol, Exception):
-            raise ValueError("Evaluating expression raised error in solution process."
-                             "Error: {} - {}".format(type(str_sol), str_sol))
+    sol_call = state.solution_tree_tokens.get_text(sol_call)
 
-    _msg = state.build_message(not_printed_msg, {'sol_call': astor.to_source(sol_call).strip()})
+    if isinstance(str_sol, Exception):
+            raise ValueError("Evaluating the solution expression {} raised error in solution process."
+                             "Error: {} - {}".format(sol_call, type(out_sol), str_sol))
+
+    _msg = state.build_message(not_printed_msg, { 'sol_call': sol_call })
     has_output(out_sol.strip() + '\n', pattern = False, no_output_msg=_msg, state=state)
 
     return state

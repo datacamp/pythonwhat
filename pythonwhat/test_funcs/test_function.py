@@ -1,7 +1,7 @@
 import ast
-
 from functools import partial
 from pythonwhat.check_function import check_function
+from pythonwhat.Test import TestFail
 from pythonwhat.check_funcs import check_args, has_equal_value, has_equal_ast
 from pythonwhat.test_funcs.test_output_contains import has_printout
 
@@ -40,7 +40,11 @@ def test_function(name,
     # if root-level (not in compound statement) calls: use has_printout
 
     if name == 'print' and state.parent_state is None and do_eval:
-        return has_printout(index=index, not_printed_msg=incorrect_msg, state=state)
+        try:
+            return has_printout(index=index, not_printed_msg=incorrect_msg, state=state)
+        except TestFail:
+            # The test didn't pass; just continue with the more struct check_function test.
+            pass
 
     fun_state = check_function(name=name, index=index,
                                missing_msg=not_called_msg,
@@ -100,9 +104,14 @@ def test_function_v2(name,
     if len(params) != len(incorrect_msg):
         raise NameError("Inside test_function_v2, make sure that incorrect_msg has the same length as params.")
 
-    # if root-level (not in compound statement) calls: use has_printout
-    if name == 'print' and state.parent_state is None and do_eval[0]:
-        return has_printout(index=index, not_printed_msg=incorrect_msg[0], state=state)
+    # if root-level (not in compound statement) calls that can be evaluated: use has_printout
+    eligible = do_eval[0] if isinstance(do_eval, list) and len(do_eval) > 0 else do_eval
+    if name == 'print' and state.parent_state is None and eligible:
+        try:
+            return has_printout(index=index, not_printed_msg=incorrect_msg[0], state=state)
+        except TestFail:
+            # The test didn't pass; just continue with the more struct check_function test.
+            pass
 
     if len(params) == 0:
         signature = False
