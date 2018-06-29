@@ -30,40 +30,6 @@ def test_list_comp(index=1,
 
     test_comp("{ordinal} list comprehension", 'list_comps', **(locals()))
 
-def test_generator_exp(index=1,
-                       not_called_msg=None,
-                       comp_iter=None,
-                       iter_vars_names=False,
-                       incorrect_iter_vars_msg=None,
-                       body=None,
-                       ifs=None,
-                       insufficient_ifs_msg=None,
-                       expand_message=True,
-                       state=None):
-    """Test generator expressions
-    """
-    rep = Reporter.active_reporter
-
-    test_comp("{ordinal} generator expression", 'generator_exps', **(locals()))
-
-
-def test_dict_comp(index=1,
-                   not_called_msg=None,
-                   comp_iter=None,
-                   iter_vars_names=False,
-                   incorrect_iter_vars_msg=None,
-                   key=None,
-                   value=None,
-                   ifs=None,
-                   insufficient_ifs_msg=None,
-                   expand_message=True,
-                   state=None):
-    """Test dict comprehension.
-    """
-    rep = Reporter.active_reporter
-
-    test_comp("{ordinal} dictionary comprehension", 'dict_comps', **(locals()))
-
 
 def test_comp(typestr, comptype, index, iter_vars_names,
               not_called_msg, insufficient_ifs_msg, incorrect_iter_vars_msg,

@@ -8,9 +8,6 @@ TEST_NAMES = [
     "test_mc",
     "test_or",
     "test_with",
-    "test_list_comp",
-    "test_dict_comp",
-    "test_generator_exp",
     "test_import",
     "test_object",
     "test_correct",
@@ -18,6 +15,7 @@ TEST_NAMES = [
     "test_if_exp",
     "test_for_loop",
     "test_function",
+    "test_list_comp",
     "test_function_v2",
     "test_try_except",
     "test_data_frame",
@@ -25,7 +23,6 @@ TEST_NAMES = [
     "test_student_typed",
     "test_object_accessed",
     "test_output_contains",
-    "test_lambda_function",
     "test_expression_result",
     "test_expression_output",
     "test_function_definition",
@@ -36,16 +33,13 @@ SUB_TESTS = {
     "test_if_else": ['test', 'body', 'orelse'],
     "test_if_exp": ['test', 'body', 'orelse'],
     "test_list_comp": ['comp_iter', 'body', 'ifs'],
-    "test_dict_comp": ['comp_iter', 'key', 'value', 'ifs'],
     "test_correct": ['check', 'diagnose'],
-    "test_generator_exp": ['comp_iter', 'body', 'ifs'],
     "test_for_loop": ['for_iter', 'body', 'orelse'],
     "test_try_except": ['body', 'handlers', 'orelse', 'finalbody'],
     "test_while_loop": ['test', 'body', 'orelse'],
     "test_with": ['context_tests', 'body'],
     "test_function_definition": ['body'],
-    "test_or": ['tests'],
-    "test_lambda_function": ['body']
+    "test_or": ['tests']
 }
 
 class Tree(object):
