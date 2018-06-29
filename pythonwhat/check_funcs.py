@@ -582,9 +582,9 @@ def run_call(args, node, process, get_func, **kwargs):
         return get_func(process = process, tree=func_expr, call = fmt_args, **kwargs)
         
 
-MSG_CALL_INCORRECT = "__JINJA__:Calling `{{argstr}}` should {{action}} `{{str_sol}}`, instead got {{str_stu if str_stu == 'no printouts' else '`' + str_stu + '`'}}."
-MSG_CALL_ERROR     = "__JINJA__:Calling `{{argstr}}` should {{action}} `{{str_sol}}`, instead it errored out: `{{str_stu}}`."
-MSG_CALL_ERROR_INV = "__JINJA__:Calling `{{argstr}}` should {{action}} `{{str_sol}}`, instead got `{{str_stu}}`."
+MSG_CALL_INCORRECT = "__JINJA__:Calling {{argstr}} should {{action}} `{{str_sol}}`, instead got {{str_stu if str_stu == 'no printouts' else '`' + str_stu + '`'}}."
+MSG_CALL_ERROR     = "__JINJA__:Calling {{argstr}} should {{action}} `{{str_sol}}`, instead it errored out: `{{str_stu}}`."
+MSG_CALL_ERROR_INV = "__JINJA__:Calling {{argstr}} should {{action}} `{{str_sol}}`, instead got `{{str_stu}}`."
 def call(args,
          test='value',
          incorrect_msg=None,
@@ -634,9 +634,9 @@ def call(args,
     if argstr is None:
         bracks = stringify(fix_format(args))
         if hasattr(state.student_parts['node'], 'name'):  # Lambda function doesn't have name
-            argstr = state.student_parts['node'].name + bracks
+            argstr = '`{}{}`'.format(state.student_parts['node'].name, bracks)
         else:
-            argstr = 'with arguments `{}`'.format(bracks)
+            argstr = 'it with the arguments `{}`'.format(bracks)
 
     rep = Reporter.active_reporter
 
