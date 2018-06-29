@@ -170,6 +170,26 @@ def test_check_object(stu, patt, cols, cole):
     assert message(output, patt)
     assert lines(output, cols, cole)
 
+
+@pytest.mark.parametrize('stu, patt', [
+    ('round(2.34)', 'argrwong'),
+    ('round(1.23)', 'objectnotdefined'),
+    ('x = round(1.23) + 1', 'objectincorrect')
+])
+def test_check_object_manual(stu, patt):
+    output = helper.run({
+        'DC_CODE': stu,
+        'DC_SOLUTION': 'x = round(1.23)',
+        'DC_SCT': """
+Ex().check_function('round').check_args(0).has_equal_value(incorrect_msg = 'argrwong')
+Ex().check_object('x', missing_msg='objectnotdefined').has_equal_value('objectincorrect')
+"""
+    })
+    assert not output['correct']
+    assert message(output, patt)
+
+# Check call ------------------------------------------------------------------
+
 @pytest.mark.parametrize('stu, patt', [
     ('', 'The system wants to check the definition of `test()` but hasn\'t found it.'),
     ('def test(a, b): return 1', 'Check the definition of `test()`. Calling `test(1, 2)` should return `3`, instead got `1`.'),
@@ -200,18 +220,13 @@ Ex().check_function_def('test').multi(
     assert message(output, patt)
 
 @pytest.mark.parametrize('stu, patt', [
-    ('round(2.34)', 'argrwong'),
-    ('round(1.23)', 'objectnotdefined'),
-    ('x = round(1.23) + 1', 'objectincorrect')
+    ('echo_word = (lambda word1, echo: word1 * echo * 2)', "Check the first lambda function. Calling it with the arguments `('test', 2)` should return `testtest`, instead got `testtesttesttest`.")
 ])
-def test_check_object_manual(stu, patt):
+def test_check_call_lambda(stu, patt):
     output = helper.run({
+        'DC_SOLUTION': 'echo_word = (lambda word1, echo: word1 * echo)',
         'DC_CODE': stu,
-        'DC_SOLUTION': 'x = round(1.23)',
-        'DC_SCT': """
-Ex().check_function('round').check_args(0).has_equal_value(incorrect_msg = 'argrwong')
-Ex().check_object('x', missing_msg='objectnotdefined').has_equal_value('objectincorrect')
-"""
+        'DC_SCT': "Ex().check_lambda_function().call(['test', 2], 'value')"
     })
     assert not output['correct']
     assert message(output, patt)
