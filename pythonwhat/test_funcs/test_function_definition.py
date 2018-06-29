@@ -134,7 +134,7 @@ def test_function_definition(name,
         call(el, 'value',
                 incorrect_msg = wrong_result_msg,
                 error_msg = wrong_result_msg,
-                argstr = name + stringify(el),
+                argstr = '`{}{}`'.format(name, stringify(el)),
                 state = quiet_child)
 
     for el in (outputs or []):
@@ -142,7 +142,7 @@ def test_function_definition(name,
         call(el, 'output',
                 incorrect_msg = wrong_output_msg,
                 error_msg = wrong_output_msg,
-                argstr = name + stringify(el),
+                argstr = '`{}{}`'.format(name, stringify(el)),
                 state = quiet_child)
 
     for el in (errors or []):
@@ -150,7 +150,7 @@ def test_function_definition(name,
         call(el, 'error',
                 incorrect_msg = wrong_error_msg,
                 error_msg = no_error_msg,
-                argstr = name + stringify(el),
+                argstr = '`{}{}`'.format(name, stringify(el)),
                 state = quiet_child)
 
 

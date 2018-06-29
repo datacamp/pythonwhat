@@ -8,7 +8,6 @@ def test_correct(check, diagnose, state=None):
     """Allows feedback from a diagnostic SCT, only if a check SCT fails. 
     
     """
-    rep = Reporter.active_reporter
 
     def diagnose_and_check(state=None):
         # use multi twice, since diagnose and check may be lists of tests
