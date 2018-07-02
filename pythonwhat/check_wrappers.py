@@ -17,12 +17,13 @@ __PART_WRAPPERS__ = {
         'key' : 'key part',
         'value': 'value part',
         'orelse': 'else part',
+        'finalbody': 'finally part',
         'test': 'condition' 
         }
 
 __PART_INDEX_WRAPPERS__ = {
         'ifs': '{ordinal} if',
-        'handlers': '{index} `except` block',
+        'handlers': '`{index}` `except` block',
         'context': '{ordinal} context'
         }
 

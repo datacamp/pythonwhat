@@ -10,7 +10,6 @@ from .test_if_else import test_if_exp
 from .test_for_loop import test_for_loop
 from .test_function import test_function
 from .test_function import test_function_v2
-from .test_try_except import test_try_except
 from .test_data_frame import test_data_frame
 from .test_while_loop import test_while_loop
 from .test_student_typed import test_student_typed
