@@ -34,7 +34,7 @@ s.check_object('x')
 # No error: x is defined in both student and solution process
 
 s.check_object('x').has_equal_value()
-# TestFail: Check the variable `x`. Unexpected expression value: expected `4`, got `5`.
+# TestFail: Did you correctly define the variable `x`? Expected `4`, but got `5`.
 
 # Debugging state
 s._state               # access state object
