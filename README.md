@@ -5,10 +5,10 @@
 [![PyPI version](https://badge.fury.io/py/pythonwhat.svg)](https://badge.fury.io/py/pythonwhat)
 [![Documentation Status](https://readthedocs.org/projects/pythonwhat/badge/?version=stable)](http://pythonwhat.readthedocs.io/en/stable/?badge=stable)
 
-Verify Python code submissions and automatic generation of meaningful feedback. Originally developed for Python exercises on DataCamp, to be used in so-called Submission Correctness Tests, but can also be used independently.
+Verify Python code submissions and auto-generate meaningful feedback messages. Originally developed for Python exercises on DataCamp for so-called Submission Correctness Tests, but can also be used independently.
 
-- If you are new to teaching on DataCamp, check out https://authoring.datacamp.com.
-- If you want to learn what SCTs are and how they work, visit [this article](https://authoring.datacamp.com/courses/exercises/technical-details/sct.html) specifically.
+- New to teaching on DataCamp? Check out https://authoring.datacamp.com.
+- To learn what SCTs are and how they work, visit [this article](https://authoring.datacamp.com/courses/exercises/technical-details/sct.html) specifically.
 - For a complete overview of all functionality inside `pythonwhat` and articles about what to use when, consult https://pythonwhat.readthedocs.io.
 
 ## Installation
@@ -49,7 +49,7 @@ To learn how to include an SCT in a DataCamp course, visit https://authoring.dat
 Use Python 3.5
 
 ```
-# install packages used in tests (should be reduced)
+# install packages used in tests
 pip install -r requirements.txt
 
 # install pythonwhat
@@ -58,6 +58,4 @@ pip install -e .
 pytest
 ```
 
-To disable deprecation warnings: `$ export PYTHONWARNINGS="ignore"`
-
-For more details, questions and suggestions, contact <b>learn-engineering@datacamp.com</b>.
+Bugs? Questions? Suggestions? [Create an issue](https://github.com/datacamp/pythonwhat/issues/new), or [contact us](mailto:content-engineering@datacamp.com)!
