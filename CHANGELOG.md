@@ -2,6 +2,45 @@
 
 All notable changes to the `pythonwhat` project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.13.0
+
+### Changed
+
+- `test_function()` and `test_function_v2()` now use `check_function()` and `check_args()` behind the scenes.
+  That way, when we make improvements to the messaging logic, all SCTs that use any of these three functions will benefit from them.
+  In the future, we will deprecate `test_function()` and `test_function_v2()` as they are not explicit enough about what is being tested and how.
+- `test_function('print')` and `check_function('print')` use `Ex().has_printout()` behind the scenes when appropriate.
+  This makes the SCTs much more accepting for different ways of doing printouts.
+- You can now use `check_finalbody()` to check the `finally` part of a `try-except` block.
+- Drastically improve `has_equal_ast()` messaging.
+- If you manually specify `code` argument in `has_equal_ast()`, you _have_ to specify the `incorrect_msg` because the machine-generated one will be meaningless (for now).
+
+### Fixed
+
+- **BIG ONE**: You can now test method calls that have subscripts in them.
+  This is particularly useful for `pandas`, where you for example want to test a call `df[df.b == 'x'].a.sum()`.
+  You can now do that with:
+
+  ```python
+  # Check whether the function was called:
+  Ex().check_function('df.a.sum', signature = False)
+  # Check whether the function was called and generated the correct result:
+  Ex().check_function('df.a.sum', signature = False).has_equal_value()
+  ```
+
+  This update means that you should no longer need to use two `has_equal_ast()`'s inside a `test_correct()` to allow for two
+  different ways of doing a pandas operation. If you do, please create an issue!
+
+- Some fixes to `has_printout()` that caused it not to work in all cases.
+- `check_function()` now refers to a function call in the way that the student defined it.
+  When a student uses `import pandas as pd` and then has to call a function `pd.Series()`,
+  `check_function()` will refer to the function with `pd.Series()` and not `pandas.Series()`.
+
+### Removed
+
+- `test_dict_comp()`, `test_try_except()`, `test_generator_exp()` and `test_lambda_function()` have been removed from the API.
+  The couple of SCTs on DataCamp that used these functions have been converted to use the modern `check_` functions.
+
 ## 2.12.6
 
 ### Changed
