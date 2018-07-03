@@ -27,7 +27,7 @@ You don’t care too much about how ``x`` was created, as long as it’s defined
 
     Ex().check_object("x").has_equal_value()
 
-``check_object()`` will check if the variable ``x`` is defined in the student process. ``has_equa_value()`` will check whether its value is the same as in the solution process. 
+``check_object()`` will check if the variable ``x`` is defined in the student process. ``has_equal_value()`` will check whether its value is the same as in the solution process. 
 
 All of the following student submissions will be accepted by check_object():
 
