@@ -34,7 +34,7 @@ def has_output(text,
         no_output_msg = "You did not output the correct things."
         # raise ValueError("Inside has_output(), specify the `no_output_msg` manually.")
 
-    student_output = state.raw_student_output.strip() + '\n'
+    student_output = state.raw_student_output
 
     _msg = state.build_message(no_output_msg)
     rep.do_test(
@@ -96,15 +96,14 @@ def has_printout(index,
     if not_printed_msg is None:
         not_printed_msg = "__JINJA__:Have you used `{{sol_call}}` to do the appropriate printouts?"
 
-    sol_out = state.solution_function_calls
     try:
-        sol_call = sol_out['print'][index]['node']
+        sol_call_ast = state.solution_function_calls['print'][index]['node']
     except (KeyError, IndexError):
         raise ValueError("Using has_printout() with index {} expects that there is/are at least {} print() call(s) in your solution."
                          "Is that the case?".format(index, index+1))
 
     out_sol, str_sol = getOutputInProcess(
-        tree = sol_call,
+        tree = sol_call_ast,
         process = state.solution_process,
         context = state.solution_context,
         env = state.solution_env,
@@ -112,13 +111,14 @@ def has_printout(index,
         copy = copy
     )
 
-    sol_call = state.solution_tree_tokens.get_text(sol_call)
+    sol_call_str = state.solution_tree_tokens.get_text(sol_call_ast)
 
     if isinstance(str_sol, Exception):
             raise ValueError("Evaluating the solution expression {} raised error in solution process."
-                             "Error: {} - {}".format(sol_call, type(out_sol), str_sol))
+                             "Error: {} - {}".format(sol_call_str, type(out_sol), str_sol))
 
-    _msg = state.build_message(not_printed_msg, { 'sol_call': sol_call })
-    has_output(out_sol.strip() + '\n', pattern = False, no_output_msg=_msg, state=state)
+    _msg = state.build_message(not_printed_msg, { 'sol_call': sol_call_str })
+
+    has_output(out_sol.strip(), pattern = False, no_output_msg=_msg, state=state)
 
     return state
