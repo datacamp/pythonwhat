@@ -2,6 +2,14 @@
 
 All notable changes to the `pythonwhat` project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.13.1
+
+_Small changes to follow up on `2.13.0`_
+
+- Get rid of `typestr` argument in `check_function()` as it's used nowhere
+- Change the internals of has_printout, to be more allowing for different ways of doing things
+- Improve variable names for readability and understanding
+
 ## 2.13.0
 
 ### Changed
