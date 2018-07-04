@@ -27,9 +27,9 @@ class TestFunctionBase(unittest.TestCase):
     def test_builtin_pass(self):
         self.data = {
             "DC_PEC": "",
-            "DC_SOLUTION": "print('test')",
-            "DC_CODE": "print('test')",
-            "DC_SCT": "test_function_v2('print', params = ['value'])"
+            "DC_SOLUTION": "round(1)",
+            "DC_CODE": "round(1)",
+            "DC_SCT": "test_function_v2('round', params = ['number'])"
         }
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
@@ -37,9 +37,9 @@ class TestFunctionBase(unittest.TestCase):
     def test_builtin_fail(self):
         self.data = {
             "DC_PEC": "",
-            "DC_SOLUTION": "print('test')",
-            "DC_CODE": "print('testing')",
-            "DC_SCT": "test_function_v2('print', params = ['value'])"
+            "DC_SOLUTION": "round(1)",
+            "DC_CODE": "round(2)",
+            "DC_SCT": "test_function_v2('round', params = ['number'])"
         }
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])

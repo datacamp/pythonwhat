@@ -24,9 +24,9 @@ def test_basic_has_printout_passing(stu):
         "print('1 2')",
         "print('1 3 2')",
         "print(1, 3, 2)",
-        "print(1, 2, 3, 4)",
-        "print('1 2 3 4')",
-        "print('1 2', 3, 4)"
+        "print(1, 2, 4, 3)",
+        "print('1 2 4 3')",
+        "print('1 2', 4, 3)"
     ])
 def test_basic_has_printout_failing(stu):
     sol = 'print(1, 2, 3)'

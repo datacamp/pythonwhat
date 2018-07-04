@@ -23,15 +23,14 @@ def get_mapped_name(name, mappings):
             if name.startswith(full_name): return name.replace(full_name, orig)
     return name
 
-MISSING_MSG = "__JINJA__:Did you call `{{name}}()`{{' ' + times if index>0}}?"
-SIG_ISSUE_MSG = "__JINJA__:Have you specified the arguments for `{name}()` using the right syntax?"
-PREPEND_MSG = "__JINJA__:Check your {{ord + ' ' if index>0}}call of `{{name}}()`. "
+MISSING_MSG = "__JINJA__:Did you call `{{mapped_name}}()`{{' ' + times if index>0}}?"
+SIG_ISSUE_MSG = "__JINJA__:Have you specified the arguments for `{{mapped_name}}()` using the right syntax?"
+PREPEND_MSG = "__JINJA__:Check your {{ord + ' ' if index>0}}call of `{{mapped_name}}()`. "
 def check_function(name, index=0,
                    missing_msg=None,
                    params_not_matched_msg=None,
                    expand_msg=None,
                    signature=True,
-                   typestr="__JINJA__:`{name} function call{} of `{name}()`",
                    state=None):
     """Check whether a particular function is called.
 
@@ -49,7 +48,6 @@ def check_function(name, index=0,
         expand_msg (str): If specified, this overrides any messages that are prepended by previous SCT chains.
         signature (Signature): Normally, check_function() can figure out what the function signature is,
             but it might be necessary to use build_sig to manually build a signature and pass this along.
-        typestr (formatted string): If specified, this overrides how the function call is automatically referred to.
         state (State): State object that is passed from the SCT Chain (don't specify this).
 
     :Examples:
@@ -87,7 +85,7 @@ def check_function(name, index=0,
     fmt_kwargs = {'times': get_times(index+1),
                   'ord': get_ord(index+1),
                   'index': index,
-                  'name': get_mapped_name(name, student_mappings)}
+                  'mapped_name': get_mapped_name(name, student_mappings)}
 
     # Get Parts ----
     # Copy, otherwise signature binding overwrites sol_out[name][index]['args']
