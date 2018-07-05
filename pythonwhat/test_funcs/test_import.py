@@ -3,10 +3,13 @@ from pythonwhat.Test import Test, DefinedCollTest, EqualTest
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 
+NOT_IMPORTED_MSG = "__JINJA__:Did you import `{{pkg}}`?"
+INCORRECT_AS_MSG = "__JINJA__:Did you import `{{pkg}}` as `{{alias}}`?"
+
 def has_import(name,
                  same_as=True,
-                 not_imported_msg=None,
-                 incorrect_as_msg=None,
+                 not_imported_msg=NOT_IMPORTED_MSG,
+                 incorrect_as_msg=INCORRECT_AS_MSG,
                  state=None):
     """Check whether code has certain import statement.
 
@@ -45,24 +48,16 @@ def has_import(name,
     solution_imports = state.solution_imports
 
     if name not in solution_imports:
-        raise NameError("%r not in solution imports" % name)
+        raise NameError("The package you specified is not in the solution imports itself. %r not in solution imports" % name)
 
-    if not_imported_msg is None:
-        not_imported_msg = "Did you import `%s`?" % name
+    fmt_kwargs = { 'pkg': name, 'alias': solution_imports[name] }
 
-    _msg = state.build_message(not_imported_msg)
+    _msg = state.build_message(not_imported_msg, fmt_kwargs)
     rep.do_test(DefinedCollTest(name, student_imports, _msg))
 
     if (same_as):
-        if incorrect_as_msg is None:
-            incorrect_as_msg = "Did you set the correct alias for `%s`?" % name
-
-        _msg = state.build_message(incorrect_as_msg)
-        rep.do_test(
-            EqualTest(
-                solution_imports[name],
-                student_imports[name],
-                _msg))
+        _msg = state.build_message(incorrect_as_msg, fmt_kwargs)
+        rep.do_test(EqualTest(solution_imports[name], student_imports[name], _msg))
 
     return state
 

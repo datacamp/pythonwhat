@@ -4,6 +4,7 @@ import os
 from pythonwhat.local import StubProcess
 from contextlib import redirect_stdout
 from pythonwhat.test_exercise import test_exercise
+from pythonwhat.check_syntax import Chain
 import io
 import tempfile
 
@@ -72,6 +73,9 @@ def get_sct_payload(output):
     else:
         print(output)
         return(None)
+
+def passes(st):
+    assert isinstance(st, Chain)
 
 def test_lines(test, sct_payload, ls, le, cs, ce):
     test.assertEqual(sct_payload['line_start'], ls)
