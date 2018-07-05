@@ -230,3 +230,33 @@ def test_check_call_lambda(stu, patt):
     })
     assert not output['correct']
     assert message(output, patt)
+
+## has_import -----------------------------------------------------------------
+
+@pytest.mark.parametrize('stu, patt', [
+    ('', 'Did you import `pandas`?'),
+    ('import pandas', 'Did you import `pandas` as `pd`?'),
+    ('import pandas as pan', 'Did you import `pandas` as `pd`?')
+])
+def test_has_import(stu, patt):
+    output = helper.run({
+        'DC_CODE': stu,
+        'DC_SOLUTION': 'import pandas as pd',
+        'DC_SCT': "Ex().has_import('pandas')"
+    })
+    assert not output['correct']
+    assert message(output, patt)
+
+@pytest.mark.parametrize('stu, patt', [
+    ('', 'wrong'),
+    ('import pandas', 'wrongas'),
+    ('import pandas as pan', 'wrongas')
+])
+def test_has_import_custom(stu, patt):
+    output = helper.run({
+        'DC_CODE': stu,
+        'DC_SOLUTION': 'import pandas as pd',
+        'DC_SCT': "Ex().has_import('pandas', not_imported_msg='wrong', incorrect_as_msg='wrongas')"
+    })
+    assert not output['correct']
+    assert message(output, patt)
