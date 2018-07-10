@@ -341,7 +341,7 @@ def set_context(*args, state=None, **kwargs):
 
     - Note 1: excess args and unmatched kwargs will be unused in the student environment.
     - Note 2: positional arguments are more robust to the student using different names for context values.
-    - Note 3: If an argument is specified both by name and position args, ``set_context()`` will use the named arg.
+    - Note 3: You have to specify arguments either by position, either by name. A combination is not possible.
 
     :Example:
 
@@ -371,26 +371,41 @@ def set_context(*args, state=None, **kwargs):
                 multi([s.has_equal_output(context_vals=[i]) for i in range(1, 4)])
 
     """
+
     stu_crnt = state.student_context.context
     sol_crnt = state.solution_context.context
+
+    # for now, you can't specify both
+    if len(args) > 0 and len(kwargs) > 0:
+        raise ValueError("In set_context() make sure to specify arguments either by position, either by name")
+
     # set args specified by pos -----------------------------------------------
-    # stop if too many pos args for solution
-    if len(args) > len(sol_crnt): 
-        raise IndexError("Too many positional args. There are {} context vals, but tried to set {}"
-                            .format(len(sol_crnt), len(args)))
-    # set pos args
-    upd_sol = sol_crnt.update(dict(zip(stu_crnt.keys(), args)))
-    upd_stu = stu_crnt.update(dict(zip(sol_crnt.keys(), args)))
+    if args:
+        # stop if too many pos args for solution
+        if len(args) > len(sol_crnt): 
+            raise IndexError("Too many positional args. There are {} context vals, but tried to set {}"
+                                .format(len(sol_crnt), len(args)))
+        # set pos args
+        upd_sol = sol_crnt.update(dict(zip(sol_crnt.keys(), args)))
+        upd_stu = stu_crnt.update(dict(zip(stu_crnt.keys(), args)))
+    else:
+        upd_sol = sol_crnt
+        upd_stu = stu_crnt
 
     # set args specified by keyword -------------------------------------------
-    if set(kwargs) - set(upd_sol):
-        raise KeyError("Context val names are {}, but tried to set {}"
-                            .format(upd_sol or "none", kwargs.keys()))
-    out_sol = upd_sol.update(kwargs)
-    # need to match keys in kwargs with corresponding keys in stu context
-    # in case they used, e.g., different loop variable names
-    match_keys = dict(zip(sol_crnt.keys(), stu_crnt.keys()))
-    out_stu = upd_stu.update({match_keys[k]: v for k,v in kwargs.items() if k in match_keys})
+    if kwargs:
+        # stop if keywords don't match with solution
+        if set(kwargs) - set(upd_sol):
+            raise KeyError("Context val names are {}, but tried to set {}"
+                                .format(upd_sol or "none", kwargs.keys()))
+        out_sol = upd_sol.update(kwargs)
+        # need to match keys in kwargs with corresponding keys in stu context
+        # in case they used, e.g., different loop variable names
+        match_keys = dict(zip(sol_crnt.keys(), stu_crnt.keys()))
+        out_stu = upd_stu.update({match_keys[k]: v for k,v in kwargs.items() if k in match_keys})
+    else:
+        out_sol = upd_sol
+        out_stu = upd_stu
 
     return state.to_child_state(student_context = out_stu, solution_context = out_sol)
 
@@ -435,7 +450,7 @@ def set_env(state = None, **kwargs):
 def disable_highlighting(state = None):
     """Disable highlighting in the remainder of the SCT chain.
 
-    Include this function if you want to avoid that ``pythonwhat`` marks which part of the student submission is incorrect.
+    Include this function if you want to avoid that pythonwhat marks which part of the student submission is incorrect.
 
     :Examples:
 
@@ -649,12 +664,12 @@ def call(args,
 
     if (test == 'error') ^ isinstance(eval_sol, Exception):
         _msg = state.build_message("FMT:Calling {argstr} resulted in an error (or not an error if testing for one). Error message: {type_err} {str_sol}",
-                                   dict(args=args, type_err=type(eval_sol), str_sol=str_sol))
+                                   dict(type_err=type(eval_sol), str_sol=str_sol, argstr=argstr)),
         raise ValueError(_msg)
 
     if isinstance(eval_sol, ReprFail):
         _msg = state.build_message("FMT:Can't get the result of calling {argstr}: {eval_sol.info}",
-                                   dict(args = args, eval_sol=eval_sol))
+                                   dict(argstr = argstr, eval_sol=eval_sol))
         raise ValueError(_msg)
 
     # Run for Submission ------------------------------------------------------
