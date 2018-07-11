@@ -4,7 +4,7 @@ Electives
 Success message
 ===============
 
-When all tests in an SCT pass, ``pythonwhat`` will automatically generate a congratulatory message to present to the student. If you want to override this 'success message', you can use the ``success_msg()`` function.
+When all tests in an SCT pass, pythonwhat will automatically generate a congratulatory message to present to the student. If you want to override this 'success message', you can use the ``success_msg()`` function.
 
 .. code::
 

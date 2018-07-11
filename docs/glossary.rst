@@ -183,7 +183,7 @@ Check if statement
     # solution
     x = 4
     if x > 0:
-        print("x is positive")
+        print("x is strictly positive")
 
     # sct
     Ex().check_if_else().multi(
@@ -194,7 +194,7 @@ Check if statement
     # passing submission
     x = 4
     if 0 < x:
-        print("x is positive")
+        print("x is strictly positive")
 
 Check function definition
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -202,17 +202,21 @@ Check function definition
 .. code::
 
     # solution
-    def my_power(x):\n    print("calculating sqrt...")\n    return(x * x)
+    def shout_echo(word1, echo=1):
+        echo_word = word1 * echo
+        shout_words = echo_word + '!!!'
+        return shout_words
 
     # sct
-    Ex().check_function_def('my_power').multi(
-        check_args('x'),
-        call([3], 'value'),   # Check that calling my_power(3) returns correct result.
-        call([3], 'output'),  # Check that calling my_power(3) does correct printouts
-        # Check that print is used
-        check_body().check_function('print') \
-            # correctly, assuming x = 3
-            .check_args('value').set_env(x = 3).has_equal_value()
+    Ex().check_function_def('shout_echo').test_correct(
+        multi(
+            call(['hey', 3], 'value'),
+            call(['hi', 2], 'value'),
+            call(['hi'], 'value')
+        ),
+        check_body().set_context('test', 1).multi(
+            has_equal_value(name = 'echo_word'),
+            has_equal_value(name = 'shout_words')
         )
     )
 

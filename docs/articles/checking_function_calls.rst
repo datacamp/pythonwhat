@@ -1,47 +1,39 @@
 Checking function calls
 -----------------------
 
-Testing functions is probably one of the most common things you'll do when writing SCTs.
-The functions in ``pythonwhat`` related to testing functions allow you to test whether students correctly called particular functions,
-with the correct arguments and whether these arguments are correct.
-To assess all of these aspects, ``pythonwhat`` goes through the solution code to see which functions were called there and how,
-and also checks the solution process to see what the value of the parameters is. This makes the comparison of function calls concise yet robust.
-
 Basic functionality
 ===================
 
-Suppose you want the student to call the ``round()`` function on ``2.718282``, as follows:
+Take the following example that checks whether a student used the ``round()`` function correctly:
 
 .. code::
 
-    # round 2.718282 to 3 digits
-    round(2.718282, 3)
+    # solution
+    round(2.718282, ndigits = 3)
 
-The following SCT tests whether the ``round()`` function is used correctly:
-
-.. code::
-
+    # sct
     Ex().check_function("round").multi(
         check_args("number").has_equal_value(),
         check_args("ndigits").has_equal_value()
     )
 
-When a student submits his code and SCT is executed, `check_function()` checks whether the student has called the function `round()`.
-Next, `check_args()` checks whether each argument was specified (you can also refer to positional arguments by passing an integer).
-Finally, `has_equal_value()` will rerun the expressions used to specify the arguments in both student and solution process, and compare them.
-The above SCT would accept all of the following submissions:
+    # submissions that pass:
+    round(2.718282, 3)
+    round(2.718282, ndigits = 3
+    round(number=2.718282, ndigits=3)
+    round(ndigits=3, number=2.718282)
+    val=2.718282; dig=3; round(val, dig)
+    val=2.718282; dig=3; round(number=val, dig)
+    int_part = 2; dec_part = 0.718282; round(int_part + dec_part, 3)
 
-- ``round(2.718282, 3)``
-- ``round(number=2.718282, 3)``
-- ``round(number=2.718282, ndigits=3)``
-- ``round(ndigits=3, number=2.718282)``
-- ``val=2.718282; dig=3; round(val, dig)``
-- ``val=2.718282; dig=3; round(number=val, dig)``
-- ``int_part = 2; dec_part = 0.718282; round(int_part + dec_part, 3)``
+
+- `check_function()` checks whether ``round()`` is called by the student, and parses all the arguments.
+- ``check_args()`` checks whether a certain argument was specified, and zooms in on the expression used to specify that argument.
+- ``has_equal_value()`` will rerun the expressions used to specify the arguments in both student and solution process, and compare the results.
 
 .. note::
 
-    To find out which arguments you have to specify in `check_args()`, you can check out the reference documentation of the function you're trying to check.
+    In ``check_args()`` you can refer to the argument of a function call both by argument name and by position.
 
 Customizations
 ~~~~~~~~~~~~~~
@@ -82,8 +74,7 @@ Now, the following submissions would fail:
 
 As you can see, doing exact string comparison of arguments is not a good idea, as it is very inflexible.
 There are cases, however, where it makes sense to use this, e.g. when there are very big objects passed to functions,
-and you don't want to spend the processing power to fetch these objects from the coding processes.
-
+and you don't want to spend the processing power to fetch these objects from the student and solution processes.
 
 Functions in packages
 =====================
@@ -106,7 +97,7 @@ Signatures
 ==========
 
 The ``round()`` example earlier in this article showed that a student can call the function in a multitude of ways,
-specifying arguments by position, by keyword or a mix of those. To be robust against this, ``pythonwhat`` uses the concept of `argument binding`.
+specifying arguments by position, by keyword or a mix of those. To be robust against this, pythonwhat uses the concept of argument binding.
 
 More specifically, each function has a function signature. Given this signature and the way the function was called,
 argument binding can map each parameter you specified to an argument. This small demo fetches the signature of the ``open`` function and tries to
@@ -166,7 +157,7 @@ Let's see what happens when different calls are bound to their arguments:
     <BoundArguments (args=(3, 4, 5))>
 
 Notice how now the list of arguments is grouped under a tuple with the name ``args`` in the bound arguments.
-To be able to check each of these arguments individually, ``pythonwhat`` allows you to do repeated indexing in ``check_args()``.
+To be able to check each of these arguments individually, pythonwhat allows you to do repeated indexing in ``check_args()``.
 Instead of specifying the name of an argument, you can specify a list of indices:
 
 .. code::
@@ -208,7 +199,7 @@ Let's see what happens when different calls are bound to their arguments:
     <BoundArguments (kwargs={'b': 3, 'c': 2})>
 
 Notice how now the list of arguments is grouped under a dictionary name ``kwargs`` in the bound arguments.
-To be able to check each of these arguments individually, ``pythonwhat`` allows you to do repeated indexing in ``check_args()``.
+To be able to check each of these arguments individually, pythonwhat allows you to do repeated indexing in ``check_args()``.
 Instead of specifying the name of an argument, you can specify a list of indices:
 
 .. code::
@@ -228,11 +219,11 @@ Manual signatures
 ~~~~~~~~~~~~~~~~~
 
 Unfortunately for a lot of Python's built-in functions no function signature is readily available because the function has been implemented in C code.
-To work around this, ``pythonwhat`` already includes manually specified signatures for functions such as ``print()``, ``str()``, ``hasattr()``, etc,
+To work around this, pythonwhat already includes manually specified signatures for functions such as ``print()``, ``str()``, ``hasattr()``, etc,
 but it's still possible that some signatures are missing.
 
 That's why ``check_function()`` features a ``signature`` parameter, that is ``True`` by default.
-If ``pythonwhat`` can't retrieve a signature for the function you want to test,
+If pythonwhat can't retrieve a signature for the function you want to test,
 you can pass an object of the class ``inspect.Signature`` to the ``signature`` parameter.
 
 Suppose, for the sake of example, that ``check_function()`` can't find a signature for the ``round()`` function.
@@ -258,7 +249,7 @@ Other common possibilities are ``param.POSITIONAL_ONLY`` and ``param.KEYWORD_ONL
 
 .. note:: 
 
-    If you find vital Python functions that are used very often and that are not included in ``pythonwhat`` by default, you can `let us know <mailto:content-engineering@datacamp.com>`_ and we'll add the function to our `list of manual signatures <https://github.com/datacamp/pythonwhat/blob/master/pythonwhat/signatures.py>`_.
+    If you find vital Python functions that are used very often and that are not included in pythonwhat by default, you can `let us know <mailto:content-engineering@datacamp.com>`_ and we'll add the function to our `list of manual signatures <https://github.com/datacamp/pythonwhat/blob/master/pythonwhat/signatures.py>`_.
 
 Multiple function calls
 =======================

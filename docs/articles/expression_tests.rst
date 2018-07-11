@@ -258,7 +258,7 @@ For example, if the SCT below didn't use ``extra_env``, then it would take a lon
    Ex().set_env(a_list = list(range(10))).has_equal_output()
    ```
    
-The reason extra_env is important here, is that ``pythonwhat`` tries to make a deepcopy of lists, so that course developers don't get bit by unexpected mutations.
+The reason extra_env is important here, is that pythonwhat tries to make a deepcopy of lists, so that course developers don't get bit by unexpected mutations.
 However, the larger the list, the longer it takes to make a deepcopy. 
 If an SCT is running slowly, there's a good chance it uses a very large object that is being copied for every expression test.
 

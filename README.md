@@ -9,7 +9,7 @@ Verify Python code submissions and auto-generate meaningful feedback messages. O
 
 - New to teaching on DataCamp? Check out https://authoring.datacamp.com.
 - To learn what SCTs are and how they work, visit [this article](https://authoring.datacamp.com/courses/exercises/technical-details/sct.html) specifically.
-- For a complete overview of all functionality inside `pythonwhat` and articles about what to use when, consult https://pythonwhat.readthedocs.io.
+- For a complete overview of all functionality inside pythonwhat and articles about what to use when, consult https://pythonwhat.readthedocs.io.
 
 ## Installation
 

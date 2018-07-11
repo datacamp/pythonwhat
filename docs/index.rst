@@ -1,18 +1,15 @@
 pythonwhat
 ----------
 
-The ``pythonwhat`` package helps you to write Submission Correctness Tests (SCTs) for interactive Python exercises on the DataCamp platform.
-
-- If you are new to teaching on DataCamp, check out https://authoring.datacamp.com.
-- If you want to learn what SCTs are and how they work, visit `this article <https://authoring.datacamp.com/courses/exercises/technical-details/sct.html>`_ specifically.
+For an introduction to SCTs and how they use pythonwhat, visit the `README <https://github.com/datacamp/pythonwhat>`_.
 
 This documentation features:
 
-- Articles that gradually expose you to all of ``pythonwhat``'s functionality and best practices.
 - A glossary with typical use-cases and corresponding SCT constructs.
-- Reference documentation of all actively maintained ``pythonwhat`` functions.
+- Reference documentation of all actively maintained pythonwhat functions.
+- A set of basic and advanced articles that gradually expose you to all of pythonwhat's functionality and best practices.
 
-If you are new to writing SCTs for Python exercises, work your way through the articles first.
+If you are new to writing SCTs for Python exercises, start with the tutorial and work your way through the other basic articles.
 The glossary is good to get a quick overview of how all functions play together after you have a basic understanding.
 The reference docs become useful when you grasp all concepts and want to look up details on how to call certain functions and specify custom feedback messages.
 
@@ -30,16 +27,21 @@ The reference docs become useful when you grasp all concepts and want to look up
 
 .. toctree::
    :maxdepth: 1
-   :caption: Articles
+   :caption: Basic articles
 
-   articles/syntax.rst
+   articles/tutorial.rst
    articles/checking_objects.rst
    articles/checking_function_calls.rst
+   articles/make_your_sct_robust.rst
    articles/checking_output.rst
    articles/checking_imports.rst
    articles/checking_through_string_matching.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Advanced articles
+
    articles/checking_compound_statements.rst
-   articles/combining_sets_of_scts.rst
    articles/expression_tests.rst
    articles/processes.rst
    articles/electives.rst

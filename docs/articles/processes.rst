@@ -2,8 +2,8 @@ Processes
 ---------
 
 As explained on the `SCT authoring homepage <https://authoring.datacamp.com/courses/sct.html>`_, DataCamp's Python coding backends use uses two separate processes: one process to run the solution code, and one process to run the student's submission.
-As such, ``pythonwhat`` has access to the 'ideal ending scenario' of an exercises, which in turn makes it easier to write SCTs.
-Instead of having to specify which value an object should be, we can have ``pythonwhat`` look into the solution process and compare the object in that process with the object in the student process.
+As such, pythonwhat has access to the 'ideal ending scenario' of an exercises, which in turn makes it easier to write SCTs.
+Instead of having to specify which value an object should be, we can have pythonwhat look into the solution process and compare the object in that process with the object in the student process.
 
 Problem
 =======
@@ -27,7 +27,7 @@ These errors will typically occur if you're dealing with exotic objects, such as
 Solution
 ========
 
-To be able to handle these errors, ``pythonwhat`` allows you to write your own converters for Python objects.
+To be able to handle these errors, pythonwhat allows you to write your own converters for Python objects.
 Say, for example, that you're writing an exercise to import Excel data into Python, and you're using the ``pandas`` package:
 
 .. code::
@@ -40,7 +40,7 @@ This is the corresponding SCT:
     Ex().check_object('xl').has_equal_value()
 
 Suppose now that objects such as ``xl``, which are of the type ``pandas.io.excel.ExcelFile``, can't be properly dilled and undilled.
-(Because of hardcoded converters inside ``pythonwhat``, they can, see below).
+(Because of hardcoded converters inside pythonwhat, they can, see below).
 To make sure that you can still use ``check_object('xl')`` to test the equality of the ``xl`` object between student and solution process,
 you can manually define a converter with the ``set_converter()`` function. You can extend the SCT as follows:
 
@@ -68,7 +68,7 @@ Hardcoded converters
 
 Next to primitive classes like ``str``, ``int``, ``list``, ``dict``, ... and objects with a semantically correct implemenation of ``==``, there are also a bunch of often-used complex objects that don't have a proper implementation of ``==``.
 For example, the result of calling ``.keys()`` and ``.items()`` on dictionaries can't be dilled and undilled without extra work.
-To handle these common yet problematic situations, ``pythonwhat`` features a list of hardcoded converters, so that you don't have to manually specify them each time.
+To handle these common yet problematic situations, pythonwhat features a list of hardcoded converters, so that you don't have to manually specify them each time.
 This list is `available in the source code <https://github.com/datacamp/pythonwhat/blob/master/pythonwhat/converters.py>`_.
 Feel free to do a pull request if you want to add more converts to this list, which will reduce the amount of code duplication you have to do if you want to reuse the same converter in different exercises.
 
