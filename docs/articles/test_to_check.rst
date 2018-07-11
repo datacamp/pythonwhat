@@ -2,8 +2,8 @@ Test to Check
 -------------
 
 If you are looking at the SCTs of old DataCamp courses, you'll notice they use ``test_x()`` functions instead of ``check_x()`` functions,
-and there is no usage of ``Ex()``. The ``test_x()`` way of doing things has now been phased out in terms of the more verbose,
-but more transparent and composable ``check_x()`` functions that start with ``Ex()`` and are chained together with the ``.`` operator.
+and there is no usage of ``Ex()``. The ``test_x()`` way of doing things has now been phased out in favor of the more transparent and composable
+``check_x()`` functions that start with ``Ex()`` and are chained together with the ``.`` operator.
 
 Whenever you come across an SCT that uses ``test_x()`` functions,
 you'll make everybody's life easier by converting it to a ``check_x()``-based SCT.

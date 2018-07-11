@@ -1,11 +1,9 @@
-Combining sets of SCTs
-----------------------
+Make your SCT robust
+--------------------
 
-In Python, there are many ways to solve a problem.
-Writing an SCT that checks when students make a mistake, but is robust to multiple different solutions is a challenge.
-``test_correct()`` and ``test_or()`` allow you to add logic to your SCT in two distinct ways.
-Normally, your SCT is simply a script with subsequent ``pythonwhat`` function calls, all of which have to pass.
-``test_correct()`` and ``test_or()`` allow you to bypass this.
+For larger exercises, you'll often want to be flexible: if students get the end result right, you don't want to be picky about how they got there.
+However, when they do make a mistake, you want to be specific about the mistake they are making.
+These seemingly conflicting requirements can be satisfied with ``test_correct()`` and ``test_or()``.
 
 test_correct
 ============
@@ -29,9 +27,9 @@ The following SCT will do just that:
 .. code::
 
     Ex().test_correct(
-            check_object("result").has_equal_value(),
-            check_function("numpy.mean").check_args("a").has_equal_value()
-         )
+        check_object("result").has_equal_value(),
+        check_function("numpy.mean").check_args("a").has_equal_value()
+    )
 
 
 Inside ``test_correct()``, two SCT chains are specified, separated by a comma:
@@ -80,16 +78,18 @@ It is perfectly possible for your ``check`` and ``diagnose`` SCT chains to branc
 .. code::
 
     Ex().test_correct(
-            multi(check_object('a').has_equal_value(), # multiple check SCTs
-                  check_object('b').has_equal_value()),
-            check_function("numpy.mean").check_args("a").has_equal_value()
-         )
+        multi(
+          check_object('a').has_equal_value(), # multiple check SCTs
+          check_object('b').has_equal_value()
+        ),
+        check_function("numpy.mean").check_args("a").has_equal_value()
+    )
 
 
 Why use `test_correct()`
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-You will find that ``test_correct()`` is an extremely powerful function to allow for different ways of solving the same problem.
+You will find that ``test_correct()`` is an **extremely powerful function&** to allow for different ways of solving the same problem.
 You can use ``test_correct()`` to check the end result of a calculation.
 If the end result is correct, you can go ahead and accept the entire exercise.
 If the end result is incorrect, you can use the ``diagnose`` part of ``test_correct()`` to dig a little deeper.
@@ -115,6 +115,6 @@ or you can use ``test_or()`` with three separate ``has_code()`` functions:
                has_code('5'),
                has_code('6'))
 
-You can consider ``test_or()`` a logic-inducing function. The different calls to ``pythonwhat`` functions that are in your SCT are actually all tests that _have_ to pass:
+You can consider ``test_or()`` a logic-inducing function. The different calls to pythonwhat functions that are in your SCT are actually all tests that _have_ to pass:
 they are ``AND`` tests. With ``test_or()`` you can add chunks of ``OR`` tests in there.
 
