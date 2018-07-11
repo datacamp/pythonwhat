@@ -31,7 +31,7 @@ def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
     # otherwise, assume they are just nodes
     return state.to_child_state(student_subtree=stu_part,
                                 solution_subtree=sol_part,
-                                append_message = append_message)
+                                append_message=append_message)
 
 
 DEFAULT_PART_MISSING_MSG="__JINJA__:Are you sure you defined the {{part}}? "
@@ -80,8 +80,10 @@ def check_part_index(name, index, part_msg,
     fmt_kwargs = {'index': index, 'ordinal': ordinal}
     fmt_kwargs['part'] = part_msg.format(**fmt_kwargs)
 
-    append_message = {'msg': expand_msg,
-                      'kwargs': fmt_kwargs}
+    append_message = {
+        'msg': expand_msg,
+        'kwargs': fmt_kwargs
+    }
 
     # check there are enough parts for index
     has_part(name, missing_msg, state, append_message['kwargs'], index)
@@ -133,9 +135,10 @@ def check_node(name, index=0, typestr='{ordinal} node',
     stu_part = stu_out[index]
     sol_part = sol_out[index]
 
-    append_message = {'msg': expand_msg,
-                      'kwargs': fmt_kwargs
-                      }
+    append_message = {
+        'msg': expand_msg,
+        'kwargs': fmt_kwargs
+    }
 
     return part_to_child(stu_part, sol_part, append_message, state, node_name=name)
 
@@ -407,7 +410,9 @@ def set_context(*args, state=None, **kwargs):
         out_sol = upd_sol
         out_stu = upd_stu
 
-    return state.to_child_state(student_context = out_stu, solution_context = out_sol)
+    return state.to_child_state(student_context = out_stu,
+                                solution_context = out_sol,
+                                highlight = state.highlight)
 
 def set_env(state = None, **kwargs):
     """Update/set environemnt variables for student and solution environments.
@@ -445,7 +450,9 @@ def set_env(state = None, **kwargs):
     stu_new = stu_crnt.update(kwargs)
     sol_new = sol_crnt.update(kwargs)
 
-    return state.to_child_state(student_env = stu_new, solution_env = sol_new)
+    return state.to_child_state(student_env = stu_new,
+                                solution_env = sol_new,
+                                highlight = state.highlight)
 
 def disable_highlighting(state = None):
     """Disable highlighting in the remainder of the SCT chain.
@@ -774,7 +781,7 @@ def has_equal_ast(incorrect_msg=None,
 
     return state
 
-DEFAULT_INCORRECT_MSG="__JINJA__:Expected {{'' if test == 'value' else 'the {{test}} '}}`{{sol_eval}}`, but got `{{stu_eval}}`."
+DEFAULT_INCORRECT_MSG="__JINJA__:Expected {{test_desc}}`{{sol_eval}}`, but got `{{stu_eval}}`."
 DEFAULT_ERROR_MSG="__JINJA__:Running {{'it' if parent['part'] else 'the higlighted expression'}} generated an error: `{{stu_str}}`."
 DEFAULT_ERROR_MSG_INV="__JINJA__:Running {{'it' if parent['part'] else 'the higlighted expression'}} didn't generate an error, but it should!"
 DEFAULT_UNDEFINED_NAME_MSG="__JINJA__:Running {{'it' if parent['part'] else 'the higlighted expression'}} should define a variable `{{name}}` without errors, but it doesn't."
@@ -830,9 +837,12 @@ def has_expr(incorrect_msg=None,
                                  env = state.student_env)
 
     # kwargs ---
-    fmt_kwargs = {'stu_part': state.student_parts, 'sol_part': state.solution_parts, 
-                  'name': name, 'test': test,
-                  'extra_env': str(extra_env) if extra_env else "", 'context_vals': context_vals}
+    fmt_kwargs = {
+        'stu_part': state.student_parts,
+        'sol_part': state.solution_parts,
+        'name': name, 'test': test,
+        'test_desc': '' if test == 'value' else 'the %s ' % test
+    }
     fmt_kwargs['stu_eval'] = utils.shorten_str(str(eval_stu))
     fmt_kwargs['sol_eval'] = utils.shorten_str(str(eval_sol))
 

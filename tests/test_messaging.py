@@ -131,7 +131,6 @@ def test_multiple_check_functions(stu, patt):
     assert not output['correct']
     assert message(output, patt)
 
-@pytest.mark.debug
 @pytest.mark.parametrize('stu, patt, cols, cole', [
     ("df.groupby('a')", "Check your call of `df.groupby()`. Did you correctly specify the first argument? Expected `'b'`, but got `'a'`.", 12, 14),
     ("df.groupby('b').a.value_counts()", 'Check your call of `df.groupby.a.value_counts()`. Did you specify the argument `normalize`?', 1, 32),
@@ -260,3 +259,37 @@ def test_has_import_custom(stu, patt):
     })
     assert not output['correct']
     assert message(output, patt)
+
+## Check has_equal_x ----------------------------------------------------------
+
+@pytest.mark.parametrize('stu, patt, cols, cole', [
+    ("my_dict = {'a': 1, 'b': 2}\nfor key, value in my_dict.items(): x = key + ' -- ' + str(value)",
+     "Check the first for statement. Did you correctly specify the body? Are you sure you assigned the correct value to `x`?",
+     36, 64),
+    ("my_dict = {'a': 1, 'b': 2}\nfor key, value in my_dict.items(): x = key + ' - ' + str(value)",
+     "Check the first for statement. Did you correctly specify the body? Expected the output <code>a - 1</code>, but got <code>no printouts</code>.",
+     36, 63)
+])
+def test_has_equal_x(stu, patt, cols, cole):
+    output = helper.run({
+        'DC_SOLUTION': "my_dict = {'a': 1, 'b': 2}\nfor key, value in my_dict.items():\n    x = key + ' - ' + str(value)\n    print(x)",
+        'DC_CODE': stu,
+        'DC_SCT': "Ex().check_for_loop().check_body().set_context('a', 1).multi(has_equal_value(name = 'x'), has_equal_output())"
+    })
+    assert not output['correct']
+    assert message(output, patt)
+    assert lines(output, cols, cole)
+
+@pytest.mark.parametrize('stu, patt, cols, cole', [
+    ('result = (num for num in range(3))', 'Check the first generator expression. Did you correctly specify the iterable part? Expected `range(0, 31)`, but got `range(0, 3)`.', 26, 33),
+    ('result = (num*2 for num in range(31))', 'Check the first generator expression. Did you correctly specify the body? Expected `4`, but got `8`.', 11, 15)
+])
+def test_has_equal_x_2(stu, patt, cols, cole):
+    output = helper.run({
+        'DC_SOLUTION': 'result = (num for num in range(31))',
+        'DC_CODE': stu,
+        'DC_SCT': "Ex().check_generator_exp().multi(check_iter().has_equal_value(), check_body().set_context(4).has_equal_value())"
+    })
+    assert not output['correct']
+    assert message(output, patt)
+    assert lines(output, cols, cole)
