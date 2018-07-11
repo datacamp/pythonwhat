@@ -2,6 +2,23 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.13.2
+
+### Changed
+
+- The documentation pages have undergone significant maintenance.
+  + There is now a tutorial that gradually exposes you to `pythonwhat`.
+  + The articles have been brushed up to include more examples and more involved examples.
+  + The articles have been split up into basic and advanced articles to make it clear what is most important.
+  + `test_correct()` as a tool to add robustness is now featured more prominently
+
+### Fixed
+
+- `set_context()` can now be used to specify arguments either by position, either by name, making it a great tool for flexible checking.
+- For `has_equal_output()`, the message that was generated didn't always make sense. That is fixed now.
+- Highlighting was removed in an SCT chain when `set_context()` was used. This is no longer the case.
+- Small fixes for bugs that should not have impacted students in the first place.
+
 ## 2.13.1
 
 _Small changes to follow up on `2.13.0`_
