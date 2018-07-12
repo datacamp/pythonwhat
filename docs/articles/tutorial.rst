@@ -225,8 +225,8 @@ For larger exercises, you'll often want to be flexible: if students get the end 
 However, when they do make a mistake, you want to be specific about the mistake they are making. In other words, a good SCT is robust against different ways of solving a problem, but specific when something's wrong.
 
 These seemingly conflicting requirements can be satisfied with ``test_correct()``. It is an **extremely powerful function** that should be used whenever it makes sense.
-The `Make your SCT robust <make_your_sct_robust.html>_` article is highly recommended reading.
+The `Make your SCT robust <make_your_sct_robust.html>`_ article is highly recommended reading.
 
-For other guidelines on writing good SCTs, check out the `'How to write good SCTs' section on DataCamp's general SCT documentation page <https://authoring.datacamp.com/courses/exercises/technical-details/sct.html>`_
+For other guidelines on writing good SCTs, check out the 'How to write good SCTs' section on DataCamp's `general SCT documentation page <https://authoring.datacamp.com/courses/exercises/technical-details/sct.html>`_.
 
  
