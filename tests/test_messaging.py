@@ -267,7 +267,7 @@ def test_has_import_custom(stu, patt):
      "Check the first for statement. Did you correctly specify the body? Are you sure you assigned the correct value to `x`?",
      36, 64),
     ("my_dict = {'a': 1, 'b': 2}\nfor key, value in my_dict.items(): x = key + ' - ' + str(value)",
-     "Check the first for statement. Did you correctly specify the body? Expected the output <code>a - 1</code>, but got <code>no printouts</code>.",
+     "Check the first for statement. Did you correctly specify the body? Expected the output `a - 1`, but got `no printouts`.",
      36, 63)
 ])
 def test_has_equal_x(stu, patt, cols, cole):
@@ -293,3 +293,35 @@ def test_has_equal_x_2(stu, patt, cols, cole):
     assert not output['correct']
     assert message(output, patt)
     assert lines(output, cols, cole)
+
+## test_correct ---------------------------------------------------------------
+
+@pytest.mark.parametrize('stu, patt', [
+    ('', 'Did you define the variable `a` without errors?'),
+    ('a = 1', 'Did you define the variable `b` without errors?'),
+    ('a = 1; b = a + 1', 'Did you define the variable `c` without errors?'),
+    ('a = 1; b = a + 1; c = b + 1', 'Have you used `print(c)` to do the appropriate printouts?'),
+    ('print(4)', 'Did you define the variable `a` without errors?'),
+    ('c = 3; print(c + 1)', 'Have you used `print(c)` to do the appropriate printouts?'),
+    ('b = 3; c = b + 1; print(c)', 'Did you define the variable `a` without errors?'),
+    ('a = 2; b = a + 1; c = b + 1', 'Did you correctly define the variable `a`? Expected `1`, but got `2`.'),
+])
+def test_nesting(stu, patt):
+    output = helper.run({
+        'DC_SOLUTION': 'a = 1; b = a + 1; c = b + 1; print(c)',
+        'DC_CODE': stu,
+        'DC_SCT': '''
+Ex().test_correct(
+    has_printout(0),
+    F().test_correct(
+        check_object('c').has_equal_value(),
+        F().test_correct(
+            check_object('b').has_equal_value(),
+            check_object('a').has_equal_value()
+        )
+    )
+)
+        '''
+    })
+    assert not output['correct']
+    assert message(output, patt)

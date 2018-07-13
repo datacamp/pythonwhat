@@ -247,28 +247,25 @@ def test_has_equal_ast_part_of_method_fail(data):
     data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a")', exact=False, incorrect_msg = '')"""
     failing_submission(data)
 
-class TestNestedTestOrTeestCorrect(unittest.TestCase):
-    def setUp(self):
-        self.data = {
-            "DC_CODE": "x = round(2.23)",
-            "DC_SOLUTION": "x = round(5.234)",
-        }
+def test_nested_test_or():
+    data = {
+        "DC_SOLUTION": "'abc'",
+        "DC_CODE": "'def'",
+        "DC_SCT": "Ex().test_or(has_code('a', not_typed_msg = 'a'), F().test_or(has_code('b', not_typed_msg = 'b'), has_code('c', not_typed_msg = 'c')))"
+    }
+    sct_payload = helper.run(data)
+    assert sct_payload['message'] == 'a'
+    assert not sct_payload['correct']
 
-    def test_nested_test_or(self):
-        self.data["DC_SCT"] = """
-Ex().test_correct(
-    check_object("x").has_equal_value(),
-    test_or(
-        check_function("round").check_args('number').has_equal_value(),
-        test_or(
-            has_code('2'),
-            has_code('3')
-        )
-    )
-)
-        """
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
+def test_nested_test_correct():
+    data = {
+        "DC_SOLUTION": "'abc'",
+        "DC_CODE": "'def'",
+        "DC_SCT": "Ex().test_correct(has_code('a', not_typed_msg = 'a'), F().test_correct(has_code('b', not_typed_msg = 'b'), has_code('c', not_typed_msg = 'c')))"
+    }
+    sct_payload = helper.run(data)
+    assert sct_payload['message'] == 'c'
+    assert not sct_payload['correct']
 
 class TestOverride(unittest.TestCase):
     """
