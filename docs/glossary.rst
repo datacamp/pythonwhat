@@ -75,8 +75,7 @@ Check pandas chain (2)
     df.groupby('b').sum()
 
     # sct
-    import pandas as pd
-    sig = sig_from_obj(pd.Series.sum)
+    sig = sig_from_obj("df.groupby('b').sum")
     Ex().test_correct(
         # check if group by works
         check_function("df.groupby.sum", signature = sig).has_equal_value(),

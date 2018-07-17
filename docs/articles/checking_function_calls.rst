@@ -322,32 +322,35 @@ The following full example shows how it's done:
 
     `@pre_exercise_code`
     ```{python}
-    import seaborn as sns
     import pandas as pd
-    df = sns.load_dataset('tips')
+    df = pd.DataFrame({ 'col': ['ab', 'bc', 'cd', 'de'] })
     ```
 
     `@solution`
     ```{python}
-    df.groupby(['tip', 'sex']).count()
+    df.col.str.contains('c')
     ```
 
     `@sct`
     ```{python}
-    import pandas as pd
-    sig = sig_from_obj(pd.core.groupby.DataFrameGroupBy.count)
-    Ex().check_function('df.groupby.count', signature = sig).has_equal_value()
+    sig = sig_from_obj('df.col.str.contains')
+    Ex().check_function('df.col.str.contains', signature = sig).check_args(0).has_equal_value()
     ```
 
-In this example however, it wasn't really necessary to manually specify the signature,
-as there are no arguments to check in the first place. Therefore, you might as well set ``signature``
-to be ``False``, which skips the fetching of a signature and the binding or arguments altogether:
+Notice how ``sig_from_obj`` takes a _string_. This string will be evaluated in the student process,
+after which ``pythonwhat`` will try to extract the function signature from it. This means that
+the expression should represent a function or an object in the solution process.
+
+If you are only testing whether a function is called and you don't want to check the arguments (if any),
+there's no point in trying to match the function call to its signature. In this case,
+you can set ``signature=False``, which skips the fetching of a signature and
+the binding or arguments altogether:
 
 .. code::
 
     `@sct`
     ```{python}
-    Ex().check_function('df.groupby.count', signature=False).has_equal_value()
+    Ex().check_function('df.col.str.contains', signature=False)
     ```
 
 **Watch out to do this as a one-stop solution to make your SCT run without errors:**
