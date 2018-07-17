@@ -353,10 +353,12 @@ the binding or arguments altogether:
     Ex().check_function('df.col.str.contains', signature=False)
     ```
 
-**Watch out to do this as a one-stop solution to make your SCT run without errors:**
-if there are arguments to check, argument binding makes sure that various ways of
-calling the function can all work. Setting `signature=False` will skip this binding and your
-SCT will not accept perfectly valid student submissions!
+.. warning::
+
+    Watch out with disabling signature binding as a one-stop solution to make your SCT run without errors.
+    If there are arguments to check, argument binding makes sure that various ways of
+    calling the function can all work. Setting ``signature=False`` will skip this binding, which can
+    cause your SCT to mark perfectly valid student submissions as incorrect!
 
 .. note::
 
