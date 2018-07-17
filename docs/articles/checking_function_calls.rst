@@ -285,73 +285,65 @@ Methods
 =======
 
 Methods are Python functions that are called on objects. For testing this, you can also use ``check_function()``.
-Consider the following solution code, that creates a connection to an SQLite Database with ``sqlalchemy``.
+Consider the following examples, that calculates the ``mean()`` of the column ``a`` in the pandas data frame ``df``:
 
 .. code::
 
-    # prep
-    from urllib.request import urlretrieve
-    from sqlalchemy import create_engine, MetaData, Table
-    engine = create_engine('sqlite:///census.sqlite')
-    metadata = MetaData()
-    connection = engine.connect()
-    from sqlalchemy import select
-    census = Table('census', metadata, autoload=True, autoload_with=engine)
-    stmt = select([census])
-
-    # execute the query and fetch the results.
-    connection.execute(stmt).fetchall()
-    ```
-
-To test the last chained method calls, you can use the following SCT.
-Notice from the second ``check_function()`` call here that you have to describe the entire chain (leaving out the arguments that are passed to ``execute()``).
-This way, you explicitly list the order in which the methods should have been called.
-
-.. code::
-
-    Ex().check_function("connection.execute").check_args("object")
-    Ex().check_function("connection.execute.fetchall")
-
-In the previous example, you might have noticed that ``check_function()`` was capable to infer that ``connection`` is a ``Connection`` object, and that ``execute()`` is a method of the ``Connection`` class.
-For checking method calls that aren't chained, this is possible, but for chained method calls, such as ``connection.execute.fetchall``, this is not possible.
-In those cases you'll have to manually specify a signature. With ``sig_from_obj()`` you can specify the function from which to extract a signature.
-
-The following full example shows how it's done:
-
-.. code::
-
-    `@pre_exercise_code`
-    ```{python}
+    # pec
     import pandas as pd
-    df = pd.DataFrame({ 'col': ['ab', 'bc', 'cd', 'de'] })
+    df = pd.DataFrame({ 'a': [1, 2, 3, 4] })
+
+    # solution
+    df.a.mean()
+
+    # sct
+    Ex().check_function('df.a.mean').has_equal_value()
     ```
 
-    `@solution`
-    ```{python}
-    df.col.str.contains('c')
-    ```
+The SCT is checking whether the method ``df.a.mean`` was called in the student code, and whether rerunning the call in both student and solution process is returning the same result.
 
-    `@sct`
-    ```{python}
-    sig = sig_from_obj('df.col.str.contains')
-    Ex().check_function('df.col.str.contains', signature = sig).check_args(0).has_equal_value()
-    ```
-
-``sig_from_obj()`` takes a string that will be evaluated in the solution process,
-after which ``pythonwhat`` will try to extract the function signature from it. This means that
-the expression should represent a function or an object in the solution process.
-
-If you are only testing whether a function is called and you don't want to check the arguments (if any),
-there's no point in trying to match the function call to its signature. In this case,
-you can set ``signature=False``, which skips the fetching of a signature and
-the binding or arguments altogether:
+As a more advanced example, consider this example of chained method calls:
 
 .. code::
 
-    `@sct`
-    ```{python}
-    Ex().check_function('df.col.str.contains', signature=False)
-    ```
+    # pec
+    import pandas as pd
+    df = pd.DataFrame({ 'type': ['a', 'b', 'a', 'b'], 'val': [1, 2, 3, 4] })
+
+    # solution
+    df.groupby('type').mean()
+
+    # sct
+    Ex().check_function('df.groupby').check_args(0).has_equal_value()
+    Ex().check_function('df.groupby.mean', signature=sig_from_obj('df.mean')).has_equal_value()
+
+Here:
+
+- The first SCT is checking whether ``df.groupby()`` was called and whether the argument for ``df.groupby()`` was specified correctly to be ``'type'``.
+- The second SCT is first checking whether ``df.groupby.mean()`` was called and whether calling it gives the right result. Notice several things:
+
+  + We describe the entire chain of method calls, leaving out the parentheses and arguments used for method calls in between.
+  + We use ``sig_from_obj()`` to manually specify a Python expression that ``pythonwhat`` can use to derive the signature from.
+    If the string you use to describe the function to check evaluates to a method or function in the solution process, like for ``'df.groupby'``,
+    pythonwhat can figure out the signature. However, for ``'df.groupby.mean'`` will `not` evaluate to a method object in the solution process,
+    so we need to manually specify a valid expression that `will` evaluate to a valid signature with ``sig_from_obj()``.
+
+In this example, you are only checking whether the function is called and whether rerunning it gives the correct result.
+You are not checking the actual arguments, so there's actually no point in trying to match the function call to its signature.
+In cases like this, you can set ``signature=False``, which skips the fetching of a signature and the binding or arguments altogether:
+
+.. code::
+
+    # pec
+    import pandas as pd
+    df = pd.DataFrame({ 'type': ['a', 'b', 'a', 'b'], 'val': [1, 2, 3, 4] })
+
+    # solution
+    df.groupby('type').mean()
+
+    # sct
+    Ex().check_function('df.groupby').check_args(0).has_equal_value()
+    Ex().check_function('df.groupby.mean', signature=False).has_equal_value()
 
 .. warning::
 
