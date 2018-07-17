@@ -337,7 +337,7 @@ The following full example shows how it's done:
     Ex().check_function('df.col.str.contains', signature = sig).check_args(0).has_equal_value()
     ```
 
-Notice how ``sig_from_obj`` takes a _string_. This string will be evaluated in the student process,
+``sig_from_obj()`` takes a string that will be evaluated in the solution process,
 after which ``pythonwhat`` will try to extract the function signature from it. This means that
 the expression should represent a function or an object in the solution process.
 
