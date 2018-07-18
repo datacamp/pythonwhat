@@ -95,6 +95,47 @@ Check pandas chain (2)
     df.groupby('a')  # arg of groupby is incorrect
     df.groupby('b')  # did you call df.groupby.sum()?
 
+Check pandas plotting
+~~~~~~~~~~~~~~~~~~~~~
+
+.. code::
+
+    # pec
+    import matplotlib.pyplot as plt
+    import pandas as pd
+    import numpy as np
+    np.random.seed(42)
+    df = pd.DataFrame({'val': np.random.rand(300) })
+
+    # solution
+    df.val.plot(kind='hist')
+    plt.title('my plot')
+    plt.show()
+    plt.clf()
+
+    # sct
+    Ex().test_or(
+        multi(
+            check_function('df.val.plot').check_args('kind').has_equal_value(),
+            check_function('matplotlib.pyplot.title').check_args(0).has_equal_value()
+        ),
+        override("df.val.plot(kind='hist', title='my plot')").check_function('df.val.plot').multi(
+            check_args('kind').has_equal_value(),
+            check_args('title').has_equal_value()
+        ),
+        override("df['val'].plot(kind = 'hist'); plt.title('my plot')").multi(
+            check_function('df.plot').check_args('kind').has_equal_value(),
+            check_function('matplotlib.pyplot.title').check_args(0).has_equal_value()
+        ),
+        override("df['val'].plot(kind='hist', title='my plot')").check_function('df.plot').multi(
+            check_args('kind').has_equal_value(),
+            check_args('title').has_equal_value()
+        )
+    )
+    Ex().check_function('matplotlib.pyplot.show')
+    Ex().check_function('matplotlib.pyplot.clf')
+
+
 Check object created through function call
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
