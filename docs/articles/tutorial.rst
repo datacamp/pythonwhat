@@ -187,7 +187,7 @@ Chain A will go through the same steps and will pass this time as ``x > 0`` in t
       # student
       print("x is negative")
 
-- ``check_function()`` considers the state above produced by ``check_if()``, and tries to find the function ``print()``.
+- ``check_function()`` considers the state above produced by ``check_if_else()``, and tries to find the function ``print()``.
   Next, it produces a state that refers to the different function arguments and the expressions used to specify them:
 
   .. code::
