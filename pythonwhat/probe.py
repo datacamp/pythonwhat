@@ -3,6 +3,7 @@ import itertools
 import inspect
 from functools import partial
 from collections import OrderedDict
+from pythonwhat import test_funcs
 
 TEST_NAMES = [
     "test_mc",
@@ -230,8 +231,7 @@ class Probe(object):
             raise Exception("Expected a function or list/tuple/dict of functions")
 
 
-def create_test_probes(context):
+def build_probe_context():
     tree = Tree()
-    new_context = {s: Probe(tree, context[s]) for s in TEST_NAMES}
-    new_context.update({k:v for k,v in context.items() if k not in new_context})
-    return tree, new_context
+    probe_context = {s: Probe(tree, getattr(test_funcs, s)) for s in TEST_NAMES}
+    return tree, probe_context

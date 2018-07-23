@@ -6,8 +6,10 @@ from pythonwhat.test_funcs.test_data_frame import check_df
 from pythonwhat.test_funcs.test_student_typed import has_code
 from pythonwhat.test_funcs.test_output_contains import has_output, has_printout
 from pythonwhat.test_funcs.test_import import has_import
+from pythonwhat.check_funcs import test_not
+from pythonwhat.test_funcs import test_correct
+from pythonwhat.test_funcs import test_or
 
-from pythonwhat import test_funcs
 from functools import partial
 import inspect
 
@@ -78,3 +80,8 @@ scts['has_output'] = has_output
 scts['has_printout'] = has_printout
 scts['has_code'] = has_code
 scts['has_context'] = has_context
+
+# check versions of test_not, test_or and test_correct
+scts['check_or'] = test_or
+scts['check_correct'] = test_correct
+scts['check_not'] = test_not

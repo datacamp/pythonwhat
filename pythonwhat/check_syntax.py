@@ -1,10 +1,12 @@
 from pythonwhat.check_wrappers import scts
 from pythonwhat.State import State
 from pythonwhat.probe import Node, Probe, TEST_NAMES
+from pythonwhat.utils import include_v1
 from pythonwhat import test_funcs
 from functools import partial, reduce, wraps
 import inspect
 import copy
+import os
 
 # TODO: could define scts for check_wrappers at the module level
 ATTR_SCTS = scts.copy()
@@ -104,19 +106,22 @@ class F(Chain):
 def Ex(state = None):
     return Chain(state or State.root_state)
 
-# Prepare SCTs that may be chained attributes ----------------------
-# decorate functions that may try to run test_* function nodes as subtests
-# so they remove those nodes from the tree
-for k in ['multi', 'with_context', 'test_not']:
-    ATTR_SCTS[k] = multi_dec(ATTR_SCTS[k])
-# allow test_* functions as chained attributes
-for k in TEST_NAMES:
-    ATTR_SCTS[k] = Probe(tree = None, f = getattr(test_funcs, k), eval_on_call=True)
-# original logical test_* functions behave like multi, test_not
-# this is necessary to allow them to take check_* funcs as args
-# since probe behavior will try to call all SCTs passed (assuming they're also probes)
-for k in ['test_or', 'test_correct']:
-    ATTR_SCTS[k] = multi_dec(getattr(test_funcs, k))
+if include_v1():
+    # Prepare SCTs that may be chained attributes ----------------------
+    # decorate functions that may try to run test_* function nodes as subtests
+    # so they remove those nodes from the tree
+    for k in ['multi', 'with_context', 'test_not']:
+        ATTR_SCTS[k] = multi_dec(ATTR_SCTS[k])
+
+    # allow test_* functions as chained attributes
+    for k in TEST_NAMES:
+        ATTR_SCTS[k] = Probe(tree = None, f = getattr(test_funcs, k), eval_on_call=True)
+
+    # original logical test_* functions behave like multi, test_not
+    # this is necessary to allow them to take check_* funcs as args
+    # since probe behavior will try to call all SCTs passed (assuming they're also probes)
+    for k in ['test_or', 'test_correct']:
+        ATTR_SCTS[k] = multi_dec(getattr(test_funcs, k))
 
 # Prepare check_funcs to be used alone (e.g. test = check_with().check_body())
-spec_2_context = {k : state_dec(v) for k, v in scts.items()}
+v2_check_functions = {k : state_dec(v) for k, v in scts.items()}

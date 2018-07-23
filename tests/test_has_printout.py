@@ -1,10 +1,7 @@
 import pytest
 from pythonwhat.local import setup_state
 from pythonwhat.Test import TestFail as TF
-from pythonwhat.check_syntax import Chain
-
-def passes(st):
-    assert isinstance(st, Chain)
+import helper
 
 @pytest.mark.parametrize('stu', [
         "print(1, 2, 3)",
@@ -17,7 +14,7 @@ def passes(st):
 def test_basic_has_printout_passing(stu):
     sol = 'print(1, 2, 3)'
     s = setup_state(stu_code=stu, sol_code=sol)
-    passes(s.has_printout(0))
+    helper.passes(s.has_printout(0))
 
 @pytest.mark.parametrize('stu', [
         "print(1, 2)",
@@ -52,7 +49,7 @@ def test_basic_has_printout_failing_custom():
 def test_has_printout_multiple(stu):
     sol = 'print("randomness")\nprint(1, 2, 3)'
     s = setup_state(stu_code=stu, sol_code=sol)
-    passes(s.has_printout(1))
+    helper.passes(s.has_printout(1))
 
 def test_incorrect_use():
     s = setup_state(stu_code='', sol_code='')

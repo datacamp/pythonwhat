@@ -2,22 +2,9 @@ from pythonwhat.State import State
 from pythonwhat.utils import check_str, check_dict, check_process
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import TestFail
-from pythonwhat.probe import create_test_probes
-from pythonwhat.check_syntax import spec_2_context
+from pythonwhat.utils import include_v1
 from functools import partial
-
-# utilities for signatures
-cntxt = {}
-exec("from pythonwhat.test_funcs import *", None, cntxt)
-
-imports = """
-from inspect import Parameter as param
-from pythonwhat.signatures import sig_from_params, sig_from_obj
-from pythonwhat.State import set_converter
-# spec v2 functions
-from pythonwhat.check_syntax import F, Ex
-"""
-exec(imports, None, cntxt)
+import os
 
 def test_exercise(sct,
                   student_code,
@@ -60,14 +47,15 @@ def test_exercise(sct,
 
         State.root_state = state
 
-        # Populate sct context with 'old' functions (in terms of probes) and check functions.
-        tree, sct_cntxt = create_test_probes(cntxt)
-        sct_cntxt.update(spec_2_context)
+        tree, sct_cntxt = prep_context()
 
         # Actually execute SCTs
-        exec(sct, sct_cntxt)         # Spec v2 tests run immediately
-        for test in tree.crnt_node:  # Spec v1 tests run after
-            test(state)
+        exec(sct, sct_cntxt)
+
+        # Run remaining nodes on tree (v1 only)
+        if tree:
+            for test in tree.crnt_node:
+                test(state)
 
     except TestFail as e:
         return e.payload
@@ -88,4 +76,22 @@ def allow_errors():
     rep = Reporter.active_reporter
     rep.errors_allowed = True
 
-cntxt['success_msg'] = success_msg
+def prep_context():
+    cntxt = { 'success_msg': success_msg }
+    from pythonwhat.check_syntax import v2_check_functions
+    from pythonwhat.probe import build_probe_context
+    imports = ["from inspect import Parameter as param",
+               "from pythonwhat.signatures import sig_from_params, sig_from_obj",
+               "from pythonwhat.State import set_converter",
+               "from pythonwhat.check_syntax import F, Ex"]
+    [ exec(line, None, cntxt) for line in imports ]
+
+    # only if PYTHONWHAT_V2_ONLY is not set, support v1
+    if include_v1():
+        tree, probe_cntxt = build_probe_context()
+        cntxt.update(probe_cntxt)
+    else :
+        tree = None
+
+    cntxt.update(v2_check_functions)
+    return tree, cntxt
