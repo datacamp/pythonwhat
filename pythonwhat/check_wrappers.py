@@ -6,7 +6,7 @@ from pythonwhat.test_funcs.test_data_frame import check_df
 from pythonwhat.test_funcs.test_student_typed import has_code
 from pythonwhat.test_funcs.test_output_contains import has_output, has_printout
 from pythonwhat.test_funcs.test_import import has_import
-from pythonwhat.check_funcs import test_not
+from pythonwhat.check_funcs import check_not
 from pythonwhat.test_funcs import test_correct
 from pythonwhat.test_funcs import test_or
 
@@ -64,7 +64,7 @@ scts['check_function'] = check_function
 
 for k in ['set_context', 'set_env', 'disable_highlighting',
           'has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'has_equal_part_len', 'call',
-          'extend', 'multi', 'test_not', 'fail', 'quiet', 'override',
+          'extend', 'multi', 'check_not', 'fail', 'quiet', 'override',
           'with_context',
           'check_args',
           'has_equal_part']:
@@ -81,7 +81,6 @@ scts['has_printout'] = has_printout
 scts['has_code'] = has_code
 scts['has_context'] = has_context
 
-# check versions of test_not, test_or and test_correct
+# check versions of test_or and test_correct
 scts['check_or'] = test_or
 scts['check_correct'] = test_correct
-scts['check_not'] = test_not

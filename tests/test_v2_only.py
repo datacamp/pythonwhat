@@ -4,6 +4,10 @@ from contextlib import contextmanager
 import helper
 import importlib
 
+def relooooad():
+    import pythonwhat.check_syntax
+    importlib.reload(pythonwhat.check_syntax)
+
 @contextmanager
 def set_pw_env(new):
     key = 'PYTHONWHAT_V2_ONLY'
@@ -24,6 +28,21 @@ def data():
         'DC_SOLUTION': 'x = round(5)'
     }
 
+@pytest.mark.parametrize('sct', [
+    "test_object('x')",
+    "Ex().test_object('x')",
+    "test_function('round')",
+    "Ex().check_object('x').has_equal_value()",
+    "Ex() >> check_object('x').has_equal_value()",
+    "x = check_object('x').has_equal_value(); Ex() >> x"
+])
+def test_without_env_all_works(data, sct):
+    data['DC_SCT'] = sct
+    with set_pw_env(''):
+        relooooad()
+        sct_payload = helper.run(data)
+        assert not sct_payload['correct']
+
 @pytest.mark.parametrize('sct, should_err', [
     ("test_object('x')", True),
     ("test_function('round')", True),
@@ -38,28 +57,10 @@ def data():
 def test_with_env_old_fail(data, sct, should_err):
     data['DC_SCT'] = sct
     with set_pw_env('1'):
-        import pythonwhat.check_syntax
-        importlib.reload(pythonwhat.check_syntax)
+        relooooad()
         if should_err:
             with pytest.raises(Exception):
                 sct_payload = helper.run(data)
         else:
             sct_payload = helper.run(data)
             assert not sct_payload['correct']
-
-@pytest.mark.parametrize('sct', [
-    "test_object('x')",
-    "Ex().test_object('x')",
-    "test_function('round')",
-    "Ex().check_object('x').has_equal_value()",
-    "Ex() >> check_object('x').has_equal_value()",
-    "x = check_object('x').has_equal_value(); Ex() >> x"
-])
-def test_without_env_all_works(data, sct):
-    data['DC_SCT'] = sct
-    with set_pw_env(''):
-        import pythonwhat
-        importlib.reload(pythonwhat.check_syntax)
-        sct_payload = helper.run(data)
-        assert not sct_payload['correct']
-

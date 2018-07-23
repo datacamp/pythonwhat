@@ -242,7 +242,7 @@ def multi(*args, state=None):
 
 from pythonwhat.Test import TestFail
 
-def test_not(*args, msg, state=None):
+def check_not(*args, msg, state=None):
     """Pass if all of the subtests fail"""
     rep = Reporter.active_reporter
 

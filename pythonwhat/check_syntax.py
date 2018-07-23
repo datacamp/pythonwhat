@@ -110,14 +110,14 @@ if include_v1():
     # Prepare SCTs that may be chained attributes ----------------------
     # decorate functions that may try to run test_* function nodes as subtests
     # so they remove those nodes from the tree
-    for k in ['multi', 'with_context', 'test_not']:
+    for k in ['multi', 'with_context']:
         ATTR_SCTS[k] = multi_dec(ATTR_SCTS[k])
 
     # allow test_* functions as chained attributes
     for k in TEST_NAMES:
         ATTR_SCTS[k] = Probe(tree = None, f = getattr(test_funcs, k), eval_on_call=True)
 
-    # original logical test_* functions behave like multi, test_not
+    # original logical test_* functions behave like multi
     # this is necessary to allow them to take check_* funcs as args
     # since probe behavior will try to call all SCTs passed (assuming they're also probes)
     for k in ['test_or', 'test_correct']:

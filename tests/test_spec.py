@@ -152,24 +152,24 @@ class TestTestNot(unittest.TestCase):
                 }
 
     def test_pass(self):
-        self.data["DC_SCT"] = """Ex().test_not(check_list_comp(0), msg="no")"""
+        self.data["DC_SCT"] = """Ex().check_not(check_list_comp(0), msg="no")"""
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
     def test_pass2(self):
-        self.data["DC_SCT"] = """Ex().test_not(test_student_typed("y"), msg = "don't type 'y'")"""
+        self.data["DC_SCT"] = """Ex().check_not(has_code("y"), msg = "don't type 'y'")"""
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
     def test_fail(self):
         # obviously this would be a terrible sct...
-        self.data["DC_SCT"] = """Ex().test_not(test_object('x'), msg="no")"""
+        self.data["DC_SCT"] = """Ex().check_not(check_object('x').has_equal_value(), msg="no")"""
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
 
     def test_fail2(self):
         # obviously this would be a terrible sct...
-        self.data["DC_SCT"] = """Ex().test_not(test_student_typed("x"), msg="x is defined")"""
+        self.data["DC_SCT"] = """Ex().check_not(has_code("x"), msg="x is defined")"""
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
 
