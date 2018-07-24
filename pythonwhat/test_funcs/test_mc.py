@@ -6,7 +6,7 @@ from pythonwhat.tasks import isDefinedInProcess, getOptionFromProcess
 
 MC_VAR_NAME = "selected_option"
 
-def test_mc(correct, msgs, state=None):
+def has_chosen(correct, msgs, state=None):
     """Test multiple choice exercise.
 
     Test for a MultipleChoiceExercise. The correct answer (as an integer) and feedback messages
@@ -41,3 +41,5 @@ def test_mc(correct, msgs, state=None):
         rep.success_msg = msgs[correct - 1]
 
         rep.do_test(EqualTest(selected_option, correct, feedback_msg))
+
+test_mc = has_chosen

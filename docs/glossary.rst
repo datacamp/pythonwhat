@@ -284,7 +284,7 @@ Check Multiple Choice
     # 3 is the correct answer
 
     # sct
-    test_mc(correct = 3,
-            msgs = ["That's someone who makes soups.",
-                    "That's a clown who likes burgers.",
-                    "Correct! Head over to the next exercise!"])
+    Ex().has_chosen(correct = 3, # 1-base indexed
+                    msgs = ["That's someone who makes soups.",
+                            "That's a clown who likes burgers.",
+                            "Correct! Head over to the next exercise!"])

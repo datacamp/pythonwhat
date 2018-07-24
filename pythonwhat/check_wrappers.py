@@ -4,6 +4,7 @@ from pythonwhat.check_function import check_function
 from pythonwhat.check_has_context import has_context
 from pythonwhat.test_funcs.test_data_frame import check_df
 from pythonwhat.test_funcs.test_student_typed import has_code
+from pythonwhat.test_funcs.test_mc import has_chosen
 from pythonwhat.test_funcs.test_output_contains import has_output, has_printout
 from pythonwhat.test_funcs.test_import import has_import
 from pythonwhat.check_funcs import check_not
@@ -80,6 +81,7 @@ scts['has_output'] = has_output
 scts['has_printout'] = has_printout
 scts['has_code'] = has_code
 scts['has_context'] = has_context
+scts['has_chosen'] = has_chosen
 
 # check versions of test_or and test_correct
 scts['check_or'] = test_or
