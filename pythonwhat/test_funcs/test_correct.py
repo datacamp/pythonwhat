@@ -4,7 +4,7 @@ from pythonwhat.check_funcs import multi
 
 from .test_or import test_or
 
-def test_correct(check, diagnose, state=None):
+def check_correct(check, diagnose, state=None):
     """Allows feedback from a diagnostic SCT, only if a check SCT fails. 
     
     """
@@ -15,3 +15,5 @@ def test_correct(check, diagnose, state=None):
         multi(check, state=state)
 
     test_or(diagnose_and_check, check, state=state)
+
+test_correct = check_correct

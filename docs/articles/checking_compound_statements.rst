@@ -184,7 +184,7 @@ The following example checks whether students correctly defined their own functi
         return shout_words
 
     # sct
-    Ex().check_function_def('shout_echo').test_correct(
+    Ex().check_function_def('shout_echo').check_correct(
         multi(
             call(['hey', 3], 'value'),
             call(['hi', 2], 'value'),
@@ -199,13 +199,13 @@ The following example checks whether students correctly defined their own functi
 Here:
 
 - ``check_function_def()`` zooms in on the function definition of ``shout_echo`` in both student and solution code (and process)
-- ``test_correct()`` is used to
+- ``check_correct()`` is used to
   + First check whether the function gives the correct result when called in different ways (through ``call()``).
-  + Only if these 'function unit tests' don't pass, `test_correct()` will run the `check_body()` chain that dives deeper into the 
+  + Only if these 'function unit tests' don't pass, `check_correct()` will run the `check_body()` chain that dives deeper into the
   function definition body. This chain sets the context variables - ``word1`` and ``echo``, the arguments of the function - to
   the values ``'test'`` and ``1`` respectively, again while being agnostic to the actual name of these context variables.
 
-Notice how ``test_correct()`` is used to great effect here: why check the function definition internals if the I/O of the function works fine?
+Notice how ``check_correct()`` is used to great effect here: why check the function definition internals if the I/O of the function works fine?
 Because of this construct, all the following submissions will pass the SCT:
 
 .. code::
@@ -270,7 +270,7 @@ Suppose you want to check whether a function definition containing a for loop wa
         return count
 
     # sct that robustly checks this
-    Ex().check_function_def('counter').test_correct(
+    Ex().check_function_def('counter').check_correct(
         multi(
             call([[{'a': 1}], 'a'], 'value'),
             call([[{'b': 1}, {'b': 2}], 'b'], 'value')
@@ -283,7 +283,7 @@ Suppose you want to check whether a function definition containing a for loop wa
 
 Some notes about this SCT:
 
-- ``test_correct()`` is again used so the body is not further checked if calling the function in different ways produces the same value in both student and solution process.
+- ``check_correct()`` is again used so the body is not further checked if calling the function in different ways produces the same value in both student and solution process.
 - ``set_context()`` is used twice. Once to set the context variables introduced by the function definition, and once to set the context variable introducted by the for loop.
 - ``set_env()`` had to be used to initialize ``count`` to a variable that was scoped only to the function definition.
 

@@ -2,7 +2,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import TestFail, Test
 from pythonwhat.check_funcs import multi
 
-def test_or(*tests, state=None):
+def check_or(*tests, state=None):
     """Test whether at least one SCT passes."""
 
     rep = Reporter.active_reporter
@@ -19,3 +19,5 @@ def test_or(*tests, state=None):
             return
     
     rep.do_test(Test(first_feedback))
+
+test_or = check_or

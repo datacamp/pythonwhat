@@ -41,8 +41,8 @@ Logic tests
 -----------
 
 .. autofunction:: pythonwhat.check_funcs.multi
-.. autofunction:: pythonwhat.test_funcs.test_correct.test_correct
-.. autofunction:: pythonwhat.test_funcs.test_or.test_or
+.. autofunction:: pythonwhat.test_funcs.test_correct.check_correct
+.. autofunction:: pythonwhat.test_funcs.test_or.check_or
 
 State-management
 ----------------

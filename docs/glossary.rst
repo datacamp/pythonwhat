@@ -76,11 +76,11 @@ Check pandas chain (2)
 
     # sct
     sig = sig_from_obj("df.groupby('b').sum")
-    Ex().test_correct(
+    Ex().check_correct(
         # check if group by works
         check_function("df.groupby.sum", signature = sig).has_equal_value(),
         # check if group_by called correctly
-        check_function("df.groupby").test_correct(
+        check_function("df.groupby").check_correct(
             has_equal_value(func = lambda x,y: x.keys == y.keys),
             check_args(0).has_equal_value()
         )
@@ -114,7 +114,7 @@ Check pandas plotting
     plt.clf()
 
     # sct
-    Ex().test_or(
+    Ex().check_or(
         multi(
             check_function('df.val.plot').check_args('kind').has_equal_value(),
             check_function('matplotlib.pyplot.title').check_args(0).has_equal_value()
@@ -149,10 +149,10 @@ Check object created through function call
     result = np.mean(arr)
 
     # sct
-    Ex().test_correct(
+    Ex().check_correct(
         check_object("result").has_equal_value(),
         check_function("numpy.mean").check_args("a").has_equal_value()
-        )
+    )
     
     # passing submissions
     result = np.mean(arr)
@@ -248,7 +248,7 @@ Check function definition
         return shout_words
 
     # sct
-    Ex().check_function_def('shout_echo').test_correct(
+    Ex().check_function_def('shout_echo').check_correct(
         multi(
             call(['hey', 3], 'value'),
             call(['hi', 2], 'value'),
