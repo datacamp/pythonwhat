@@ -169,7 +169,7 @@ Check DataFrame
 
     # sct
     import pandas as pd
-    Ex().check_df("my_df").multi(has_key("a"), has_equal_key("b"))
+    Ex().check_object("my_df").is_instance(pd.DataFrame).multi(has_key("a"), has_equal_key("b"))
 
     # passing submissions
     my_df = pd.DataFrame({"a": [1, 1 + 1, 3], "b": [4, 5, 6]})

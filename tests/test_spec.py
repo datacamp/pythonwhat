@@ -48,17 +48,6 @@ Ex().check_list_comp(1).check_body().set_context(bb=4).multi(list_comp)
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-    def test_F_extends(self):
-        self.data["DC_SCT"]  =  '''
-list_comp = F().check_list_comp(0)
-body_check = list_comp.check_body().set_context(aa=2).has_equal_value('unequal')
-
-Ex().extend(body_check)\
-        .check_list_comp(0).check_body().set_context(ii=2).has_equal_value('unequal')
-'''
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
     def test_F_assign_getattr(self):
         self.data["DC_SCT"]  =  '''
 eq_test = F().check_list_comp(0).check_body().has_equal_value
@@ -144,35 +133,6 @@ Ex().check_list_comp(0).check_body()\
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
-class TestTestNot(unittest.TestCase):
-    def setUp(self):
-        self.data = {
-                "DC_SOLUTION": "x = 1",
-                "DC_CODE": "x = 1"
-                }
-
-    def test_pass(self):
-        self.data["DC_SCT"] = """Ex().check_not(check_list_comp(0), msg="no")"""
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_pass2(self):
-        self.data["DC_SCT"] = """Ex().check_not(has_code("y"), msg = "don't type 'y'")"""
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_fail(self):
-        # obviously this would be a terrible sct...
-        self.data["DC_SCT"] = """Ex().check_not(check_object('x').has_equal_value(), msg="no")"""
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-
-    def test_fail2(self):
-        # obviously this would be a terrible sct...
-        self.data["DC_SCT"] = """Ex().check_not(has_code("x"), msg="x is defined")"""
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-
 class TestTestFail(unittest.TestCase):
     def setUp(self):
         self.data = {
@@ -246,26 +206,6 @@ def test_has_equal_ast_part_of_method_pass(data):
 def test_has_equal_ast_part_of_method_fail(data):
     data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a")', exact=False, incorrect_msg = '')"""
     failing_submission(data)
-
-def test_nested_test_or():
-    data = {
-        "DC_SOLUTION": "'abc'",
-        "DC_CODE": "'def'",
-        "DC_SCT": "Ex().test_or(has_code('a', not_typed_msg = 'a'), F().test_or(has_code('b', not_typed_msg = 'b'), has_code('c', not_typed_msg = 'c')))"
-    }
-    sct_payload = helper.run(data)
-    assert sct_payload['message'] == 'a'
-    assert not sct_payload['correct']
-
-def test_nested_test_correct():
-    data = {
-        "DC_SOLUTION": "'abc'",
-        "DC_CODE": "'def'",
-        "DC_SCT": "Ex().test_correct(has_code('a', not_typed_msg = 'a'), F().test_correct(has_code('b', not_typed_msg = 'b'), has_code('c', not_typed_msg = 'c')))"
-    }
-    sct_payload = helper.run(data)
-    assert sct_payload['message'] == 'c'
-    assert not sct_payload['correct']
 
 class TestOverride(unittest.TestCase):
     """

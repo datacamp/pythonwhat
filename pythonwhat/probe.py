@@ -33,12 +33,12 @@ SUB_TESTS = {
     "test_if_else": ['test', 'body', 'orelse'],
     "test_if_exp": ['test', 'body', 'orelse'],
     "test_list_comp": ['comp_iter', 'body', 'ifs'],
-    "test_correct": ['check', 'diagnose'],
+    "check_correct": ['check', 'diagnose'],
     "test_for_loop": ['for_iter', 'body', 'orelse'],
     "test_while_loop": ['test', 'body', 'orelse'],
     "test_with": ['context_tests', 'body'],
     "test_function_definition": ['body'],
-    "test_or": ['tests']
+    "check_or": ['tests']
 }
 
 class Tree(object):

@@ -1,19 +1,16 @@
-from .test_mc import test_mc
-from .test_or import test_or
-from .test_with import test_with
-from .test_comp import test_list_comp
-from .test_import import test_import
-from .test_object import test_object
-from .test_correct import test_correct
-from .test_if_else import test_if_else
-from .test_if_else import test_if_exp
-from .test_for_loop import test_for_loop
-from .test_function import test_function
-from .test_function import test_function_v2
-from .test_data_frame import test_data_frame
-from .test_while_loop import test_while_loop
-from .test_student_typed import test_student_typed
+
+from .test_compound_statement import test_with, test_list_comp, \
+    test_if_else, test_if_exp, test_for_loop, test_while_loop, \
+    test_expression_output, test_expression_result, \
+    test_object_after_expression, test_function_definition
+
+from .test_object import test_object, test_data_frame
+from .test_function import test_function, test_function_v2
 from .test_object_accessed import test_object_accessed
-from .test_output_contains import test_output_contains
-from .test_expression import test_expression_output, test_expression_result, test_object_after_expression
-from .test_function_definition import test_function_definition
+
+from pythonwhat.check_logic import check_or as test_or, check_correct as test_correct
+
+from pythonwhat.has_funcs import has_code as test_student_typed, \
+    has_import as test_import, \
+    has_output as test_output_contains, \
+    has_chosen as test_mc

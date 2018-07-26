@@ -1,15 +1,8 @@
-from pythonwhat.check_funcs import check_part, check_part_index, check_node, has_equal_part, has_equal_part_len
-from pythonwhat import check_funcs, check_object
+from pythonwhat.check_funcs import check_part, check_part_index, check_node
+from pythonwhat.has_funcs import has_equal_part, has_equal_part_len
+from pythonwhat import check_funcs, has_funcs, check_logic, check_object
 from pythonwhat.check_function import check_function
 from pythonwhat.check_has_context import has_context
-from pythonwhat.test_funcs.test_data_frame import check_df
-from pythonwhat.test_funcs.test_student_typed import has_code
-from pythonwhat.test_funcs.test_mc import has_chosen
-from pythonwhat.test_funcs.test_output_contains import has_output, has_printout
-from pythonwhat.test_funcs.test_import import has_import
-from pythonwhat.check_funcs import check_not
-from pythonwhat.test_funcs import test_correct
-from pythonwhat.test_funcs import test_or
 
 from functools import partial
 import inspect
@@ -58,31 +51,22 @@ for k, v in __PART_WRAPPERS__.items():
 for k, v in __PART_INDEX_WRAPPERS__.items(): 
     scts['check_'+k] = partial(check_part_index, k, part_msg=v)
 
-
 for k, v in __NODE_WRAPPERS__.items():
     scts['check_'+k] = partial(check_node, k+'s', typestr=v)
-scts['check_function'] = check_function
 
-for k in ['set_context', 'set_env', 'disable_highlighting',
-          'has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'has_equal_part_len', 'call',
-          'extend', 'multi', 'check_not', 'fail', 'quiet', 'override',
-          'with_context',
-          'check_args',
-          'has_equal_part']:
+for k in ['set_context', 'set_env', 'disable_highlighting', 'check_not', 'check_or', 'check_correct', 'fail', 'quiet', 'override', 'multi']:
+    scts[k] = getattr(check_logic, k)
+
+for k in ['call', 'with_context', 'check_args']:
     scts[k] = getattr(check_funcs, k)
+
+for k in ['has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'has_equal_part_len',
+          'has_equal_part', 'has_import', 'has_output', 'has_printout', 'has_code', 'has_chosen']:
+    scts[k] = getattr(has_funcs, k)
 
 # include check_object and friends ------
 for k in ['check_object', 'is_instance', 'has_equal_key', 'has_key']:
     scts[k] = getattr(check_object, k)
 
-scts['check_df'] = check_df
-scts['has_import'] = has_import
-scts['has_output'] = has_output
-scts['has_printout'] = has_printout
-scts['has_code'] = has_code
 scts['has_context'] = has_context
-scts['has_chosen'] = has_chosen
-
-# check versions of test_or and test_correct
-scts['check_or'] = test_or
-scts['check_correct'] = test_correct
+scts['check_function'] = check_function
