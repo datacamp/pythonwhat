@@ -2,6 +2,29 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.14.0
+
+### Changed
+
+- If `PYTHONWHAT_V2_ONLY = '1'` is set as an environment variable, you can no longer use _any_ of the `test_` functions.
+  + Instead of `Ex().test_or(...)`, you have to use `Ex().check_or(...)`.
+  + Instead of `Ex().test_correct(...)`, you have to use `Ex().check_correct(...)`.
+  + Instead of `test_mc()`, you have to use `Ex().has_chosen()`.
+  Docs have been updated accordingly.
+- The package structure has been updated significantly
+  + Distributing nearly all new functions over `check_funcs.py`, `has_funcs.py` and `check_logic.py`.
+  + Grouping all old functions to test compound statements.
+  + Moving around and rewriting tests to use `pytest` more and be more readable overall.
+
+### Fixed
+
+- `test_not()`'s functionality was tested more and bugs that appeared were fixed.
+  It was nowhere used, so it was removed from the API in favor for `check_not()`, which has the same functionality.
+
+### Removed
+
+- Both `check_df()` and `extend()` can not be used (which shouldn't be a problem, as no live exercises use it).
+
 ## 2.13.2
 
 ### Changed
