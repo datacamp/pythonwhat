@@ -27,33 +27,34 @@ To experiment locally, you can use `setup_state()` and write SCTs interactively.
 The code throws an error when the underlying checks fail.
 
 ```python
-from pythonwhat.local import setup_state
-s = setup_state(stu_code = "x = 5", sol_code = "x = 4")
+# make all checking functions available
+from pythonwhat.test_exercise import prep_context
+_, ctxt = prep_context()
+globals().update(ctxt)
 
-s.check_object('x')
+# initialize state with student and solution submission
+from pythonwhat.local import setup_state
+setup_state(stu_code = "x = 5", sol_code = "x = 4")
+
+Ex().check_object('x')
 # No error: x is defined in both student and solution process
 
-s.check_object('x').has_equal_value()
+Ex().check_object('x').has_equal_value()
 # TestFail: Did you correctly define the variable `x`? Expected `4`, but got `5`.
 
 # Debugging state
-s._state               # access state object
-dir(s._state)          # list all attributes of the state object
-s._state.student_code  # access student_code of state object
+Ex()._state               # access state object
+dir(Ex()._state)          # list all elements available in the state object
+Ex()._state.student_code  # access student_code of state object
 ```
 
 To learn how to include an SCT in a DataCamp course, visit https://authoring.datacamp.com.
 
 ## Run tests
 
-Use Python 3.5
-
 ```
-# install packages used in tests
+pyenv local 3.5.2
 pip install -r requirements.txt
-
-# install pythonwhat
-cd /path/to/pythonwhat
 pip install -e .
 pytest
 ```
