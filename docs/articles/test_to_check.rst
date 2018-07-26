@@ -5,6 +5,9 @@ If you are looking at the SCTs of old DataCamp courses, you'll notice they use `
 and there is no usage of ``Ex()``. The ``test_x()`` way of doing things has now been phased out in favor of the more transparent and composable
 ``check_x()`` functions that start with ``Ex()`` and are chained together with the ``.`` operator.
 
+Common cases
+============
+
 Whenever you come across an SCT that uses ``test_x()`` functions,
 you'll make everybody's life easier by converting it to a ``check_x()``-based SCT.
 Below are the most common cases you will encounter, together with instructions on how to translate from one to the other.
@@ -13,7 +16,7 @@ Something you came across that you didn't find in this list?
 Just create an issue on GitHub. Content Engineering will explain how to translate the SCT and update this article.
 
 ``test_student_typed``
-======================
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. code::
 
@@ -28,7 +31,7 @@ Just create an issue on GitHub. Content Engineering will explain how to translat
     
 
 ``test_object``
-===============
+~~~~~~~~~~~~~~~
 
 .. code::
 
@@ -54,7 +57,7 @@ Just create an issue on GitHub. Content Engineering will explain how to translat
 
 
 ``test_function``
-=================
+~~~~~~~~~~~~~~~~~
 
 .. code::
 
@@ -88,7 +91,7 @@ Just create an issue on GitHub. Content Engineering will explain how to translat
 
 
 ``test_function_v2``
-====================
+~~~~~~~~~~~~~~~~~~~~
 
 .. code::
 
@@ -104,7 +107,7 @@ Just create an issue on GitHub. Content Engineering will explain how to translat
     Ex().check_function('numpy.array', index=0).check_args('a').has_equal_value()
 
 ``test_correct``
-================
+~~~~~~~~~~~~~~~~
 
 .. code::
 
@@ -117,7 +120,19 @@ Just create an issue on GitHub. Content Engineering will explain how to translat
                  labmda: test_function('numpy.array'))
 
     # new SCT (no need for lambdas)
-    Ex().test_correct(check_object('arr').has_equal_value(),
-                      check_function('numpy.array').check_args('a').has_equal_value())
+    Ex().check_correct(check_object('arr').has_equal_value(),
+                       check_function('numpy.array').check_args('a').has_equal_value())
 
+Enforcing check functions
+=========================
 
+For newer courses an updated version of the base Docker image is used that sets the ``PYTHONWHAT_V2_ONLY`` environment variable.
+When this variable is set, pythonwhat will no longer allow sct authors to use the old ``test_x()`` functions.
+If you are updating the Docker image for courses that have old skool SCTs,
+this would mean you have to rewrite all the SCTs to their check equivalents to make the build pass.
+If you want to work around this, thus being able to use test functions even with the latest base image,
+you can include the following line of code in your ``requirements.sh`` file:
+
+.. code-block:: bash
+
+    echo "import os; os.environ['PYTHONWHAT_V2_ONLY'] = '0'" > /home/repl/.startup.py

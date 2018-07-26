@@ -2,8 +2,8 @@ import ast
 from functools import partial
 from pythonwhat.check_function import check_function
 from pythonwhat.Test import TestFail
-from pythonwhat.check_funcs import check_args, has_equal_value, has_equal_ast
-from pythonwhat.test_funcs.test_output_contains import has_printout
+from pythonwhat.check_funcs import check_args
+from pythonwhat.has_funcs import has_equal_value, has_equal_ast, has_printout
 
 def arg_test(name, do_eval, missing_msg, incorrect_msg, state):
     arg_state = check_args(name=name,

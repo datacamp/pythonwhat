@@ -1,5 +1,9 @@
 from types import ModuleType
 import copy
+import os
+
+def include_v1():
+    return os.environ.get('PYTHONWHAT_V2_ONLY', '') != '1'
 
 def shorten_str(text, to_chars=100):
     return (text if len(text) <= 100 else (

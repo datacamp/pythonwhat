@@ -2,89 +2,90 @@ import unittest
 import helper
 import pytest
 
-class TestObjectStepByStep(unittest.TestCase):
+@pytest.mark.parametrize('stu_code, passes, msg', [
+    ('', False, 'udm'),
+    ('df = 3', False, 'ndfm'),
+    ('df = pd.DataFrame({ "b": [1]})', False, 'ucm'),
+    ('df = pd.DataFrame({ "a": [1]})', False, 'icm'),
+    ('df = pd.DataFrame({ "a": [1, 2, 3] })', True, None),
+    ('df = pd.DataFrame({ "a": [1, 2, 3], "b": [3, 4, 5] })', True, None),
+])
+def test_test_data_frame(stu_code, passes, msg):
+    data = {
+        'DC_PEC': 'import pandas as pd',
+        'DC_SOLUTION': 'df = pd.DataFrame({"a": [1, 2, 3]})',
+        'DC_CODE': stu_code
+    }
 
-    def setUp(self):
-        self.data = {
-            "DC_PEC": "",
-            "DC_SOLUTION": "x = 100",
-            "DC_SCT": "test_object('x')"
-        }
+    data['DC_SCT'] = "test_data_frame('df', columns=['a'], undefined_msg='udm', not_data_frame_msg='ndfm', undefined_cols_msg='ucm', incorrect_msg='icm')"
+    output = helper.run(data)
+    assert output['correct'] == passes
+    if msg: assert output['message'] == msg
+    
+    # should also work if columsn not specified
+    data['DC_SCT'] = data['DC_SCT'].replace("['a']", "None")
+    output = helper.run(data)
+    assert output['correct'] == passes
+    if msg: assert output['message'] == msg
 
-    def test_step_1(self):
-        self.data["DC_CODE"] = ""
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "Have you defined <code>x</code>?")
+    # should also work if specced in different way.
+    data['DC_SCT'] = """
+import pandas as pd
+Ex().check_object('df', missing_msg='udm', expand_msg='').\
+     is_instance(pd.DataFrame, not_instance_msg='ndfm').\
+     has_equal_key('a', key_missing_msg='ucm', incorrect_value_msg='icm')
+    """
+    output = helper.run(data)
+    assert output['correct'] == passes
+    if msg: assert output['message'] == msg
 
-    def test_step_2(self):
-        self.data["DC_CODE"] = "x = 500"
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "The contents of <code>x</code> aren't correct.")
-        helper.test_lines(self, sct_payload, 1, 1, 1, 7)
+@pytest.mark.parametrize('stu_code, passes, msg', [
+    ('', False, 'udm'),
+    ('x = 1', False, 'icm'),
+    ('x = 100', True, None)
+])
+def test_check_object(stu_code, passes, msg):
+    data = {
+        'DC_SOLUTION': 'x = 100',
+        'DC_CODE': stu_code
+    }
 
-    def test_pass(self):
-        self.data["DC_CODE"] = "x = 100"
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
+    data['DC_SCT'] = "test_object('x', undefined_msg='udm', incorrect_msg='icm')"
+    output = helper.run(data)
+    assert output['correct'] == passes
+    if msg: assert output['message'] == msg
 
-    def test_fail_with_unsafe_msg(self):
-        self.data["DC_CODE"] = ""
-        self.data["DC_SCT"] = "test_object('x', undefined_msg = '`{a_bad_template_var}`')"
-        sct_payload = helper.run(self.data)
-        self.assertEqual('<code>{a_bad_template_var}</code>', sct_payload['message'])
+    data['DC_SCT'] = "Ex().check_object('x', missing_msg='udm').has_equal_value(incorrect_msg='icm')"
+    output = helper.run(data)
+    assert output['correct'] == passes
+    if msg: assert output['message'] == msg
 
-    def test_pass_spec2(self):
-        self.data["DC_SCT"] = "Ex().check_object('x').has_equal_value()"
-        self.data["DC_CODE"] = "x = 100"
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
+def test_check_custom_compare():
+    code = """
+dfs_comp = []
+for f in range(3):
+    dfs_comp.append(pd.DataFrame({'a': [1, 2, 3]}))
+"""
+    data = {
+		"DC_PEC": "import pandas as pd",
+		"DC_CODE": code,
+        "DC_SOLUTION": code,
+		"DC_SCT": """
+import numpy as np
+def compare(x, y):
+    # check if same length
+    if (len(x) != len(y)): return False
 
-    def test_fail_spec2(self):
-        self.data["DC_SCT"] = "Ex().check_object('x').has_equal_value()"
-        self.data["DC_CODE"] = "x = 10"
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
+    # check if underlying data frames are equal
+    for i in range(len(x)):
+        if not x[i].equals(y[i]): return False
 
-    def test_fail_undef_spec2(self):
-        self.data["DC_SCT"] = "Ex().check_object('x')"
-        self.data["DC_CODE"] = "y = 10"
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-
-    def test_pass_exists_spec2(self):
-        self.data["DC_SCT"] = "Ex().check_object('x')"
-        self.data["DC_CODE"] = "x = 1"
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-class TestObjectStepByStepCustom(unittest.TestCase):
-
-    def setUp(self):
-        self.data = {
-            "DC_PEC": "",
-            "DC_SOLUTION": "x = 100",
-            "DC_SCT": "test_object('x', undefined_msg = 'undefined', incorrect_msg = 'incorrect')"
-        }
-
-    def test_step_1(self):
-        self.data["DC_CODE"] = ""
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "undefined")
-
-    def test_step_2(self):
-        self.data["DC_CODE"] = "x = 500"
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "incorrect")
-        helper.test_lines(self, sct_payload, 1, 1, 1, 7)
-
-    def test_pass(self):
-        self.data["DC_CODE"] = "x = 100"
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
+    return True
+Ex().check_object("dfs_comp").is_instance(list).has_equal_value(func = compare)
+"""
+	}
+    output = helper.run(data)
+    assert output['correct']
 
 
 class TestTestObjectNonDillable(unittest.TestCase):
@@ -251,56 +252,48 @@ if True:
         self.data["DC_SCT"] = 'test_object("a")'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "The contents of <code>a</code> aren't correct.")
         helper.test_lines(self, sct_payload, 3, 3, 5, 9)
 
     def test_fail_else(self):
         self.data["DC_SCT"] = 'test_object("c")'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "The contents of <code>c</code> aren't correct.")
         helper.test_lines(self, sct_payload, 8, 8, 5, 9)
 
     def test_fail_for(self):
         self.data["DC_SCT"] = 'test_object("d")'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "The contents of <code>d</code> aren't correct.")
         helper.test_lines(self, sct_payload, 11, 11, 5, 9)
 
     def test_fail_for_2(self):
         self.data["DC_SCT"] = 'test_object("e")'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "The contents of <code>e</code> aren't correct.")
         helper.test_lines(self, sct_payload, 15, 15, 5, 9)
 
     def test_fail_try(self):
         self.data["DC_SCT"] = 'test_object("f")'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "The contents of <code>f</code> aren't correct.")
         helper.test_lines(self, sct_payload, 19, 19, 5, 9)
 
     def test_fail_try_finally_1(self):
         self.data["DC_SCT"] = 'test_object("g")'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "The contents of <code>g</code> aren't correct.")
         helper.test_lines(self, sct_payload, 24, 24, 5, 9)
 
     def test_fail_try_finally_2(self):
         self.data["DC_SCT"] = 'test_object("h")'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "The contents of <code>h</code> aren't correct.")
         helper.test_lines(self, sct_payload, 28, 28, 5, 9)
 
     def test_fail_if2(self):
         self.data["DC_SCT"] = 'test_object("i")'
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertEqual(sct_payload['message'], "The contents of <code>i</code> aren't correct.")
         helper.test_absent_lines(self, sct_payload)
 
 
@@ -374,32 +367,6 @@ class TestIsInstance(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
 
-def test_check_custom_compare():
-    code = """
-dfs_comp = []
-for f in range(3):
-    dfs_comp.append(pd.DataFrame({'a': [1, 2, 3]}))
-"""
-    data = {
-		"DC_PEC": "import pandas as pd",
-		"DC_CODE": code,
-        "DC_SOLUTION": code,
-		"DC_SCT": """
-import numpy as np
-def compare(x, y):
-    # check if same length
-    if (len(x) != len(y)): return False
-
-    # check if underlying data frames are equal
-    for i in range(len(x)):
-        if not x[i].equals(y[i]): return False
-
-    return True
-Ex().check_object("dfs_comp").is_instance(list).has_equal_value(func = compare)
-"""
-	}
-    output = helper.run(data)
-    assert output['correct']
 
 if __name__ == "__main__":
     unittest.main()

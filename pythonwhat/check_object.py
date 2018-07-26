@@ -3,15 +3,10 @@ from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, DefinedColl
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
 from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getValueInProcess, isDefinedCollInProcess, ReprFail
-from pythonwhat.check_funcs import part_to_child, has_equal_value
+from pythonwhat.check_funcs import part_to_child
+from pythonwhat.has_funcs import has_equal_value
 
-
-MSG_PREPEND = "__JINJA__:Did you correctly define the variable `{{index}}`? "
-MSG_UNDEFINED = "__JINJA__:Did you define the {{typestr}} `{{index}}` without errors?"
-MSG_INCORRECT_VAL = """FMT: Have you specified the correct value for `{key}` inside `{parent[sol_part][name]}`?"""
-MSG_KEY_MISSING = "__JINJA__:There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} inside {{parent.index}}."
-
-def check_object(index, missing_msg=MSG_UNDEFINED, expand_msg=MSG_PREPEND, state=None, typestr="variable"):
+def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="variable"):
     """Check object existence (and equality)
 
     Check whether an object is defined in the student's environment, and zoom in on its value in both
@@ -43,6 +38,13 @@ def check_object(index, missing_msg=MSG_UNDEFINED, expand_msg=MSG_PREPEND, state
             Ex().check_object("c").has_equal_value()  # pass
 
     """
+
+    if missing_msg is None:
+        missing_msg = "__JINJA__:Did you define the {{typestr}} `{{index}}` without errors?"
+
+    if expand_msg is None:
+        expand_msg = "__JINJA__:Did you correctly define the {{typestr}} `{{index}}`? "
+
     rep = Reporter.active_reporter
 
     if not isDefinedInProcess(index, state.solution_process):
@@ -102,7 +104,8 @@ def is_instance(inst, not_instance_msg="__JINJA__:Is it a {{inst.__name__}}?", s
 
     return state
 
-def has_key(key, key_missing_msg=MSG_KEY_MISSING, state=None):
+def has_key(key, key_missing_msg=None, state=None):
+
     """Check whether an object (dict, DataFrame, etc) has a key.
 
     ``has_key()`` can currently only be used when chained from ``check_object()``, the function that is
@@ -126,6 +129,9 @@ def has_key(key, key_missing_msg=MSG_KEY_MISSING, state=None):
             Ex().check_object('x').has_key('a')
 
     """
+
+    if key_missing_msg is None: key_missing_msg = "__JINJA__:There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} inside {{parent.index}}."
+
     rep = Reporter.active_reporter
 
     sol_name = state.solution_parts.get('name')
@@ -141,7 +147,7 @@ def has_key(key, key_missing_msg=MSG_KEY_MISSING, state=None):
 
     return state
 
-def has_equal_key(key, incorrect_value_msg=MSG_INCORRECT_VAL, key_missing_msg=MSG_KEY_MISSING, state=None):
+def has_equal_key(key, incorrect_value_msg=None, key_missing_msg=None, state=None):
     """Check whether an object (dict, DataFrame, etc) has a key, and whether this
     key is correct when comparing to the solution code.
 
@@ -174,6 +180,8 @@ def has_equal_key(key, incorrect_value_msg=MSG_INCORRECT_VAL, key_missing_msg=MS
     stu_name = state.student_parts.get('name')
 
     has_key(key, key_missing_msg, state=state)
+
+    if incorrect_value_msg is None: incorrect_value_msg = "__JINJA__: Have you specified the correct value for `{{key}}` inside `{{parent[sol_part][name]}}`?"
 
     sol_value, sol_str = getValueInProcess(sol_name, key, state.solution_process)
     if isinstance(sol_value, ReprFail):

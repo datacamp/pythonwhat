@@ -3,12 +3,12 @@ Make your SCT robust
 
 For larger exercises, you'll often want to be flexible: if students get the end result right, you don't want to be picky about how they got there.
 However, when they do make a mistake, you want to be specific about the mistake they are making.
-These seemingly conflicting requirements can be satisfied with ``test_correct()`` and ``test_or()``.
+These seemingly conflicting requirements can be satisfied with ``check_correct()`` and ``check_or()``.
 
-test_correct
-============
+``check_correct()``
+===================
 
-To explain the concept of ``test_correct()``, consider this example:
+To explain the concept of ``check_correct()``, consider this example:
 
 .. code::
 
@@ -26,13 +26,13 @@ The following SCT will do just that:
 
 .. code::
 
-    Ex().test_correct(
+    Ex().check_correct(
         check_object("result").has_equal_value(),
         check_function("numpy.mean").check_args("a").has_equal_value()
     )
 
 
-Inside ``test_correct()``, two SCT chains are specified, separated by a comma:
+Inside ``check_correct()``, two SCT chains are specified, separated by a comma:
 
 - A ``check`` chain, that has to pass in all cases, but when it fails, it doesn't immediately stop the SCT execution and fail the exercise.
 - A ``diagnose`` chain, that is only execute if the ``check`` chain failed silently.
@@ -44,27 +44,27 @@ Let's see what happens in case of different student submissions:
 
 - The student submits ``result = np.mean(arr)``
 
-  - ``test_correct()`` runs the ``check_object()`` chain. 
-  - This test passes, so ``test_correct()`` stops. 
+  - ``check_correct()`` runs the ``check_object()`` chain.
+  - This test passes, so ``check_correct()`` stops. 
   - The SCT passes.
 
 - The student submits ``result = np.sum(arr) / arr.size``
 
-  - ``test_correct()`` runs the ``check_object()`` chain.
-  - This test passes, so ``test_correct()`` stops before running ``check_function()``.
+  - ``check_correct()`` runs the ``check_object()`` chain.
+  - This test passes, so ``check_correct()`` stops before running ``check_function()``.
   - The entire SCT passes even though ``np.mean()`` was not used.
 
 - The student submits ``result = np.mean(arr + 1)``
 
-  - ``test_correct()`` runs the ``check_object()`` chain.
-  - This test fails, so ``test_correct()`` continues with the ``diagnose`` part, running the ``check_function()`` chain.
+  - ``check_correct()`` runs the ``check_object()`` chain.
+  - This test fails, so ``check_correct()`` continues with the ``diagnose`` part, running the ``check_function()`` chain.
   - This chain fails, since the argument passed to ``numpy.mean()`` in the student submission does not correspond to the argument passed in the solution.
   - A meaningful, specific feedback message is presented to the student: you did not correctly specify the arguments inside ``np.mean()``.
 
 - The student submits ``result = np.mean(arr) + 1``
 
-  - ``test_correct()`` runs the ``check_object()`` chain.
-  - This test fails, so ``test_correct()`` continues with the ``diagnose`` part,  running the ``check_function()`` chain.
+  - ``check_correct()`` runs the ``check_object()`` chain.
+  - This test fails, so ``check_correct()`` continues with the ``diagnose`` part,  running the ``check_function()`` chain.
   - This function passes, because ``np.mean()`` is called in exactly the same way in the student code as in the solution.
   - Because there is something wrong - ``result`` is not correct - the ``check`` chain is executed again, and this time its feedback on failure is presented to the student.
   - The student gets the message that ``result`` does not contain the correct value.
@@ -77,7 +77,7 @@ It is perfectly possible for your ``check`` and ``diagnose`` SCT chains to branc
 
 .. code::
 
-    Ex().test_correct(
+    Ex().check_correct(
         multi(
           check_object('a').has_equal_value(), # multiple check SCTs
           check_object('b').has_equal_value()
@@ -86,20 +86,20 @@ It is perfectly possible for your ``check`` and ``diagnose`` SCT chains to branc
     )
 
 
-Why use `test_correct()`
-~~~~~~~~~~~~~~~~~~~~~~~~
+Why use `check_correct()`
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You will find that ``test_correct()`` is an **extremely powerful function&** to allow for different ways of solving the same problem.
-You can use ``test_correct()`` to check the end result of a calculation.
+You will find that ``check_correct()`` is an **extremely powerful function&** to allow for different ways of solving the same problem.
+You can use ``check_correct()`` to check the end result of a calculation.
 If the end result is correct, you can go ahead and accept the entire exercise.
-If the end result is incorrect, you can use the ``diagnose`` part of ``test_correct()`` to dig a little deeper.
+If the end result is incorrect, you can use the ``diagnose`` part of ``check_correct()`` to dig a little deeper.
 
-It is also perfectly possible to use ``test_correct()`` inside another ``test_correct()``.
+It is also perfectly possible to use ``check_correct()`` inside another ``check_correct()``.
 
-test_or
-=======
+``check_or()``
+==============
 
-``test_or()`` tests whether one of the SCTs you specify inside it passes. Suppose you want to check whether people correctly printed out any integer between 3 and 7. A solution could be:
+``check_or()`` tests whether one of the SCTs you specify inside it passes. Suppose you want to check whether people correctly printed out any integer between 3 and 7. A solution could be:
 
 .. code::
 	
@@ -107,14 +107,14 @@ test_or
 		
 
 To test this in a robust way, you could use ``has_code()`` with a suitable regular expression that covers everything,
-or you can use ``test_or()`` with three separate ``has_code()`` functions:
+or you can use ``check_or()`` with three separate ``has_code()`` functions:
 
 .. code::
 
-	Ex().test_or(has_code('4'),
-               has_code('5'),
-               has_code('6'))
+	Ex().check_or(has_code('4'),
+                  has_code('5'),
+                  has_code('6'))
 
-You can consider ``test_or()`` a logic-inducing function. The different calls to pythonwhat functions that are in your SCT are actually all tests that _have_ to pass:
-they are ``AND`` tests. With ``test_or()`` you can add chunks of ``OR`` tests in there.
+You can consider ``check_or()`` a logic-inducing function. The different calls to pythonwhat functions that are in your SCT are actually all tests that _have_ to pass:
+they are ``AND`` tests. With ``check_or()`` you can add chunks of ``OR`` tests in there.
 

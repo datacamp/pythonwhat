@@ -3,6 +3,7 @@ import itertools
 import inspect
 from functools import partial
 from collections import OrderedDict
+from pythonwhat import test_funcs
 
 TEST_NAMES = [
     "test_mc",
@@ -32,12 +33,12 @@ SUB_TESTS = {
     "test_if_else": ['test', 'body', 'orelse'],
     "test_if_exp": ['test', 'body', 'orelse'],
     "test_list_comp": ['comp_iter', 'body', 'ifs'],
-    "test_correct": ['check', 'diagnose'],
+    "check_correct": ['check', 'diagnose'],
     "test_for_loop": ['for_iter', 'body', 'orelse'],
     "test_while_loop": ['test', 'body', 'orelse'],
     "test_with": ['context_tests', 'body'],
     "test_function_definition": ['body'],
-    "test_or": ['tests']
+    "check_or": ['tests']
 }
 
 class Tree(object):
@@ -230,8 +231,7 @@ class Probe(object):
             raise Exception("Expected a function or list/tuple/dict of functions")
 
 
-def create_test_probes(context):
+def build_probe_context():
     tree = Tree()
-    new_context = {s: Probe(tree, context[s]) for s in TEST_NAMES}
-    new_context.update({k:v for k,v in context.items() if k not in new_context})
-    return tree, new_context
+    probe_context = {s: Probe(tree, getattr(test_funcs, s)) for s in TEST_NAMES}
+    return tree, probe_context
