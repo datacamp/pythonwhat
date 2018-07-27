@@ -39,6 +39,15 @@ Ex().check_object('df', missing_msg='udm', expand_msg='').\
     assert output['correct'] == passes
     if msg: assert output['message'] == msg
 
+    data['DC_SCT'] = """
+import pandas as pd
+Ex().check_df('df', missing_msg='udm', expand_msg='', not_instance_msg='ndfm').\
+     has_equal_key('a', key_missing_msg='ucm', incorrect_value_msg='icm')
+    """
+    output = helper.run(data)
+    assert output['correct'] == passes
+    if msg: assert output['message'] == msg
+
 @pytest.mark.parametrize('stu_code, passes, msg', [
     ('', False, 'udm'),
     ('x = 1', False, 'icm'),
