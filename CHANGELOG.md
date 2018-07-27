@@ -2,6 +2,10 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.14.2
+
+- Add `check_df()` to the API again. Turns out quite a lot of live exercises use it by now!
+
 ## 2.14.1
 
 - Fix issue in `test_data_frame()` if message is not specified.
@@ -28,7 +32,8 @@ All notable changes to the pythonwhat project will be documented in this file. T
 
 ### Removed
 
-- Both `check_df()` and `extend()` can not be used (which shouldn't be a problem, as no live exercises use it).
+- `extend()` can not be used anymore.
+- `check_df()` can not be used anymore. UPDATE: added again in 2.14.2.
 
 ## 2.13.2
 
