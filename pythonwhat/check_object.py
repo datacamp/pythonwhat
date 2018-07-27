@@ -5,6 +5,7 @@ from pythonwhat.Feedback import Feedback
 from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getValueInProcess, isDefinedCollInProcess, ReprFail
 from pythonwhat.check_funcs import part_to_child
 from pythonwhat.has_funcs import has_equal_value
+import pandas as pd
 
 def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="variable"):
     """Check object existence (and equality)
@@ -105,6 +106,13 @@ def is_instance(inst, not_instance_msg=None, state=None):
     rep.do_test(InstanceProcessTest(stu_name, inst, state.student_process, feedback))
 
     return state
+
+
+def check_df(index, missing_msg=None, not_instance_msg=None, expand_msg=None, state=None):
+    """Check whether a DataFrame was defined and it is the right type"""
+    child = check_object(index, missing_msg=missing_msg, expand_msg=expand_msg, state=state, typestr="pandas DataFrame")
+    is_instance(pd.DataFrame, not_instance_msg=not_instance_msg, state=child)
+    return child
 
 def has_key(key, key_missing_msg=None, state=None):
 

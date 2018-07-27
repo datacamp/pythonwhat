@@ -3,7 +3,7 @@ from pythonwhat.has_funcs import has_equal_value
 from pythonwhat.check_object import check_object
 from pythonwhat.Reporter import Reporter
 from pythonwhat.tasks import getColumnsInProcess
-from pythonwhat.check_object import check_object, is_instance, has_equal_key, has_key
+from pythonwhat.check_object import check_object, check_df, has_equal_key, has_key
 import pandas as pd
 
 def test_object(name,
@@ -32,11 +32,7 @@ def test_data_frame(name,
 
     expand_msg = "" if undefined_msg or not_data_frame_msg or undefined_cols_msg or incorrect_msg else None
 
-    # check if variable exists
-    child = check_object(name, undefined_msg, expand_msg=expand_msg, state=state, typestr="pandas DataFrame")
-
-    # check if instance correct
-    is_instance(pd.DataFrame, not_data_frame_msg, state=child)
+    child = check_df(name, undefined_msg, not_instance_msg=not_data_frame_msg, expand_msg=expand_msg, state=state)
 
     # if columns not set, figure them out from solution
     if columns is None:
