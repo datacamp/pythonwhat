@@ -169,6 +169,25 @@ def test_check_object(stu, patt, cols, cole):
     assert message(output, patt)
     assert lines(output, cols, cole)
 
+@pytest.mark.parametrize('stu, patt', [
+    ('df = 3', 'Did you correctly define the pandas DataFrame `df`? Is it a DataFrame?', ),
+    ('df = pd.DataFrame({ "b": [1]})', 'Did you correctly define the pandas DataFrame `df`? There is no column `a`.'),
+    ('df = pd.DataFrame({ "a": [1]})', 'Did you correctly define the pandas DataFrame `df`?  Did you correctly specify the column `a`?')
+])
+def test_test_data_frame_no_msg(stu, patt):
+    data = {
+        'DC_PEC': 'import pandas as pd',
+        'DC_SOLUTION': 'df = pd.DataFrame({"a": [1, 2, 3]})',
+        'DC_CODE': stu
+    }
+
+    data['DC_SCT'] = "test_data_frame('df', columns=['a'])"
+    output = helper.run(data)
+    assert message(output, patt)
+
+    data['DC_SCT'] = "import pandas as pd; Ex().check_object('df', typestr = 'pandas DataFrame').is_instance(pd.DataFrame).has_equal_key('a')"
+    output = helper.run(data)
+    assert message(output, patt)
 
 @pytest.mark.parametrize('stu, patt', [
     ('round(2.34)', 'argrwong'),
@@ -186,6 +205,8 @@ Ex().check_object('x', missing_msg='objectnotdefined').has_equal_value('objectin
     })
     assert not output['correct']
     assert message(output, patt)
+
+
 
 # Check call ------------------------------------------------------------------
 
