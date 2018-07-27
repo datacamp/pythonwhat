@@ -2,6 +2,11 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.14.1
+
+- Fix issue in `test_data_frame()` if message is not specified.
+- Improve messaging in `has_key()` and `has_equal_key()`.
+
 ## 2.14.0
 
 ### Changed
