@@ -60,7 +60,21 @@ def test_check_object(stu_code, passes, msg):
     assert output['correct'] == passes
     if msg: assert output['message'] == msg
 
-def test_check_custom_compare():
+@pytest.mark.debug
+@pytest.mark.parametrize('stu_code, passes', [
+    ('x = filter(lambda x: x > 0, [0, 1])', False),
+    ('x = filter(lambda x: x > 0, [1, 1])', True)
+])
+def test_check_object_exotic_compare(stu_code, passes):
+    data = {
+        'DC_SOLUTION': 'x = filter(lambda x: x > 0, [1, 1])',
+        'DC_SCT': "Ex().check_object('x').has_equal_value()",
+        'DC_CODE': stu_code
+    }
+    output = helper.run(data)
+    assert output['correct'] == passes
+
+def test_check_object_custom_compare():
     code = """
 dfs_comp = []
 for f in range(3):

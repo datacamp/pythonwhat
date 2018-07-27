@@ -49,19 +49,10 @@ def capture_output():
     out[1] = out[1].getvalue()
 
 
-## DEBUGGING
-
-# import pythonwhat; pythonwhat.tasks.listElementsInProcess(state.student_process)
-@process_task
-def listElementsInProcess(process, shell):
-    return list(get_env(shell.user_ns).keys())
-
-
 # MC
 @process_task
 def getOptionFromProcess(process, name, shell):
     return shell.user_ns[name]
-
 
 # Is a variable is defined in the process?
 @process_task
@@ -72,15 +63,6 @@ def isDefinedInProcess(name, process, shell):
 @process_task
 def isInstanceInProcess(name, klass, process, shell):
     return isinstance(get_env(shell.user_ns)[name], klass)
-
-
-# Get the keys() of a dictionary in the process
-@process_task
-def getKeysInProcess(name, process, shell):
-    try:
-        return list(get_env(shell.user_ns)[name].keys())
-    except:
-        return None
 
 # Get the columns of a Pandas data frame in the process
 @process_task

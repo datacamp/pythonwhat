@@ -163,76 +163,76 @@ class Parser(ast.NodeVisitor):
                 }
 
 
-class OperatorParser(Parser):
-    """Find operations.
+# class OperatorParser(Parser):
+#     """Find operations.
 
-    A parser which inherits from the basic parser to find binary operators.
+#     A parser which inherits from the basic parser to find binary operators.
 
-    Attributes:
-        out (list(tuple(num, ast.BinOp, list(str)))): A list of tuples containing the linenumber, node and list of used binary operations.
-        level (num): A number representing the level at which the parser is parsing.
-        used (list(str)): The operators that are used in the BinOp that we're handling.
-    """
+#     Attributes:
+#         out (list(tuple(num, ast.BinOp, list(str)))): A list of tuples containing the linenumber, node and list of used binary operations.
+#         level (num): A number representing the level at which the parser is parsing.
+#         used (list(str)): The operators that are used in the BinOp that we're handling.
+#     """
 
 
-    # All possible operations and their sign
-    O_MAP = {}
-    O_MAP['Add'] = '+'
-    O_MAP['Sub'] = '-'
-    O_MAP['Mult'] = '*'
-    O_MAP['Div'] = '/'
-    O_MAP['Mod'] = '%'
-    O_MAP['Pow'] = '**'
-    O_MAP['LShift'] = '<<'
-    O_MAP['RShift'] = '>>'
-    O_MAP['BitOr'] = '|'
-    O_MAP['BitXor'] = '^'
-    O_MAP['BitAnd'] = '&'
-    O_MAP['FloorDiv'] = '//'
+#     # All possible operations and their sign
+#     O_MAP = {}
+#     O_MAP['Add'] = '+'
+#     O_MAP['Sub'] = '-'
+#     O_MAP['Mult'] = '*'
+#     O_MAP['Div'] = '/'
+#     O_MAP['Mod'] = '%'
+#     O_MAP['Pow'] = '**'
+#     O_MAP['LShift'] = '<<'
+#     O_MAP['RShift'] = '>>'
+#     O_MAP['BitOr'] = '|'
+#     O_MAP['BitXor'] = '^'
+#     O_MAP['BitAnd'] = '&'
+#     O_MAP['FloorDiv'] = '//'
 
-    def __init__(self):
-        """
-        Initialize the parser and its attributes.
-        """
-        self.out = []
-        self.level = 0
-        self.used = []
+#     def __init__(self):
+#         """
+#         Initialize the parser and its attributes.
+#         """
+#         self.out = []
+#         self.level = 0
+#         self.used = []
 
-    def visit_Expr(self, node):
-        self.visit(node.value)
+#     def visit_Expr(self, node):
+#         self.visit(node.value)
 
-    def visit_Call(self, node):
-        for arg in node.args:
-            self.visit(arg)
+#     def visit_Call(self, node):
+#         for arg in node.args:
+#             self.visit(arg)
 
-    def visit_Assign(self, node):
-        self.visit(node.value)
+#     def visit_Assign(self, node):
+#         self.visit(node.value)
 
-    def visit_Num(self, node):
-        if not self.level:
-            self.out.append((  # A number can be seen as a operator on base level.
-                node,          # When student is asked to use operators but just puts in a number instead,
-                self.used))    # this will help creating a consistent feedback message.
+#     def visit_Num(self, node):
+#         if not self.level:
+#             self.out.append((  # A number can be seen as a operator on base level.
+#                 node,          # When student is asked to use operators but just puts in a number instead,
+#                 self.used))    # this will help creating a consistent feedback message.
 
-    def visit_UnaryOp(self, node):
-        self.visit(node.operand)  # Unary operations, like '-', should not be added, but they should be
-        # looked into. They can contain more binary operations. This is important
-        # during the nesting process.
+#     def visit_UnaryOp(self, node):
+#         self.visit(node.operand)  # Unary operations, like '-', should not be added, but they should be
+#         # looked into. They can contain more binary operations. This is important
+#         # during the nesting process.
 
-    def visit_BinOp(self, node):
-        self.used.append(OperatorParser.O_MAP[type(node.op).__name__])
-        self.level = self.level + 1
-        # Nest to other operations, but increase the level. We only
-        self.visit(node.left)
-        # want to now which operations are used at a deeper level, but
-        self.visit(node.right)
-        self.level = self.level - 1  # we don't need all the explicit nodes.
+#     def visit_BinOp(self, node):
+#         self.used.append(OperatorParser.O_MAP[type(node.op).__name__])
+#         self.level = self.level + 1
+#         # Nest to other operations, but increase the level. We only
+#         self.visit(node.left)
+#         # want to now which operations are used at a deeper level, but
+#         self.visit(node.right)
+#         self.level = self.level - 1  # we don't need all the explicit nodes.
 
-        if not self.level:          # We should only add the binary operations of the base level,
-            self.out.append((       # information about nested operations is included in the used list.
-                node,
-                self.used))
-            self.used = []
+#         if not self.level:          # We should only add the binary operations of the base level,
+#             self.out.append((       # information about nested operations is included in the used list.
+#                 node,
+#                 self.used))
+#             self.used = []
 
 
 class ImportParser(Parser):
@@ -825,7 +825,7 @@ class TryExceptParser(Parser):
 parser_dict = {
     "object_accesses": ObjectAccessParser,
     "object_assignments": ObjectAssignmentParser,
-    "operators": OperatorParser,
+    # "operators": OperatorParser,
     "imports": ImportParser,
     "if_elses": IfParser,
     "if_exps": IfExpParser,

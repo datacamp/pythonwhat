@@ -159,23 +159,6 @@ class EqualTest(Test):
         """
         self.result = self.func(self.obj1, self.obj2)
 
-
-
-class EqualProcessTest(Test):
-
-    def __init__(self, name, student_process, sol_obj, feedback):
-        super().__init__(feedback)
-        self.name = name
-        self.student_process = student_process
-        self.sol_obj = sol_obj
-
-    def specific_test(self):
-        stud_obj = getRepresentation(self.name, self.student_process)
-        if isinstance(stud_obj, ReprFail):
-            self.result = False
-        else:
-            self.result = is_equal(stud_obj, self.sol_obj)
-
 class EqualValueProcessTest(Test):
     def __init__(self, name, key, student_process, sol_value, feedback):
         super().__init__(feedback)
@@ -209,9 +192,7 @@ def is_equal(x, y):
                 np.testing.assert_equal(x, y)
                 return True
             elif objs_are(x, y, [map, filter]):
-                if np.array_equal(list(x), list(y)): return True
-                np.testing.assert_equal(list(x), list(y))
-                return True
+                return np.array_equal(list(x), list(y))
             elif objs_are(x, y, [pd.DataFrame]):
                 if x.equals(y): return True
                 pd.util.testing.assert_frame_equal(x, y)
