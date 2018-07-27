@@ -65,7 +65,7 @@ def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="
 
     return child
 
-def is_instance(inst, not_instance_msg="__JINJA__:Is it a {{inst.__name__}}?", state=None):
+def is_instance(inst, not_instance_msg=None, state=None):
     """Check whether an object is an instance of a certain class.
 
     ``is_instance()`` can currently only be used when chained from ``check_object()``, the function that is
@@ -94,6 +94,8 @@ def is_instance(inst, not_instance_msg="__JINJA__:Is it a {{inst.__name__}}?", s
 
     sol_name = state.solution_parts.get('name')
     stu_name = state.student_parts.get('name')
+
+    if not_instance_msg is None: not_instance_msg = "__JINJA__:Is it a {{inst.__name__}}?"
 
     if not isInstanceInProcess(sol_name, inst, state.solution_process):
         raise ValueError("%r is not a %s in the solution environment" % (sol_name, type(inst)))
@@ -130,7 +132,7 @@ def has_key(key, key_missing_msg=None, state=None):
 
     """
 
-    if key_missing_msg is None: key_missing_msg = "__JINJA__:There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} inside {{parent.index}}."
+    if key_missing_msg is None: key_missing_msg = "__JINJA__:There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `{{key}}`."
 
     rep = Reporter.active_reporter
 
@@ -179,13 +181,14 @@ def has_equal_key(key, incorrect_value_msg=None, key_missing_msg=None, state=Non
     sol_name = state.solution_parts.get('name')
     stu_name = state.student_parts.get('name')
 
-    has_key(key, key_missing_msg, state=state)
+    if incorrect_value_msg is None:
+        incorrect_value_msg = "__JINJA__: Did you correctly specify the {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `{{key}}`?"
 
-    if incorrect_value_msg is None: incorrect_value_msg = "__JINJA__: Have you specified the correct value for `{{key}}` inside `{{parent[sol_part][name]}}`?"
+    has_key(key, key_missing_msg, state=state)
 
     sol_value, sol_str = getValueInProcess(sol_name, key, state.solution_process)
     if isinstance(sol_value, ReprFail):
-        raise NameError("Value from %r can't be fetched from the solution process: %s" % c(sol_name, sol_value.info))
+        raise NameError("Value from %r can't be fetched from the solution process: %s" % (sol_name, sol_value.info))
 
     # check if value ok
     _msg = state.build_message(incorrect_value_msg, {'key': key})
