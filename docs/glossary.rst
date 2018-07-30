@@ -174,6 +174,22 @@ Check DataFrame
     my_df = pd.DataFrame({"a": [1, 1 + 1, 3], "b": [4, 5, 6]})
     my_df = pd.DataFrame({"b": [4, 5,  6], "a": [1, 2, 3]})
 
+Check printout
+~~~~~~~~~~~~~~
+
+.. code::
+
+    # solution
+    x = 3
+    print(x)
+
+    # sct
+    Ex().has_printout(0)
+
+    # passing submissions
+    print(3)
+    print(1 + 1)
+    x = 4; print(x - 1)
 
 Check output
 ~~~~~~~~~~~~
