@@ -41,13 +41,13 @@ Checking whether the right printouts were done is easy:
     print(x)
 
     # sct
-    Ex().has_output(0)
+    Ex().has_printout(0)
 
-``has_output()`` will look for the printout in the solution code that you specified with ``index`` (0 in this case), rerun the ``print()`` call in
+``has_printout()`` will look for the printout in the solution code that you specified with ``index`` (0 in this case), rerun the ``print()`` call in
 the solution process, capture its output, and verify whether the output is present in the output of the student.
 
 Watch out: ``has_printout()`` will effectively **rerun** the ``print()`` call in the solution process after the entire solution script was executed.
-If your solution script updates the value of `x` after executing it, ``has_output()`` will not work:
+If your solution script updates the value of `x` after executing it, ``has_printout()`` will not work:
 
 .. code::
 
@@ -57,7 +57,7 @@ If your solution script updates the value of `x` after executing it, ``has_outpu
     x = 6
 
     # sct that won't work
-    Ex().has_output(0)
+    Ex().has_printout(0)
 
 In this example, when the ``print(x)`` call is executed, the value of ``x`` will be 6, and pythonwhat will look for the output `'6`' in the output the student generated.
 In cases like these, default to using the classical pattern to check function calls:
