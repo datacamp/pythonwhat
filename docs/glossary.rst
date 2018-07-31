@@ -220,11 +220,12 @@ Check import
     import matplotlib.pyplot as plt
 
     # sct
-    Ex().has_import("matplotlib.pyplot", same_as=False)
+    Ex().has_import("matplotlib.pyplot")
 
     # passing submissions
     import matplotlib.pyplot as plt
-    import matplotlib.pyplot as ppplt
+    from matplotlib import pyplot as plt
+    import matplotlib.pyplot as pltttt
 
     # failing submissions
     import matplotlib as mpl

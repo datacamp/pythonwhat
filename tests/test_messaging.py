@@ -262,7 +262,7 @@ def test_has_import(stu, patt):
     output = helper.run({
         'DC_CODE': stu,
         'DC_SOLUTION': 'import pandas as pd',
-        'DC_SCT': "Ex().has_import('pandas')"
+        'DC_SCT': "Ex().has_import('pandas', same_as=True)"
     })
     assert not output['correct']
     assert message(output, patt)
@@ -276,7 +276,7 @@ def test_has_import_custom(stu, patt):
     output = helper.run({
         'DC_CODE': stu,
         'DC_SOLUTION': 'import pandas as pd',
-        'DC_SCT': "Ex().has_import('pandas', not_imported_msg='wrong', incorrect_as_msg='wrongas')"
+        'DC_SCT': "Ex().has_import('pandas', same_as=True, not_imported_msg='wrong', incorrect_as_msg='wrongas')"
     })
     assert not output['correct']
     assert message(output, patt)

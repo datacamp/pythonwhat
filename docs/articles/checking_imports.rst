@@ -17,11 +17,12 @@ Take this example to check whether a studnet imported ``matplotlib.pyplot`` as `
     # passing submissions
     import matplotlib.pyplot as plt
     from matplotlib import pyplot as plt
-
-    # failing submissions
     import matplotlib.pyplot as pltttt
 
-Note that by default ``has_import()`` also checks whether the correct alias was used to refer to the package after it is imported. If you want to give more liberty to the student, you can set ``same_as`` to ``False``:
+    # failing submissions
+    import matplotlib as mpl
+
+By default, ``has_import()`` allows for different ways of aliasing the imported package or function. If you want to make sure the correct alias was used to refer to the package or function that was imported, set ``same_as=True``.
 
 .. code::
 
@@ -29,9 +30,11 @@ Note that by default ``has_import()`` also checks whether the correct alias was 
     import matplotlib.pyplot as plt
 
     # sct
-    Ex().has_import("matplotlib.pyplot", same_as=False)
+    Ex().has_import("matplotlib.pyplot", same_as=True)
 
     # passing submissions
     import matplotlib.pyplot as plt
     from matplotlib import pyplot as plt
+
+    # failing submissions
     import matplotlib.pyplot as pltttt
