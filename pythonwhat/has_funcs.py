@@ -95,9 +95,10 @@ def has_equal_ast(incorrect_msg=None,
 
     Args:
         incorrect_msg: message displayed when ASTs mismatch. When you specify ``code`` yourself, you have to specify this.
-        code: optional code to use instead of the solution AST
+        code: optional code to use instead of the solution AST.
         exact: whether the representations must match exactly. If false, the solution AST
                only needs to be contained within the student AST (similar to using test student typed).
+               Defaults to ``True``, unless the ``code`` argument has been specified.
 
     :Example:
 
@@ -154,7 +155,7 @@ def has_equal_ast(incorrect_msg=None,
 
     _msg = state.build_message(incorrect_msg, fmt_kwargs, append=append)
 
-    if exact:
+    if exact and not code:
         rep.do_test(EqualTest(stu_rep, sol_rep, Feedback(_msg, state)))
     elif not sol_rep in stu_rep:
         rep.do_test(Test(Feedback(_msg, state)))
