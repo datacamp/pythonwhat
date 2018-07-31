@@ -48,6 +48,7 @@ Logic tests
 State-management
 ----------------
 
+.. autofunction:: pythonwhat.check_logic.override
+.. autofunction:: pythonwhat.check_logic.disable_highlighting
 .. autofunction:: pythonwhat.check_logic.set_context
 .. autofunction:: pythonwhat.check_logic.set_env
-.. autofunction:: pythonwhat.check_logic.disable_highlighting

@@ -100,7 +100,19 @@ def fail(msg="", state=None):
     return state
 
 def override(solution, state=None):
-    """Change the focused solution code."""
+    """Override the solution code with something arbitrary.
+
+    There might be cases in which you want to temporarily override the solution code
+    so you can allow for alternative ways of solving an exercise.
+    When you use ``override()`` in an SCT chain, the remainder of that SCT chain will
+    run as if the solution code you specified is the only code that was in the solution.
+
+    Check the glossary for an example (pandas plotting)
+
+    Args:
+        solution: solution code as a string that overrides the original solution code.
+        state: State instance describing student and solution code. Can be omitted if used with Ex().
+    """
 
     # the old ast may be a number of node types, but generally either a
     # (1) ast.Module, or for single expressions...
