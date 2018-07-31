@@ -2,6 +2,82 @@ import unittest
 import helper
 import pytest
 
+@pytest.mark.parametrize('sct', [
+    "test_object('x', undefined_msg='udm', incorrect_msg='icm')",
+    "Ex().check_object('x', missing_msg='udm').has_equal_value(incorrect_msg='icm')"
+])
+@pytest.mark.parametrize('stu_code, passes, msg', [
+    ('', False, 'udm'),
+    ('x = 1', False, 'icm'),
+    ('x = 100', True, None)
+])
+def test_check_object(sct, stu_code, passes, msg):
+    output = helper.run({
+        'DC_SOLUTION': 'x = 100',
+        'DC_CODE': stu_code,
+        'DC_SCT': sct
+    })
+    assert output['correct'] == passes
+    if msg: assert output['message'] == msg
+
+def test_check_object_wrong_usage():
+    with pytest.raises(NameError):
+        helper.run({
+            'DC_SCT': 'Ex().check_object("x")'
+        })
+
+@pytest.mark.parametrize('stu_code, passes', [
+    ('x = filter(lambda x: x > 0, [0, 1])', False),
+    ('x = filter(lambda x: x > 0, [1, 1])', True)
+])
+def test_check_object_exotic_compare(stu_code, passes):
+    output = helper.run({
+        'DC_SOLUTION': 'x = filter(lambda x: x > 0, [1, 1])',
+        'DC_SCT': "Ex().check_object('x').has_equal_value()",
+        'DC_CODE': stu_code
+    })
+    assert output['correct'] == passes
+
+@pytest.mark.parametrize('stu_code, passes', [
+    ('x = [1, 2, 3]', True),
+    ('x = [1, 2, 3, 4]', False)
+])
+def test_check_object_custom_compare(stu_code, passes):
+    output = helper.run({
+        "DC_SOLUTION": 'x = [4, 5, 6]',
+        'DC_CODE': stu_code,
+		'DC_SCT': 'Ex().check_object("x").has_equal_value(func = lambda x,y: len(x) == len(y))'
+	})
+    assert output['correct'] == passes
+
+@pytest.mark.parametrize('stu_code, passes', [
+    ('arr = 4', False),
+    ('arr = np.array([1])', True)
+])
+def test_is_instance(stu_code, passes):
+    output = helper.run({
+        'DC_PEC': 'import numpy as np',
+        'DC_SOLUTION': 'arr = np.array([1, 2, 3, 4])',
+        'DC_SCT': "import numpy; Ex().check_object('arr').is_instance(numpy.ndarray)",
+        'DC_CODE': stu_code
+    })
+    assert output['correct'] == passes
+
+@pytest.mark.parametrize('sct', [
+    "test_data_frame('df', columns=['a'], undefined_msg='udm', not_data_frame_msg='ndfm', undefined_cols_msg='ucm', incorrect_msg='icm')",
+    "test_data_frame('df', columns=None, undefined_msg='udm', not_data_frame_msg='ndfm', undefined_cols_msg='ucm', incorrect_msg='icm')",
+    """
+import pandas as pd
+Ex().check_object('df', missing_msg='udm', expand_msg='').\
+     is_instance(pd.DataFrame, not_instance_msg='ndfm').\
+     has_equal_key('a', key_missing_msg='ucm', incorrect_value_msg='icm')
+    """,
+    """
+import pandas as pd
+Ex().check_df('df', missing_msg='udm', expand_msg='', not_instance_msg='ndfm').\
+     has_equal_key('a', key_missing_msg='ucm', incorrect_value_msg='icm')
+    """
+])
 @pytest.mark.parametrize('stu_code, passes, msg', [
     ('', False, 'udm'),
     ('df = 3', False, 'ndfm'),
@@ -10,107 +86,40 @@ import pytest
     ('df = pd.DataFrame({ "a": [1, 2, 3] })', True, None),
     ('df = pd.DataFrame({ "a": [1, 2, 3], "b": [3, 4, 5] })', True, None),
 ])
-def test_test_data_frame(stu_code, passes, msg):
-    data = {
+def test_test_data_frame(sct, stu_code, passes, msg):
+    output = helper.run({
         'DC_PEC': 'import pandas as pd',
         'DC_SOLUTION': 'df = pd.DataFrame({"a": [1, 2, 3]})',
-        'DC_CODE': stu_code
-    }
-
-    data['DC_SCT'] = "test_data_frame('df', columns=['a'], undefined_msg='udm', not_data_frame_msg='ndfm', undefined_cols_msg='ucm', incorrect_msg='icm')"
-    output = helper.run(data)
-    assert output['correct'] == passes
-    if msg: assert output['message'] == msg
-    
-    # should also work if columsn not specified
-    data['DC_SCT'] = data['DC_SCT'].replace("['a']", "None")
-    output = helper.run(data)
+        'DC_CODE': stu_code,
+        'DC_SCT': sct
+    })
     assert output['correct'] == passes
     if msg: assert output['message'] == msg
 
-    # should also work if specced in different way.
-    data['DC_SCT'] = """
-import pandas as pd
-Ex().check_object('df', missing_msg='udm', expand_msg='').\
-     is_instance(pd.DataFrame, not_instance_msg='ndfm').\
-     has_equal_key('a', key_missing_msg='ucm', incorrect_value_msg='icm')
-    """
-    output = helper.run(data)
-    assert output['correct'] == passes
-    if msg: assert output['message'] == msg
-
-    data['DC_SCT'] = """
-import pandas as pd
-Ex().check_df('df', missing_msg='udm', expand_msg='', not_instance_msg='ndfm').\
-     has_equal_key('a', key_missing_msg='ucm', incorrect_value_msg='icm')
-    """
-    output = helper.run(data)
-    assert output['correct'] == passes
-    if msg: assert output['message'] == msg
-
-@pytest.mark.parametrize('stu_code, passes, msg', [
-    ('', False, 'udm'),
-    ('x = 1', False, 'icm'),
-    ('x = 100', True, None)
-])
-def test_check_object(stu_code, passes, msg):
-    data = {
-        'DC_SOLUTION': 'x = 100',
-        'DC_CODE': stu_code
-    }
-
-    data['DC_SCT'] = "test_object('x', undefined_msg='udm', incorrect_msg='icm')"
-    output = helper.run(data)
-    assert output['correct'] == passes
-    if msg: assert output['message'] == msg
-
-    data['DC_SCT'] = "Ex().check_object('x', missing_msg='udm').has_equal_value(incorrect_msg='icm')"
-    output = helper.run(data)
-    assert output['correct'] == passes
-    if msg: assert output['message'] == msg
-
-@pytest.mark.debug
 @pytest.mark.parametrize('stu_code, passes', [
-    ('x = filter(lambda x: x > 0, [0, 1])', False),
-    ('x = filter(lambda x: x > 0, [1, 1])', True)
+    ('x = {}', False),
+    ('x = {"b": 3}', False),
+    ('x = {"a": 3}', False),
+    ('x = {"a": 2}', True),
+    ('x = {"a": 2, "b": 3}', True),
 ])
-def test_check_object_exotic_compare(stu_code, passes):
-    data = {
-        'DC_SOLUTION': 'x = filter(lambda x: x > 0, [1, 1])',
-        'DC_SCT': "Ex().check_object('x').has_equal_value()",
-        'DC_CODE': stu_code
-    }
-    output = helper.run(data)
+def test_check_keys(stu_code, passes):
+    output = helper.run({
+        'DC_SOLUTION': 'x = {"a": 2}',
+        'DC_CODE': stu_code,
+        'DC_SCT': 'Ex().check_object("x").check_keys("a").has_equal_value()'
+    })
     assert output['correct'] == passes
 
-def test_check_object_custom_compare():
-    code = """
-dfs_comp = []
-for f in range(3):
-    dfs_comp.append(pd.DataFrame({'a': [1, 2, 3]}))
-"""
-    data = {
-		"DC_PEC": "import pandas as pd",
-		"DC_CODE": code,
-        "DC_SOLUTION": code,
-		"DC_SCT": """
-import numpy as np
-def compare(x, y):
-    # check if same length
-    if (len(x) != len(y)): return False
+def test_check_keys_wrong_usage():
+    with pytest.raises(NameError):
+        helper.run({
+            'DC_SOLUTION': 'x = {"a": 2}',
+            'DC_CODE': 'x = {"a": 2}',
+            'DC_SCT': 'Ex().check_object("x").check_keys("b")'
+        })
 
-    # check if underlying data frames are equal
-    for i in range(len(x)):
-        if not x[i].equals(y[i]): return False
-
-    return True
-Ex().check_object("dfs_comp").is_instance(list).has_equal_value(func = compare)
-"""
-	}
-    output = helper.run(data)
-    assert output['correct']
-
-
+@pytest.mark.need_internet
 class TestTestObjectNonDillable(unittest.TestCase):
     def setUp(self):
         self.data = {
@@ -126,6 +135,7 @@ class TestTestObjectNonDillable(unittest.TestCase):
 
 class TestTestObjectManualConverter(unittest.TestCase):
 
+    @pytest.mark.need_internet
     @pytest.mark.compiled
     def test_pass_1(self):
         self.data = {
@@ -187,6 +197,7 @@ class TestTestObjectEqualityChallenges(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    @pytest.mark.need_internet
     def test_pass4(self):
         self.data = {
             "DC_PEC": "import scipy.io; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/ja_data2.mat', 'albeck_gene_expression.mat')",
@@ -354,41 +365,6 @@ df2.columns = ["c", "d"]
         helper.test_absent_lines(self, sct_payload)
 
 
-class TestObjectInPec(unittest.TestCase):
-    def setUp(self):
-        self.data = {
-            "DC_PEC": "x = 4",
-            "DC_SOLUTION": "",
-            "DC_SCT": "Ex().check_object('x').has_equal_value()"
-        }
-
-    def test_pass(self):
-        self.data["DC_CODE"] = ""
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_fail(self):
-        self.data["DC_CODE"] = "x = 5"
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-
-
-class TestIsInstance(unittest.TestCase):
-    def setUp(self):
-        self.data = {
-            "DC_SOLUTION": "import numpy as np; arr = np.array([1, 2, 3, 4])",
-            "DC_SCT": "import numpy; Ex().check_object('arr').is_instance(numpy.ndarray)"
-        }
-
-    def test_pass(self):
-        self.data["DC_CODE"] = "import numpy as np; arr = np.array([1, 2, 3, 4])"
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_fail(self):
-        self.data["DC_CODE"] = "arr = 4"
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
 
 
 if __name__ == "__main__":

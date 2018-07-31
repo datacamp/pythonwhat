@@ -330,7 +330,7 @@ def taskRunEval(tree,
 
         # Set up environment --------------------------------------------------
         # avoid deepy copy if specified, or just looking up variable by name
-        if not copy or (isinstance(tree, ast.Name) and isinstance(tree.ctx, ast.Load)):
+        if not copy or (isinstance(tree, (ast.Name, ast.Subscript)) and isinstance(tree.ctx, ast.Load)):
             new_env = dict(get_env(shell.user_ns))
         else:
             new_env = utils.copy_env(get_env(shell.user_ns))
@@ -374,12 +374,3 @@ def taskRunEval(tree,
 getResultInProcess = get_rep(taskRunEval)
 getOutputInProcess = partial(get_output, taskRunEval)
 getErrorInProcess = partial(get_error, taskRunEval)
-
-# Get the value linked to a key of a collection in the process
-@process_task
-def taskGetValue(name, key, process, shell, tempname='_evaluation_object_'):
-    get_env(shell.user_ns)[tempname] = get_env(shell.user_ns)[name][key]
-    return True
-
-getValueInProcess = get_rep(taskGetValue)
-

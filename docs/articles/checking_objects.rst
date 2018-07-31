@@ -40,6 +40,51 @@ Consider the following solution, and corresponding SCT:
 
     ``has_equal_value()`` only looks at **end result** of a variable in the student process. In the example, how the object ``x`` came about in the student's submission, does not matter.    
 
+Checking the type of an object
+==============================
+
+You can use ``is_instance()`` after ``check_object()`` to verify the class of an object:
+
+.. code::
+
+    # solution
+    x = 3
+
+    # sct
+    Ex().object("x").is_instance(int)
+
+    # passing submissions
+    x = 3
+    x = 4
+
+    # failing submissions
+    x = '3'
+    x = '4'
+
+
+Checking objects with keys
+==========================
+
+You can use the `check_keys()` function to 'zoom in' on a particular key in a dictionary or a pandas DataFrame:
+
+.. code::
+
+    # solution
+    import pandas as pd
+    my_df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+
+    # sct
+    Ex().check_df("my_df").check_key("a").has_equal_value()
+
+    # passing submissions
+    my_df = pd.DataFrame({"a": [1, 1 + 1, 3], "b": [4, 5, 6]})
+    my_df = pd.DataFrame({"b": [4, 5,  6], "a": [1, 2, 3]})
+
+Here `check_df()` does two things:
+
++ it checks whether the object ``my_df`` is defined in the student process (``check_object()`` behind the scenes).
++ it checks whether ``my_df`` is an object of type `pandas.DataFrame` (using ``is_instance()`` behind the scene).
+
 Exotic objects
 ==============
 

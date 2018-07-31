@@ -159,21 +159,6 @@ class EqualTest(Test):
         """
         self.result = self.func(self.obj1, self.obj2)
 
-class EqualValueProcessTest(Test):
-    def __init__(self, name, key, student_process, sol_value, feedback):
-        super().__init__(feedback)
-        self.name = name
-        self.key = key
-        self.student_process = student_process
-        self.sol_value = sol_value
-
-    def specific_test(self):
-        stud_value, stud_str = getValueInProcess(self.name, self.key, self.student_process)
-        if isinstance(stud_value, ReprFail):
-            self.result = False
-        else:
-            self.result = is_equal(stud_value, self.sol_value)
-
 ## Helpers for testing equality
 
 def objs_are(x, y, list_of_classes):

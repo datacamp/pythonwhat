@@ -111,7 +111,7 @@ _Small changes to follow up on `2.13.0`_
   + Get rid of default-generated messages scattered all over the place
   + Better description of arguments
   + Better description of calls
-  + Get rid of `has_key()` and `check_key()` docs, as they will be phased out
+  + Get rid of `has_key()` and `has_equal_key()` docs, as they will be phased out
   + Improved handling of getting results, output and values from process
   + Simplify old `test_expression_x()` functions and group in one file
 

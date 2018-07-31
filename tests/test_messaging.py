@@ -169,25 +169,42 @@ def test_check_object(stu, patt, cols, cole):
     assert message(output, patt)
     assert lines(output, cols, cole)
 
-@pytest.mark.parametrize('stu, patt', [
-    ('df = 3', 'Did you correctly define the pandas DataFrame `df`? Is it a DataFrame?', ),
-    ('df = pd.DataFrame({ "b": [1]})', 'Did you correctly define the pandas DataFrame `df`? There is no column `a`.'),
-    ('df = pd.DataFrame({ "a": [1]})', 'Did you correctly define the pandas DataFrame `df`?  Did you correctly specify the column `a`?')
+@pytest.mark.parametrize('sct', [
+    "test_data_frame('df', columns=['a'])",
+    "import pandas as pd; Ex().check_object('df', typestr = 'pandas DataFrame').is_instance(pd.DataFrame).check_keys('a').has_equal_value()"
 ])
-def test_test_data_frame_no_msg(stu, patt):
-    data = {
+@pytest.mark.parametrize('stu, patt, cols, cole', [
+    ('df = 3', 'Did you correctly define the pandas DataFrame `df`? Is it a DataFrame?', 1, 6),
+    ('df = pd.DataFrame({"b": [1]})', 'Did you correctly define the pandas DataFrame `df`? There is no column `\'a\'`.', 1, 29),
+    ('df = pd.DataFrame({"a": [1]})', 'Did you correctly define the pandas DataFrame `df`? Did you correctly set the column `\'a\'`? Expected something different.', 1, 29),
+    ('y = 3; df = pd.DataFrame({"a": [1]})', 'Did you correctly define the pandas DataFrame `df`? Did you correctly set the column `\'a\'`? Expected something different.', 8, 36)
+])
+def test_test_data_frame_no_msg(sct, stu, patt, cols, cole):
+    output = helper.run({
         'DC_PEC': 'import pandas as pd',
         'DC_SOLUTION': 'df = pd.DataFrame({"a": [1, 2, 3]})',
-        'DC_CODE': stu
-    }
-
-    data['DC_SCT'] = "test_data_frame('df', columns=['a'])"
-    output = helper.run(data)
+        'DC_CODE': stu,
+        'DC_SCT': sct
+    })
+    assert not output['correct']
     assert message(output, patt)
+    assert lines(output, cols, cole)
 
-    data['DC_SCT'] = "import pandas as pd; Ex().check_object('df', typestr = 'pandas DataFrame').is_instance(pd.DataFrame).has_equal_key('a')"
-    output = helper.run(data)
+@pytest.mark.parametrize('stu_code, patt, cols, cole', [
+    ('x = {}', 'Did you correctly define the variable `x`? There is no key `\'a\'`.', 1, 6),
+    ('x = {"b": 3}', 'Did you correctly define the variable `x`? There is no key `\'a\'`.', 1, 12),
+    ('x = {"a": 3}', 'Did you correctly define the variable `x`? Did you correctly set the key `\'a\'`? Expected `2`, but got `3`.', 1, 12),
+    ('y = 3; x = {"a": 3}', 'Did you correctly define the variable `x`? Did you correctly set the key `\'a\'`? Expected `2`, but got `3`.', 8, 19),
+])
+def test_check_keys(stu_code, patt, cols, cole):
+    output = helper.run({
+        'DC_SOLUTION': 'x = {"a": 2}',
+        'DC_CODE': stu_code,
+        'DC_SCT': 'Ex().check_object("x").check_keys("a").has_equal_value()'
+    })
+    assert not output['correct']
     assert message(output, patt)
+    assert lines(output, cols, cole)
 
 @pytest.mark.parametrize('stu, patt', [
     ('round(2.34)', 'argrwong'),
@@ -205,8 +222,6 @@ Ex().check_object('x', missing_msg='objectnotdefined').has_equal_value('objectin
     })
     assert not output['correct']
     assert message(output, patt)
-
-
 
 # Check call ------------------------------------------------------------------
 
