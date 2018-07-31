@@ -55,38 +55,41 @@ def test_bind_args():
     assert binded_args['args'][1]['node'].n == 4
     assert binded_args['kwargs']['c']['node'].n == 5
 
-def test_args_kwargs_check_function_passing():
+@pytest.mark.parametrize('argspec', [
+    ['args', 0], ['args', 1], ['kwargs', 'c']
+])
+def test_args_kwargs_check_function_passing(argspec):
     code = 'my_fun(1, 2, 3, 4, c = 5)'
     s = setup_state(pec = 'def my_fun(a, b, *args, **kwargs): pass',
                     stu_code = code, sol_code = code)
     x = s.check_function('my_fun')
-    helper.passes(x.check_args(['args', 0]).has_equal_value())
-    helper.passes(x.check_args(['args', 1]).has_equal_value())
-    helper.passes(x.check_args(['kwargs', 'c']).has_equal_value())
+    helper.passes(x.check_args(argspec).has_equal_value())
 
-def test_args_kwargs_check_function_failing_not_specified():
+@pytest.mark.parametrize('argspec, msg', [
+    (['args', 0], 'Did you specify the first argument passed as a variable length argument'),
+    (['args', 1], 'Did you specify the second argument passed as a variable length argument'),
+    (['kwargs', 'c'], 'Did you specify the argument `c`')
+])
+def test_args_kwargs_check_function_failing_not_specified(argspec, msg):
     s = setup_state(pec = 'def my_fun(a, b, *args, **kwargs): pass',
                     sol_code = 'my_fun(1, 2, 3, 4, c = 5)',
                     stu_code = 'my_fun(1, 2)')
     x = s.check_function('my_fun')
-    with pytest.raises(TF, match="Did you specify the first argument passed as a variable length argument"):
-        x.check_args(['args', 0])
-    with pytest.raises(TF, match="Did you specify the second argument passed as a variable length argument"):
-        x.check_args(['args', 1])
-    with pytest.raises(TF, match="Did you specify the argument `c`"):
-        x.check_args(['kwargs', 'c'])
+    with pytest.raises(TF, match=msg):
+        x.check_args(argspec)
 
-def test_args_kwargs_check_function_failing_not_correct():
+@pytest.mark.parametrize('argspec, msg', [
+    (['args', 0], 'Did you correctly specify the first argument passed as a variable length argument'),
+    (['args', 1], 'Did you correctly specify the second argument passed as a variable length argument'),
+    (['kwargs', 'c'], 'Did you correctly specify the argument `c`')
+])
+def test_args_kwargs_check_function_failing_not_correct(argspec, msg):
     s = setup_state(pec = 'def my_fun(a, b, *args, **kwargs): pass',
                     sol_code = 'my_fun(1, 2, 3, 4, c = 5)',
                     stu_code = 'my_fun(1, 2, 4, 5, c = 6)')
     x = s.check_function('my_fun')
-    with pytest.raises(TF, match='Did you correctly specify the first argument passed as a variable length argument'):
-        x.check_args(['args', 0]).has_equal_value()
-    with pytest.raises(TF, match='Did you correctly specify the second argument passed as a variable length argument'):
-        x.check_args(['args', 1]).has_equal_value()
-    with pytest.raises(TF, match='Did you correctly specify the argument `c`'):
-        x.check_args(['kwargs', 'c']).has_equal_value()
+    with pytest.raises(TF, match=msg):
+        x.check_args(argspec).has_equal_value()
 
 def test_check_function_with_has_equal_value():
     code = 'import numpy as np\narr = np.array([1, 2, 3, 4, 5])\nnp.mean(arr)'
@@ -146,3 +149,20 @@ def test_method_2():
     from pythonwhat.signatures import sig_from_obj
     import pandas as pd
     helper.passes(s.check_function('df.a.sum', signature = sig_from_obj(pd.Series.sum)))
+
+@pytest.mark.parametrize('sct', [
+    "Ex().check_function('round').check_args('ndigits').has_equal_value()",
+    "Ex().check_correct(check_object('x').has_equal_value(), check_function('round').check_args('ndigits').has_equal_value())"
+])
+@pytest.mark.parametrize('sol', [
+    'x = 5',
+    'x = round(5.23)'
+])
+def test_incorrect_usage(sct, sol):
+    data = {
+        'DC_CODE': 'round(1.23, ndigits = 1)',
+        'DC_SOLUTION': sol,
+        'DC_SCT': sct
+    }
+    with pytest.raises(KeyError):
+        out = helper.run(data)
