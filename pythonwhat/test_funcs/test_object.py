@@ -1,10 +1,6 @@
-from pythonwhat.Reporter import Reporter
-from pythonwhat.has_funcs import has_equal_value
-from pythonwhat.check_object import check_object
-from pythonwhat.Reporter import Reporter
 from pythonwhat.tasks import getColumnsInProcess
-from pythonwhat.check_object import check_object, check_df, has_equal_key, has_key
-import pandas as pd
+from pythonwhat.check_object import check_object, check_df, check_keys
+from pythonwhat.has_funcs import has_equal_value
 
 def test_object(name,
                 eq_condition="equal",
@@ -41,5 +37,5 @@ def test_data_frame(name,
             raise ValueError("Something went wrong in figuring out the columns for %s in the solution process" % name)
 
     for col in columns:
-        # check if column available
-        has_equal_key(col, incorrect_msg, undefined_cols_msg, state=child)
+        colstate = check_keys(col, undefined_cols_msg, state=child)
+        has_equal_value(incorrect_msg=incorrect_msg, state=colstate)

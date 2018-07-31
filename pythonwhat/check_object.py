@@ -1,11 +1,12 @@
 from pythonwhat.parsing import ObjectAssignmentParser
-from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, DefinedCollProcessTest, EqualValueProcessTest
+from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, DefinedCollProcessTest
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback
-from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, getValueInProcess, isDefinedCollInProcess, ReprFail
+from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, isDefinedCollInProcess
 from pythonwhat.check_funcs import part_to_child
 from pythonwhat.has_funcs import has_equal_value
 import pandas as pd
+import ast
 
 def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="variable"):
     """Check object existence (and equality)
@@ -107,15 +108,13 @@ def is_instance(inst, not_instance_msg=None, state=None):
 
     return state
 
-
 def check_df(index, missing_msg=None, not_instance_msg=None, expand_msg=None, state=None):
     """Check whether a DataFrame was defined and it is the right type"""
     child = check_object(index, missing_msg=missing_msg, expand_msg=expand_msg, state=state, typestr="pandas DataFrame")
     is_instance(pd.DataFrame, not_instance_msg=not_instance_msg, state=child)
     return child
 
-def has_key(key, key_missing_msg=None, state=None):
-
+def check_keys(key, key_missing_msg=None, expand_msg=None, state=None):
     """Check whether an object (dict, DataFrame, etc) has a key.
 
     ``has_key()`` can currently only be used when chained from ``check_object()``, the function that is
@@ -140,7 +139,10 @@ def has_key(key, key_missing_msg=None, state=None):
 
     """
 
-    if key_missing_msg is None: key_missing_msg = "__JINJA__:There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `{{key}}`."
+    if key_missing_msg is None:
+        key_missing_msg = "__JINJA__:There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `'{{key}}'`."
+    if expand_msg is None:
+        expand_msg = "__JINJA__:Did you correctly set the {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `'{{key}}'`? "
 
     rep = Reporter.active_reporter
 
@@ -155,51 +157,25 @@ def has_key(key, key_missing_msg=None, state=None):
     rep.do_test(DefinedCollProcessTest(stu_name, key, state.student_process, 
                                        Feedback(_msg, state)))
 
-    return state
+    def get_part(name, key, highlight):
+        expr = ast.Subscript(value=ast.Name(id=name, ctx=ast.Load()),
+                             slice=ast.Index(value=ast.Str(s=key)),
+                             ctx=ast.Load())
+        ast.fix_missing_locations(expr)
+        return {
+            'node': expr,
+            'highlight': highlight
+        }
+
+    stu_part = get_part(stu_name, key, state.student_parts.get('highlight'))
+    sol_part = get_part(sol_name, key, state.solution_parts.get('highlight'))
+    append_message = {'msg': expand_msg, 'kwargs': {'key': key }}
+    child = part_to_child(stu_part, sol_part, append_message, state)
+    return child
+
+has_key = check_keys
 
 def has_equal_key(key, incorrect_value_msg=None, key_missing_msg=None, state=None):
-    """Check whether an object (dict, DataFrame, etc) has a key, and whether this
-    key is correct when comparing to the solution code.
-
-    ``has_equal_key()`` can currently only be used when chained from ``check_object()``, the function that is
-    used to 'zoom in' on the object of interest.
-
-    Args:
-        key (str): Name of the key that the object should have.
-        incorrect_value_msg (str): When specified, this overrides the automatically generated
-            message in case the key does not correspond to the value of the key in the solution process.
-        key_missing_msg (str): When specified, this overrides the automatically generated
-            message in case the key does not exist.
-        state (State): The state that is passed in through the SCT chain (don't specify this).
-
-    :Example:
-
-        Student code and solution code::
-
-            x = {'a': 2}
-
-        SCT::
-
-            # Verify that x contains a key a and whether it is correct
-            Ex().check_object('x').has_equal_key('a')
-
-    """
-    rep = Reporter.active_reporter
-
-    sol_name = state.solution_parts.get('name')
-    stu_name = state.student_parts.get('name')
-
-    if incorrect_value_msg is None:
-        incorrect_value_msg = "__JINJA__: Did you correctly specify the {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `{{key}}`?"
-
-    has_key(key, key_missing_msg, state=state)
-
-    sol_value, sol_str = getValueInProcess(sol_name, key, state.solution_process)
-    if isinstance(sol_value, ReprFail):
-        raise NameError("Value from %r can't be fetched from the solution process: %s" % (sol_name, sol_value.info))
-
-    # check if value ok
-    _msg = state.build_message(incorrect_value_msg, {'key': key})
-    rep.do_test(EqualValueProcessTest(stu_name, key, state.student_process, sol_value, Feedback(_msg, state)))
-
-    return state
+    s1 = check_keys(key, key_missing_msg=key_missing_msg, state=state)
+    s2 = has_equal_value(incorrect_msg=incorrect_value_msg, state = s1)
+    return s2

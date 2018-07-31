@@ -6,8 +6,8 @@ def include_v1():
     return os.environ.get('PYTHONWHAT_V2_ONLY', '') != '1'
 
 def shorten_str(text, to_chars=100):
-    return (text if len(text) <= 100 else (
-        text[:(to_chars // 2)] + "..." + text[-(to_chars // 2):]))
+    if '\n' in text or len(text) > 50: return None
+    return text
 
 def get_ord(num):
     assert num != 0, "use strictly positive numbers in get_ord()"

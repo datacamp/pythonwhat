@@ -23,6 +23,8 @@ Checking objects
 
 .. autofunction:: pythonwhat.check_object.check_object
 .. autofunction:: pythonwhat.check_object.is_instance
+.. autofunction:: pythonwhat.check_object.check_df
+.. autofunction:: pythonwhat.check_object.check_keys
 
 Checking function calls
 =======================

@@ -168,7 +168,7 @@ Check DataFrame
     my_df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
 
     # sct
-    Ex().check_df("my_df").multi(has_key("a"), has_equal_key("b"))
+    Ex().check_df("my_df").check_keys("a").has_equal_value()
 
     # passing submissions
     my_df = pd.DataFrame({"a": [1, 1 + 1, 3], "b": [4, 5, 6]})

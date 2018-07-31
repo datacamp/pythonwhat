@@ -224,8 +224,14 @@ def has_expr(incorrect_msg=None,
         'name': name, 'test': test,
         'test_desc': '' if test == 'value' else 'the %s ' % test
     }
+
     fmt_kwargs['stu_eval'] = utils.shorten_str(str(eval_stu))
     fmt_kwargs['sol_eval'] = utils.shorten_str(str(eval_sol))
+    if incorrect_msg == DEFAULT_INCORRECT_MSG and \
+        ( fmt_kwargs['stu_eval'] is None or
+          fmt_kwargs['sol_eval'] is None or
+          fmt_kwargs['stu_eval'] == fmt_kwargs['sol_eval'] ):
+        incorrect_msg = "Expected something different."
 
     # tests ---
     # error in process
