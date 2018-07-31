@@ -9,14 +9,14 @@ Simple tests
 Basic building blocks
 =====================
 
-.. autofunction:: pythonwhat.test_funcs.test_student_typed.has_code
-.. autofunction:: pythonwhat.test_funcs.test_output_contains.has_output
-.. autofunction:: pythonwhat.test_funcs.test_output_contains.has_printout
-.. autofunction:: pythonwhat.test_funcs.test_import.has_import
-.. autofunction:: pythonwhat.check_funcs.has_equal_value
-.. autofunction:: pythonwhat.check_funcs.has_equal_error
-.. autofunction:: pythonwhat.check_funcs.has_equal_output
-.. autofunction:: pythonwhat.check_funcs.has_equal_ast
+.. autofunction:: pythonwhat.has_funcs.has_code
+.. autofunction:: pythonwhat.has_funcs.has_output
+.. autofunction:: pythonwhat.has_funcs.has_printout
+.. autofunction:: pythonwhat.has_funcs.has_import
+.. autofunction:: pythonwhat.has_funcs.has_equal_value
+.. autofunction:: pythonwhat.has_funcs.has_equal_error
+.. autofunction:: pythonwhat.has_funcs.has_equal_output
+.. autofunction:: pythonwhat.has_funcs.has_equal_ast
 
 Checking objects
 ================
@@ -33,20 +33,21 @@ Checking function calls
 Checking function definitions
 =============================
 
-.. autofunction:: pythonwhat.check_funcs.check_args
-.. autofunction:: pythonwhat.check_funcs.has_equal_part_len
 .. autofunction:: pythonwhat.check_funcs.call
+.. autofunction:: pythonwhat.check_funcs.check_args
+.. autofunction:: pythonwhat.has_funcs.has_equal_part_len
 
 Logic tests
 -----------
 
-.. autofunction:: pythonwhat.check_funcs.multi
-.. autofunction:: pythonwhat.test_funcs.test_correct.check_correct
-.. autofunction:: pythonwhat.test_funcs.test_or.check_or
+.. autofunction:: pythonwhat.check_logic.multi
+.. autofunction:: pythonwhat.check_logic.check_correct
+.. autofunction:: pythonwhat.check_logic.check_or
+.. autofunction:: pythonwhat.check_logic.check_not
 
 State-management
 ----------------
 
-.. autofunction:: pythonwhat.check_funcs.set_context
-.. autofunction:: pythonwhat.check_funcs.set_env
-.. autofunction:: pythonwhat.check_funcs.disable_highlighting
+.. autofunction:: pythonwhat.check_logic.set_context
+.. autofunction:: pythonwhat.check_logic.set_env
+.. autofunction:: pythonwhat.check_logic.disable_highlighting

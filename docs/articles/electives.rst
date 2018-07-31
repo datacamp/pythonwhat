@@ -219,7 +219,7 @@ and replacing step (3) with any sub-tests given as arguments.
 fail
 ====
 
-.. autofunction:: pythonwhat.check_funcs.fail
+.. autofunction:: pythonwhat.check_logic.fail
 
 Fails. This function takes a single argument, ``msg``, that is the feedback given to the student.
 Note that this would be a terrible idea for grading submissions, but may be useful while writing SCTs.
