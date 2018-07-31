@@ -368,18 +368,15 @@ def has_code(text,
 from pythonwhat.Test import Test, DefinedCollTest, EqualTest
 
 def has_import(name,
-               same_as=True,
+               same_as=False,
                not_imported_msg="__JINJA__:Did you import `{{pkg}}`?",
                incorrect_as_msg="__JINJA__:Did you import `{{pkg}}` as `{{alias}}`?",
                state=None):
-    """Check whether code has certain import statement.
-
-    Test whether an import statement is used the same in the student's environment as in the solution
-    environment.
+    """Checks whether student imported a package or function correctly.
 
     Args:
         name (str): the name of the package that has to be checked.
-        same_as (bool): if false, the alias of the package doesn't have to be the same. Defaults to True.
+        same_as (bool): if True, the alias of the package or function has to be the same. Defaults to False.
         not_imported_msg (str): feedback message when the package is not imported.
         incorrect_as_msg (str): feedback message if the alias is wrong.
 
@@ -399,8 +396,8 @@ def has_import(name,
         SCT::
 
             Ex().has_import("numpy")  # pass
-            Ex().has_import("pandas") # fail
-            Ex().has_import("pandas", same_as = False) # pass
+            Ex().has_import("pandas") # pass
+            Ex().has_import("pandas", same_as=True) # fail
 
     """
 
