@@ -186,9 +186,9 @@ The following example checks whether students correctly defined their own functi
     # sct
     Ex().check_function_def('shout_echo').check_correct(
         multi(
-            call(['hey', 3], 'value'),
-            call(['hi', 2], 'value'),
-            call(['hi'], 'value')
+            check_call(f('hey', 3).has_equal_value(),
+            check_call(f('hi', 2).has_equal_value(),
+            check_call(f('hi').has_equal_value()
         ),
         check_body().set_context('test', 1).multi(
             has_equal_value(name = 'echo_word'),
@@ -200,7 +200,7 @@ Here:
 
 - ``check_function_def()`` zooms in on the function definition of ``shout_echo`` in both student and solution code (and process)
 - ``check_correct()`` is used to
-  + First check whether the function gives the correct result when called in different ways (through ``call()``).
+  + First check whether the function gives the correct result when called in different ways (through ``check_call()``).
   + Only if these 'function unit tests' don't pass, `check_correct()` will run the `check_body()` chain that dives deeper into the
   function definition body. This chain sets the context variables - ``word1`` and ``echo``, the arguments of the function - to
   the values ``'test'`` and ``1`` respectively, again while being agnostic to the actual name of these context variables.
@@ -272,8 +272,8 @@ Suppose you want to check whether a function definition containing a for loop wa
     # sct that robustly checks this
     Ex().check_function_def('counter').check_correct(
         multi(
-            call([[{'a': 1}], 'a'], 'value'),
-            call([[{'b': 1}, {'b': 2}], 'b'], 'value')
+            check_call([[{'a': 1}], 'a'], 'value'),
+            check_call([[{'b': 1}, {'b': 2}], 'b'], 'value')
         ),
         check_body().set_context([{'a': 1}, {'a': 2}], 'a').set_env(count = 0).check_for_loop().multi(
             check_iter().has_equal_value(),

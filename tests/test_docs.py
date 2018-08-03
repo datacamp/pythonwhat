@@ -62,6 +62,7 @@ def test_compound_statement_for_2(data2):
     output = helper.run(data2)
     assert output['correct']
 
+@pytest.mark.debug
 def test_compount_statement_for_3(data2):
     data2["DC_CODE"] = "my_dict = {'a': 1, 'b': 2}\nfor first, second in my_dict.items():\n    mess = first + ' - ' + str(second)\n    print(mess)"
     output = helper.run(data2)
