@@ -279,6 +279,66 @@ class TestBuiltInMethodsNumpy(unittest.TestCase):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_random_choice(self):
+        code = 'np.random.choice(a=5, size=3, replace=False, p=[0.1, 0, 0.3, 0.6, 0])'
+        output = helper.run({
+            "DC_PEC": "import numpy as np",
+            "DC_SOLUTION": code,
+            "DC_CODE": code,
+            "DC_SCT": "Ex().check_function('numpy.random.choice').multi([check_args(x).has_equal_value() for x in ['a', 'size', 'replace', 'p']])"
+        })
+        self.assertTrue(output['correct'])
+
+    def test_random_poisson(self):
+        code = 'np.random.poisson(lam=(100., 500.), size=(100, 2))'
+        output = helper.run({
+            "DC_PEC": "import numpy as np",
+            "DC_SOLUTION": code,
+            "DC_CODE": code,
+            "DC_SCT": "Ex().check_function('numpy.random.poisson').multi([check_args(x).has_equal_value() for x in ['lam', 'size']])"
+        })
+        self.assertTrue(output['correct'])
+
+    def test_random_normal(self):
+        code = 'np.random.normal(loc = 0, scale=1.0, size=100)'
+        output = helper.run({
+            "DC_PEC": "import numpy as np",
+            "DC_SOLUTION": code,
+            "DC_CODE": code,
+            "DC_SCT": "Ex().check_function('numpy.random.normal').multi([check_args(x).has_equal_value() for x in ['loc', 'scale', 'size']])"
+        })
+        self.assertTrue(output['correct'])
+
+    def test_random_binomial(self):
+        code = 'np.random.binomial(n=10, p=0.5, size=100)'
+        output = helper.run({
+            "DC_PEC": "import numpy as np",
+            "DC_SOLUTION": code,
+            "DC_CODE": code,
+            "DC_SCT": "Ex().check_function('numpy.random.binomial').multi([check_args(x).has_equal_value() for x in ['n', 'p', 'size']])"
+        })
+        self.assertTrue(output['correct'])
+
+    def test_random_shuffle(self):
+        code = 'np.random.shuffle(np.arange(10))'
+        output = helper.run({
+            "DC_PEC": "import numpy as np",
+            "DC_SOLUTION": code,
+            "DC_CODE": code,
+            "DC_SCT": "Ex().check_function('numpy.random.shuffle').check_args('x').has_equal_value()"
+        })
+        self.assertTrue(output['correct'])
+
+    def test_random_permutation(self):
+        code = 'np.random.permutation(np.arange(10))'
+        output = helper.run({
+            "DC_PEC": "import numpy as np",
+            "DC_SOLUTION": code,
+            "DC_CODE": code,
+            "DC_SCT": "Ex().check_function('numpy.random.permutation').check_args('x').has_equal_value()"
+        })
+        self.assertTrue(output['correct'])
+
 class TestBuiltInMethodsOthers(unittest.TestCase):
     def test_radians(self):
         self.data = {
