@@ -113,6 +113,20 @@ def get_manual_sigs():
                                  param('high', param.POSITIONAL_OR_KEYWORD, default=None),
                                  param('size', param.POSITIONAL_OR_KEYWORD, default=None),
                                  param('dtype', param.POSITIONAL_OR_KEYWORD, default='l')],
+        'numpy.random.choice': [param('a', param.POSITIONAL_OR_KEYWORD),
+                                param('size', param.POSITIONAL_OR_KEYWORD, default=None),
+                                param('replace', param.POSITIONAL_OR_KEYWORD, default=True),
+                                param('p', param.POSITIONAL_OR_KEYWORD, default=None)],
+        'numpy.random.normal': [param('loc', param.POSITIONAL_OR_KEYWORD, default=0.0),
+                                param('scale', param.POSITIONAL_OR_KEYWORD, default=1.0),
+                                param('size', param.POSITIONAL_OR_KEYWORD, default=None)],
+        'numpy.random.poisson': [param('lam', param.POSITIONAL_OR_KEYWORD, default=1.0),
+                                 param('size', param.POSITIONAL_OR_KEYWORD, default=None)],
+        'numpy.random.binomial': [param('n', param.POSITIONAL_OR_KEYWORD),
+                                  param('p', param.POSITIONAL_OR_KEYWORD),
+                                  param('size', param.POSITIONAL_OR_KEYWORD, default=None)],
+        'numpy.random.shuffle': [param('x', param.POSITIONAL_OR_KEYWORD)],
+        'numpy.random.permutation': [param('x', param.POSITIONAL_OR_KEYWORD)],
 
         # others
         'math.radians': [param('x', param.POSITIONAL_ONLY)]
