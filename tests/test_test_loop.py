@@ -42,8 +42,6 @@ for i in range(20):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check the first for loop. Did you correctly specify the sequence part?", sct_payload['message'])
-        self.assertIn("Check your call of <code>range()</code>.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 3, 3, 16, 17)
 
     def test_Fail2(self):
@@ -55,8 +53,6 @@ for i in range(10):
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check the first for loop. Did you correctly specify the body?", sct_payload['message'])
-        self.assertIn("Are you sure you assigned the correct value to <code>size</code>?", sct_payload['message'])
         # should be detailed
         helper.test_lines(self, sct_payload, 4, 4, 5, 23)
 

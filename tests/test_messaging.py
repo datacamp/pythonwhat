@@ -361,3 +361,26 @@ Ex().test_correct(
     })
     assert not output['correct']
     assert message(output, patt)
+
+## test limited stacking ------------------------------------------------------
+
+@pytest.mark.debug
+@pytest.mark.parametrize('sct, patt', [
+    ('Ex().check_for_loop().check_body().check_for_loop().check_body().has_equal_output()',
+        'Check the first for statement. Did you correctly specify the body? Expected the output `1+1`, but got `1-1`.'),
+    ('Ex().check_for_loop().check_body().check_for_loop().disable_highlighting().check_body().has_equal_output()',
+        'Check the first for statement. Did you correctly specify the body? Check the first for statement. Did you correctly specify the body? Expected the output `1+1`, but got `1-1`.')
+])
+def test_limited_stacking(sct, patt):
+    code = '''
+for i in range(2):
+    for j in range(2):
+        print(str(i) + "%s" + str(j))
+'''
+    output = helper.run({
+        'DC_CODE': code % '-',
+        'DC_SOLUTION': code % '+',
+        'DC_SCT': sct
+    })
+    assert not output['correct']
+    assert message(output, patt)

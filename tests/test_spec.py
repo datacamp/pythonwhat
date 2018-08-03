@@ -180,12 +180,12 @@ def test_has_equal_ast_function_fail(data):
     failing_submission(data)
 
 def test_has_equal_ast_function_code_pass(data):
-    data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a").keys()', incorrect_msg = '')"""
+    data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a").keys()', incorrect_msg = 'icr')"""
     sct_payload = helper.run(data)
     assert sct_payload['correct']
 
 def test_has_equal_ast_function_code_fail(data):
-    data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a").keys()', incorrect_msg = '')"""
+    data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a").keys()', incorrect_msg = 'icr')"""
     failing_submission(data)
 
 def test_has_equal_ast_exact_false_pass(data):
@@ -199,12 +199,12 @@ def test_has_equal_ast_exact_false_fail(data):
     failing_submission(data)
 
 def test_has_equal_ast_part_of_method_pass(data):
-    data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a")', exact=False, incorrect_msg = '')"""
+    data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a")', exact=False, incorrect_msg = 'icr')"""
     sct_payload = helper.run(data)
     assert sct_payload['correct']
 
 def test_has_equal_ast_part_of_method_fail(data):
-    data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a")', exact=False, incorrect_msg = '')"""
+    data["DC_SCT"] = """Ex().has_equal_ast(code = 'dict(a = "a")', exact=False, incorrect_msg = 'icr')"""
     failing_submission(data)
 
 class TestOverride(unittest.TestCase):

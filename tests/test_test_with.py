@@ -50,18 +50,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check the first <code>with</code> statement. Did you correctly specify the body?", sct_payload['message'])
-        # line info should be specific to test_function
-        helper.test_lines(self, sct_payload, 6, 6, 11, 16)
-
-    def test_Fail2(self):
-        self.data["DC_SCT"] = '''
-test_with(1, body = lambda: [test_function('print', index = i + 1) for i in range(3)], expand_message = False)
-success_msg("Nice work!")
-        '''
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertNotIn("Check the first <code>with</code> statement. Did you correctly specify the body?", sct_payload['message'])
+        self.assertIn("Check your third call of <code>print()</code>. Did you correctly specify the first argument? Expected something different.", sct_payload['message'])
         # line info should be specific to test_function
         helper.test_lines(self, sct_payload, 6, 6, 11, 16)
 
@@ -80,7 +69,6 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertNotIn("Check the first <code>with</code> statement. Did you correctly specify the body?", sct_payload['message'])
         # line info should be specific to test_function
         helper.test_lines(self, sct_payload, 6, 6, 11, 16)
 
@@ -106,7 +94,7 @@ Ex().check_with(0).check_body().with_context([test_function('print', index = i+1
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check the first <code>with</code> statement. Did you correctly specify the body?", sct_payload['message'])
+        self.assertIn("Check your third call of <code>print()</code>", sct_payload['message'])
         # line info should be specific to test_function
         helper.test_lines(self, sct_payload, 6, 6, 11, 16)
 
@@ -251,7 +239,7 @@ success_msg("Nice work!")
         '''
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check the second <code>with</code> statement. Did you correctly specify the second context? Check your call of <code>open()</code>.", sct_payload['message'])
+        self.assertIn("Check your call of <code>open()</code>.", sct_payload['message'])
         helper.test_lines(self, sct_payload, 12, 12, 46, 60)
 
 class TestExercise4(unittest.TestCase):
