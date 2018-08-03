@@ -152,7 +152,9 @@ def test_method_2():
 
 @pytest.mark.parametrize('sct', [
     "Ex().check_function('round').check_args('ndigits').has_equal_value()",
-    "Ex().check_correct(check_object('x').has_equal_value(), check_function('round').check_args('ndigits').has_equal_value())"
+    "Ex().check_correct(check_object('x').has_equal_value(), check_function('round').check_args('ndigits').has_equal_value())",
+    "Ex().check_function('round', signature = False).check_args('ndigits').has_equal_value()",
+    "Ex().check_correct(check_object('x').has_equal_value(), check_function('round', signature = False).check_args('ndigits').has_equal_value())"
 ])
 @pytest.mark.parametrize('sol', [
     'x = 5',
