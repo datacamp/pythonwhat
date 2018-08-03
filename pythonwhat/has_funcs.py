@@ -193,18 +193,17 @@ def has_expr(incorrect_msg=None,
     rep = Reporter.active_reporter
 
     get_func = partial(evalCalls[test], 
-                       extra_env = extra_env,
-                       context_vals = context_vals,
-                       pre_code = pre_code,
-                       expr_code = expr_code,
-                       name = name,
-                       copy=copy,
-                       do_exec = True if test == 'output' else False)
+                       extra_env=extra_env,
+                       context_vals=context_vals,
+                       pre_code=pre_code,
+                       expr_code=expr_code,
+                       name=name,
+                       copy=copy)
 
-    eval_sol, str_sol = get_func(tree = state.solution_tree,
-                                 process = state.solution_process,
-                                 context = state.solution_context,
-                                 env = state.solution_env)
+    eval_sol, str_sol = get_func(tree=state.solution_tree,
+                                 process=state.solution_process,
+                                 context=state.solution_context,
+                                 env=state.solution_env)
 
     if (test == 'error') ^ isinstance(eval_sol, Exception):
         raise ValueError("Evaluating expression raised error in solution process (or not an error if testing for one). "
@@ -212,10 +211,10 @@ def has_expr(incorrect_msg=None,
     if isinstance(eval_sol, ReprFail):
         raise ValueError("Couldn't figure out the value of a default argument: " + eval_sol.info)
 
-    eval_stu, str_stu = get_func(tree = state.student_tree,
-                                 process = state.student_process,
-                                 context = state.student_context,
-                                 env = state.student_env)
+    eval_stu, str_stu = get_func(tree=state.student_tree,
+                                 process=state.student_process,
+                                 context=state.student_context,
+                                 env=state.student_env)
 
     # kwargs ---
     fmt_kwargs = {

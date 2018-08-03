@@ -1,5 +1,5 @@
 from pythonwhat.check_funcs import check_part, check_part_index, check_node
-from pythonwhat.has_funcs import has_equal_part, has_equal_part_len
+from pythonwhat.has_funcs import has_equal_part
 from pythonwhat import check_funcs, has_funcs, check_logic, check_object
 from pythonwhat.check_function import check_function
 from pythonwhat.check_has_context import has_context
@@ -57,7 +57,7 @@ for k, v in __NODE_WRAPPERS__.items():
 for k in ['set_context', 'set_env', 'disable_highlighting', 'check_not', 'check_or', 'check_correct', 'fail', 'quiet', 'override', 'multi']:
     scts[k] = getattr(check_logic, k)
 
-for k in ['call', 'with_context', 'check_args']:
+for k in ['call', 'with_context', 'check_args', 'check_call']:
     scts[k] = getattr(check_funcs, k)
 
 for k in ['has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'has_equal_part_len',

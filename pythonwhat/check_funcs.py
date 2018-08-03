@@ -293,7 +293,6 @@ def run_call(args, node, process, get_func, **kwargs):
         fmt_args = fix_format(args)           
         ast.fix_missing_locations(func_expr)
         return get_func(process = process, tree=func_expr, call = fmt_args, **kwargs)
-        
 
 MSG_CALL_INCORRECT = "__JINJA__:Calling {{argstr}} should {{action}} `{{str_sol}}`, instead got {{str_stu if str_stu == 'no printouts' else '`' + str_stu + '`'}}."
 MSG_CALL_ERROR     = "__JINJA__:Calling {{argstr}} should {{action}} `{{str_sol}}`, instead it errored out: `{{str_stu}}`."
@@ -302,41 +301,10 @@ def call(args,
          test='value',
          incorrect_msg=None,
          error_msg=None,
-         # TODO kept for backwards compatibility in test_function_definition/lambda
          argstr=None,
          func=None,
          state=None, **kwargs):
-    """Call function definition so you can compare value/output/error generated.
-
-    This function is chained from ``check_function_def()``.
-
-    Args:
-        args: call string or argument list that specifies how the function definition should be called.
-        test (str): Either 'value', 'output' or 'error', specifying if you want to compare the return value,
-            the output generated or the error generated when calling the function.
-        incorrect_msg (str): If specified, this overrides the automatic feedback message when the
-            comparison (value, output or error) is not correct.
-        error_msg (str): If specified, this overrides the automatic message that is generated when
-            the call generated an error (when it shouldn't) or didn't generate one (when it should).
-        argstr (str): argument for backwards compatibility.
-        func (function): binary function that tells you how the comparison should be.
-        state (State): state object that is chained from.
-
-    :Example:
-
-        Student and solution code::
-
-            def my_power(x):
-                print("calculating sqrt...")
-                return(x * x)
-
-        SCT::
-
-            Ex().check_function_def('my_power').multi(
-                call("my_power(3)", "value"), # as string, compare return value
-                call([3], "value"),           # as list, compare return value
-                call([3], "output")           # as list, compare output generated
-            )
+    """Use ``check_call()`` in combination with ``has_equal_x()`` instead.
     """
 
     if incorrect_msg is None:
@@ -388,3 +356,54 @@ def call(args,
 
     return state
 
+def build_call(callstr, node):
+    if isinstance(node, ast.FunctionDef): # function name
+        func_expr = ast.Name(id=node.name, ctx=ast.Load())
+        argstr = "`{}`".format(callstr.replace('f', node.name))
+    elif isinstance(node, ast.Lambda): # lambda body expr
+        func_expr = node
+        argstr = 'it with the arguments `{}`'.format(callstr.replace('f', ''))
+    else: raise TypeError("You can use check_call() only on check_function_def() or check_lambda()")
+
+    parsed = ast.parse(callstr).body[0].value
+    parsed.func = func_expr
+    ast.fix_missing_locations(parsed)
+    return parsed, argstr
+
+def check_call(callstr, argstr = None, expand_msg=None, state=None):
+    """When checking a function definition of lambda function,
+    prepare has_equal_x for checking the call of a user-defined function.
+
+    Args:
+        callstr (str): call string that specifies how the function should be called, e.g. `f(1, a = 2)`.
+           ``check_call()`` will replace ``f`` with the function/lambda you're targeting.
+        argstr (str): If specified, this overrides the way the function call is refered to in the expand message.
+        expand_msg (str): If specified, this overrides the expand message.
+        state (State): state object that is chained from.
+
+    :Example:
+
+        Student and solution code::
+
+            def my_power(x):
+                print("calculating sqrt...")
+                return(x * x)
+
+        SCT::
+
+            Ex().check_function_def('my_power').multi(
+                check_call("f(3)").has_equal_value()
+                check_call("f(3)").has_equal_output()
+            )
+    """
+
+    if expand_msg is None:
+        expand_msg = "__JINJA__:To verify it, we reran {{argstr}}. "
+
+    stu_part, _argstr = build_call(callstr, state.student_parts['node'])
+    sol_part, _ = build_call(callstr, state.solution_parts['node'])
+
+    append_message = { 'msg': expand_msg, 'kwargs': {'argstr': argstr or _argstr }}
+    child = part_to_child(stu_part, sol_part, append_message, state)
+
+    return child

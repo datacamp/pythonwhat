@@ -172,6 +172,9 @@ def objs_are(x, y, list_of_classes):
 # Run the assertions that are typically slower.
 def is_equal(x, y):
         try:
+            if objs_are(x, y, [Exception]):
+                # Types of errors don't matter
+                return str(x) == str(y)
             if objs_are(x, y, [np.ndarray, dict, list]):
                 if np.array_equal(x, y): return True
                 np.testing.assert_equal(x, y)

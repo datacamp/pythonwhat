@@ -266,9 +266,9 @@ Check function definition
     # sct
     Ex().check_function_def('shout_echo').check_correct(
         multi(
-            call(['hey', 3], 'value'),
-            call(['hi', 2], 'value'),
-            call(['hi'], 'value')
+            check_call("f('hey', 3)").has_equal_value(),
+            check_call("f('hi', 2)").has_equal_value(),
+            check_call("f('hi')").has_equal_value()
         ),
         check_body().set_context('test', 1).multi(
             has_equal_value(name = 'echo_word'),

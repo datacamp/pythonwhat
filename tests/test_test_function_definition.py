@@ -459,6 +459,16 @@ def inc(num):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_pass_2(self):
+        self.data["DC_CODE"] = '''
+def inc(num):
+    if num < 0:
+        raise NameError('num is negative')
+    return(num + 1)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
     def test_fail_1(self):
         self.data["DC_CODE"] = '''
 def inc(num):
@@ -467,17 +477,6 @@ def inc(num):
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("Calling <code>inc(-1)</code> should error out with the message <code>num is negative</code>, instead got <code>0</code>.", sct_payload['message'])
-
-    def test_fail_2(self):
-        self.data["DC_CODE"] = '''
-def inc(num):
-    if num < 0:
-        raise NameError('num is negative')
-    return(num + 1)
-        '''
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertEqual("Calling <code>inc(-1)</code> should error out with the message <code>num is negative</code>, instead got <code>num is negative</code>.", sct_payload['message'])
 
 class TestFunctionDefintionError2(unittest.TestCase):
 
@@ -508,6 +507,16 @@ def inc(num):
         sct_payload = helper.run(self.data)
         self.assertTrue(sct_payload['correct'])
 
+    def test_pass_2(self):
+        self.data["DC_CODE"] = '''
+def inc(num):
+    if num < 0:
+        raise NameError('num is negative')
+    return(num + 1)
+        '''
+        sct_payload = helper.run(self.data)
+        self.assertTrue(sct_payload['correct'])
+
     def test_fail_1(self):
         self.data["DC_CODE"] = '''
 def inc(num):
@@ -517,16 +526,7 @@ def inc(num):
         self.assertFalse(sct_payload['correct'])
         self.assertEqual("noerror!", sct_payload['message'])
 
-    def test_fail_2(self):
-        self.data["DC_CODE"] = '''
-def inc(num):
-    if num < 0:
-        raise NameError('num is negative')
-    return(num + 1)
-        '''
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-        self.assertEqual("wrongerror!", sct_payload['message'])
+
 
 class TestFunctionDefinitionOnlyReturn(unittest.TestCase):
     def test_pass(self):

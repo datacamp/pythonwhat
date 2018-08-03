@@ -238,7 +238,7 @@ def test(a, b):
 ''', 'Check the definition of `test()`. Calling `test(3, 1)` should return `4`, instead it errored out: `wrong`.'),
     ('def test(a, b): print(int(a) + int(b)); return int(a) + int(b)', 'Check the definition of `test()`. Calling `test(1, \'2\')` should error out with the message `unsupported operand type(s) for +: \'int\' and \'str\'`, instead got `3`.'),
 ])
-def test_check_call(stu, patt):
+def test_call(stu, patt):
     output = helper.run({
         'DC_CODE': stu,
         'DC_SOLUTION': 'def test(a, b): print(a + b); return a + b',
@@ -254,14 +254,55 @@ Ex().check_function_def('test').multi(
     assert not output['correct']
     assert message(output, patt)
 
+@pytest.mark.debug
+@pytest.mark.parametrize('stu, patt', [
+    ('', 'The system wants to check the definition of `test()` but hasn\'t found it.'),
+    ('def test(a, b): return 1', 'Check the definition of `test()`. To verify it, we reran `test(1, 2)`. Expected `3`, but got `1`.'),
+    ('def test(a, b): return a + b', 'Check the definition of `test()`. To verify it, we reran `test(1, 2)`. Expected the output `3`, but got `no printouts`.'),
+    ('''
+def test(a, b):
+    if a == 3:
+        raise ValueError('wrong')
+    print(a + b)
+    return a + b
+''', 'Check the definition of `test()`. To verify it, we reran `test(3, 1)`. Running the higlighted expression generated an error: `wrong`.'),
+    ('def test(a, b): print(int(a) + int(b)); return int(a) + int(b)', 'Check the definition of `test()`. To verify it, we reran `test(1, "2")`. Running the higlighted expression didn\'t generate an error, but it should!'),
+])
+def test_check_call(stu, patt):
+    output = helper.run({
+        'DC_CODE': stu,
+        'DC_SOLUTION': 'def test(a, b): print(a + b); return a + b',
+        'DC_SCT': """
+Ex().check_function_def('test').multi(
+    check_call('f(1, 2)').has_equal_value(),
+    check_call('f(1, 2)').has_equal_output(),
+    check_call('f(3, 1)').has_equal_value(),
+    check_call('f(1, "2")').has_equal_error()
+)"""
+    })
+    assert not output['correct']
+    assert message(output, patt)
+
 @pytest.mark.parametrize('stu, patt', [
     ('echo_word = (lambda word1, echo: word1 * echo * 2)', "Check the first lambda function. Calling it with the arguments `('test', 2)` should return `testtest`, instead got `testtesttesttest`.")
+])
+def test_call_lambda(stu, patt):
+    output = helper.run({
+        'DC_SOLUTION': 'echo_word = (lambda word1, echo: word1 * echo)',
+        'DC_CODE': stu,
+        'DC_SCT': "Ex().check_lambda_function().call(['test', 2], 'value')"
+    })
+    assert not output['correct']
+    assert message(output, patt)
+
+@pytest.mark.parametrize('stu, patt', [
+    ('echo_word = (lambda word1, echo: word1 * echo * 2)', "Check the first lambda function. To verify it, we reran it with the arguments `('test', 2)`. Expected `testtest`, but got `testtesttesttest`.")
 ])
 def test_check_call_lambda(stu, patt):
     output = helper.run({
         'DC_SOLUTION': 'echo_word = (lambda word1, echo: word1 * echo)',
         'DC_CODE': stu,
-        'DC_SCT': "Ex().check_lambda_function().call(['test', 2], 'value')"
+        'DC_SCT': "Ex().check_lambda_function().check_call(\"f('test', 2)\").has_equal_value()"
     })
     assert not output['correct']
     assert message(output, patt)

@@ -35,9 +35,9 @@ Checking function calls
 Checking function definitions
 =============================
 
-.. autofunction:: pythonwhat.check_funcs.call
-.. autofunction:: pythonwhat.check_funcs.check_args
 .. autofunction:: pythonwhat.has_funcs.has_equal_part_len
+.. autofunction:: pythonwhat.check_funcs.check_args
+.. autofunction:: pythonwhat.check_funcs.check_call
 
 Logic tests
 -----------
