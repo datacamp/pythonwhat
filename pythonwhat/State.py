@@ -102,6 +102,8 @@ class State(object):
                           'child': next_d.get('kwargs'), 
                           'this': d['kwargs'], 
                           **d['kwargs']}
+            # don't bother appending if there is no message
+            if not d['msg']: continue
             if d['msg'].startswith('FMT:'):
                 out = d['msg'].replace('FMT:', "").format(**tmp_kwargs)
             elif d['msg'].startswith('__JINJA__:'):
@@ -110,6 +112,10 @@ class State(object):
                 out = d['msg']
 
             out_list.append(out)
+
+        # if highlighting info is available, don't put all expand messages
+        if self.highlight and not self.highlighting_disabled:
+            out_list = out_list[-3:]
 
         if append:
             return "".join(out_list)

@@ -73,7 +73,6 @@ test_list_comp(index=1,
         self.data["DC_CODE"] = "[key + str(val) for key,val in x.items() if isinstance(key, str) if isinstance(key, str)]"
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
-        self.assertIn("Check the first list comprehension. Did you correctly specify the second if?", sct_payload['message'])
         helper.test_lines(self, sct_payload, 1, 1, 80, 82)
 
     def test_pass(self):
