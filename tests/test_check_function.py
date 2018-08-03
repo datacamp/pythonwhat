@@ -166,3 +166,20 @@ def test_incorrect_usage(sct, sol):
     }
     with pytest.raises(KeyError):
         out = helper.run(data)
+
+@pytest.mark.debug
+@pytest.mark.parametrize('code', [
+    'print(round(1.23))',
+    'x = print(round(1.23))',
+    'x = [round(1.23)]',
+    'x = {"a": round(1.23)}',
+    'x = 0; x += round(1.23)',
+    'x = 0; x > round(1.23)'
+])
+def test_function_parser(code):
+    output = helper.run({
+        'DC_CODE': code,
+        'DC_SOLUTION': code,
+        'DC_SCT': 'Ex().check_function("round").check_args(0).has_equal_value()'
+    })
+    assert output['correct']

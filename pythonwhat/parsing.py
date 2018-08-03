@@ -297,6 +297,12 @@ class FunctionParser(Parser):
     def visit_Expr(self, node):
         self.visit(node.value)
 
+    def visit_List(self, node):
+        [ self.visit(el) for el in node.elts ]
+
+    def visit_Dict(self, node):
+        [ self.visit(el) for el in node.values ]
+
     def visit_Call(self, node):
         if self.call_lookup_active:
             self.visit(node.func)
