@@ -2,6 +2,30 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.15.0
+
+### Added
+
+- You can now use `Ex().check_object('df').check_keys('a').has_equal_value()` to test DataFrame columns and dictionary elements.
+- You can now use `Ex().check_function_def('my_fun').check_call('f(1,3,4)').has_equal_x()` to check the value, output or error that calling a function generates. Soon, the `call()` syntax, although still supported, will be removed.
+- More manual signatures have been added for functions in the `numpy.random` submodule, so SCT authors have to specify `signature=False` less and there is more robust argument matching.
+
+### Changed
+
+- Update docs to promote new functions introduced above.
+- Messaging has improved: if there is crazy nesting, only the last two 'expand messages' are included. That way, you don't get feedback messages like "Check the first for loop. Check the body. Check the first for loop. Check the body. Check the function. ...".
+- The function parser (used by `check_function()`) now also discovers function calls in lists and dictionaries.
+- `has_import()` is now more flexible by default, not requiring students to use the same alias.
+
+### Removed
+
+- Nothing for now, but the following functions will be discontinued in the future:
+  + `test_function_definition()`
+  + `test_with()`
+  + `test_object_after_expression()`
+  + `has_key()` and `has_equal_key()`
+  + `call()`
+
 ## 2.14.2
 
 - Add `check_df()` to the API again. Turns out quite a lot of live exercises use it by now!

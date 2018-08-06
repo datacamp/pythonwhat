@@ -117,7 +117,7 @@ def check_df(index, missing_msg=None, not_instance_msg=None, expand_msg=None, st
 def check_keys(key, key_missing_msg=None, expand_msg=None, state=None):
     """Check whether an object (dict, DataFrame, etc) has a key.
 
-    ``has_key()`` can currently only be used when chained from ``check_object()``, the function that is
+    ``check_keys()`` can currently only be used when chained from ``check_object()``, the function that is
     used to 'zoom in' on the object of interest.
 
     Args:
@@ -135,7 +135,10 @@ def check_keys(key, key_missing_msg=None, expand_msg=None, state=None):
         SCT::
 
             # Verify that x contains a key a
-            Ex().check_object('x').has_key('a')
+            Ex().check_object('x').check_keys('a')
+
+            # Verify that x contains a key a and a is correct.
+            Ex().check_object('x').check_keys('a').has_equal_value()
 
     """
 
