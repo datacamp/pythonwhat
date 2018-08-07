@@ -2,6 +2,10 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.15.1
+
+- Fixed: `check_keys()` allows for more exotic ways of indexing as well, even though it's needed very rarely
+
 ## 2.15.0
 
 ### Added
