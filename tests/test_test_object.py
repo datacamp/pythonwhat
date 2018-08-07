@@ -111,6 +111,23 @@ def test_check_keys(stu_code, passes):
     })
     assert output['correct'] == passes
 
+@pytest.mark.parametrize('sct', [
+    "Ex().test_data_frame('pivot')",
+    "Ex().check_df('pivot').check_keys(('visitors', 'Austin')).has_equal_value()"
+])
+def test_check_keys_exotic(sct):
+    code = "pivot = users.pivot(index='weekday', columns='city')"
+    output = helper.run({
+        'DC_PEC': '''
+import pandas as pd
+users = pd.read_csv('https://s3.amazonaws.com/assets.datacamp.com/production/course_1650/datasets/users.csv')
+''',
+        'DC_SOLUTION': code,
+        'DC_CODE': code,
+        'DC_SCT': sct
+    })
+    assert output['correct']
+
 def test_check_keys_wrong_usage():
     with pytest.raises(NameError):
         helper.run({

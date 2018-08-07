@@ -161,8 +161,12 @@ def check_keys(key, key_missing_msg=None, expand_msg=None, state=None):
                                        Feedback(_msg, state)))
 
     def get_part(name, key, highlight):
+        if isinstance(key, str):
+            slice_val = ast.Str(s=key)
+        else:
+            slice_val = ast.parse('{}'.format(key)).body[0].value
         expr = ast.Subscript(value=ast.Name(id=name, ctx=ast.Load()),
-                             slice=ast.Index(value=ast.Str(s=key)),
+                             slice=ast.Index(value=slice_val),
                              ctx=ast.Load())
         ast.fix_missing_locations(expr)
         return {
