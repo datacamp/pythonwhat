@@ -19,7 +19,6 @@ class Reporter(object):
         self.success_msg = "Great work!"
         self.error = error
         self.errors_allowed = False
-        self.fallback_ast = None
 
     def do_test(self, testobj):
         """Do test.

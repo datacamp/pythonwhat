@@ -186,9 +186,9 @@ The following example checks whether students correctly defined their own functi
     # sct
     Ex().check_function_def('shout_echo').check_correct(
         multi(
-            check_call(f('hey', 3).has_equal_value(),
-            check_call(f('hi', 2).has_equal_value(),
-            check_call(f('hi').has_equal_value()
+            check_call("f('hey', 3)".has_equal_value(),
+            check_call("f('hi', 2)".has_equal_value(),
+            check_call("f('hi')".has_equal_value()
         ),
         check_body().set_context('test', 1).multi(
             has_equal_value(name = 'echo_word'),
@@ -272,8 +272,8 @@ Suppose you want to check whether a function definition containing a for loop wa
     # sct that robustly checks this
     Ex().check_function_def('counter').check_correct(
         multi(
-            check_call([[{'a': 1}], 'a'], 'value'),
-            check_call([[{'b': 1}, {'b': 2}], 'b'], 'value')
+            check_call("f([{'a': 1}], 'a')").has_equal_value(),
+            check_call("f([{'b': 1}, {'b': 2}], 'b')").has_equal_value()
         ),
         check_body().set_context([{'a': 1}, {'a': 2}], 'a').set_env(count = 0).check_for_loop().multi(
             check_iter().has_equal_value(),
