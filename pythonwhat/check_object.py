@@ -114,7 +114,7 @@ def check_df(index, missing_msg=None, not_instance_msg=None, expand_msg=None, st
     is_instance(pd.DataFrame, not_instance_msg=not_instance_msg, state=child)
     return child
 
-def check_keys(key, key_missing_msg=None, expand_msg=None, state=None):
+def check_keys(key, missing_msg=None, expand_msg=None, state=None):
     """Check whether an object (dict, DataFrame, etc) has a key.
 
     ``check_keys()`` can currently only be used when chained from ``check_object()``, the function that is
@@ -122,7 +122,7 @@ def check_keys(key, key_missing_msg=None, expand_msg=None, state=None):
 
     Args:
         key (str): Name of the key that the object should have.
-        key_missing_msg (str): When specified, this overrides the automatically generated
+        missing_msg (str): When specified, this overrides the automatically generated
             message in case the key does not exist.
         state (State): The state that is passed in through the SCT chain (don't specify this).
 
@@ -142,8 +142,8 @@ def check_keys(key, key_missing_msg=None, expand_msg=None, state=None):
 
     """
 
-    if key_missing_msg is None:
-        key_missing_msg = "__JINJA__:There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `'{{key}}'`."
+    if missing_msg is None:
+        missing_msg = "__JINJA__:There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `'{{key}}'`."
     if expand_msg is None:
         expand_msg = "__JINJA__:Did you correctly set the {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `'{{key}}'`? "
 
@@ -156,7 +156,7 @@ def check_keys(key, key_missing_msg=None, expand_msg=None, state=None):
         raise NameError("Not all keys you specified are actually keys in %s in the solution process" % sol_name)
 
     # check if key available
-    _msg = state.build_message(key_missing_msg, {'key': key})
+    _msg = state.build_message(missing_msg, {'key': key})
     rep.do_test(DefinedCollProcessTest(stu_name, key, state.student_process, 
                                        Feedback(_msg, state)))
 
@@ -179,10 +179,3 @@ def check_keys(key, key_missing_msg=None, expand_msg=None, state=None):
     append_message = {'msg': expand_msg, 'kwargs': {'key': key }}
     child = part_to_child(stu_part, sol_part, append_message, state)
     return child
-
-has_key = check_keys
-
-def has_equal_key(key, incorrect_value_msg=None, key_missing_msg=None, state=None):
-    s1 = check_keys(key, key_missing_msg=key_missing_msg, state=state)
-    s2 = has_equal_value(incorrect_msg=incorrect_value_msg, state = s1)
-    return s2

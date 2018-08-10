@@ -65,7 +65,7 @@ for k in ['has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_a
     scts[k] = getattr(has_funcs, k)
 
 # include check_object and friends ------
-for k in ['check_object', 'is_instance', 'check_df', 'check_keys', 'has_equal_key', 'has_key']:
+for k in ['check_object', 'is_instance', 'check_df', 'check_keys']:
     scts[k] = getattr(check_object, k)
 
 scts['has_context'] = has_context

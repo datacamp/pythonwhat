@@ -70,12 +70,12 @@ def test_is_instance(stu_code, passes):
 import pandas as pd
 Ex().check_object('df', missing_msg='udm', expand_msg='').\
      is_instance(pd.DataFrame, not_instance_msg='ndfm').\
-     has_equal_key('a', key_missing_msg='ucm', incorrect_value_msg='icm')
+     check_keys('a', missing_msg='ucm').has_equal_value(incorrect_msg='icm')
     """,
     """
 import pandas as pd
 Ex().check_df('df', missing_msg='udm', expand_msg='', not_instance_msg='ndfm').\
-     has_equal_key('a', key_missing_msg='ucm', incorrect_value_msg='icm')
+     check_keys('a', missing_msg='ucm').has_equal_value(incorrect_msg='icm')
     """
 ])
 @pytest.mark.parametrize('stu_code, passes, msg', [
