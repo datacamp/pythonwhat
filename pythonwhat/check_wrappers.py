@@ -57,7 +57,7 @@ for k, v in __NODE_WRAPPERS__.items():
 for k in ['set_context', 'set_env', 'disable_highlighting', 'check_not', 'check_or', 'check_correct', 'fail', 'quiet', 'override', 'multi']:
     scts[k] = getattr(check_logic, k)
 
-for k in ['call', 'with_context', 'check_args', 'check_call']:
+for k in ['with_context', 'check_args', 'check_call']:
     scts[k] = getattr(check_funcs, k)
 
 for k in ['has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'has_equal_part_len',
