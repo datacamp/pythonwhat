@@ -37,5 +37,5 @@ def test_data_frame(name,
             raise ValueError("Something went wrong in figuring out the columns for %s in the solution process" % name)
 
     for col in columns:
-        colstate = check_keys(col, undefined_cols_msg, state=child)
+        colstate = check_keys(col, missing_msg=undefined_cols_msg, state=child)
         has_equal_value(incorrect_msg=incorrect_msg, state=colstate)
