@@ -18,23 +18,21 @@ class TestFunctionDefinitionStepByStep(unittest.TestCase):
     def test_step_x(self):
         pass
 
-    def test_step_x_spec2(self):
-        self.data['DC_SCT'] = """
-cargs = {'args': [2, 3], 'kwargs': {}}
-eargs = {'args': ['a', 'b'], 'kwargs': {}}
-(Ex().check_function_def('test').call(cargs, 'value').call(cargs, 'output').call(eargs, 'error'))
-        """
-
     def test_step_x_spec2_str_call(self):
         self.data['DC_SCT'] = """
-(Ex().check_function_def('test').call("f(1,2)", 'value').call("f(1,2)", 'output')
-                                .call("f('a','b')", 'error'))
+Ex().check_function_def('test').multi(
+    check_call("f(1,2)").multi(
+        has_equal_value(),
+        has_equal_output()
+    ),
+    check_call("f('a','b')").has_equal_error()
+)
 """
 
     def test_step_x_spec2_func_arg(self):
         self.data['DC_SCT'] = """
 import numpy as np
-Ex().check_function_def('test').call("f(1,2)", func = lambda x, y: np.allclose(x, y))
+Ex().check_function_def('test').check_call("f(1,2)").has_equal_value(func = lambda x, y: np.allclose(x, y))
 """
 
 
@@ -819,11 +817,7 @@ Ex().check_function_def('my_fun').multi(test_names)
         self.assertFalse(self.when_replace('y = 4', 'y = 2'))
 
     def test_pass_call_str(self):
-        self.data['DC_SCT'] = self.SCT_CHECK + """.call("f(1, 2, (3,4), 5, kw_arg='ok')")"""
-        self.assertTrue(self.when_replace('x', 'x2'))
-
-    def test_pass_call_list(self):
-        self.data['DC_SCT'] = self.SCT_CHECK + """.call([1, 2, (3,4), 5])"""
+        self.data['DC_SCT'] = self.SCT_CHECK + """.check_call("f(1, 2, (3,4), 5, kw_arg='ok')")"""
         self.assertTrue(self.when_replace('x', 'x2'))
 
     @unittest.skip("Tries to evaluate ast tree but gets None when no default")
