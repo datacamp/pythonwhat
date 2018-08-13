@@ -2,6 +2,13 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.15.2
+
+### Removed
+
+- `call()` can no longer be used. Use `Ex().check_function_def().check_call().has_equal_x()` instead.
+- `has_key()` and `has_equal_key()` can no longer be used. Use `Ex().check_object().check_keys().has_equal_x()` instead.
+
 ## 2.15.1
 
 - Fixed: `check_keys()` allows for more exotic ways of indexing as well, even though it's needed very rarely
