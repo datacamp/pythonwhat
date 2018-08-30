@@ -2,6 +2,16 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.15.3
+
+### Added
+
+- `check_object()` does not check whether the targeted object is specified in the solution process if
+  student and solution process are identical (as is the case in the `SingleProcessExercise`).
+- `has_expr()`, the function used by `has_equal_value()`, `has_equal_output()` and `has_equal_error()` can take an `override` argument,
+  that causes the solution expression _not_ to run and use the value specified in `override` instead.
+  For more information, have a look at the 'SingleProcessExercise' article on the documentation.
+
 ## 2.15.2
 
 ### Removed
