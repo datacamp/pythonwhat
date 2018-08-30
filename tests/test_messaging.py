@@ -225,7 +225,6 @@ Ex().check_object('x', missing_msg='objectnotdefined').has_equal_value('objectin
 
 # Check call ------------------------------------------------------------------
 
-@pytest.mark.debug
 @pytest.mark.parametrize('stu, patt', [
     ('', 'The system wants to check the definition of `test()` but hasn\'t found it.'),
     ('def test(a, b): return 1', 'Check the definition of `test()`. To verify it, we reran `test(1, 2)`. Expected `3`, but got `1`.'),
@@ -364,7 +363,6 @@ Ex().test_correct(
 
 ## test limited stacking ------------------------------------------------------
 
-@pytest.mark.debug
 @pytest.mark.parametrize('sct, patt', [
     ('Ex().check_for_loop().check_body().check_for_loop().check_body().has_equal_output()',
         'Check the first for statement. Did you correctly specify the body? Expected the output `1+1`, but got `1-1`.'),
@@ -380,6 +378,22 @@ for i in range(2):
     output = helper.run({
         'DC_CODE': code % '-',
         'DC_SOLUTION': code % '+',
+        'DC_SCT': sct
+    })
+    assert not output['correct']
+    assert message(output, patt)
+
+## test has_expr --------------------------------------------------------------
+
+@pytest.mark.parametrize('sct, patt', [
+    ("Ex().check_object('x').has_equal_value()", 'Did you correctly define the variable `x`? Expected `[1]`, but got `[0]`.'),
+    ("Ex().has_equal_value(name = 'x')", 'Are you sure you assigned the correct value to `x`?'),
+    ("Ex().has_equal_value(expr_code = 'x[0]')", "Running the expression `x[0]` didn't generate the expected result.")
+])
+def test_has_expr(sct, patt):
+    output = helper.run({
+        'DC_SOLUTION': 'x = [1]',
+        'DC_CODE': 'x = [0]',
         'DC_SCT': sct
     })
     assert not output['correct']

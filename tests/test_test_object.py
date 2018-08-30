@@ -1,5 +1,7 @@
 import unittest
 import helper
+from pythonwhat.local import setup_state
+from pythonwhat.Test import TestFail as TF
 import pytest
 
 @pytest.mark.parametrize('sct', [
@@ -49,6 +51,13 @@ def test_check_object_custom_compare(stu_code, passes):
 		'DC_SCT': 'Ex().check_object("x").has_equal_value(func = lambda x,y: len(x) == len(y))'
 	})
     assert output['correct'] == passes
+
+def test_check_object_single_process():
+    state2pids = setup_state('x = 3', '')
+    with pytest.raises(NameError):
+        state2pids.check_object('x')
+    state1pid = setup_state('x = 3', '', pid = 1)
+    helper.passes(state1pid.check_object('x'))
 
 @pytest.mark.parametrize('stu_code, passes', [
     ('arr = 4', False),

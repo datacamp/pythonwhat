@@ -17,7 +17,7 @@ def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="
     Args:
         index (str): the name of the object which value has to be checked.
         missing_msg (str): feedback message when the object is not defined in the student's environment.
-        expect_msg (str): prepending message to put in front.
+        expand_msg (str): prepending message to put in front.
 
     :Example:
 
@@ -49,7 +49,7 @@ def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="
 
     rep = Reporter.active_reporter
 
-    if not isDefinedInProcess(index, state.solution_process):
+    if not isDefinedInProcess(index, state.solution_process) and state.has_different_processes():
         raise NameError("%r not in solution environment " % index)
 
     append_message = {'msg': expand_msg, 'kwargs': {'index': index, 'typestr': typestr}}
