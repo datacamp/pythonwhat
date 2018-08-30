@@ -169,7 +169,6 @@ def test_incorrect_usage(sct, sol):
     with pytest.raises(KeyError):
         out = helper.run(data)
 
-@pytest.mark.debug
 @pytest.mark.parametrize('code', [
     'print(round(1.23))',
     'x = print(round(1.23))',

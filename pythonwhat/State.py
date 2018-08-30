@@ -211,6 +211,14 @@ class State(object):
             setattr(child, k, v)
         return child
 
+    def has_different_processes(self):
+        # process classes have an _identity field that is a tuple
+        try:
+            return self.student_process._identity[0] != self.solution_process._identity[0]
+        except:
+            # play it safe (most common)
+            return True
+
     @staticmethod
     def parse_external(x):
         rep = Reporter.active_reporter

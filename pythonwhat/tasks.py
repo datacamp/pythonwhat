@@ -315,14 +315,12 @@ def taskRunEval(tree,
                 pre_code = "", expr_code = "", name="", copy=True, tempname='_evaluation_object_', 
                 call=None):
     try: 
-        # Prepare code --------------------------------------------------------
-        # If no name given, the object of interest is the output of eval
-        # otherwise, we'll use name to get the object from the environment
-        if not isinstance(tree, ast.Module):
+        # Prepare code and mode -----------------------------------------------
+        if (expr_code and name) or (not expr_code and isinstance(tree, ast.Module)):
+            mode = 'exec'
+        else:
             mode = 'eval'
             tree = ast.Expression(tree)
-        else:
-            mode = 'exec'
 
         # Expression code takes precedence over tree code
         if expr_code: code = expr_code

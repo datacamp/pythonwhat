@@ -44,6 +44,7 @@ The reference docs become useful when you grasp all concepts and want to look up
    articles/checking_compound_statements.rst
    articles/expression_tests.rst
    articles/processes.rst
+   articles/single_process_exercise.rst
    articles/electives.rst
    articles/test_to_check.rst
 

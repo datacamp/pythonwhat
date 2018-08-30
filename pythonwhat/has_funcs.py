@@ -167,6 +167,7 @@ DEFAULT_ERROR_MSG="__JINJA__:Running {{'it' if parent['part'] else 'the higlight
 DEFAULT_ERROR_MSG_INV="__JINJA__:Running {{'it' if parent['part'] else 'the higlighted expression'}} didn't generate an error, but it should!"
 DEFAULT_UNDEFINED_NAME_MSG="__JINJA__:Running {{'it' if parent['part'] else 'the higlighted expression'}} should define a variable `{{name}}` without errors, but it doesn't."
 DEFAULT_INCORRECT_NAME_MSG="__JINJA__:Are you sure you assigned the correct value to `{{name}}`?"
+DEFAULT_INCORRECT_EXPR_CODE_MSG="__JINJA__:Running the expression `{{expr_code}}` didn't generate the expected result."
 def has_expr(incorrect_msg=None,
              error_msg=None,
              undefined_msg=None,
@@ -178,17 +179,26 @@ def has_expr(incorrect_msg=None,
              name=None,
              copy=True,
              func=None,
+             override=None,
              state=None,
              test=None):
 
     if append is None: # if not specified, set to False if incorrect_msg was manually specified
         append = incorrect_msg is None
     if incorrect_msg is None:
-        incorrect_msg = DEFAULT_INCORRECT_MSG if name is None else DEFAULT_INCORRECT_NAME_MSG
+        if name:
+            incorrect_msg = DEFAULT_INCORRECT_NAME_MSG
+        elif expr_code:
+            incorrect_msg = DEFAULT_INCORRECT_EXPR_CODE_MSG
+        else:
+            incorrect_msg = DEFAULT_INCORRECT_MSG
     if undefined_msg is None:
         undefined_msg = DEFAULT_UNDEFINED_NAME_MSG
     if error_msg is None:
-        error_msg = DEFAULT_ERROR_MSG_INV if test == 'error' else DEFAULT_ERROR_MSG
+        if test == 'error':
+            error_msg = DEFAULT_ERROR_MSG_INV
+        else:
+            error_msg = DEFAULT_ERROR_MSG
 
     rep = Reporter.active_reporter
 
@@ -200,16 +210,21 @@ def has_expr(incorrect_msg=None,
                        name=name,
                        copy=copy)
 
-    eval_sol, str_sol = get_func(tree=state.solution_tree,
-                                 process=state.solution_process,
-                                 context=state.solution_context,
-                                 env=state.solution_env)
+    if override is not None:
+        # don't bother with running expression and fetching output/value
+        # eval_sol, str_sol = eval
+        eval_sol, str_sol = override, str(override)
+    else:
+        eval_sol, str_sol = get_func(tree=state.solution_tree,
+                                    process=state.solution_process,
+                                    context=state.solution_context,
+                                    env=state.solution_env)
 
-    if (test == 'error') ^ isinstance(eval_sol, Exception):
-        raise ValueError("Evaluating expression raised error in solution process (or not an error if testing for one). "
-                         "Error: {} - {}".format(type(eval_sol), str_sol))
-    if isinstance(eval_sol, ReprFail):
-        raise ValueError("Couldn't figure out the value of a default argument: " + eval_sol.info)
+        if (test == 'error') ^ isinstance(eval_sol, Exception):
+            raise ValueError("Evaluating expression raised error in solution process (or not an error if testing for one). "
+                            "Error: {} - {}".format(type(eval_sol), str_sol))
+        if isinstance(eval_sol, ReprFail):
+            raise ValueError("Couldn't extract the value for the highlighted expression from the solution process: " + eval_sol.info)
 
     eval_stu, str_stu = get_func(tree=state.student_tree,
                                  process=state.student_process,
@@ -221,7 +236,8 @@ def has_expr(incorrect_msg=None,
         'stu_part': state.student_parts,
         'sol_part': state.solution_parts,
         'name': name, 'test': test,
-        'test_desc': '' if test == 'value' else 'the %s ' % test
+        'test_desc': '' if test == 'value' else 'the %s ' % test,
+        'expr_code': expr_code
     }
 
     fmt_kwargs['stu_eval'] = utils.shorten_str(str(eval_stu))
@@ -276,12 +292,16 @@ args_string = """
         expr_code (str): if this argument is set, the expression in the student/solution code will not
           be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
           and the result will be compared.
-        name (str): If this is specified, the {1} of running this expression after running the focused expression
-          is returned, instead of the {1} of the focussed expression in itself. This is typically used to inspect the
-          {1} of an object after executing the body of e.g. a ``for`` loop.
+        name (str): If this is specified, the {0} of running this expression after running the focused expression
+          is returned, instead of the {0} of the focussed expression in itself. This is typically used to inspect the
+          {0} of an object after executing the body of e.g. a ``for`` loop.
         copy (bool): whether to try to deep copy objects in the environment, such as lists, that could
           accidentally be mutated. Disable to speed up SCTs. Disabling may lead to cryptic mutation issues.
         func: custom binary function of form f(stu_result, sol_result), for equality testing.
+        override: If specified, this avoids the execution of the targeted code in the solution process. Instead, it
+          will compare the {0} of the expression in the student process with the value specified in ``override``.
+          Typically used in a ``SingleProcessExercise`` or if you want to allow for different solutions other than
+          the one coded up in the solution.
     """
 
 has_equal_value =  partial(has_expr, test = 'value')
@@ -317,14 +337,14 @@ has_equal_output.__doc__ = """Run targeted student and solution code, and compar
 
     When called on an SCT chain, ``has_equal_output()`` will execute the student and solution
     code that is 'zoomed in on' and compare the output.
-    """ + args_string.format("output", "output")
+    """ + args_string.format("output")
 
 has_equal_error  = partial(has_expr, test = 'error')
 has_equal_error.__doc__ = """Run targeted student and solution code, and compare generated errors.
 
     When called on an SCT chain, ``has_equal_error()`` will execute the student and solution
     code that is 'zoomed in on' and compare the errors that they generate.
-    """ + args_string.format("error", "error")
+    """ + args_string.format("error")
 
 ## Various has tests ----------------------------------------------------------
 
