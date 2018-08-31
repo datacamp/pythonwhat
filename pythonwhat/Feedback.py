@@ -16,3 +16,5 @@ class Feedback(object):
         except:
             pass
 
+class InstructorError(Exception):
+    pass

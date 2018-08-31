@@ -1,6 +1,7 @@
 from pythonwhat.tasks import getColumnsInProcess
 from pythonwhat.check_object import check_object, check_df, check_keys
 from pythonwhat.has_funcs import has_equal_value
+from pythonwhat.Feedback import InstructorError
 
 def test_object(name,
                 eq_condition="equal",
@@ -34,7 +35,7 @@ def test_data_frame(name,
     if columns is None:
         columns = getColumnsInProcess(name, child.solution_process)
         if columns is None:
-            raise ValueError("Something went wrong in figuring out the columns for %s in the solution process" % name)
+            raise InstructorError("Something went wrong in figuring out the columns for %s in the solution process" % name)
 
     for col in columns:
         colstate = check_keys(col, missing_msg=undefined_cols_msg, state=child)

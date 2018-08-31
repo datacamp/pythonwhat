@@ -2,7 +2,7 @@ from types import GeneratorType
 from functools import partial
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import Test, TestFail
-from pythonwhat.Feedback import Feedback
+from pythonwhat.Feedback import Feedback, InstructorError
 import copy
 import ast
 
@@ -184,14 +184,14 @@ def set_context(*args, state=None, **kwargs):
 
     # for now, you can't specify both
     if len(args) > 0 and len(kwargs) > 0:
-        raise ValueError("In set_context() make sure to specify arguments either by position, either by name")
+        raise InstructorError("In `set_context()`, specify arguments either by position, either by name.")
 
     # set args specified by pos -----------------------------------------------
     if args:
         # stop if too many pos args for solution
         if len(args) > len(sol_crnt): 
-            raise IndexError("Too many positional args. There are {} context vals, but tried to set {}"
-                                .format(len(sol_crnt), len(args)))
+            raise InstructorError("Too many positional args. There are {} context vals, but tried to set {}"
+                                  .format(len(sol_crnt), len(args)))
         # set pos args
         upd_sol = sol_crnt.update(dict(zip(sol_crnt.keys(), args)))
         upd_stu = stu_crnt.update(dict(zip(stu_crnt.keys(), args)))
@@ -203,8 +203,8 @@ def set_context(*args, state=None, **kwargs):
     if kwargs:
         # stop if keywords don't match with solution
         if set(kwargs) - set(upd_sol):
-            raise KeyError("Context val names are {}, but tried to set {}"
-                                .format(upd_sol or "none", kwargs.keys()))
+            raise InstructorError("`set_context()` failed: context val names are {}, but you tried to set {}."
+                                  .format(upd_sol or "missing", sorted(list(kwargs.keys()))))
         out_sol = upd_sol.update(kwargs)
         # need to match keys in kwargs with corresponding keys in stu context
         # in case they used, e.g., different loop variable names

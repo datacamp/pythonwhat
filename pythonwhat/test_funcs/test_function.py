@@ -1,6 +1,7 @@
 import ast
 from functools import partial
 from pythonwhat.check_function import check_function
+from pythonwhat.Feedback import InstructorError
 from pythonwhat.Test import TestFail
 from pythonwhat.check_funcs import check_args
 from pythonwhat.has_funcs import has_equal_value, has_equal_ast, has_printout
@@ -82,27 +83,27 @@ def test_function_v2(name,
     index = index - 1
 
     if not isinstance(params, list):
-        raise NameError("Inside test_function_v2, make sure to specify a LIST of params.")
+        raise InstructorError("Inside test_function_v2, make sure to specify a LIST of params.")
 
     if isinstance(do_eval, bool) or do_eval is None:
         do_eval = [do_eval] * len(params)
 
     if len(params) != len(do_eval):
-        raise NameError("Inside test_function_v2, make sure that do_eval has the same length as params.")
+        raise InstructorError("Inside test_function_v2, make sure that do_eval has the same length as params.")
 
     # if params_not_specified_msg is a str or None, convert into list
     if isinstance(params_not_specified_msg, str) or params_not_specified_msg is None:
         params_not_specified_msg = [params_not_specified_msg] * len(params)
 
     if len(params) != len(params_not_specified_msg):
-        raise NameError("Inside test_function_v2, make sure that params_not_specified_msg has the same length as params.")
+        raise InstructorError("Inside test_function_v2, make sure that params_not_specified_msg has the same length as params.")
 
     # if incorrect_msg is a str or None, convert into list
     if isinstance(incorrect_msg, str) or incorrect_msg is None:
         incorrect_msg = [incorrect_msg] * len(params)
 
     if len(params) != len(incorrect_msg):
-        raise NameError("Inside test_function_v2, make sure that incorrect_msg has the same length as params.")
+        raise InstructorError("Inside test_function_v2, make sure that incorrect_msg has the same length as params.")
 
     # if root-level (not in compound statement) calls that can be evaluated: use has_printout
     eligible = do_eval[0] if isinstance(do_eval, list) and len(do_eval) > 0 else do_eval

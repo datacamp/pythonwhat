@@ -10,6 +10,7 @@ from pickle import PicklingError
 from pythonwhat.utils_env import set_context_vals, assign_from_ast
 from contextlib import contextmanager
 from functools import partial, wraps, update_wrapper
+from pythonwhat.Feedback import InstructorError
 
 def process_task(f):
     """Decorator to (optionally) run function in a process."""
@@ -84,14 +85,14 @@ def get_signature(name, mapped_name, signature, manual_sigs, env):
         if signature in manual_sigs:
             signature = inspect.Signature(manual_sigs[signature])
         else:
-            raise ValueError('signature error - specified signature not found')
+            raise InstructorError('signature error - specified signature not found')
 
     if signature is None:
         # establish function
         try:
             fun = eval(mapped_name, env)
         except:
-            raise ValueError("%s() was not found." % mapped_name)
+            raise InstructorError("%s() was not found." % mapped_name)
 
         # first go through manual sigs
         # try to get signature
@@ -106,18 +107,18 @@ def get_signature(name, mapped_name, signature, manual_sigs, env):
                         els[0] = type(eval(els[0], env)).__name__
                         generic_name = ".".join(els[:])
                     except:
-                        raise ValueError('signature error - cannot convert call')
+                        raise InstructorError('signature error - cannot convert call')
                     if generic_name in manual_sigs:
                         signature = inspect.Signature(manual_sigs[generic_name])
                     else:
-                        raise ValueError('signature error - %s not in builtins' % generic_name)
+                        raise InstructorError('signature error - %s not in builtins' % generic_name)
                 else:
-                    raise ValueError('manual signature not found')
+                    raise InstructorError('manual signature not found')
         except:
             try:
                 signature = inspect.signature(fun)
             except:
-                raise ValueError('signature error - cannot determine signature')
+                raise InstructorError('signature error - cannot determine signature')
 
     return signature
 

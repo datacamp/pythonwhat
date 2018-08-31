@@ -47,7 +47,7 @@ def test_without_env_all_works(data, sct):
     ("test_object('x')", True),
     ("test_function('round')", True),
     ("Ex().test_object('x')", True),
-    ("Ex().test_or(check_object('x').has_equal_value()", True),
+    ("Ex().test_or(check_object('x').has_equal_value())", True),
     ("Ex().check_or(test_object('x'))", True),
     ("Ex().check_object('x').has_equal_value()", False),
     ("Ex() >> check_object('x').has_equal_value()", False),
@@ -59,7 +59,7 @@ def test_with_env_old_fail(data, sct, should_err):
     with set_pw_env('1'):
         relooooad()
         if should_err:
-            with pytest.raises(Exception):
+            with pytest.raises((NameError, AttributeError)):
                 sct_payload = helper.run(data)
         else:
             sct_payload = helper.run(data)
