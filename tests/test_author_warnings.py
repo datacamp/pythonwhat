@@ -1,0 +1,128 @@
+import pytest
+import helper
+import ast
+
+from pythonwhat.local import setup_state
+from pythonwhat.Feedback import InstructorError
+from inspect import signature, Signature, Parameter
+from pythonwhat.check_funcs import assert_ast
+
+# Actually wrong usage that breaks --------------------------------------------
+
+@pytest.mark.compiled
+def test_converter_err():
+    data = {
+            "DC_SOLUTION": "import numpy as np; x = np.array([1, 2, 3])",
+            "DC_SCT": """def convert(): return abc\nset_converter('numpy.ndarray', convert); test_object('x') """
+            }
+    data['DC_CODE'] = data['DC_SOLUTION']
+    with pytest.raises(InstructorError):
+        helper.run(data)
+
+def test_check_syntax_double_getattr():
+    data = {
+            "DC_SOLUTION": "",
+            "DC_CODE": "",
+            "DC_SCT": """Ex().check_list_comp.check_body()"""
+            }
+    with pytest.raises(AttributeError, match=r'Did you forget to call a statement'):
+        helper.run(data)
+
+def test_context_vals_wrong_place_in_chain():
+    code = "[(i,j) for i,j in enumerate(range(10))]"
+    state = setup_state(code, code)
+    with pytest.raises(InstructorError, match=r"`set_context\(\)` failed: context val names are missing, but you tried to set \['i', 'j'\]\."):
+        state.check_list_comp(0).set_context(i=1,j=2).check_iter()
+
+@pytest.fixture
+def state():
+    return setup_state('round(1)', 'round(1)')
+
+def test_check_function(state):
+    with pytest.raises(InstructorError, match=r"`check_function\(\)` couldn't find a call of `roundddd\(\)` in the solution code. Make sure you get the mapping right!"):
+        state.check_function('roundddd')
+
+def test_check_function_2(state):
+    with pytest.raises(InstructorError, match=r"`check_function\(\)` couldn't find 2 calls of `round\(\)` in your solution code\."):
+        state.check_function('round', 1)
+
+def test_check_function_3(state):
+    with pytest.raises(InstructorError, match=r"`check_function\(\)` couldn't match the first call of `round` to its signature\."):
+        sig = Signature([Parameter('wrong', Parameter.KEYWORD_ONLY)])
+        state.check_function('round', 0, signature=sig)
+
+def test_check_function_4(state):
+    with pytest.raises(InstructorError, match=r"SCT fails on solution: Check your call of `round\(\)`\. Did you specify the second argument\?"):
+        state.check_function('round').check_args(1)
+
+def test_check_function_5(state):
+    with pytest.raises(InstructorError, match=r"SCT fails on solution: Check your call of `round\(\)`. You are zooming in on the first argument, but it is not an AST, so it can't be re-run\."):
+        def round(*nums): pass
+        state.check_function('round', 0, signature=signature(round)).check_args(0).has_equal_value()
+
+def test_check_object():
+    s = setup_state()
+    with pytest.raises(InstructorError, match=r"`check_object\(\)` couldn't find object `x` in the solution process\."):
+        s.check_object("x")
+
+def test_check_object_is_instance():
+    s = setup_state('x = 1', 'x = 1')
+    with pytest.raises(InstructorError, match=r"`is_instance\(\)` noticed that `x` is not a `str` in the solution process\."):
+        s.check_object('x').is_instance(str)
+
+def test_check_object_keys():
+    s = setup_state('x = {"a": 2}', 'x = {"a": 2}')
+    with pytest.raises(InstructorError, match=r"`check_keys\(\)` couldn't find key `b` in object `x` in the solution process\."):
+        s.check_object("x").check_keys("b")
+
+def test_set_context():
+    code = "x = { m:len(m) for m in ['a', 'b', 'c'] }"
+    s = setup_state(code, code)
+    with pytest.raises(InstructorError, match=r'In `set_context\(\)`, specify arguments either by position, either by name\.'):
+        s.check_dict_comp().check_key().set_context('a', m = 'a').has_equal_value()
+
+def test_has_printout():
+    s = setup_state()
+    with pytest.raises(InstructorError, match=r"`has_printout\(1\)` couldn't find the second print call in your solution\."):
+        s.has_printout(1)
+
+def test_has_import():
+    s = setup_state()
+    with pytest.raises(InstructorError, match=r"`has_import\(\)` couldn't find an import of the package numpy in your solution code\."):
+        s.has_import('numpy')
+
+# Incorrect usage that wouldn't throw exceptions ------------------------------
+
+def test_check_object_not_on_root():
+    code = 'for i in range(3): x = 1'
+    s = setup_state(code, code)
+    with pytest.raises(InstructorError, match=r"`check_object\(\)` should only be called from the root state, `Ex\(\)`."):
+        s.check_for_loop().check_body().check_object('x')
+
+def test_has_printout_not_on_root():
+    code = 'for i in range(3): print(i)'
+    s = setup_state(code, code)
+    with pytest.raises(InstructorError, match=r"`has_printout\(\)` should only be called from the root state, `Ex\(\)`."):
+        s.check_for_loop().check_body().has_printout(0)
+
+# Utility functions to make the above work ------------------------------------
+
+@pytest.mark.parametrize('element, no_error',
+    [
+        (ast.AST(), True),
+        ([ast.AST()], True),
+        ({'node': ast.AST()}, True),
+        ({'node': [ast.AST()]}, True),
+        (1, False),
+        ([1, 2], False),
+        ({'node': 1}, False),
+        ({'node': [1, 2]}, False),
+    ],
+)
+def test_assert_ast(element, no_error):
+    s = setup_state()._state
+    if no_error:
+        assert_ast(s, element, {})
+    else:
+        with pytest.raises(InstructorError):
+            assert_ast(s, element, {})

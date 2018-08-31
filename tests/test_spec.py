@@ -1,6 +1,7 @@
 import unittest
 import helper
 import pytest
+from pythonwhat.Feedback import InstructorError
 
 class TestFChain(unittest.TestCase):
 
@@ -158,7 +159,7 @@ def failing_submission(data):
 
 def test_has_equal_ast_code_without_msg(data):
     data["DC_SCT"] = "Ex().has_equal_ast(code = 'test')"
-    with pytest.raises(ValueError):
+    with pytest.raises(InstructorError):
         helper.run(data)
 
 def test_has_equal_ast_simple_pass(data):

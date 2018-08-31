@@ -1,7 +1,7 @@
 from pythonwhat.tasks import getResultInProcess, getOutputInProcess, getErrorInProcess, ReprFail, isDefinedInProcess, getOptionFromProcess, ReprFail, UndefinedValue
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import Test, EqualTest
-from pythonwhat.Feedback import Feedback
+from pythonwhat.Feedback import Feedback, InstructorError
 from pythonwhat import utils
 from functools import partial
 import re
@@ -14,22 +14,33 @@ evalCalls = {'value':  getResultInProcess,
 
 def has_part(name, msg, state=None, fmt_kwargs=None, index=None):
     rep = Reporter.active_reporter
-    d = {'sol_part': state.solution_parts,
-         'stu_part': state.student_parts,
-         **fmt_kwargs
-         }
+    d = {
+        'sol_part': state.solution_parts,
+        'stu_part': state.student_parts,
+        **fmt_kwargs
+    }
 
-    try: 
-        part = state.student_parts[name]
+    def verify(part, index):
         if index is not None:
             if isinstance(index, list):
                 for ind in index:
                     part = part[ind]
             else:
                 part = part[index]
-        if part is None: raise KeyError
+        if part is None:
+            raise KeyError
+
+    # Chceck if it's there in the solution
+    _msg = state.build_message(msg, d)
+    _err_msg = "SCT fails on solution: " + _msg
+    try:
+        verify(state.solution_parts[name], index)
     except (KeyError, IndexError):
-        _msg = state.build_message(msg, d)
+        raise InstructorError(_err_msg)
+
+    try: 
+        verify(state.student_parts[name], index)
+    except (KeyError, IndexError):
         rep.do_test(Test(Feedback(_msg, state)))
 
     return state
@@ -67,7 +78,6 @@ def has_equal_part_len(name, unequal_msg, state=None):
         SCT that checks number of arguments::
 
             Ex().check_function_def('shout').has_equal_part_len('args', 'not enough args!')
-
     """
     rep = Reporter.active_reporter
     d = dict(stu_len = len(state.student_parts[name]),
@@ -131,7 +141,8 @@ def has_equal_ast(incorrect_msg=None,
     rep = Reporter.active_reporter
 
     if code and incorrect_msg is None:
-        raise ValueError("If you manually specify the code to match inside has_equal_ast(), you have to explicitly set the `incorrect_msg` arugment.")
+        raise InstructorError("If you manually specify the code to match inside has_equal_ast(), "
+                              "you have to explicitly set the `incorrect_msg` argument.")
 
     if append is None: # if not specified, set to False if incorrect_msg was manually specified
         append = incorrect_msg is None
@@ -221,10 +232,10 @@ def has_expr(incorrect_msg=None,
                                     env=state.solution_env)
 
         if (test == 'error') ^ isinstance(eval_sol, Exception):
-            raise ValueError("Evaluating expression raised error in solution process (or not an error if testing for one). "
+            raise InstructorError("Evaluating expression raised error in solution process (or not an error if testing for one). "
                             "Error: {} - {}".format(type(eval_sol), str_sol))
         if isinstance(eval_sol, ReprFail):
-            raise ValueError("Couldn't extract the value for the highlighted expression from the solution process: " + eval_sol.info)
+            raise InstructorError("Couldn't extract the value for the highlighted expression from the solution process: " + eval_sol.info)
 
     eval_stu, str_stu = get_func(tree=state.student_tree,
                                  process=state.student_process,
@@ -373,7 +384,7 @@ def has_code(text,
         SCT::
 
             # Verify that student code contains pattern (not robust!!):
-            Ex().has_code(r"1\s*\+2\s*\+3")
+            Ex().has_code(r"1\\s*\\+2\\s*\\+3")
 
     """
     rep = Reporter.active_reporter
@@ -433,7 +444,7 @@ def has_import(name,
     solution_imports = state.solution_imports
 
     if name not in solution_imports:
-        raise NameError("The package you specified is not in the solution imports itself. %r not in solution imports" % name)
+        raise InstructorError("`has_import()` couldn't find an import of the package %s in your solution code." % name)
 
     fmt_kwargs = { 'pkg': name, 'alias': solution_imports[name] }
 
@@ -475,7 +486,6 @@ def has_output(text,
 
     if not no_output_msg:
         no_output_msg = "You did not output the correct things."
-        # raise ValueError("Inside has_output(), specify the `no_output_msg` manually.")
 
     student_output = state.raw_student_output
 
@@ -534,14 +544,15 @@ def has_printout(index,
             print("random"); print(1, 2, 3, 4)
     """
 
+    state.assert_parent('has_printout')
+
     if not_printed_msg is None:
         not_printed_msg = "__JINJA__:Have you used `{{sol_call}}` to do the appropriate printouts?"
 
     try:
         sol_call_ast = state.solution_function_calls['print'][index]['node']
     except (KeyError, IndexError):
-        raise ValueError("Using has_printout() with index {} expects that there is/are at least {} print() call(s) in your solution."
-                         "Is that the case?".format(index, index+1))
+        raise InstructorError("`has_printout({})` couldn't find the {} print call in your solution.".format(index, utils.get_ord(index + 1)))
 
     out_sol, str_sol = getOutputInProcess(
         tree = sol_call_ast,
@@ -555,8 +566,8 @@ def has_printout(index,
     sol_call_str = state.solution_tree_tokens.get_text(sol_call_ast)
 
     if isinstance(str_sol, Exception):
-            raise ValueError("Evaluating the solution expression {} raised error in solution process."
-                             "Error: {} - {}".format(sol_call_str, type(out_sol), str_sol))
+        raise InstructorError("Evaluating the solution expression {} raised error in solution process."
+                              "Error: {} - {}".format(sol_call_str, type(out_sol), str_sol))
 
     _msg = state.build_message(not_printed_msg, { 'sol_call': sol_call_str })
 
@@ -578,23 +589,22 @@ def has_chosen(correct, msgs, state=None):
                           student. The list should have the same length as the number of instructions.
     """
     if not issubclass(type(correct), int):
-        raise ValueError("correct should be an integer")
+        raise InstructorError("Inside `has_chosen()`, the argument `correct` should be an integer.")
 
     rep = Reporter.active_reporter
     student_process = state.student_process
     if not isDefinedInProcess(MC_VAR_NAME, student_process):
-        raise NameError("Option not available in the student process")
+        raise InstructorError("Option not available in the student process")
     else:
         selected_option = getOptionFromProcess(student_process, MC_VAR_NAME)
         if not issubclass(type(selected_option), int):
-            raise ValueError("selected_option should be an integer")
+            raise InstructorError("selected_option should be an integer")
 
         if selected_option < 1 or correct < 1:
-            raise ValueError(
-                "selected_option and correct should be greater than zero")
+            raise InstructorError("selected_option and correct should be greater than zero")
 
         if selected_option > len(msgs) or correct > len(msgs):
-            raise ValueError("there are not enough feedback messages defined")
+            raise InstructorError("there are not enough feedback messages defined")
 
         feedback_msg = msgs[selected_option - 1]
 

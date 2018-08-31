@@ -1,7 +1,7 @@
 from pythonwhat.parsing import ObjectAssignmentParser
 from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, DefinedCollProcessTest
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Feedback import Feedback
+from pythonwhat.Feedback import Feedback, InstructorError
 from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, isDefinedCollInProcess
 from pythonwhat.check_funcs import part_to_child
 from pythonwhat.has_funcs import has_equal_value
@@ -11,12 +11,12 @@ import ast
 def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="variable"):
     """Check object existence (and equality)
 
-    Check whether an object is defined in the student's environment, and zoom in on its value in both
-    student and solution environment to inspect quality (with has_equal_value().
+    Check whether an object is defined in the student's process, and zoom in on its value in both
+    student and solution process to inspect quality (with has_equal_value().
 
     Args:
         index (str): the name of the object which value has to be checked.
-        missing_msg (str): feedback message when the object is not defined in the student's environment.
+        missing_msg (str): feedback message when the object is not defined in the student process.
         expand_msg (str): prepending message to put in front.
 
     :Example:
@@ -41,6 +41,8 @@ def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="
 
     """
 
+    state.assert_parent('check_object')
+
     if missing_msg is None:
         missing_msg = "__JINJA__:Did you define the {{typestr}} `{{index}}` without errors?"
 
@@ -50,7 +52,7 @@ def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="
     rep = Reporter.active_reporter
 
     if not isDefinedInProcess(index, state.solution_process) and state.has_different_processes():
-        raise NameError("%r not in solution environment " % index)
+        raise InstructorError("`check_object()` couldn't find object `%s` in the solution process." % index)
 
     append_message = {'msg': expand_msg, 'kwargs': {'index': index, 'typestr': typestr}}
 
@@ -100,7 +102,7 @@ def is_instance(inst, not_instance_msg=None, state=None):
     if not_instance_msg is None: not_instance_msg = "__JINJA__:Is it a {{inst.__name__}}?"
 
     if not isInstanceInProcess(sol_name, inst, state.solution_process):
-        raise ValueError("%r is not a %s in the solution environment" % (sol_name, type(inst)))
+        raise InstructorError("`is_instance()` noticed that `%s` is not a `%s` in the solution process." % (sol_name, inst.__name__))
 
     _msg = state.build_message(not_instance_msg, {'inst': inst})
     feedback = Feedback(_msg, state)
@@ -153,7 +155,7 @@ def check_keys(key, missing_msg=None, expand_msg=None, state=None):
     stu_name = state.student_parts.get('name')
 
     if not isDefinedCollInProcess(sol_name, key, state.solution_process):
-        raise NameError("Not all keys you specified are actually keys in %s in the solution process" % sol_name)
+        raise InstructorError("`check_keys()` couldn't find key `%s` in object `%s` in the solution process." % (key, sol_name))
 
     # check if key available
     _msg = state.build_message(missing_msg, {'key': key})

@@ -3,8 +3,9 @@ from pythonwhat.has_funcs import has_part
 from pythonwhat.check_logic import multi
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import Test, EqualTest, TestFail
-from pythonwhat.Feedback import Feedback
+from pythonwhat.Feedback import Feedback, InstructorError
 from pythonwhat.utils import get_ord
+from pythonwhat.utils_ast import assert_ast
 from functools import partial
 import ast
 
@@ -34,7 +35,6 @@ def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
                                 solution_subtree=sol_part,
                                 append_message=append_message)
 
-
 def check_part(name, part_msg,
                missing_msg=None,
                expand_msg=None,
@@ -48,8 +48,11 @@ def check_part(name, part_msg,
     append_message = {'msg': expand_msg, 'kwargs': { 'part': part_msg }}
 
     has_part(name, missing_msg, state, append_message['kwargs'])
+    
     stu_part = state.student_parts[name]
     sol_part = state.solution_parts[name]
+
+    assert_ast(state, sol_part, append_message['kwargs'])
 
     return part_to_child(stu_part, sol_part, append_message, state)
 
@@ -71,8 +74,11 @@ def check_part_index(name, index, part_msg,
 
     # create message
     ordinal = get_ord(index+1) if isinstance(index, int) else ""
-    fmt_kwargs = {'index': index, 'ordinal': ordinal}
-    fmt_kwargs['part'] = part_msg.format(**fmt_kwargs)
+    fmt_kwargs = {
+        'index': index,
+        'ordinal': ordinal
+    }
+    fmt_kwargs.update(part = part_msg.format(**fmt_kwargs))
 
     append_message = {
         'msg': expand_msg,
@@ -80,7 +86,7 @@ def check_part_index(name, index, part_msg,
     }
 
     # check there are enough parts for index
-    has_part(name, missing_msg, state, append_message['kwargs'], index)
+    has_part(name, missing_msg, state, fmt_kwargs, index)
 
     # get part at index
     stu_part = state.student_parts[name]
@@ -93,6 +99,8 @@ def check_part_index(name, index, part_msg,
     else:
         stu_part = stu_part[index]
         sol_part = sol_part[index]
+
+    assert_ast(state, sol_part, fmt_kwargs)
 
     # return child state from part
     return part_to_child(stu_part, sol_part, append_message, state)
@@ -142,7 +150,7 @@ def with_context(*args, state=None):
     solution_res = setUpNewEnvInProcess(process = state.solution_process,
                                         context = state.solution_parts['with_items'])
     if isinstance(solution_res, Exception):
-        raise Exception("error in the solution, running test_with(): %s" % str(solution_res))
+        raise InstructorError("error in the solution, running test_with(): %s" % str(solution_res))
 
     student_res = setUpNewEnvInProcess(process = state.student_process,
                                        context = state.student_parts['with_items'])
@@ -159,7 +167,7 @@ def with_context(*args, state=None):
     finally:
         # exit context
         if breakDownNewEnvInProcess(process = state.solution_process):
-            raise Exception("error in the solution, closing the `with` fails with: %s" % (close_solution_context))
+            raise InstructorError("error in the solution, closing the `with` fails with: %s" % (close_solution_context))
 
         if breakDownNewEnvInProcess(process = state.student_process):
 
@@ -280,7 +288,7 @@ def run_call(args, node, process, get_func, **kwargs):
         func_expr = ast.Name(id=node.name, ctx=ast.Load())
     elif isinstance(node, ast.Lambda):                        # lambda body expr
         func_expr = node
-    else: raise TypeError("Only function definition or lambda may be called")
+    else: raise InstructorError("Only function definition or lambda may be called")
 
     # args is a call string or argument list/dict
     if isinstance(args, str):
@@ -331,12 +339,12 @@ def call(args,
     if (test == 'error') ^ isinstance(eval_sol, Exception):
         _msg = state.build_message("FMT:Calling {argstr} resulted in an error (or not an error if testing for one). Error message: {type_err} {str_sol}",
                                    dict(type_err=type(eval_sol), str_sol=str_sol, argstr=argstr)),
-        raise ValueError(_msg)
+        raise InstructorError(_msg)
 
     if isinstance(eval_sol, ReprFail):
         _msg = state.build_message("FMT:Can't get the result of calling {argstr}: {eval_sol.info}",
                                    dict(argstr = argstr, eval_sol=eval_sol))
-        raise ValueError(_msg)
+        raise InstructorError(_msg)
 
     # Run for Submission ------------------------------------------------------
     eval_stu, str_stu = run_call(args, state.student_parts['node'], state.student_process, get_func, **kwargs)
@@ -363,7 +371,7 @@ def build_call(callstr, node):
     elif isinstance(node, ast.Lambda): # lambda body expr
         func_expr = node
         argstr = 'it with the arguments `{}`'.format(callstr.replace('f', ''))
-    else: raise TypeError("You can use check_call() only on check_function_def() or check_lambda()")
+    else: raise InstructorError("You can use check_call() only on check_function_def() or check_lambda()")
 
     parsed = ast.parse(callstr).body[0].value
     parsed.func = func_expr

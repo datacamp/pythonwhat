@@ -3,7 +3,7 @@ from pythonwhat.check_funcs import part_to_child, StubState
 from pythonwhat.tasks import getSignatureInProcess
 from pythonwhat.utils import get_ord, get_times
 from pythonwhat.Test import Test
-from pythonwhat.Feedback import Feedback
+from pythonwhat.Feedback import Feedback, InstructorError
 from pythonwhat.parsing import IndexedDict
 from functools import partial
 
@@ -89,7 +89,12 @@ def check_function(name, index=0,
 
     # Get Parts ----
     # Copy, otherwise signature binding overwrites sol_out[name][index]['args']
-    sol_parts = {**sol_out[name][index]}
+    try:
+        sol_parts = {**sol_out[name][index]}
+    except KeyError:
+        raise InstructorError("`check_function()` couldn't find a call of `%s()` in the solution code. Make sure you get the mapping right!" % name)
+    except IndexError:
+        raise InstructorError("`check_function()` couldn't find %s calls of `%s()` in your solution code." % (index+1, name))
 
     try:
         # Copy, otherwise signature binding overwrites stu_out[name][index]['args']
@@ -108,9 +113,7 @@ def check_function(name, index=0,
             sol_sig = get_sig(mapped_name=sol_parts['name'], process=state.solution_process)
             sol_parts['args'] = bind_args(sol_sig, sol_parts['args'])
         except:
-            raise ValueError("Something went wrong in matching call index {index} of {name} to its signature. "
-                             "You might have to manually specify or correct the signature."
-                             .format(index=index, name=name))
+            raise InstructorError("`check_function()` couldn't match the %s call of `%s` to its signature. " % (get_ord(index + 1), name))
 
         try:
             stu_sig = get_sig(mapped_name=stu_parts['name'], process=state.student_process)

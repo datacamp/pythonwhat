@@ -1,6 +1,6 @@
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import Test, EqualTest
-from pythonwhat.Feedback import Feedback
+from pythonwhat.Feedback import Feedback, InstructorError
 from pythonwhat.State import State
 from functools import singledispatch
 from pythonwhat.check_funcs import check_part_index
@@ -43,7 +43,7 @@ def _test(state, incorrect_msg, exact_names, tv_name, highlight_name):
 
 @singledispatch
 def _has_context(state, incorrect_msg, exact_names):
-    raise BaseException("first argument to _has_context must be a State instance or subclass")
+    raise InstructorError("first argument to _has_context must be a State instance or subclass")
 
 @_has_context.register(State)
 def has_context_state(*args, **kwargs):

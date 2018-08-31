@@ -3,32 +3,25 @@ from pythonwhat.local import setup_state
 from pythonwhat.Test import TestFail as TF
 import helper
 
-@pytest.mark.parametrize('stu', [
-        "print(1, 2, 3)",
-        "print('1 2 3')",
-        "print('1', '2 3')",
-        "print(1, '2 3')",
-        "print('1 2', '3')",
-        "print('1 2', 3)",
+@pytest.mark.parametrize('stu, correct', [
+        ("print(1, 2, 3)", True),
+        ("print('1 2 3')", True),
+        ("print('1', '2 3')", True),
+        ("print(1, '2 3')", True),
+        ("print('1 2', '3')", True),
+        ("print('1 2', 3)", True),
+        ("print(1, 2)", False),
+        ("print('1 2')", False),
+        ("print('1 3 2')", False),
+        ("print(1, 3, 2)", False),
+        ("print(1, 2, 4, 3)", False),
+        ("print('1 2 4 3')", False),
+        ("print('1 2', 4, 3)", False),
     ])
-def test_basic_has_printout_passing(stu):
+def test_basic_has_printout(stu, correct):
     sol = 'print(1, 2, 3)'
     s = setup_state(stu_code=stu, sol_code=sol)
-    helper.passes(s.has_printout(0))
-
-@pytest.mark.parametrize('stu', [
-        "print(1, 2)",
-        "print('1 2')",
-        "print('1 3 2')",
-        "print(1, 3, 2)",
-        "print(1, 2, 4, 3)",
-        "print('1 2 4 3')",
-        "print('1 2', 4, 3)"
-    ])
-def test_basic_has_printout_failing(stu):
-    sol = 'print(1, 2, 3)'
-    s = setup_state(stu_code=stu, sol_code=sol)
-    with pytest.raises(TF, match=r'Have you used `print\(1, 2, 3\)`'):
+    with helper.verify_sct(correct):
         s.has_printout(0)
 
 def test_basic_has_printout_failing_custom():
@@ -51,10 +44,7 @@ def test_has_printout_multiple(stu):
     s = setup_state(stu_code=stu, sol_code=sol)
     helper.passes(s.has_printout(1))
 
-def test_incorrect_use():
-    s = setup_state(stu_code='', sol_code='')
-    with pytest.raises(ValueError, match='Using has_printout'):
-        s.has_printout(1)
+
 
 
 

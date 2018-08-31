@@ -2,6 +2,7 @@ import pytest
 import helper
 from pythonwhat.local import setup_state
 from pythonwhat.Test import TestFail as TF
+from pythonwhat.Feedback import InstructorError
 from inspect import signature
 from pythonwhat.check_function import bind_args
 
@@ -150,25 +151,6 @@ def test_method_2():
     import pandas as pd
     helper.passes(s.check_function('df.a.sum', signature = sig_from_obj(pd.Series.sum)))
 
-@pytest.mark.parametrize('sct', [
-    "Ex().check_function('round').check_args('ndigits').has_equal_value()",
-    "Ex().check_correct(check_object('x').has_equal_value(), check_function('round').check_args('ndigits').has_equal_value())",
-    "Ex().check_function('round', signature = False).check_args('ndigits').has_equal_value()",
-    "Ex().check_correct(check_object('x').has_equal_value(), check_function('round', signature = False).check_args('ndigits').has_equal_value())"
-])
-@pytest.mark.parametrize('sol', [
-    'x = 5',
-    'x = round(5.23)'
-])
-def test_incorrect_usage(sct, sol):
-    data = {
-        'DC_CODE': 'round(1.23, ndigits = 1)',
-        'DC_SOLUTION': sol,
-        'DC_SCT': sct
-    }
-    with pytest.raises(KeyError):
-        out = helper.run(data)
-
 @pytest.mark.parametrize('code', [
     'print(round(1.23))',
     'x = print(round(1.23))',
@@ -184,3 +166,22 @@ def test_function_parser(code):
         'DC_SCT': 'Ex().check_function("round").check_args(0).has_equal_value()'
     })
     assert output['correct']
+
+@pytest.mark.parametrize('sct', [
+    "Ex().check_function('round').check_args('ndigits').has_equal_value()",
+    "Ex().check_correct(check_object('x').has_equal_value(), check_function('round').check_args('ndigits').has_equal_value())",
+    "Ex().check_function('round', signature = False).check_args('ndigits').has_equal_value()",
+    "Ex().check_correct(check_object('x').has_equal_value(), check_function('round', signature = False).check_args('ndigits').has_equal_value())"
+])
+@pytest.mark.parametrize('sol', [
+    'x = 5',
+    'x = round(5.23)'
+])
+def test_check_function_weirdness(sct, sol):
+    data = {
+        'DC_CODE': 'round(1.23, ndigits = 1)',
+        'DC_SOLUTION': sol,
+        'DC_SCT': sct
+    }
+    with pytest.raises(InstructorError):
+        helper.run(data)

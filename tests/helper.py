@@ -2,10 +2,12 @@ import re
 import os
 
 from pythonwhat.local import StubProcess
-from contextlib import redirect_stdout
+from contextlib import redirect_stdout, contextmanager
+from pythonwhat.Test import TestFail as TF
 from pythonwhat.test_exercise import test_exercise
 from pythonwhat.check_syntax import Chain
 import io
+import pytest
 import tempfile
 
 def run(data, run_code = True):
@@ -76,6 +78,14 @@ def get_sct_payload(output):
 
 def passes(st):
     assert isinstance(st, Chain)
+
+@contextmanager
+def verify_sct(correct):
+    if correct:
+        yield
+    else:
+        with pytest.raises(TF):
+            yield
 
 def test_lines(test, sct_payload, ls, le, cs, ce):
     test.assertEqual(sct_payload['line_start'], ls)

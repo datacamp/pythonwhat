@@ -67,11 +67,3 @@ def test_fail():
     output = helper.run(data)
     assert not output['correct']
 
-def test_wrong_usage():
-    data = {
-        'DC_CODE': "x = { m:len(m) for m in ['a', 'b', 'c'] }",
-        'DC_SOLUTION': "x = { m*2:len(m) for m in ['a', 'b', 'c'] }",
-        'DC_SCT': "Ex().check_dict_comp().check_key().set_context('a', m = 'a').has_equal_value()"
-    }
-    with pytest.raises(ValueError, match = 'either'):
-        helper.run(data)

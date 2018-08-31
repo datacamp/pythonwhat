@@ -5,7 +5,7 @@ from copy import copy
 from functools import partial
 from pythonwhat.parsing import TargetVars, FunctionParser, ObjectAccessParser, parser_dict
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Feedback import Feedback
+from pythonwhat.Feedback import Feedback, InstructorError
 from pythonwhat.Test import Test
 from pythonwhat import signatures
 from pythonwhat.converters import get_manual_converters
@@ -218,6 +218,10 @@ class State(object):
         except:
             # play it safe (most common)
             return True
+
+    def assert_parent(self, fun):
+        if self.parent_state is not None:
+            raise InstructorError("`%s()` should only be called from the root state, `Ex()`." % fun)
 
     @staticmethod
     def parse_external(x):

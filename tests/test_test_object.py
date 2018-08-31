@@ -22,12 +22,6 @@ def test_check_object(sct, stu_code, passes, msg):
     assert output['correct'] == passes
     if msg: assert output['message'] == msg
 
-def test_check_object_wrong_usage():
-    with pytest.raises(NameError):
-        helper.run({
-            'DC_SCT': 'Ex().check_object("x")'
-        })
-
 @pytest.mark.parametrize('stu_code, passes', [
     ('x = filter(lambda x: x > 0, [0, 1])', False),
     ('x = filter(lambda x: x > 0, [1, 1])', True)
@@ -53,9 +47,6 @@ def test_check_object_custom_compare(stu_code, passes):
     assert output['correct'] == passes
 
 def test_check_object_single_process():
-    state2pids = setup_state('x = 3', '')
-    with pytest.raises(NameError):
-        state2pids.check_object('x')
     state1pid = setup_state('x = 3', '', pid = 1)
     helper.passes(state1pid.check_object('x'))
 
@@ -137,13 +128,6 @@ users = pd.read_csv('https://s3.amazonaws.com/assets.datacamp.com/production/cou
     })
     assert output['correct']
 
-def test_check_keys_wrong_usage():
-    with pytest.raises(NameError):
-        helper.run({
-            'DC_SOLUTION': 'x = {"a": 2}',
-            'DC_CODE': 'x = {"a": 2}',
-            'DC_SCT': 'Ex().check_object("x").check_keys("b")'
-        })
 
 @pytest.mark.need_internet
 class TestTestObjectNonDillable(unittest.TestCase):
@@ -389,8 +373,6 @@ df2.columns = ["c", "d"]
         sct_payload = helper.run(self.data)
         self.assertFalse(sct_payload['correct'])
         helper.test_absent_lines(self, sct_payload)
-
-
 
 
 if __name__ == "__main__":
