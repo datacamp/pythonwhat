@@ -2,6 +2,17 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.16.0
+
+### Added
+
+- Function documentation (with examples) for `multi()`, `check_or()`, `check_correct()` and `check_not()`
+
+### Changed
+
+- If an SCT is incorrectly coded, it will generate more easily understandable errors so the author can easily fix the issue.
+- If an SCT correctly runs but does not make a lot of sense, easily understanble errors will be thrown so the author can make improvements.
+
 ## 2.15.3
 
 ### Added
