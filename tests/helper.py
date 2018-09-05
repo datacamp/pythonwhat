@@ -127,3 +127,16 @@ def remove_lambdas(sct_str, count=0, with_args = False):
 
 def replace_test_if(sct):
     return re.sub(r"test_if_else\(", "test_if_exp(", sct)
+
+@contextmanager
+def set_v2_only_env(new):
+    key = 'PYTHONWHAT_V2_ONLY'
+    old = os.environ.get(key)
+    try:
+        os.environ[key] = new
+        yield
+    finally:
+        if old is None:
+            del os.environ[key]
+        else:
+            os.environ[key] = old

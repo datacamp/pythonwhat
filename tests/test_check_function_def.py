@@ -35,6 +35,7 @@ def test(a, b):
     ('def test(a, b): print(a + b); return a + b', True)
 ])
 def test_check_call(stu, passes):
+
     output = helper.run({
         'DC_CODE': stu,
         'DC_SOLUTION': 'def test(a, b): print(a + b); return a + b',

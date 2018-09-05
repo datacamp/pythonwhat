@@ -11,22 +11,19 @@ from pythonwhat.check_funcs import assert_ast
 
 @pytest.mark.compiled
 def test_converter_err():
+    code = "import numpy as np; x = np.array([1, 2, 3])"
     data = {
-            "DC_SOLUTION": "import numpy as np; x = np.array([1, 2, 3])",
-            "DC_SCT": """def convert(): return abc\nset_converter('numpy.ndarray', convert); test_object('x') """
-            }
-    data['DC_CODE'] = data['DC_SOLUTION']
+        "DC_CODE": code,
+        "DC_SOLUTION": code,
+        "DC_SCT": """def convert(): return abc\nset_converter('numpy.ndarray', convert); test_object('x') """
+    }
     with pytest.raises(InstructorError):
         helper.run(data)
 
 def test_check_syntax_double_getattr():
-    data = {
-            "DC_SOLUTION": "",
-            "DC_CODE": "",
-            "DC_SCT": """Ex().check_list_comp.check_body()"""
-            }
+    s = setup_state()
     with pytest.raises(AttributeError, match=r'Did you forget to call a statement'):
-        helper.run(data)
+        s.check_list_comp.check_body()
 
 def test_context_vals_wrong_place_in_chain():
     code = "[(i,j) for i,j in enumerate(range(10))]"
@@ -93,17 +90,81 @@ def test_has_import():
 
 # Incorrect usage that wouldn't throw exceptions ------------------------------
 
-def test_check_object_not_on_root():
-    code = 'for i in range(3): x = 1'
+from pythonwhat.check_syntax import v2_check_functions
+
+
+def test_has_printout_on_root():
+    code = 'print(1)'
     s = setup_state(code, code)
-    with pytest.raises(InstructorError, match=r"`check_object\(\)` should only be called from the root state, `Ex\(\)`."):
-        s.check_for_loop().check_body().check_object('x')
+    has_printout = v2_check_functions['has_printout']
+    s.check_or(has_printout(0), has_printout(0))
 
 def test_has_printout_not_on_root():
     code = 'for i in range(3): print(i)'
     s = setup_state(code, code)
-    with pytest.raises(InstructorError, match=r"`has_printout\(\)` should only be called from the root state, `Ex\(\)`."):
+    with pytest.raises(InstructorError, match=r"`has_printout\(\)` should only be called from the root state, `Ex\(\)`\."):
         s.check_for_loop().check_body().has_printout(0)
+
+def test_check_object_on_root():
+    code = 'x = 1'
+    check_object = v2_check_functions['check_object']
+    s = setup_state(code, code)
+    s.check_or(check_object('x'), check_object('x'))
+
+def test_check_object_not_on_root():
+    code = 'for i in range(3): x = 1'
+    s = setup_state(code, code)
+    with helper.set_v2_only_env(''):
+        s.check_for_loop().check_body().check_object('x')
+
+def test_check_object_not_on_root_v2():
+    code = 'for i in range(3): x = 1'
+    s = setup_state(code, code)
+    with helper.set_v2_only_env('1'):
+        with pytest.raises(InstructorError, match=r"`check_object\(\)` should only be called from the root state, `Ex\(\)`\."):
+            s.check_for_loop().check_body().check_object('x')
+
+def test_is_instance_not_on_check_object():
+    code = 'round(3)'
+    s = setup_state(code, code)
+    with pytest.raises(InstructorError, match=r"`is_instance\(\)` can only be called on `check_object\(\)`\."):
+        s.check_function('round').check_args(0).is_instance(int)
+
+def test_check_keys_not_on_check_object():
+    code = 'round(3)'
+    s = setup_state(code, code)
+    with pytest.raises(InstructorError, match=r"`is_instance\(\)` can only be called on `check_object\(\)` or `check_df\(\)`\."):
+        s.check_function('round').check_args(0).check_keys('a')
+
+def test_has_equal_ast_on_check_object():
+    code = 'x = 1'
+    s = setup_state(code, code)
+    s.check_object('x').has_equal_ast()
+
+def test_has_equal_ast_on_check_object_v2():
+    code = 'x = 1'
+    s = setup_state(code, code)
+    with helper.set_v2_only_env('1'):
+        with pytest.raises(InstructorError, match=r"`has_equal_ast\(\)` should not be called on `check_object\(\)`\."):
+            s.check_object('x').has_equal_ast()
+
+def test_has_equal_ast_on_check_function():
+    code = 'round(1)'
+    s = setup_state(code, code)
+    s.check_function('round').has_equal_ast()
+
+def test_has_equal_ast_on_check_function_v2():
+    code = 'round(1)'
+    s = setup_state(code, code)
+    with helper.set_v2_only_env('1'):
+        with pytest.raises(InstructorError, match=r"`has_equal_ast\(\)` should not be called on `check_function\(\)`\."):
+            s.check_function('round').has_equal_ast()
+
+def test_check_call_not_on_check_function_def():
+    code = 'def x(a): pass'
+    s = setup_state(code, code)
+    with pytest.raises(InstructorError, match=r"`check_call\(\)` can only be called on `check_function_def\(\)` or `check_lambda_function\(\)`\."):
+        s.check_object('x').check_call("f(1)")
 
 # Utility functions to make the above work ------------------------------------
 

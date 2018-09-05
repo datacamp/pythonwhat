@@ -5,6 +5,9 @@ import os
 def include_v1():
     return os.environ.get('PYTHONWHAT_V2_ONLY', '') != '1'
 
+def v2_only():
+    return not include_v1()
+
 def shorten_str(text, to_chars=100):
     if '\n' in text or len(text) > 50: return None
     return text

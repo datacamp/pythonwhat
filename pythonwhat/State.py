@@ -219,9 +219,21 @@ class State(object):
             # play it safe (most common)
             return True
 
-    def assert_parent(self, fun):
+    def assert_root(self, fun):
         if self.parent_state is not None:
             raise InstructorError("`%s()` should only be called from the root state, `Ex()`." % fun)
+
+    def assert_is(self, klasses, fun, prev_fun):
+        if self.__class__.__name__ not in klasses:
+            raise InstructorError("`%s()` can only be called on %s." %
+                (fun, " or ".join([ '`%s()`' % pf for pf in prev_fun ]))
+            )
+
+    def assert_is_not(self, klasses, fun, prev_fun):
+        if self.__class__.__name__ in klasses:
+            raise InstructorError("`%s()` should not be called on %s." %
+                (fun, " or ".join([ '`%s()`' % pf for pf in prev_fun ]))
+            )
 
     @staticmethod
     def parse_external(x):

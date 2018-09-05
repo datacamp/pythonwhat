@@ -4,6 +4,7 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback, InstructorError
 from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, isDefinedCollInProcess
 from pythonwhat.check_funcs import part_to_child
+from pythonwhat.utils import v2_only
 from pythonwhat.has_funcs import has_equal_value
 import pandas as pd
 import ast
@@ -41,7 +42,9 @@ def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="
 
     """
 
-    state.assert_parent('check_object')
+    # Only do the assertion if PYTHONWHAT_V2_ONLY is set to '1'
+    if v2_only():
+        state.assert_root('check_object')
 
     if missing_msg is None:
         missing_msg = "__JINJA__:Did you define the {{typestr}} `{{index}}` without errors?"
@@ -65,7 +68,8 @@ def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="
     _msg = state.build_message(missing_msg, append_message['kwargs'])
     rep.do_test(DefinedProcessTest(index, state.student_process, Feedback(_msg)))
 
-    child = part_to_child(stu_part, sol_part, append_message, state)
+    child = part_to_child(stu_part, sol_part, append_message, state,
+                          node_name='object_assignments')
 
     return child
 
@@ -94,6 +98,9 @@ def is_instance(inst, not_instance_msg=None, state=None):
             import numpy
             Ex().check_object('arr').is_instance(numpy.ndarray)
     """
+
+    state.assert_is(['object_assignments'], 'is_instance', ['check_object'])
+
     rep = Reporter.active_reporter
 
     sol_name = state.solution_parts.get('name')
@@ -143,6 +150,8 @@ def check_keys(key, missing_msg=None, expand_msg=None, state=None):
             Ex().check_object('x').check_keys('a').has_equal_value()
 
     """
+
+    state.assert_is(['object_assignments'], 'is_instance', ['check_object', 'check_df'])
 
     if missing_msg is None:
         missing_msg = "__JINJA__:There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `'{{key}}'`."

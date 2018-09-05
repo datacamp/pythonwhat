@@ -140,6 +140,10 @@ def has_equal_ast(incorrect_msg=None,
     """
     rep = Reporter.active_reporter
 
+    if utils.v2_only():
+        state.assert_is_not(['object_assignments'], 'has_equal_ast', ['check_object'])
+        state.assert_is_not(['function_calls'], 'has_equal_ast', ['check_function'])
+
     if code and incorrect_msg is None:
         raise InstructorError("If you manually specify the code to match inside has_equal_ast(), "
                               "you have to explicitly set the `incorrect_msg` argument.")
@@ -544,7 +548,7 @@ def has_printout(index,
             print("random"); print(1, 2, 3, 4)
     """
 
-    state.assert_parent('has_printout')
+    state.assert_root('has_printout')
 
     if not_printed_msg is None:
         not_printed_msg = "__JINJA__:Have you used `{{sol_call}}` to do the appropriate printouts?"
