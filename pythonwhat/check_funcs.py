@@ -33,7 +33,8 @@ def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
     # otherwise, assume they are just nodes
     return state.to_child_state(student_subtree=stu_part,
                                 solution_subtree=sol_part,
-                                append_message=append_message)
+                                append_message=append_message,
+                                node_name=node_name)
 
 def check_part(name, part_msg,
                missing_msg=None,
@@ -404,6 +405,12 @@ def check_call(callstr, argstr = None, expand_msg=None, state=None):
                 check_call("f(3)").has_equal_output()
             )
     """
+
+    state.assert_is(
+        ['function_defs', 'lambda_functions'],
+        'check_call',
+        ['check_function_def', 'check_lambda_function']
+    )
 
     if expand_msg is None:
         expand_msg = "__JINJA__:To verify it, we reran {{argstr}}. "

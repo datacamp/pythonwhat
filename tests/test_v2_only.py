@@ -1,25 +1,11 @@
 import pytest
 import os
-from contextlib import contextmanager
 import helper
 import importlib
 
 def relooooad():
     import pythonwhat.check_syntax
     importlib.reload(pythonwhat.check_syntax)
-
-@contextmanager
-def set_pw_env(new):
-    key = 'PYTHONWHAT_V2_ONLY'
-    old = os.environ.get(key)
-    try:
-        os.environ[key] = new
-        yield
-    finally:
-        if old is None:
-            del os.environ[key]
-        else:
-            os.environ[key] = old
 
 @pytest.fixture
 def data():
@@ -38,7 +24,7 @@ def data():
 ])
 def test_without_env_all_works(data, sct):
     data['DC_SCT'] = sct
-    with set_pw_env(''):
+    with helper.set_v2_only_env(''):
         relooooad()
         sct_payload = helper.run(data)
         assert not sct_payload['correct']
@@ -56,7 +42,7 @@ def test_without_env_all_works(data, sct):
 ])
 def test_with_env_old_fail(data, sct, should_err):
     data['DC_SCT'] = sct
-    with set_pw_env('1'):
+    with helper.set_v2_only_env('1'):
         relooooad()
         if should_err:
             with pytest.raises((NameError, AttributeError)):
