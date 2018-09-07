@@ -491,12 +491,10 @@ def has_output(text,
     if not no_output_msg:
         no_output_msg = "You did not output the correct things."
 
-    student_output = state.raw_student_output
-
     _msg = state.build_message(no_output_msg)
     rep.do_test(
         StringContainsTest(
-            student_output,
+            state.raw_student_output,
             text,
             pattern,
             _msg))

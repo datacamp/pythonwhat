@@ -438,3 +438,30 @@ def test_has_expr(sct, patt):
     })
     assert not output['correct']
     assert message(output, patt)
+
+
+## check_if_else --------------------------------------------------------------
+
+@pytest.mark.parametrize('stu, patt, lines', [
+    ('', "The system wants to check the first if statement but hasn't found it.", []),
+    ('if offset > 10: x = 5\nelse: x = round(2.123)', 'Check the first if statement. Did you correctly specify the condition? Expected <code>True</code>, but got <code>False</code>.', [1, 1, 4, 14]),
+    ('if offset > 8: x = 7\nelse: x = round(2.123)', 'Check the first if statement. Did you correctly specify the body? Could not find the correct pattern in your code.', [1, 1, 16, 20]),
+    ('if offset > 8: x = 5\nelse: x = 8', 'Check the first if statement. Did you correctly specify the else part? Did you call <code>round()</code>?', [2, 2, 7, 11]),
+    ('if offset > 8: x = 5\nelse: x = round(2.2121314)', 'Check your call of <code>round()</code>. Did you correctly specify the first argument? Expected <code>2.123</code>, but got <code>2.2121314</code>.', [2, 2, 17, 25]),
+])
+def test_check_if_else_basic(stu, patt, lines):
+    output = helper.run({
+        'DC_PEC': 'offset = 8',
+        'DC_SOLUTION': 'if offset > 8: x = 5\nelse: x = round(2.123)',
+        'DC_CODE': stu,
+        'DC_SCT': '''
+Ex().check_if_else().multi(
+    check_test().multi([ set_env(offset = i).has_equal_value() for i in range(7,10) ]),
+    check_body().has_code(r'x\s*=\s*5'),
+    check_orelse().check_function('round').check_args(0).has_equal_value()
+)
+        '''
+    })
+    assert not output['correct']
+    assert message(output, patt)
+    if lines: helper.with_line_info(output,   *lines)

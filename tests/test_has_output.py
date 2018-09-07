@@ -1,54 +1,34 @@
-import unittest
+import pytest
 import helper
+from pythonwhat.local import setup_state
 
-class TestCheckOutput(unittest.TestCase):
+@pytest.mark.parametrize('stu, passes', [
+    ('print("Hi, there!")', True),
+    ('print("hi  there!")', True),
+    ('print("Hello there")', False)
+])
+def test_has_output_basic(stu, passes):
+    s = setup_state(stu, '')
+    with helper.verify_sct(passes):
+        s.has_output(r'[H|h]i,*\s+there!')
 
-    def setUp(self):
-        self.data = {
-            "DC_PEC": '',
-            "DC_SCT": "Ex().has_output(r'[H|h]i,*\\s+there!')",
-            "DC_SOLUTION": ''
-        }
-
-    def test_success(self):
-        self.data["DC_CODE"] = 'print("Hi, there!")'
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_success2(self):
-        self.data["DC_CODE"] = 'print("hi  there!")'
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_fail(self):
-        self.data["DC_CODE"] = 'print("Hello there")'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
+@pytest.mark.parametrize('stu, passes', [
+    ('print("Hi, there!")', True),
+    ('print("hi  there!")', False),
+    ('print("Hello there")', False)
+])
+def test_has_output_pattern(stu, passes):
+    s = setup_state(stu, '')
+    with helper.verify_sct(passes):
+        s.has_output("Hi, there!", pattern=False)
 
 
-class TestOutputContains(unittest.TestCase):
-
-    def setUp(self):
-        self.data = {
-            "DC_PEC": '',
-            "DC_SCT": "test_output_contains(r'[H|h]i,*\\s+there!')",
-            "DC_SOLUTION": ''
-        }
-
-    def test_success(self):
-        self.data["DC_CODE"] = 'print("Hi, there!")'
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_success2(self):
-        self.data["DC_CODE"] = 'print("hi  there!")'
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_fail(self):
-        self.data["DC_CODE"] = 'print("Hello there")'
-        sct_payload = helper.run(self.data)
-        self.assertFalse(sct_payload['correct'])
-
-if __name__ == "__main__":
-    unittest.main()
+@pytest.mark.parametrize('stu, passes', [
+    ('print("Hi, there!")', True),
+    ('print("hi  there!")', True),
+    ('print("Hello there")', False)
+])
+def test_test_output_contains(stu, passes):
+    s = setup_state(stu, '')
+    with helper.verify_sct(passes):
+        s.test_output_contains(r'[H|h]i,*\s+there!')

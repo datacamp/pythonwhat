@@ -1,25 +1,30 @@
-import unittest
+import pytest
 from pythonwhat import utils
 
-class TestUtils(unittest.TestCase):
+@pytest.mark.parametrize('input, output', [
+	(1, 'first'),
+	(2, 'second'),
+	(3, 'third'),
+	(11, '11th'),
+])
+def test_get_ord(input, output):
+	assert utils.get_ord(input) == output
 
-	def test_get_ord(self):
-		self.assertEqual(utils.get_ord(1), "first")
-		self.assertEqual(utils.get_ord(2), "second")
-		self.assertEqual(utils.get_ord(3), "third")
-		self.assertEqual(utils.get_ord(11), "11th")
+@pytest.mark.parametrize('input, output', [
+	(1, 'one'),
+	(2, 'two'),
+	(3, 'three'),
+	(11, '11')
+])
+def test_get_num(input, output):
+	assert utils.get_num(input) == output
 
-	def test_get_times(self):
-		self.assertEqual(utils.get_times(1), "once")
-		self.assertEqual(utils.get_times(2), "twice")
-		self.assertEqual(utils.get_times(3), "three times")
-		self.assertEqual(utils.get_times(11), "11 times")
+@pytest.mark.parametrize('input, output', [
+	(1, 'once'),
+	(2, 'twice'),
+	(3, 'three times'),
+	(11, '11 times'),
+])
+def test_get_times(input, output):
+	assert utils.get_times(input) == output
 
-	def test_get_times(self):
-		self.assertEqual(utils.get_num(1), "one")
-		self.assertEqual(utils.get_num(2), "two")
-		self.assertEqual(utils.get_num(3), "three")
-		self.assertEqual(utils.get_num(11), "11")
-
-if __name__ == "__main__":
-	unittest.main()
