@@ -586,6 +586,19 @@ class ForParser(Parser):
             '_target_vars': tv
             })
 
+class ClassDefParser(Parser):
+    """Find class definitions
+    """
+
+    def __init__(self):
+        self.out = {}
+
+    def visit_ClassDef(self, node):
+        self.out[node.name] = {
+            'node': node,
+            'bases': [ {'node': node } for node in node.bases ],
+            'body': node.body,
+        }
 
 class FunctionDefParser(Parser):
     """Find function definitions
@@ -598,7 +611,6 @@ class FunctionDefParser(Parser):
 
     def visit_FunctionDef(self, node):
         self.out[node.name] = self.parse_node(node)
-
 
     @classmethod
     def parse_node(cls, node):
@@ -837,6 +849,7 @@ parser_dict = {
     "if_exps": IfExpParser,
     "whiles": WhileParser,
     "for_loops": ForParser,
+    "class_defs": ClassDefParser,
     "function_defs": FunctionDefParser,
     "lambda_functions": LambdaFunctionParser,
     "list_comps": ListCompParser,
