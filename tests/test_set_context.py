@@ -66,4 +66,3 @@ def test_fail():
     }
     output = helper.run(data)
     assert not output['correct']
-

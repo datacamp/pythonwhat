@@ -44,7 +44,7 @@ def test_function(name,
         try:
             return has_printout(index=index, not_printed_msg=incorrect_msg, state=state)
         except TestFail:
-            # The test didn't pass; just continue with the more struct check_function test.
+            # The test didn't pass; just continue with the more strict check_function test.
             pass
 
     fun_state = check_function(name=name, index=index,
@@ -111,7 +111,7 @@ def test_function_v2(name,
         try:
             return has_printout(index=index, not_printed_msg=incorrect_msg[0], state=state)
         except TestFail:
-            # The test didn't pass; just continue with the more struct check_function test.
+            # The test didn't pass; just continue with the more strict check_function test.
             pass
 
     if len(params) == 0:

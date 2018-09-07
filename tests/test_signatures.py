@@ -1,353 +1,137 @@
-import unittest
-import helper
+from pythonwhat.local import setup_state
+import pytest
 
-class TestBuiltInSignatures(unittest.TestCase):
+# https://docs.python.org/3.x/library/functions.html
+#
+# Builtins that haven't been implemented/tested yet
+# filter(), format(), frozenset(), iter(), map(), max(), min(),
+# memoryview(), next(), property(), range(), slice(), super(), zip()
 
-    # https://docs.python.org/3.x/library/functions.html
-    #
-    # Builtins that haven't been implemented/tested yet
-    # filter(), format(), frozenset(), iter(), map(), max(), min(),
-    # memoryview(), next(), property(), range(), slice(), super(), zip()
+@pytest.mark.parametrize('name, params, arguments', [
+    ("abs", ["x"], "1"),
+    ("all", ["iterable"], "[True, True]"),
+    ("any", ["iterable"], "[True, False]"),
+    ("ascii", ["obj"], "'test'"),
+    ("bin", ["number"], "123456"),
+    ("bool", ["x"], "1"),
+    ("callable", ["obj"], "round"),
+    ("chr", ["i"], "123"),
+    ("classmethod", ["function"], "str"),
+    ("complex", ["real","imag"], "1,2"),
+    ("dir", ["object"], "[1,2,3]"),
+    ("divmod", ["x", "y"], "7,3"),
+    ("enumerate", ["iterable", "start"], "[1,2,3],1"),
+    ("float", ["x"], "123"),
+    ("hash", ["obj"], "123"),
+    ("hex", ["number"], "123"),
+    ("id", ["obj"], "123"),
+    ("int", ["x", "base"], "'1001',2"),
+    ("isinstance", ["obj", "class_or_tuple"], "[1,2,3],list"),
+    ("issubclass", ["cls", "class_or_tuple"], "list,str"),
+    ("len", ["obj"], "[1,2,3]"),
+    ("list", [], ""),
+    ("list", ["iterable"], "[1,2,3,4]"),
+    ("oct", ["number"], "12345"),
+    ("ord", ["c"], "'a'"),
+    ("pow", ["x", "y"], "3,3"),
+    ("pow", ["x", "y", "z"], "3,3,5"),
+    ("print", ["value"], "123"),
+    ("repr", ["obj"], "[1,2,3]"),
+    ("reversed", ["sequence"], "[1,2,3]"),
+    ("round", ["number", "ndigits"], "2.123123, 2"),
+    ("set", [], ""),
+    ("set", ["iterable"], "[1,2,3,4]"),
+    ("dir", ["object"], "[1,2,3]"),
+    ("divmod", ["x", "y"], "7,3"),
+    ("enumerate", ["iterable", "start"], "[1,2,3],1"),
+    ("float", ["x"], "123"),
+    ("sorted", ["iterable"], "[4,3,2,1]"),
+    ("str", ["object"], "123"),
+    ("sum", ["iterable", "start"], "[4,3,2,1],3"),
+    ("tuple", [], ""),
+    ("tuple", ["iterable"], "[1,2,3,4]"),
+    ("type", ["object"], "[1,2,3,4]"),
+])
+def test_builtins(name, params, arguments):
+    code = "%s(%s)" % (name, arguments)
+    s = setup_state(code, code)
+    fun_state = s.check_function(name)
+    for param in params:
+        fun_state.check_args(param).has_equal_value()
 
-    def test_abs(self):
-        helper.test_builtin(self, "abs", params="'x'", arguments="1")
-
-    def test_all(self):
-        helper.test_builtin(self, "all", params="'iterable'", arguments="[True, True]")
-
-    def test_any(self):
-        helper.test_builtin(self, "any", params="'iterable'", arguments="[True, False]")
-
-    def test_ascii(self):
-        helper.test_builtin(self, "ascii", params="'obj'", arguments="'test'")
-
-    def test_bin(self):
-        helper.test_builtin(self, "bin", params="'number'", arguments="123456")
-
-    def test_bool(self):
-        helper.test_builtin(self, "bool", params="'x'", arguments="1")
-
-    def test_callable(self):
-        helper.test_builtin(self, "callable", params="'obj'", arguments="round")
-
-    def test_chr(self):
-        helper.test_builtin(self, "chr", params="'i'", arguments="123")
-
-    def test_classmethod(self):
-        helper.test_builtin(self, "classmethod", params="'function'", arguments="str")
-
-    def test_complex(self):
-        helper.test_builtin(self, "complex", params="'real','imag'", arguments="1,2")
-
-    def test_delattr(self):
-        self.data = {
-            "DC_PEC": '''
+@pytest.mark.debug
+@pytest.mark.parametrize('name, values, arguments', [
+    ('delattr', "'a'", ['obj', 'name']),
+    ('getattr', "'a'", ['object','name']),
+    ('hasattr', "'a'", ['obj','name']),
+    ('setattr', "'a', 4", ['obj','name','value'])
+])
+def test_attrs(name, values, arguments):
+    pec = '''
 class Test():
     def __init__(self, a):
         self.a = a
     def set_a(self, value):
         self.a = value
 x = Test(123)
-            ''',
-            "DC_SOLUTION": "x = delattr(x,'a')",
-            "DC_CODE": "x = delattr(x,'a')",
-            "DC_SCT": "test_function_v2('delattr', params=['obj','name'], do_eval=False)"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
+    '''
+    code = '%s(x, %s)' % (name, values)
+    s = setup_state(code, code, pec=pec)
+    fun_state = s.check_function(name)
+    for arg in arguments:
+        fun_state.check_args(arg).has_equal_ast()
 
-    def test_dir(self):
-        helper.test_builtin(self, "dir", params="'object'", arguments="[1,2,3]")
+@pytest.mark.parametrize('name, values, arguments', [
+    ('numpy.array', '[1, 2, 3, 4]', ['object']),
+    ('numpy.random.seed', '123', ['seed']),
+    ('numpy.random.rand', '3,3,3', ['d0', 'd1', 'd2']),
+    ('numpy.random.randint', '0, 5, size=(2,2)', ['low', 'high', 'size']),
+    ('numpy.random.choice', 'a=5, size=3, replace=False, p=[0.1, 0, 0.3, 0.6, 0]', ['a', 'size', 'replace', 'p']),
+    ('numpy.random.poisson', 'lam=(100., 500.), size=(100, 2)', ['lam', 'size']),
+    ('numpy.random.normal', 'loc = 0, scale=1.0, size=100', ['loc', 'scale', 'size']),
+    ('numpy.random.binomial', 'n=10, p=0.5, size=100', ['n', 'p', 'size']),
+    ('numpy.random.shuffle', 'numpy.arange(10)', ['x']),
+    ('numpy.random.permutation', 'numpy.arange(10)', ['x']),
+])
+def test_numpy_builtins(name, values, arguments):
+    code = "%s(%s)" % (name, values)
+    s = setup_state(code, code, pec = 'import numpy')
+    fun_state = s.check_function(name)
+    for arg in arguments:
+        fun_state.check_args(arg).has_equal_value()
 
-    def test_divmod(self):
-        helper.test_builtin(self, "divmod", params="'x','y'", arguments="7,3")
+def test_math_builtins():
+    code = 'm.radians(100)'
+    s = setup_state(code, code, pec = 'import math as m')
+    s.check_function('math.radians').check_args('x').has_equal_value()
 
-    def test_enumerate(self):
-        helper.test_builtin(self, "enumerate", params="'iterable','start'", arguments="[1,2,3],1")
+@pytest.mark.parametrize('fun, argument', [
+    ('append', 'object'),
+    ('count', 'value')
+])
+def test_list_methods(fun, argument):
+    code = "x.%s(2)" % fun
+    s = setup_state(code, code, "x = [1, 2, 3]")
+    s.check_function('x.%s' % fun).check_args(argument).has_equal_value()
 
-    def test_float(self):
-        helper.test_builtin(self, "float", params="'x'", arguments="123")
+# One-offs --------------------------------------------------------------------
 
-    def test_getattr(self):
-        self.data = {
-            "DC_PEC": '''
+def test_vars():
+    pec = '''
 class Test():
     def __init__(self, a):
         self.a = a
     def set_a(self, value):
         self.a = value
 x = Test(123)
-            ''',
-            "DC_SOLUTION": "x = getattr(x,'a')",
-            "DC_CODE": "x = getattr(x,'a')",
-            "DC_SCT": "test_function_v2('getattr', params=['object','name'], do_eval=False)"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
+    '''
+    code = 'vars(x)'
+    s = setup_state(code, code, pec=pec)
+    s.check_function('vars').check_args('object').has_equal_ast()
 
-    def test_hasattr(self):
-        self.data = {
-            "DC_PEC": '''
-class Test():
-    def __init__(self, a):
-        self.a = a
-    def set_a(self, value):
-        self.a = value
-x = Test(123)
-            ''',
-            "DC_SOLUTION": "x = hasattr(x,'a')",
-            "DC_CODE": "x = hasattr(x,'a')",
-            "DC_SCT": "test_function_v2('hasattr', params=['obj','name'], do_eval=False)"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_hash(self):
-        helper.test_builtin(self, "hash", params="'obj'", arguments="123")
-
-    def test_hex(self):
-        helper.test_builtin(self, "hex", params="'number'", arguments="123")
-
-    def test_id(self):
-        helper.test_builtin(self, "id", params="'obj'", arguments="123")
-
-    def test_int(self):
-        helper.test_builtin(self, "int", params="'x','base'", arguments="'1001',2")
-
-    def test_isinstance(self):
-        helper.test_builtin(self, "isinstance", params="'obj','class_or_tuple'", arguments="[1,2,3],list")
-
-    def test_issubclass(self):
-        helper.test_builtin(self, "issubclass", params="'cls','class_or_tuple'", arguments="list,str")
-
-    def test_len(self):
-        helper.test_builtin(self, "len", params="'obj'", arguments="[1,2,3]")
-
-    def test_list(self):
-        helper.test_builtin(self, "list", params="", arguments="")
-        helper.test_builtin(self, "list", params="'iterable'", arguments="[1,2,3,4]")
-
-    def test_oct(self):
-        helper.test_builtin(self, "oct", params="'number'", arguments="12345")
-
-    def test_ord(self):
-        helper.test_builtin(self, "ord", params="'c'", arguments="'a'")
-
-    def test_pow(self):
-        helper.test_builtin(self, "pow", params="'x','y'", arguments="3,3")
-        helper.test_builtin(self, "pow", params="'x','y','z'", arguments="3,3,5")
-
-    def test_print(self):
-        helper.test_builtin(self, "print", params="'value'", arguments="123")
-
-    def test_repr(self):
-        helper.test_builtin(self, "repr", params="'obj'", arguments="[1,2,3]")
-
-    def test_reversed(self):
-        helper.test_builtin(self, "reversed", params = "'sequence'", arguments="[1,2,3]")
-
-    def test_round(self):
-        helper.test_builtin(self, "round", params = "'number','ndigits'", arguments="2.123123, 2")
-
-    def test_set(self):
-        helper.test_builtin(self, "set", params="", arguments="")
-        helper.test_builtin(self, "set", params="'iterable'", arguments="[1,2,3,4]")
-
-    def test_setattr(self):
-        self.data = {
-            "DC_PEC": '''
-class Test():
-    def __init__(self, a):
-        self.a = a
-    def set_a(self, value):
-        self.a = value
-x = Test(123)
-            ''',
-            "DC_SOLUTION": "setattr(x,'a',4)",
-            "DC_CODE": "setattr(x,'a',4)",
-            "DC_SCT": "test_function_v2('setattr', params=['obj','name','value'], do_eval=False)"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_sorted(self):
-        helper.test_builtin(self, "sorted", params = "'iterable'", arguments="[4,3,2,1]")
-
-    def test_str(self):
-        helper.test_builtin(self, "str", params = "'object'", arguments="123")
-
-    def test_sum(self):
-        helper.test_builtin(self, "sum", params = "'iterable','start'", arguments="[4,3,2,1],3")
-
-    def test_tuple(self):
-        helper.test_builtin(self, "tuple", params="", arguments="")
-        helper.test_builtin(self, "tuple", params="'iterable'", arguments="[1,2,3,4]")
-
-    def test_type(self):
-        helper.test_builtin(self, "type", params = "'object'", arguments="[1,2,3,4]")
-
-    def test_vars(self):
-        self.data = {
-            "DC_PEC": '''
-class Test():
-    def __init__(self, a):
-        self.a = a
-    def set_a(self, value):
-        self.a = value
-x = Test(123)
-            ''',
-            "DC_SOLUTION": "vars(x)",
-            "DC_CODE": "vars(x)",
-            "DC_SCT": "test_function_v2('vars', params=['object'], do_eval=False)"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-class TestBuiltInMethodsInt(unittest.TestCase):
-    pass
-
-class TestBuiltInMethodsStr(unittest.TestCase):
-    def test_center(self):
-        self.data = {
-            "DC_PEC": "x = 'test'",
-            "DC_SOLUTION": "x.center(10, 's')",
-            "DC_CODE": "x.center(10, 's')",
-            "DC_SCT": "test_function_v2('x.center', params=['width','fillchar'])"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-class TestBuiltInMethodsList(unittest.TestCase):
-    def test_append(self):
-        self.data = {
-            "DC_PEC": "x = [1,2,3,4]",
-            "DC_SOLUTION": "x.append(2)",
-            "DC_CODE": "x.append(2)",
-            "DC_SCT": "test_function_v2('x.append', params=['object'])"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_count(self):
-        self.data = {
-            "DC_PEC": "x = [1,2,3,4]",
-            "DC_SOLUTION": "x.count(2)",
-            "DC_CODE": "x.count(2)",
-            "DC_SCT": "test_function_v2('x.count', params=['value'])"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-class TestBuiltInMethodsDict(unittest.TestCase):
-    pass
-
-class TestBuiltInMethodsNumpy(unittest.TestCase):
-    def test_array(self):
-        self.data = {
-            "DC_PEC": "import numpy as np",
-            "DC_SOLUTION": "x = np.array([1,2,3,4])",
-            "DC_CODE": "x = np.array([1,2,3,4])",
-            "DC_SCT": "test_function_v2('numpy.array', params=['object'])"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_array_spec2(self):
-        self.data = {
-            "DC_PEC": "import numpy as np",
-            "DC_SOLUTION": "x = np.array([1,2,3,4])",
-            "DC_CODE": "x = np.array([1,2,3,4])",
-            "DC_SCT": "Ex().check_function('numpy.array', 0).check_args('object')"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_random_seed(self):
-        self.data = {
-            "DC_PEC": "import numpy as np",
-            "DC_SOLUTION": "np.random.seed(123)",
-            "DC_CODE": "np.random.seed(123)",
-            "DC_SCT": "test_function_v2('numpy.random.seed', params=['seed'])"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_random_rand(self):
-        self.data = {
-            "DC_PEC": "import numpy as np",
-            "DC_SOLUTION": "np.random.rand(3,3,3)",
-            "DC_CODE": "np.random.rand(3,3,3)",
-            "DC_SCT": "test_function_v2('numpy.random.rand', params=['d0', 'd1', 'd2'])"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_random_randint(self):
-        self.data = {
-            "DC_PEC": "import numpy as np",
-            "DC_SOLUTION": "np.random.randint(0, 5, size = (2,2))",
-            "DC_CODE": "np.random.randint(0, 5, size = (2,2))",
-            "DC_SCT": "test_function_v2('numpy.random.randint', params=['low', 'high', 'size'])"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-    def test_random_choice(self):
-        code = 'np.random.choice(a=5, size=3, replace=False, p=[0.1, 0, 0.3, 0.6, 0])'
-        output = helper.run({
-            "DC_PEC": "import numpy as np",
-            "DC_SOLUTION": code,
-            "DC_CODE": code,
-            "DC_SCT": "Ex().check_function('numpy.random.choice').multi([check_args(x).has_equal_value() for x in ['a', 'size', 'replace', 'p']])"
-        })
-        self.assertTrue(output['correct'])
-
-    def test_random_poisson(self):
-        code = 'np.random.poisson(lam=(100., 500.), size=(100, 2))'
-        output = helper.run({
-            "DC_PEC": "import numpy as np",
-            "DC_SOLUTION": code,
-            "DC_CODE": code,
-            "DC_SCT": "Ex().check_function('numpy.random.poisson').multi([check_args(x).has_equal_value() for x in ['lam', 'size']])"
-        })
-        self.assertTrue(output['correct'])
-
-    def test_random_normal(self):
-        code = 'np.random.normal(loc = 0, scale=1.0, size=100)'
-        output = helper.run({
-            "DC_PEC": "import numpy as np",
-            "DC_SOLUTION": code,
-            "DC_CODE": code,
-            "DC_SCT": "Ex().check_function('numpy.random.normal').multi([check_args(x).has_equal_value() for x in ['loc', 'scale', 'size']])"
-        })
-        self.assertTrue(output['correct'])
-
-    def test_random_binomial(self):
-        code = 'np.random.binomial(n=10, p=0.5, size=100)'
-        output = helper.run({
-            "DC_PEC": "import numpy as np",
-            "DC_SOLUTION": code,
-            "DC_CODE": code,
-            "DC_SCT": "Ex().check_function('numpy.random.binomial').multi([check_args(x).has_equal_value() for x in ['n', 'p', 'size']])"
-        })
-        self.assertTrue(output['correct'])
-
-    def test_random_shuffle(self):
-        code = 'np.random.shuffle(np.arange(10))'
-        output = helper.run({
-            "DC_PEC": "import numpy as np",
-            "DC_SOLUTION": code,
-            "DC_CODE": code,
-            "DC_SCT": "Ex().check_function('numpy.random.shuffle').check_args('x').has_equal_value()"
-        })
-        self.assertTrue(output['correct'])
-
-    def test_random_permutation(self):
-        code = 'np.random.permutation(np.arange(10))'
-        output = helper.run({
-            "DC_PEC": "import numpy as np",
-            "DC_SOLUTION": code,
-            "DC_CODE": code,
-            "DC_SCT": "Ex().check_function('numpy.random.permutation').check_args('x').has_equal_value()"
-        })
-        self.assertTrue(output['correct'])
-
-class TestBuiltInMethodsOthers(unittest.TestCase):
-    def test_radians(self):
-        self.data = {
-            "DC_PEC": "import math as m",
-            "DC_SOLUTION": "x = m.radians(100)",
-            "DC_CODE": "x = m.radians(100)",
-            "DC_SCT": "test_function_v2('math.radians', params=['x'])"}
-        sct_payload = helper.run(self.data)
-        self.assertTrue(sct_payload['correct'])
-
-if __name__ == "__main__":
-    unittest.main()
+def test_center():
+    code = "x.center(10, 's')"
+    s = setup_state(code, code, "x = 'test'")
+    fun_state = s.check_function('x.center')
+    fun_state.check_args('width').has_equal_value()
+    fun_state.check_args('fillchar').has_equal_value()

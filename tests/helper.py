@@ -53,17 +53,15 @@ def run(data, run_code = True):
                 sol_process = StubProcess()
                 error = None
 
-            sct_output = io.StringIO()
-            with redirect_stdout(sct_output):
-                res = test_exercise(sct=sct,
-                                    student_code=stu_code,
-                                    solution_code=sol_code,
-                                    pre_exercise_code=pec,
-                                    student_process=stu_process,
-                                    solution_process=sol_process,
-                                    raw_student_output = raw_stu_output,
-                                    ex_type = "NormalExercise",
-                                    error = error)
+            res = test_exercise(sct=sct,
+                                student_code=stu_code,
+                                solution_code=sol_code,
+                                pre_exercise_code=pec,
+                                student_process=stu_process,
+                                solution_process=sol_process,
+                                raw_student_output = raw_stu_output,
+                                ex_type = "NormalExercise",
+                                error = error)
 
     return res
 
@@ -110,16 +108,6 @@ def no_line_info(output):
     assert 'line_end' not in output
     assert 'column_start' not in output
     assert 'column_end' not in output
-
-def test_builtin(test, name, params, arguments):
-    test.data = {
-        "DC_PEC": "",
-        "DC_SOLUTION": "%s(%s)" % (name, arguments),
-        "DC_CODE": "%s(%s)" % (name, arguments),
-        "DC_SCT": "test_function_v2('%s', params=[%s])" % (name, params)
-    }
-    sct_payload = run(test.data)
-    test.assertTrue(sct_payload['correct'])
 
 def remove_lambdas(sct_str, count=0, with_args = False): 
     if with_args: return re.sub("lambda.*?:", "", sct_str, count=count)
