@@ -254,6 +254,37 @@ The second representation has to be followed when writing the corresponding SCT:
        .check_orelse().check_if_else() \
        .check_orelse().has_equal_output()
 
+Class definition
+~~~~~~~~~~~~~~~~
+
+Suppose you want to check whether a class was defined correctly:
+
+.. code::
+
+
+The following SCT would verify this:
+
+.. code::
+
+    check_class_def('MyInt').multi(
+        check_bases(0).has_equal_ast(),
+        check_body().check_function_def('__init__').multi(
+            check_args('self'),
+            check_args('i'),
+            check_body().set_context(i = 2).multi(
+                check_function('super', signature=False),
+                check_function('super.__init__').check_args(0).has_equal_value()
+            )
+        )
+    )
+
+- ``check_class_def()`` looks for the class definition itself.
+- With ``check_bases()``, you can zoom in on the different basse classes that the class definition inherits from.
+- With ``check_body()``, you zoom in on the class body, after which you can use other functions such
+  as ``check_function_def()`` to look for class methods.
+- Of course, just like for other examples, you can use ``check_correct()`` where necessary,
+  e.g. to verify whether class methods give the right behavior with ``check_call()``
+  before diving into the body of the method itself.
 
 Crazy combo
 ~~~~~~~~~~~

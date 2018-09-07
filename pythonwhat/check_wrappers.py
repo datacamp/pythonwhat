@@ -8,34 +8,36 @@ from functools import partial
 import inspect
 
 __PART_WRAPPERS__ = {
-        'iter': 'iterable part',
-        'body': 'body',
-        'key' : 'key part',
-        'value': 'value part',
-        'orelse': 'else part',
-        'finalbody': 'finally part',
-        'test': 'condition' 
-        }
+    'iter': 'iterable part',
+    'body': 'body',
+    'key' : 'key part',
+    'value': 'value part',
+    'orelse': 'else part',
+    'finalbody': 'finally part',
+    'test': 'condition',
+}
 
 __PART_INDEX_WRAPPERS__ = {
-        'ifs': '{ordinal} if',
-        'handlers': '`{index}` `except` block',
-        'context': '{ordinal} context'
-        }
+    'ifs': '{ordinal} if',
+    'bases': '{ordinal} base class',
+    'handlers': '`{index}` `except` block',
+    'context': '{ordinal} context',
+}
 
 __NODE_WRAPPERS__ = {
-        'list_comp': '{ordinal} list comprehension',
-        'generator_exp': '{ordinal} generator expression',
-        'dict_comp': '{ordinal} dictionary comprehension',
-        'for_loop': '{ordinal} for statement',
-        'function_def': 'definition of `{index}()`',
-        'if_exp': '{ordinal} if expression',
-        'if_else': '{ordinal} if statement',
-        'lambda_function': '{ordinal} lambda function',
-        'try_except': '{ordinal} try statement',
-        'while': '{ordinal} `while` loop',
-        'with': '{ordinal} `with` statement'
-        }
+    'list_comp': '{ordinal} list comprehension',
+    'generator_exp': '{ordinal} generator expression',
+    'dict_comp': '{ordinal} dictionary comprehension',
+    'for_loop': '{ordinal} for statement',
+    'function_def': 'definition of `{index}()`',
+    'class_def': 'class definition of `{index}`',
+    'if_exp': '{ordinal} if expression',
+    'if_else': '{ordinal} if statement',
+    'lambda_function': '{ordinal} lambda function',
+    'try_except': '{ordinal} try statement',
+    'while': '{ordinal} `while` loop',
+    'with': '{ordinal} `with` statement',
+}
 
 scts = {}
 

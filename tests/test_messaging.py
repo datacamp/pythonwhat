@@ -223,6 +223,24 @@ Ex().check_object('x', missing_msg='objectnotdefined').has_equal_value('objectin
     assert not output['correct']
     assert message(output, patt)
 
+# Check function def et al ----------------------------------------------------
+
+@pytest.mark.debug
+@pytest.mark.parametrize('stu, patt', [
+    ('', 'The system wants to check the definition of `test()` but hasn\'t found it.'),
+    ('def test(b): return b', 'Check the definition of `test()`. Did you specify the argument `a`?'),
+    ('def test(a): return a', 'Check the definition of `test()`. Did you correctly specify the argument `a`? not default'),
+    ('def test(a = 2): return a', 'Check the definition of `test()`. Did you correctly specify the argument `a`? Expected `1`, but got `2`.'),
+])
+def test_check_function_def(stu, patt):
+    output = helper.run({
+        'DC_SOLUTION': 'def test(a = 1): return a',
+        'DC_CODE': stu,
+        'DC_SCT': "Ex().check_function_def('test').check_args('a').has_equal_part('is_default', msg='not default').has_equal_value()"
+    })
+    assert not output['correct']
+    assert message(output, patt)
+
 # Check call ------------------------------------------------------------------
 
 @pytest.mark.parametrize('stu, patt', [
@@ -261,6 +279,28 @@ def test_check_call_lambda(stu, patt):
         'DC_SOLUTION': 'echo_word = (lambda word1, echo: word1 * echo)',
         'DC_CODE': stu,
         'DC_SCT': "Ex().check_lambda_function().check_call(\"f('test', 2)\").has_equal_value()"
+    })
+    assert not output['correct']
+    assert message(output, patt)
+
+
+# Check class definition ------------------------------------------------------
+
+@pytest.mark.debug
+@pytest.mark.parametrize('stu, patt', [
+    ('', "The system wants to check the class definition of `A` but hasn't found it."),
+    ('def A(x): pass', "The system wants to check the class definition of `A` but hasn't found it."),
+    ('class A(): pass', "Check the class definition of `A`. Are you sure you defined the first base class?"),
+    ('class A(int): pass', "Check the class definition of `A`. Did you correctly specify the first base class? Expected `str`, but got `int`."),
+    ('class A(str):\n  def __not_init__(self): pass', "Check the class definition of `A`. Did you correctly specify the body? The system wants to check the definition of `__init__()` but hasn't found it."),
+    ('class A(str):\n  def __init__(self): print(1)', "Check the definition of `__init__()`. Did you correctly specify the body? Expected `pass`, but got `print(1)`."),
+])
+def test_check_class_def_pass(stu, patt):
+    sol = 'class A(str):\n  def __init__(self): pass'
+    output = helper.run({
+        'DC_SOLUTION': sol,
+        'DC_CODE': stu,
+        'DC_SCT': "Ex().check_class_def('A').multi( check_bases(0).has_equal_ast(), check_body().check_function_def('__init__').check_body().has_equal_ast() )",
     })
     assert not output['correct']
     assert message(output, patt)
