@@ -2,6 +2,16 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.16.1
+
+### Changed
+
+- The `check_object()` only on root check is only done if `PYTHONWHAT_V2_ONLY` environment variable is set.
+
+### Added
+
+- More checks that guard against commonly made mistakes (some in v2 only, others not)
+
 ## 2.16.0
 
 ### Added
