@@ -2,6 +2,12 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.16.2
+
+### Added
+
+- Ability to check class definitions with ``check_class_def()`` (and ``check_bases()``). Tested and documented.
+
 ## 2.16.1
 
 ### Changed
