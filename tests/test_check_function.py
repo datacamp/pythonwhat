@@ -173,18 +173,24 @@ from pythonwhat.signatures import sig_from_params, param
 
 # Function parser -------------------------------------------------------------
 
+from pythonwhat.parsing import FunctionParser
+import ast
+
 @pytest.mark.parametrize('code', [
     'print(round(1.23))',
     'x = print(round(1.23))',
     'x = [round(1.23)]',
     'x = {"a": round(1.23)}',
     'x = 0; x += round(1.23)',
-    'x = 0; x > round(1.23)'
+    'x = 0; x > round(1.23)',
+    'not round(1.23)'
 ])
 def test_function_parser(code):
-    s = setup_state(code, code)
-    s.check_function("round").check_args(0).has_equal_value()
-    
+    p = FunctionParser()
+    p.visit(ast.parse(code))
+    assert 'round' in p.out
+
+
 # Incorrect usage -------------------------------------------------------------
 
 @pytest.mark.parametrize('sct', [

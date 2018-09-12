@@ -35,7 +35,9 @@ def test_same_as(stu, same_as, correct):
     ('', False),
     ('import numpy.random', True),
     ('import numpy.random as x', True),
-    ('import numpy.random as rand', True)
+    ('import numpy.random as rand', True),
+    ('from numpy import random as x', True),
+    ('from numpy import random as rand', True)
 ])
 def test_chaining(stu, correct):
     s = setup_state(stu_code = stu, sol_code = 'import numpy.random as rand')

@@ -56,7 +56,7 @@ for k, v in __PART_INDEX_WRAPPERS__.items():
 for k, v in __NODE_WRAPPERS__.items():
     scts['check_'+k] = partial(check_node, k+'s', typestr=v)
 
-for k in ['set_context', 'set_env', 'disable_highlighting', 'check_not', 'check_or', 'check_correct', 'fail', 'quiet', 'override', 'multi']:
+for k in ['set_context', 'set_env', 'disable_highlighting', 'check_not', 'check_or', 'check_correct', 'fail', 'override', 'multi']:
     scts[k] = getattr(check_logic, k)
 
 for k in ['with_context', 'check_args', 'check_call']:

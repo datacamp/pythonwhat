@@ -158,3 +158,20 @@ Ex().check_if_exp().multi(
 '''
     })
     assert res['correct'] == passes
+
+from pythonwhat.parsing import IfExpParser
+import ast
+
+@pytest.mark.parametrize('stu', [
+    'x = 3 if True else False',
+    'x += 3 if True else False',
+    'y = x or 3 if True else False',
+    '3 if True else False + 4 if True else False',
+    'not 3 if True else False'
+])
+def test_if_exp_findable(stu):
+    p = IfExpParser()
+    p.visit(ast.parse(stu))
+    assert 'test' in p.out[0]
+    assert 'body' in p.out[0]
+    assert 'orelse' in p.out[0]

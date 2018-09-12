@@ -149,13 +149,6 @@ class NodeList(Node):
     def update_child_calls(self):
         pass
 
-class NodeDict(Node):
-    def partial(self):
-        return OrderedDict((node.arg_name, node.partial()) for node in self.child_list)
-
-    def update_child_calls(self):
-        pass
-
 class Probe(object):
     def __init__(self, tree, f, eval_on_call=False):
         self.tree = tree
@@ -203,11 +196,7 @@ class Probe(object):
     def build_sub_test_nodes(test, tree, node, arg_name):
         # note that I've made the strong assumption that
         # if not a function, then test is a dict, list or tuple of them
-        if isinstance(test, dict):
-            nd = NodeDict(name = "Dict", arg_name = arg_name)
-            node.add_child(nd)
-            for k, f in test.items(): Probe.build_sub_test_nodes(f, tree, nd, k)
-        elif isinstance(test, (list, tuple)): 
+        if isinstance(test, (list, tuple)): 
             nl = NodeList(name = "List", arg_name = arg_name)
             node.add_child(nl)
             for ii, f in enumerate(test): Probe.build_sub_test_nodes(f, tree, nl, str(ii))

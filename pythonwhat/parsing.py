@@ -472,10 +472,6 @@ class ObjectAssignmentParser(Parser):
         self.visit_each(node.body)
         self.visit_each(node.finalbody)
 
-    def visit_TryFinally(self, node):
-        self.visit_each(node.body)
-        self.visit_each(node.finalbody)
-
     @staticmethod
     def get_part(name_node, ass_node=None):
         # either name node or simply str or name itself
@@ -535,15 +531,6 @@ class IfExpParser(IfParser):
 
     def visit_UnaryOp(self, node):
         self.visit(node.operand)
-
-    def visit_Expr(self, node):
-        self.visit(node.value)
-
-    def visit_Call(self, node):
-        self.visit(node.func)
-
-    def visit_Return(self, node):
-        self.visit(node.value)
 
 
 class WhileParser(Parser):
@@ -670,29 +657,6 @@ class LambdaFunctionParser(Parser):
         for key in node.keywords:
             self.visit(key.value)
 
-    def visit_If(self, node):
-        self.visit_each(node.body)
-        self.visit_each(node.orelse)
-
-    def visit_While(self, node):
-        self.visit_each(node.body)
-        self.visit_each(node.orelse)
-
-    def visit_For(self, node):
-        self.visit_each(node.body)
-        self.visit_each(node.orelse)
-
-    def visit_With(self, node):
-        self.visit_each(node.body)
-
-    def visit_Try(self, node):
-        self.visit_each(node.body)
-        self.visit_each(node.finalbody)
-
-    def visit_TryFinally(self, node):
-        self.visit_each(node.body)
-        self.visit_each(node.finalbody)
-
     def visit_Lambda(self, node):
         self.out.append(FunctionDefParser.parse_node(node))
 
@@ -706,14 +670,6 @@ class CompParser(Parser):
 
     def visit_AugAssign(self, node):
         self.visit(node.value)
-
-    def visit_Try(self, node):
-        self.visit_each(node.body)
-        self.visit_each(node.finalbody)
-
-    def visit_TryFinally(self, node):
-        self.visit_each(node.body)
-        self.visit_each(node.finalbody)
 
     def build_comp(self, node):
         target = node.generators[0].target

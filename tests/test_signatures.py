@@ -59,7 +59,6 @@ def test_builtins(name, params, arguments):
     for param in params:
         fun_state.check_args(param).has_equal_value()
 
-@pytest.mark.debug
 @pytest.mark.parametrize('name, values, arguments', [
     ('delattr', "'a'", ['obj', 'name']),
     ('getattr', "'a'", ['object','name']),

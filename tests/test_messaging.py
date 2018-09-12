@@ -225,7 +225,6 @@ Ex().check_object('x', missing_msg='objectnotdefined').has_equal_value('objectin
 
 # Check function def et al ----------------------------------------------------
 
-@pytest.mark.debug
 @pytest.mark.parametrize('stu, patt', [
     ('', 'The system wants to check the definition of `test()` but hasn\'t found it.'),
     ('def test(b): return b', 'Check the definition of `test()`. Did you specify the argument `a`?'),
@@ -286,7 +285,6 @@ def test_check_call_lambda(stu, patt):
 
 # Check class definition ------------------------------------------------------
 
-@pytest.mark.debug
 @pytest.mark.parametrize('stu, patt', [
     ('', "The system wants to check the class definition of `A` but hasn't found it."),
     ('def A(x): pass', "The system wants to check the class definition of `A` but hasn't found it."),

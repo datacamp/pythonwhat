@@ -5,7 +5,6 @@ from pythonwhat.local import setup_state
 from pythonwhat.check_syntax import v2_check_functions
 globals().update(v2_check_functions)
 
-@pytest.mark.debug
 @pytest.mark.parametrize('stu, passes', [
     ('', False),
     ('def test(): print(3)', False),
@@ -57,6 +56,19 @@ def test_old_ways_of_calling(sct):
     res = helper.run({ "DC_CODE": code, "DC_SOLUTION": code, "DC_SCT": sct })
     assert res['correct']
 
+@pytest.mark.parametrize('sct', [
+    """
+Ex().check_function_def('my_fun').multi(
+    check_args('*args').has_equal_part('name', msg='x'),
+    check_args('**kwargs').has_equal_part('name', msg='x')
+)
+    """,
+    "Ex().test_function_definition('my_fun')",
+])
+def test_old_ways_of_calling_starargs(sct):
+    code = "def my_fun(*x, **y): pass"
+    res = helper.run({ "DC_CODE": code, "DC_SOLUTION": code, "DC_SCT": sct })
+    assert res['correct']
 
 # Arguments, lengths, defaults -----------------------------------------------
 
@@ -132,6 +144,21 @@ def test_check_call_error_types():
     s = setup_state('def test(): raise NameError("boooo")',
                     'def test(): raise ValueError("boooo")')
     s.check_function_def("test").check_call("f()").has_equal_error()
+
+
+@pytest.mark.parametrize('sct', [
+    "Ex().test_function_definition('my_fun', results=[[1]])",
+    "Ex().test_function_definition('my_fun', results=[(1,)])",
+    "Ex().test_function_definition('my_fun', outputs=[[1]])",
+    "Ex().test_function_definition('my_fun', outputs=[(1,)])",
+    "Ex().test_function_definition('my_fun', errors=[['1']])",
+    "Ex().test_function_definition('my_fun', errors=[('1',)])",
+    "Ex().test_function_definition('my_fun', errors=['1'])",
+])
+def test_check_call_old_way_of_calling(sct):
+    code = 'def my_fun(a):\n  print(a + 2)\n  return a + 2'
+    res = helper.run({ "DC_CODE": code, "DC_SOLUTION": code, "DC_SCT": sct })
+    assert res['correct']
 
 # Lambdas ---------------------------------------------------------------------
 

@@ -34,8 +34,6 @@ def test_data_frame(name,
     # if columns not set, figure them out from solution
     if columns is None:
         columns = getColumnsInProcess(name, child.solution_process)
-        if columns is None:
-            raise InstructorError("Something went wrong in figuring out the columns for %s in the solution process" % name)
 
     for col in columns:
         colstate = check_keys(col, missing_msg=undefined_cols_msg, state=child)
