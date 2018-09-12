@@ -291,17 +291,8 @@ def run_call(args, node, process, get_func, **kwargs):
         func_expr = node
     else: raise InstructorError("Only function definition or lambda may be called")
 
-    # args is a call string or argument list/dict
-    if isinstance(args, str):
-        parsed = ast.parse(args).body[0].value
-        parsed.func = func_expr
-        ast.fix_missing_locations(parsed)
-        return get_func(process = process, tree = parsed, **kwargs)
-    else:
-        # e.g. list -> {args: [...], kwargs: {}} 
-        fmt_args = fix_format(args)           
-        ast.fix_missing_locations(func_expr)
-        return get_func(process = process, tree=func_expr, call = fmt_args, **kwargs)
+    ast.fix_missing_locations(func_expr)
+    return get_func(process = process, tree=func_expr, call = args, **kwargs)
 
 MSG_CALL_INCORRECT = "__JINJA__:Calling {{argstr}} should {{action}} `{{str_sol}}`, instead got {{str_stu if str_stu == 'no printouts' else '`' + str_stu + '`'}}."
 MSG_CALL_ERROR     = "__JINJA__:Calling {{argstr}} should {{action}} `{{str_sol}}`, instead it errored out: `{{str_stu}}`."
@@ -320,13 +311,6 @@ def call(args,
         incorrect_msg = MSG_CALL_INCORRECT
     if error_msg is None:
         error_msg = MSG_CALL_ERROR_INV if test == 'error' else MSG_CALL_ERROR
-
-    if argstr is None:
-        bracks = stringify(fix_format(args))
-        if hasattr(state.student_parts['node'], 'name'):  # Lambda function doesn't have name
-            argstr = '`{}{}`'.format(state.student_parts['node'].name, bracks)
-        else:
-            argstr = 'it with the arguments `{}`'.format(bracks)
 
     rep = Reporter.active_reporter
 
@@ -372,7 +356,8 @@ def build_call(callstr, node):
     elif isinstance(node, ast.Lambda): # lambda body expr
         func_expr = node
         argstr = 'it with the arguments `{}`'.format(callstr.replace('f', ''))
-    else: raise InstructorError("You can use check_call() only on check_function_def() or check_lambda()")
+    else:
+        raise TypeError("Can't handle AST that is passed.")
 
     parsed = ast.parse(callstr).body[0].value
     parsed.func = func_expr

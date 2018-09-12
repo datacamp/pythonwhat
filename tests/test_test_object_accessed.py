@@ -31,3 +31,22 @@ print(m.e)
     })
     assert res['correct'] == passes
     if mess: assert res['message'] == mess
+
+
+# ObjectAccess parser -------------------------------------------------------------
+
+from pythonwhat.parsing import ObjectAccessParser
+import ast
+
+@pytest.mark.parametrize('code', [
+    'x.a[1]',
+    'x.a',
+    'print(x.a)',
+    'print(kw = x.a)',
+    '(x.a, y.a)',
+    '[x.a, y.a]',
+])
+def test_object_access_parser(code):
+    p = ObjectAccessParser()
+    p.visit(ast.parse(code))
+    assert 'x.a' in p.out

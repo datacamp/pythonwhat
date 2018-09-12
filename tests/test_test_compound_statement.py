@@ -71,3 +71,24 @@ def test_has_context(stu, exact, passes):
     s = setup_state(stu, 'for i in range(2): pass')
     with helper.verify_sct(passes):
         s.check_for_loop().check_body().has_context(exact_names=exact)
+
+# Check while loop ------------------------------------------------------------
+
+@pytest.mark.parametrize('sct', [
+    "test_while_loop(test = lambda: test_student_typed('3'), body = lambda: test_student_typed('print'))",
+    "Ex().test_while_loop(test = test_student_typed('3'), body = test_student_typed('print'))",
+    "Ex().check_while().multi(check_test().has_code('3'), check_body().has_code('print'))"
+])
+@pytest.mark.parametrize('stu, passes', [
+    ('', False),
+    ('while False: pass', False),
+    ('while 3 > 4: pass', False),
+    ('while 3 > 4: print(2)', True),
+])
+def test_while_loop(sct, stu, passes):
+    res = helper.run({
+        "DC_CODE": stu,
+        "DC_SOLUTION": 'while 3 > 4: print(2)',
+        "DC_SCT": sct
+    })
+    assert res['correct'] == passes

@@ -157,37 +157,30 @@ def test_has_equal_ast_part_of_method_fail(data):
 
 # Test overriding fucntionality -----------------------------------------------
 
-class OverrideTester():
-    """
-    This class is used to test overriding w/ correct and incorrect code. Tests are 
-    run for entire nodes (e.g. an if block) and their parts (e.g. body of if block)
-    """
+def do_override_test(code, base_check, parts, override=None, part_name = None, part_index = "", passes=True):
+    """High level function used to generate tests"""
+    if part_name:
+        if not override: override = parts[part_name]
+        sct = base_check + '.check_{}({}).override("""{}""").has_equal_ast()'\
+                    .format(part_name, part_index, override)
+    else:
+        # whole code (e.g. if expression, or for loop)
+        if not override: override = code.format(**parts)
+        sct = base_check + '.override("""{}""").has_equal_ast()'.format(override)
+    
+    data = {
+            "DC_SOLUTION": code.format(**parts),
+            "DC_CODE": code.format(**parts),
+            "DC_SCT": sct
+        }
+    # import pdb; pdb.set_trace()
+    sct_payload = helper.run(data)
+    assert sct_payload['correct'] == passes
 
-    def do_exercise(self, code, base_check, parts, override=None, part_name = None, part_index = "", passes=True):
-        """High level function used to generate tests"""
-        if part_name:
-            if not override: override = parts[part_name]
-            sct = base_check + '.check_{}({}).override("""{}""").has_equal_ast()'\
-                        .format(part_name, part_index, override)
-        else:
-            # whole code (e.g. if expression, or for loop)
-            if not override: override = code.format(**parts)
-            sct = base_check + '.override("""{}""").has_equal_ast()'.format(override)
-        
-        data = {
-                "DC_SOLUTION": code.format(**parts),
-                "DC_CODE": code.format(**parts),
-                "DC_SCT": sct
-            }
-        sct_payload = helper.run(data)
-        assert sct_payload['correct'] == passes
-
-    PARTS = {'body': "1", "test": "False", 'orelse': "2", 'iter': "range(3)", 
-             'key': "3", 'value': "4", 'args': "(1,2,3)"}
+PARTS = {'body': "1", "test": "False", 'orelse': "2", 'iter': "range(3)", 
+            'key': "3", 'value': "4", 'args': "(1,2,3)"}
 
 import re
-def gen_exercise(*args, **kwargs):
-    return lambda self: OverrideTester.do_exercise(self, *args, **kwargs)
 
 @pytest.mark.parametrize('k, code', [
     ('if_exp', "{body} if {test} else {orelse}"),
@@ -204,25 +197,26 @@ def test_override(k, code):
     # base SCT, w/ special indexing if function checks
     if isinstance(code, list): indx, code = code
     else: indx = '0'
+
     base_check = "Ex().check_{}({})".format(k, indx)
+
     # pass overall test ----
-    pf = gen_exercise(code, base_check, OverrideTester.PARTS)
-    setattr(OverrideTester, 'test_{}_pass'.format(k), pf)
+    do_override_test(code, base_check, PARTS)
+
     # fail overall test ----
-    pf = gen_exercise(code, base_check, OverrideTester.PARTS, override="'WRONG ANSWER'", passes=False)
-    setattr(OverrideTester, 'test_{}_fail'.format(k), pf)
+    do_override_test(code, base_check, PARTS, override="'WRONG ANSWER'", passes=False)
+
     # test individual pieces --------------------------------------------------
-    for part in re.findall("\{([^{]*?)\}", code):    # find all str.format vars, e.g. {body}
+    # find all str.format vars, e.g. {body}
+    for part in re.findall("\{([^{]*?)\}", code):
         part_index = "" if part != 'args' else 0
+
         # pass individual piece ----
-        test_name = 'test_{}_{}_pass'.format(k, part)
-        pf = gen_exercise(code, base_check, OverrideTester.PARTS, part_name=part, part_index=part_index)
-        setattr(OverrideTester, test_name, pf) 
+        do_override_test(code, base_check, PARTS, part_name=part, part_index=part_index)
+
         # fail individual piece ----
-        test_name = 'test_{}_{}_fail'.format(k, part)
-        bad_code = code.format(**{part: "[]", **OverrideTester.PARTS})
-        pf = gen_exercise(code, base_check, OverrideTester.PARTS, part_name=part, part_index=part_index, override=bad_code, passes=False)
-        setattr(OverrideTester, test_name, pf) 
+        bad_code = code.format(**{part: "[]", **PARTS})
+        do_override_test(code, base_check, PARTS, part_name=part, part_index=part_index, override=bad_code, passes=False)
 
 
 # Test SCT Ex syntax (copied from sqlwhat)  -----------------------------------

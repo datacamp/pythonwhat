@@ -12,7 +12,6 @@ class Feedback(object):
                 self.line_info["column_start"] = state.highlight.first_token.start[1]
                 self.line_info["line_end"] = state.highlight.last_token.end[0]
                 self.line_info["column_end"] = state.highlight.last_token.end[1]
-
         except:
             pass
 

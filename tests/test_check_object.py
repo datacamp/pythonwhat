@@ -128,25 +128,30 @@ users = pd.read_csv('https://s3.amazonaws.com/assets.datacamp.com/production/cou
     assert output['correct']
 
 def test_non_dillable():
-    s = setup_state(
-        stu_code="xl = pd.ExcelFile('battledeath.xlsx')",
-        sol_code="xl = pd.ExcelFile('battledeath.xlsx')",
-        pec="import pandas as pd; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath.xlsx')",
-    )
-    s.check_object('xl').has_equal_value()
-
-from pythonwhat.State import set_converter
+    code = "xl = pd.ExcelFile('battledeath.xlsx')"
+    res = helper.run({
+        'DC_PEC': "import pandas as pd; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath.xlsx')",
+        'DC_SOLUTION': code,
+        'DC_CODE': code,
+        'DC_SCT': "Ex().check_object('xl').has_equal_value()"
+    })
+    assert res['correct']
 
 @pytest.mark.compiled
 def test_manual_converter():
-    s = setup_state(
-        stu_code="xl = pd.ExcelFile('battledeath2.xlsx')",
-        sol_code="xl = pd.ExcelFile('battledeath.xlsx')",
-        pec="import pandas as pd; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath.xlsx'); from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath2.xlsx')",
-    )
-    def my_converter(x): return(x.sheet_names)
-    set_converter(key = "pandas.io.excel.ExcelFile", fundef = my_converter)
-    s.check_object('xl').has_equal_value()
+    res = helper.run({
+        "DC_CODE": "xl = pd.ExcelFile('battledeath2.xlsx')",
+        "DC_SOLUTION": "xl = pd.ExcelFile('battledeath.xlsx')",
+        "DC_PEC": "import pandas as pd; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath.xlsx'); from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath2.xlsx')",
+        "DC_SCT": """
+def my_converter(x): return(x.sheet_names)
+set_converter(key = "pandas.io.excel.ExcelFile", fundef = my_converter)
+Ex().check_object('xl').has_equal_value()
+"""
+    })
+    assert res['correct']
+
+from pythonwhat.State import set_converter
 
 def test_manual_converter_2():
     s = setup_state(
@@ -169,12 +174,13 @@ def test_equality_challenges(stu, sol):
 
 def test_equality_challenge_2():
     code = "mat = scipy.io.loadmat('albeck_gene_expression.mat')"
-    s = setup_state(
-        stu_code=code,
-        sol_code=code,
-        pec="import scipy.io; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/ja_data2.mat', 'albeck_gene_expression.mat')"
-    )
-    s.check_object('mat').has_equal_value()
+    res = helper.run({
+        "DC_CODE": code,
+        "DC_SOLUTION": code,
+        "DC_PEC": "import scipy.io; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/ja_data2.mat', 'albeck_gene_expression.mat')",
+        "DC_SCT": "Ex().check_object('mat').has_equal_value()"
+    })
+    assert res['correct']
     
 @pytest.mark.parametrize('name, ls, le, cs, ce', [
     ('a', 3, 3, 5, 9),

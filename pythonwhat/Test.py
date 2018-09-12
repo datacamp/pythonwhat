@@ -111,15 +111,6 @@ class DefinedCollProcessTest(Test):
 
 ## Testing class
 
-class InstanceTest(Test):
-    def __init__(self, obj, cls, feedback):
-        super().__init__(feedback)
-        self.obj = obj
-        self.cls = cls
-
-    def specific_test(self):
-        self.result = isinstance(self.obj, self.cls)
-
 class InstanceProcessTest(Test):
     def __init__(self, name, klass, process, feedback):
         super().__init__(feedback)
@@ -129,9 +120,6 @@ class InstanceProcessTest(Test):
 
     def specific_test(self):
         self.result = isInstanceInProcess(self.name, self.klass, self.process)
-
-
-
 
 ## Testing equality
 
@@ -173,7 +161,7 @@ def objs_are(x, y, list_of_classes):
 def is_equal(x, y):
         try:
             if objs_are(x, y, [Exception]):
-                # Types of errors don't matter
+                # Types of errors don't matter (this is debatable)
                 return str(x) == str(y)
             if objs_are(x, y, [np.ndarray, dict, list]):
                 if np.array_equal(x, y): return True
@@ -189,8 +177,6 @@ def is_equal(x, y):
                 if x.equals(y): return True
                 pd.util.testing.assert_series_equal(x, y)
                 return True
-            elif objs_are(x, y, [Exception]):
-                return type(x) == type(y) and str(x) == str(y)
             else:
                 return x == y
 

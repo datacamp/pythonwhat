@@ -172,8 +172,6 @@ class State(object):
         messages = [*self.messages, append_message]
 
         if not (solution_subtree and student_subtree):
-            if student_parts and solution_parts:
-                self.update(student_parts = student_parts, solution_parts = solution_parts)
             return self.update(student_context = student_context, solution_context = solution_context,
                                student_env = student_env, solution_env = solution_env,
                                highlight = highlight,
@@ -267,13 +265,8 @@ class State(object):
         try:
             res = asttokens.ASTTokens(x, parse = True)
             return(res, res._tree)
-
-        except SyntaxError as e:
-            raise SyntaxError(str(e))
-        except TypeError as e:
-            raise TypeError(str(e))
-
-        return(res)
+        except Exception as e:
+            raise InstructorError("Something went wrong when parsing PEC or solution code: %s" % str(e))
 
 # add property methods for retrieving parser outputs --------------------------
 # note that this code is an alternative means of using something like..

@@ -146,20 +146,11 @@ def check_correct(check, diagnose, state=None):
 
 # utility functions -----------------------------------------------------------
 
-def quiet(n = 0, state=None):
-    """Turn off prepended messages. Defaults to turning all off."""
-    cpy = copy.copy(state)
-    hushed = [{**m, 'msg': ""} for m in cpy.messages]
-    cpy.messages = hushed
-    return cpy
-
 def fail(msg="", state=None):
     """Fail test with message"""
     rep = Reporter.active_reporter
     _msg = state.build_message(msg)
     rep.do_test(Test(Feedback(_msg, state)))
-
-    return state
 
 def override(solution, state=None):
     """Override the solution code with something arbitrary.
