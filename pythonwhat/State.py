@@ -103,14 +103,9 @@ class State(object):
                           'this': d['kwargs'], 
                           **d['kwargs']}
             # don't bother appending if there is no message
-            if not d['msg']: continue
-            if d['msg'].startswith('FMT:'):
-                out = d['msg'].replace('FMT:', "").format(**tmp_kwargs)
-            elif d['msg'].startswith('__JINJA__:'):
-                out = Template(d['msg'].replace('__JINJA__:', "")).render(**tmp_kwargs)
-            else:
-                out = d['msg']
-
+            if not d['msg']:
+                continue
+            out = Template(d['msg'].replace('__JINJA__:', "")).render(**tmp_kwargs)
             out_list.append(out)
 
         # if highlighting info is available, don't put all expand messages

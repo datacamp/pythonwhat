@@ -30,9 +30,9 @@ def test_check_list_comp_basic(stu, passes):
 @pytest.mark.parametrize('stu, passes, patt, lines', [
     ("", False, "The system wants to check the first list comprehension but hasn't found it.", []),
     ("[key for key in x.keys()]", False, "Check the first list comprehension. Did you correctly specify the iterable part?", [1, 1, 17, 24]),
-    ("[a + str(b) for a,b in x.items()]", False, "Have you used the correct iterator variables in the first list comprehension? Be sure to use the correct names.", [1, 1, 17, 19]),
+    ("[a + str(b) for a,b in x.items()]", False, 'Check the first list comprehension. Have you used the correct iterator variables?', [1, 1, 17, 19]),
     ("[key + '_' + str(val) for key,val in x.items()]", False, "Did you correctly specify the body?", [1, 1, 2, 21]),
-    ("[key + str(val) for key,val in x.items()]", False, "Have you used 2 ifs inside the first list comprehension?", []),
+    ("[key + str(val) for key,val in x.items()]", False, "Check the first list comprehension. Have you used 2 ifs?", []),
     ("[key + str(val) for key,val in x.items() if hasattr(key, 'test') if hasattr(key, 'test')]", False, "Did you correctly specify the first if? Did you call <code>isinstance()</code>?", [1, 1, 45, 64]),
     ("[key + str(val) for key,val in x.items() if isinstance(key, str) if hasattr(key, 'test')]", False, "Did you correctly specify the second if? Did you call <code>isinstance()</code>?", [1, 1, 69, 88]),
     ("[key + str(val) for key,val in x.items() if isinstance(key, str) if isinstance(key, str)]", False, "Did you correctly specify the argument <code>obj</code>? Expected <code>val</code>, but got <code>key</code>.", [1, 1, 80, 82]),
@@ -50,8 +50,7 @@ test_list_comp(index=1,
                body=lambda: test_expression_result(context_vals = ['a', 2]),
                ifs=[lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False]),
                     lambda: test_function_v2('isinstance', params = ['obj'], do_eval = [False])],
-               insufficient_ifs_msg=None,
-               expand_message=True)
+               insufficient_ifs_msg=None)
     '''
     res = helper.run({ "DC_PEC": pec, "DC_CODE": stu, "DC_SOLUTION": sol, "DC_SCT": sct })
     assert res['correct'] == passes

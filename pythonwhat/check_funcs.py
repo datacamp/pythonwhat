@@ -8,6 +8,10 @@ from pythonwhat.utils import get_ord
 from pythonwhat.utils_ast import assert_ast
 from functools import partial
 import ast
+from jinja2 import Template
+
+def render(template, kwargs):
+    return Template(template).render(**kwargs)
 
 class StubState():
     def __init__(self, highlight, highlighting_disabled):
@@ -42,8 +46,8 @@ def check_part(name, part_msg,
                state=None):
     """Return child state with name part as its ast tree"""
 
-    if missing_msg is None: missing_msg = "__JINJA__:Are you sure you defined the {{part}}? "
-    if expand_msg is None: expand_msg = "__JINJA__:Did you correctly specify the {{part}}? "
+    if missing_msg is None: missing_msg = "Are you sure you defined the {{part}}? "
+    if expand_msg is None: expand_msg = "Did you correctly specify the {{part}}? "
 
     if not part_msg: part_msg = name
     append_message = {'msg': expand_msg, 'kwargs': { 'part': part_msg }}
@@ -70,8 +74,8 @@ def check_part_index(name, index, part_msg,
     - a list of indices (which can be integer or string), in which case the student parts are indexed step by step.
     """
 
-    if missing_msg is None: missing_msg = "__JINJA__:Are you sure you defined the {{part}}? "
-    if expand_msg is None: expand_msg = "__JINJA__:Did you correctly specify the {{part}}? "
+    if missing_msg is None: missing_msg = "Are you sure you defined the {{part}}? "
+    if expand_msg is None: expand_msg = "Did you correctly specify the {{part}}? "
 
     # create message
     ordinal = get_ord(index+1) if isinstance(index, int) else ""
@@ -79,7 +83,7 @@ def check_part_index(name, index, part_msg,
         'index': index,
         'ordinal': ordinal
     }
-    fmt_kwargs.update(part = part_msg.format(**fmt_kwargs))
+    fmt_kwargs.update(part = render(part_msg, fmt_kwargs))
 
     append_message = {
         'msg': expand_msg,
@@ -106,23 +110,27 @@ def check_part_index(name, index, part_msg,
     # return child state from part
     return part_to_child(stu_part, sol_part, append_message, state)
 
-def check_node(name, index=0, typestr='{ordinal} node',
+def check_node(name,
+               index=0,
+               typestr='{{ordinal}} node',
                missing_msg=None,
                expand_msg=None,
                state=None):
 
-    if missing_msg is None: missing_msg = "__JINJA__:The system wants to check the {{typestr}} but hasn't found it."
-    if expand_msg is None: expand_msg = "__JINJA__:Check the {{typestr}}. "
+    if missing_msg is None: missing_msg = "The system wants to check the {{typestr}} but hasn't found it."
+    if expand_msg is None: expand_msg = "Check the {{typestr}}. "
 
     rep = Reporter.active_reporter
     stu_out = getattr(state, 'student_'+name)
     sol_out = getattr(state, 'solution_'+name)
 
     # check if there are enough nodes for index
-    fmt_kwargs = {'ordinal': get_ord(index+1) if isinstance(index, int) else "",
-                  'index': index,
-                  'name': name}
-    fmt_kwargs['typestr'] = typestr.format(**fmt_kwargs)
+    fmt_kwargs = {
+        'ordinal': get_ord(index+1) if isinstance(index, int) else "",
+        'index': index,
+        'name': name
+    }
+    fmt_kwargs['typestr'] = render(typestr, fmt_kwargs)
 
     # test if node can be indexed succesfully
     try: stu_out[index]
@@ -226,7 +234,7 @@ def check_args(name, missing_msg=None, state=None):
 
     """
     if missing_msg is None:
-        missing_msg = '__JINJA__:Did you specify the {{part}}?'
+        missing_msg = 'Did you specify the {{part}}?'
 
     if name in ['*args', '**kwargs']: # for check_function_def
         return check_part(name, name, state=state, missing_msg = missing_msg)
@@ -294,9 +302,9 @@ def run_call(args, node, process, get_func, **kwargs):
     ast.fix_missing_locations(func_expr)
     return get_func(process = process, tree=func_expr, call = args, **kwargs)
 
-MSG_CALL_INCORRECT = "__JINJA__:Calling {{argstr}} should {{action}} `{{str_sol}}`, instead got {{str_stu if str_stu == 'no printouts' else '`' + str_stu + '`'}}."
-MSG_CALL_ERROR     = "__JINJA__:Calling {{argstr}} should {{action}} `{{str_sol}}`, instead it errored out: `{{str_stu}}`."
-MSG_CALL_ERROR_INV = "__JINJA__:Calling {{argstr}} should {{action}} `{{str_sol}}`, instead got `{{str_stu}}`."
+MSG_CALL_INCORRECT = "Calling {{argstr}} should {{action}} `{{str_sol}}`, instead got {{str_stu if str_stu == 'no printouts' else '`' + str_stu + '`'}}."
+MSG_CALL_ERROR     = "Calling {{argstr}} should {{action}} `{{str_sol}}`, instead it errored out: `{{str_stu}}`."
+MSG_CALL_ERROR_INV = "Calling {{argstr}} should {{action}} `{{str_sol}}`, instead got `{{str_stu}}`."
 def call(args,
          test='value',
          incorrect_msg=None,
@@ -322,12 +330,12 @@ def call(args,
     eval_sol, str_sol = run_call(args, state.solution_parts['node'], state.solution_process, get_func, **kwargs)
 
     if (test == 'error') ^ isinstance(eval_sol, Exception):
-        _msg = state.build_message("FMT:Calling {argstr} resulted in an error (or not an error if testing for one). Error message: {type_err} {str_sol}",
+        _msg = state.build_message("Calling {{argstr}} resulted in an error (or not an error if testing for one). Error message: {{type_err}} {{str_sol}}",
                                    dict(type_err=type(eval_sol), str_sol=str_sol, argstr=argstr)),
         raise InstructorError(_msg)
 
     if isinstance(eval_sol, ReprFail):
-        _msg = state.build_message("FMT:Can't get the result of calling {argstr}: {eval_sol.info}",
+        _msg = state.build_message("Can't get the result of calling {{argstr}}: {{eval_sol.info}}",
                                    dict(argstr = argstr, eval_sol=eval_sol))
         raise InstructorError(_msg)
 
@@ -352,10 +360,10 @@ def call(args,
 def build_call(callstr, node):
     if isinstance(node, ast.FunctionDef): # function name
         func_expr = ast.Name(id=node.name, ctx=ast.Load())
-        argstr = "`{}`".format(callstr.replace('f', node.name))
+        argstr = "`%s`" % callstr.replace('f', node.name)
     elif isinstance(node, ast.Lambda): # lambda body expr
         func_expr = node
-        argstr = 'it with the arguments `{}`'.format(callstr.replace('f', ''))
+        argstr = 'it with the arguments `%s`' % callstr.replace('f', '')
     else:
         raise TypeError("Can't handle AST that is passed.")
 
@@ -398,7 +406,7 @@ def check_call(callstr, argstr = None, expand_msg=None, state=None):
     )
 
     if expand_msg is None:
-        expand_msg = "__JINJA__:To verify it, we reran {{argstr}}. "
+        expand_msg = "To verify it, we reran {{argstr}}. "
 
     stu_part, _argstr = build_call(callstr, state.student_parts['node'])
     sol_part, _ = build_call(callstr, state.solution_parts['node'])

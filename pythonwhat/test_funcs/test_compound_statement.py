@@ -13,8 +13,6 @@ def test_if_else(index=1,
                  test=None,
                  body=None,
                  orelse=None,
-                 expand_message=True,
-                 use_if_exp=False,
                  state=None):
     """Test parts of the if statement.
 
@@ -44,8 +42,6 @@ def test_if_else(index=1,
         It should be passed as a lambda expression or a function definition. The functions that are ran should
         be other pythonwhat test functions, and they will be tested specifically on only the else part of
         the if statement.
-      expand_message (bool): if true, feedback messages will be expanded with :code:`in the ___ of the if statement on
-        line ___`. Defaults to True. If False, :code:`test_if_else()` will generate no extra feedback.
 
     :Example:
 
@@ -71,32 +67,15 @@ def test_if_else(index=1,
         This SCT will pass as :code:`test_expression_output()` is ran on the body of the if statement and it will output
         the same thing in the solution as in the student code.
     """
-
-    MSG_MISSING = "FMT:The system wants to check the {typestr}, but it hasn't found it. Have another look at your code."
-    MSG_PREPEND = "FMT:Check the {typestr}. "
-
-    # get state with specific if block
-    node_name = 'if_exps' if use_if_exp else 'if_elses'
-    # TODO original typestr for check_node used if rather than `if`
-    state = check_node(node_name, index-1, "{ordinal} if statement", MSG_MISSING, MSG_PREPEND if expand_message else "", state=state)
-
-    # run sub tests
-    multi(test, state = check_part('test', 'condition', expand_msg=None if expand_message else "", state=state))
-    multi(body, state = check_part('body', 'body', expand_msg=None if expand_message else "", state=state))
-    multi(orelse, state = check_part('orelse', 'else part', expand_msg=None if expand_message else "", state=state))
-
-
-test_if_exp = partial(test_if_else, use_if_exp = True)
-# update test_if_exp function signature (docstring, etc..)
-update_wrapper(test_if_exp, test_if_else)
-test_if_exp.__name__ = 'test_if_exp'
-
+    state = check_node('if_elses', index-1, typestr='{{ordinal}} if expression', state=state)
+    multi(test, state = check_part('test', 'condition', state=state))
+    multi(body, state = check_part('body', 'body', state=state))
+    multi(orelse, state = check_part('orelse', 'else part', state=state))
 
 def test_for_loop(index=1,
                   for_iter=None,
                   body=None,
                   orelse=None,
-                  expand_message=True,
                   state=None):
     """Test parts of the for loop.
 
@@ -124,8 +103,6 @@ def test_for_loop(index=1,
         It should be passed as a lambda expression or a function. The functions that are ran should
         be other pythonwhat test functions, and they will be tested specifically on only the else part of
         the for loop.
-      expand_message (bool): if true, feedback messages will be expanded with :code:`in the ___ of the for loop on
-        line ___`. Defaults to True. If False, :code:`test_for_loop()` will generate no extra feedback.
 
     :Example:
         Student code::
@@ -147,22 +124,16 @@ def test_for_loop(index=1,
         This SCT will evaluate to True as the function :code:`range` is used in the sequence and the function
         :code:`test_exression_output()` will pass on the body code.
     """
-    MSG_MISSING = "FMT:Define more for loops."
-    MSG_PREPEND = "FMT:Check the {typestr}. "
+    state = check_node('for_loops', index-1, "{{ordinal}} for loop", state=state)
 
-
-    state = check_node('for_loops', index-1, "{ordinal} for loop", MSG_MISSING, MSG_PREPEND, state=state)
-
-    # TODO for_iter is a level up, so shouldn't have targets set, but this is done is check_node
-    multi(for_iter, state = check_part('iter', 'sequence part', expand_msg=None if expand_message else "", state=state))
-    multi(body,     state = check_part('body', 'body', expand_msg=None if expand_message else "", state=state))
-    multi(orelse,   state = check_part('orelse', 'else part', expand_msg=None if expand_message else "", state=state))
+    multi(for_iter, state = check_part('iter', 'sequence part', state=state))
+    multi(body,     state = check_part('body', 'body', state=state))
+    multi(orelse,   state = check_part('orelse', 'else part', state=state))
 
 def test_while_loop(index=1,
                     test=None,
                     body=None,
                     orelse=None,
-                    expand_message=True,
                     state=None):
     """Test parts of the while loop.
 
@@ -192,8 +163,6 @@ def test_while_loop(index=1,
           It should be passed as a lambda expression or a function definition. The functions that are ran should
           be other pythonwhat test functions, and they will be tested specifically on only the else part of
           the while loop.
-        expand_message (bool): if true, feedback messages will be expanded with :code:`in the ___ of the while loop on
-          line ___`. Defaults to True. If False, `test_for_loop()` will generate no extra feedback.
 
     :Example:
 
@@ -220,16 +189,10 @@ def test_while_loop(index=1,
       This SCT will evaluate to True as condition test will have thes same result in student
       and solution code and `test_exression_output()` will pass on the body code.
     """
-
-    MSG_MISSING = "FMT:Define more while loops."
-    MSG_PREPEND = "FMT:Check the {typestr}. "
-
-    state = check_node('whiles', index-1, "{ordinal} while loop", MSG_MISSING, MSG_PREPEND if expand_message else "", state=state)
-
-    expand_msg = None if expand_message else ""
-    multi(test, state = check_part('test', 'condition', expand_msg=expand_msg, state=state))
-    multi(body, state = check_part('body', 'body', expand_msg=expand_msg, state=state))
-    multi(orelse, state = check_part('orelse', 'else part', expand_msg=expand_msg, state=state))
+    state = check_node('whiles', index-1, "{{ordinal}} while loop", state=state)
+    multi(test, state = check_part('test', 'condition', state=state))
+    multi(body, state = check_part('body', 'body', state=state))
+    multi(orelse, state = check_part('orelse', 'else part', state=state))
 
 
 def test_function_definition(name,
@@ -248,7 +211,6 @@ def test_function_definition(name,
                              wrong_output_msg=None,
                              no_error_msg=None,
                              wrong_error_msg=None,
-                             expand_message=True,
                              state=None):
     """Test a function definition.
 
@@ -289,9 +251,6 @@ def test_function_definition(name,
         wrong_output_msg (str): message if one of the tested functions calls' output did not match.
         no_error_msg (str): message if one of the tested function calls' result did not generate an error.
         wrong_error_msg (str): message if the error that one of the tested function calls generated did not match.
-        expand_message (bool): only relevant if there is a body test. If True, feedback messages defined in the
-            body test will be preceded by 'In your definition of ___, '. If False, `test_function_definition()`
-            will generate no extra feedback if the body test fails. Defaults to True.
 
     :Example:
 
@@ -322,28 +281,17 @@ def test_function_definition(name,
             test_function_definition('shout', args_defaults = False    # pass
                     body = test_function('print', args = []]))
     """
-    MSG_MISSING = "FMT:You didn't define the following function: {typestr}."
-    MSG_PREPEND = "FMT:Check your definition of {typestr}. "    
 
     # what the function will be referred to as
-    typestr = "`{}()`".format(name)
-    get_func_child = partial(check_node, 'function_defs', name, typestr, not_called_msg or MSG_MISSING, state=state)
-    child =  get_func_child(expand_msg = MSG_PREPEND if expand_message else "")
-
-    # make a temporary child state, to reflect that there were two types of 
-    # messages prepended in the original function
-    quiet_child = get_func_child(expand_msg = "")
-    prep_child2 = get_func_child(expand_msg = MSG_PREPEND)
+    child = check_node('function_defs', name, 'definition of `{{index}}()`', state=state)
 
     test_args(arg_names, arg_defaults, 
               nb_args_msg, arg_names_msg, arg_defaults_msg,
-              prep_child2, quiet_child)
+              child)
 
-    multi(body, state=check_part('body', "", expand_msg=None if expand_message else "", state=child))
+    multi(body, state=check_part('body', "", state=child))
 
     # Test function calls -----------------------------------------------------
-
-    #fun_name = ("`%s()`" % name)
 
     for el in (results or []):
         el = fix_format(el)
@@ -351,7 +299,7 @@ def test_function_definition(name,
                 incorrect_msg = wrong_result_msg,
                 error_msg = wrong_result_msg,
                 argstr = '`{}{}`'.format(name, stringify(el)),
-                state = quiet_child)
+                state=child)
 
     for el in (outputs or []):
         el = fix_format(el)
@@ -359,7 +307,7 @@ def test_function_definition(name,
                 incorrect_msg = wrong_output_msg,
                 error_msg = wrong_output_msg,
                 argstr = '`{}{}`'.format(name, stringify(el)),
-                state = quiet_child)
+                state=child)
 
     for el in (errors or []):
         el = fix_format(el)
@@ -367,31 +315,31 @@ def test_function_definition(name,
                 incorrect_msg = wrong_error_msg,
                 error_msg = no_error_msg,
                 argstr = '`{}{}`'.format(name, stringify(el)),
-                state = quiet_child)
+                state=child)
 
 
 def test_args(arg_names, arg_defaults, 
               nb_args_msg, arg_names_msg, arg_defaults_msg, 
-              child, quiet_child):
+              child):
 
-    MSG_NUM_ARGS = "FMT:You should define {parent[typestr]} with {sol_len} arguments, instead got {stu_len}."
-    MSG_BAD_ARG_NAME = "FMT:The {parent[ordinal]} {parent[part]} should be called `{sol_part[name]}`, instead got `{stu_part[name]}`."
-    MSG_BAD_DEFAULT = "FMT:The {parent[part]} `{stu_part[name]}` should have no default."
-    MSG_INC_DEFAULT = "FMT:The {parent[part]} `{stu_part[name]}` does not have the correct default."
+    MSG_NUM_ARGS = "You should define {{parent[typestr]}} with {{sol_len}} arguments, instead got {{stu_len}}."
+    MSG_BAD_ARG_NAME = "The {{parent[ordinal]}} {{parent[part]}} should be called `{{sol_part[name]}}`, instead got `{{stu_part[name]}}`."
+    MSG_BAD_DEFAULT = "The {{parent[part]}} `{{stu_part[name]}}` should have no default."
+    MSG_INC_DEFAULT = "The {{parent[part]}} `{{stu_part[name]}}` does not have the correct default."
 
-    MSG_NO_VARARG = "FMT:Have you specified an argument to take a `*` argument and named it `{sol_part[*args][name]}`?"
-    MSG_NO_KWARGS = "FMT:Have you specified an argument to take a `**` argument and named it `{sol_part[**kwargs][name]}`?"
-    MSG_VARARG_NAME = "FMT:Have you specified an argument to take a `*` argument and named it `{sol_part[name]}`?"
-    MSG_KWARG_NAME = "FMT:Have you specified an argument to take a `**` argument and named it `{sol_part[name]}`?"
+    MSG_NO_VARARG = "Have you specified an argument to take a `*` argument and named it `{{sol_part['*args'][name]}}`?"
+    MSG_NO_KWARGS = "Have you specified an argument to take a `**` argument and named it `{{sol_part['**kwargs'][name]}}`?"
+    MSG_VARARG_NAME = "Have you specified an argument to take a `*` argument and named it `{{sol_part[name]}}`?"
+    MSG_KWARG_NAME = "Have you specified an argument to take a `**` argument and named it `{{sol_part[name]}}`?"
 
     if arg_names or arg_defaults:
         # test number of args
-        has_equal_part_len('_spec1_args', nb_args_msg or MSG_NUM_ARGS, state=quiet_child)
+        has_equal_part_len('_spec1_args', nb_args_msg or MSG_NUM_ARGS, state=child)
 
         # iterate over each arg, testing name and default
         for ii in range(len(child.solution_parts['_spec1_args'])):
             # get argument state
-            arg_state = check_part_index('_spec1_args', ii, 'argument', "NO MISSING MSG", expand_msg="", state=child)
+            arg_state = check_part_index('_spec1_args', ii, 'argument', "NO MISSING MSG", state=child)
             # test exact name
             has_equal_part('name', arg_names_msg or MSG_BAD_ARG_NAME, arg_state)
 
@@ -400,15 +348,15 @@ def test_args(arg_names, arg_defaults,
                 has_equal_part('is_default', arg_defaults_msg or MSG_BAD_DEFAULT, arg_state)
                 # test default value, use if to prevent running a process no default
                 if arg_state.solution_parts['is_default']:
-                    has_equal_value(incorrect_msg = arg_defaults_msg or MSG_INC_DEFAULT, error_msg="error message", append=True, state=arg_state)
+                    has_equal_value(incorrect_msg = arg_defaults_msg or MSG_INC_DEFAULT, append=True, state=arg_state)
 
         # test *args and **kwargs
         if child.solution_parts['*args']:
-            vararg = check_part('*args', "", missing_msg=MSG_NO_VARARG, expand_msg="", state=child)
+            vararg = check_part('*args', "", missing_msg=MSG_NO_VARARG, state=child)
             has_equal_part('name', MSG_VARARG_NAME, state=vararg)
         
         if child.solution_parts['**kwargs']:
-            kwarg = check_part('**kwargs', "", missing_msg=MSG_NO_KWARGS, expand_msg="", state=child)
+            kwarg = check_part('**kwargs', "", missing_msg=MSG_NO_KWARGS, state=child)
             has_equal_part('name', MSG_KWARG_NAME, state=kwarg)
 
 
@@ -474,7 +422,6 @@ def test_with(index,
               undefined_msg=None,
               context_vals_len_msg=None,
               context_vals_msg=None,
-              expand_message=True,
               state=None):
     """Test a with statement.
 with open_file('...') as bla:
@@ -487,16 +434,14 @@ with open_file('...') as file:
 
     """
 
-    MSG_MISSING = "Define more `with` statements."
-    MSG_PREPEND = "FMT:Check the {typestr}. "
     MSG_NUM_CTXT = "Make sure to use the correct number of context variables. It seems you defined too many."
     MSG_NUM_CTXT2 = "Make sure to use the correct number of context variables. It seems you defined too little."
-    MSG_CTXT_NAMES = "FMT:Make sure to use the correct context variable names. Was expecting `{sol_vars}` but got `{stu_vars}`."
+    MSG_CTXT_NAMES = "Make sure to use the correct context variable names. Was expecting `{{sol_vars}}` but got `{{stu_vars}}`."
 
-    check_with = partial(check_node, 'withs', index-1, "{ordinal} `with` statement", MSG_MISSING, state=state)
+    check_with = partial(check_node, 'withs', index-1, "{{ordinal}} `with` statement", state=state)
 
-    child =  check_with(MSG_PREPEND if expand_message else "")
-    child2 = check_with(MSG_PREPEND if expand_message else "")
+    child =  check_with()
+    child2 = check_with()
 
     if context_vals:
         # test context var names ----
@@ -509,10 +454,9 @@ with open_file('...') as file:
     # Context sub tests ----
     if context_tests and not isinstance(context_tests, list): context_tests = [context_tests]
 
-    expand_msg = None if expand_message else ""
     for i, context_test in enumerate(context_tests or []):
         # partial the substate check, because the function uses two prepended messages
-        check_context = partial(check_part_index, 'context', i, "%s context"%utils.get_ord(i+1), missing_msg=MSG_NUM_CTXT2, expand_msg=expand_msg)
+        check_context = partial(check_part_index, 'context', i, "%s context"%utils.get_ord(i+1), missing_msg=MSG_NUM_CTXT2)
 
         check_context(state=child)                   # test exist
 
@@ -521,7 +465,7 @@ with open_file('...') as file:
     
     # Body sub tests ----
     if body is not None:
-        body_state = check_part('body', 'body', expand_msg=expand_msg, state=child2)
+        body_state = check_part('body', 'body', state=child2)
 
         with_context(body, state=body_state)
 
@@ -533,53 +477,43 @@ def test_list_comp(index=1,
                    body=None,
                    ifs=None,
                    insufficient_ifs_msg=None,
-                   expand_message=True,
                    state=None):
     """Test list comprehension."""
-    test_comp("{ordinal} list comprehension", 'list_comps', **(locals()))
+    test_comp("{{ordinal}} list comprehension", 'list_comps', **(locals()))
 
 
 def test_comp(typestr, comptype, index, iter_vars_names,
               not_called_msg, insufficient_ifs_msg, incorrect_iter_vars_msg,
               comp_iter, ifs, key=None, body=None, value=None,
-              expand_message = True,
               rep=None, state=None):
 
-    MSG_NOT_CALLED = "FMT:The system wants to check the {typestr} but hasn't found it."
-    MSG_PREPEND = "FMT:Check the {typestr}. "
+    MSG_INCORRECT_ITER_VARS = "Have you used the correct iterator variables?"
+    MSG_INCORRECT_NUM_ITER_VARS = "Have you used {{num_vars}} iterator variables?"
+    MSG_INSUFFICIENT_IFS = "Have you used {{sol_len}} ifs?"
 
-    MSG_INCORRECT_ITER_VARS = "FMT:Have you used the correct iterator variables in the {parent[typestr]}? Be sure to use the correct names."
-    MSG_INCORRECT_NUM_ITER_VARS = "FMT:Have you used {num_vars} iterator variables in the {parent[typestr]}?"
-    MSG_INSUFFICIENT_IFS = "FMT:Have you used {sol_len} ifs inside the {parent[typestr]}?"
-
-    # if true, set expand_message to default (for backwards compatibility)
-    expand_message = MSG_PREPEND if expand_message is True else (expand_message or "")
     # make sure other messages are set to default if None
-    if insufficient_ifs_msg is None: insufficient_ifs_msg = MSG_INSUFFICIENT_IFS
-    if not_called_msg is None: not_called_msg = MSG_NOT_CALLED
-
-    # TODO MSG: function was not consistent with prepending, so use state w/o expand_message
-    quiet_state = check_node(comptype, index-1, typestr, not_called_msg, expand_msg="", state=state)
+    if insufficient_ifs_msg is None:
+        insufficient_ifs_msg = MSG_INSUFFICIENT_IFS
 
     # get comprehension
-    state = check_node(comptype, index-1, typestr, not_called_msg, expand_msg=None if expand_message else "", state=state)
+    child = check_node(comptype, index-1, typestr, missing_msg=not_called_msg, state=state)
 
     # test comprehension iter and its variable names (or number of variables)
-    if comp_iter: multi(comp_iter, state=check_part("iter", "iterable part", state=state))
+    if comp_iter: multi(comp_iter, state=check_part("iter", "iterable part", state=child))
 
     # test iterator variables
     default_msg = MSG_INCORRECT_ITER_VARS if iter_vars_names else MSG_INCORRECT_NUM_ITER_VARS
-    has_context(incorrect_iter_vars_msg or default_msg, iter_vars_names, state=quiet_state)
+    has_context(incorrect_iter_vars_msg or default_msg, iter_vars_names, state=child)
 
     # test the main expressions.
-    if body:   multi(body,  state=check_part("body", "body", expand_msg=None if expand_message else "", state=state))        # list and gen comp
-    if key:    multi(key,   state=check_part("key", "key part", expand_msg=None if expand_message else "",  state=state))    # dict comp
-    if value:  multi(value, state=check_part("value", "value part", expand_msg=None if expand_message else "", state=state)) # ""
+    if body:   multi(body,  state=check_part("body", "body", state=child))        # list and gen comp
+    if key:    multi(key,   state=check_part("key", "key part",  state=child))    # dict comp
+    if value:  multi(value, state=check_part("value", "value part", state=child)) # ""
 
     # test a list of ifs. each entry corresponds to a filter in the comprehension.
     for i, if_test in enumerate(ifs or []):
         # test that ifs are same length
-        has_equal_part_len('ifs', insufficient_ifs_msg, state=quiet_state)
+        has_equal_part_len('ifs', insufficient_ifs_msg, state=child)
         # test individual ifs
-        multi(if_test, state=check_part_index("ifs", i, utils.get_ord(i+1) + " if", state=state))
+        multi(if_test, state=check_part_index("ifs", i, utils.get_ord(i+1) + " if", state=child))
 

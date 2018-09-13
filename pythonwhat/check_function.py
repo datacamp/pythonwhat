@@ -23,9 +23,9 @@ def get_mapped_name(name, mappings):
             if name.startswith(full_name): return name.replace(full_name, orig)
     return name
 
-MISSING_MSG = "__JINJA__:Did you call `{{mapped_name}}()`{{' ' + times if index>0}}?"
-SIG_ISSUE_MSG = "__JINJA__:Have you specified the arguments for `{{mapped_name}}()` using the right syntax?"
-PREPEND_MSG = "__JINJA__:Check your {{ord + ' ' if index>0}}call of `{{mapped_name}}()`. "
+MISSING_MSG = "Did you call `{{mapped_name}}()`{{' ' + times if index>0}}?"
+SIG_ISSUE_MSG = "Have you specified the arguments for `{{mapped_name}}()` using the right syntax?"
+PREPEND_MSG = "Check your {{ord + ' ' if index>0}}call of `{{mapped_name}}()`. "
 def check_function(name, index=0,
                    missing_msg=None,
                    params_not_matched_msg=None,

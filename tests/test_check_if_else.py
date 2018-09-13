@@ -73,14 +73,12 @@ def orelse_test():
     test_if_else(index = 1,
                   test = test_test2,
                   body = body_test2,
-                  orelse = orelse_test2,
-                  expand_message = False)
+                  orelse = orelse_test2)
 
 test_if_else(index=1,
              test=test_test,
              body=body_test,
-             orelse=orelse_test,
-             expand_message = False)
+             orelse=orelse_test)
     ''',
     '''
 test_if_else(index=1,

@@ -47,10 +47,10 @@ def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="
         state.assert_root('check_object')
 
     if missing_msg is None:
-        missing_msg = "__JINJA__:Did you define the {{typestr}} `{{index}}` without errors?"
+        missing_msg = "Did you define the {{typestr}} `{{index}}` without errors?"
 
     if expand_msg is None:
-        expand_msg = "__JINJA__:Did you correctly define the {{typestr}} `{{index}}`? "
+        expand_msg = "Did you correctly define the {{typestr}} `{{index}}`? "
 
     rep = Reporter.active_reporter
 
@@ -106,7 +106,7 @@ def is_instance(inst, not_instance_msg=None, state=None):
     sol_name = state.solution_parts.get('name')
     stu_name = state.student_parts.get('name')
 
-    if not_instance_msg is None: not_instance_msg = "__JINJA__:Is it a {{inst.__name__}}?"
+    if not_instance_msg is None: not_instance_msg = "Is it a {{inst.__name__}}?"
 
     if not isInstanceInProcess(sol_name, inst, state.solution_process):
         raise InstructorError("`is_instance()` noticed that `%s` is not a `%s` in the solution process." % (sol_name, inst.__name__))
@@ -154,9 +154,9 @@ def check_keys(key, missing_msg=None, expand_msg=None, state=None):
     state.assert_is(['object_assignments'], 'is_instance', ['check_object', 'check_df'])
 
     if missing_msg is None:
-        missing_msg = "__JINJA__:There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `'{{key}}'`."
+        missing_msg = "There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `'{{key}}'`."
     if expand_msg is None:
-        expand_msg = "__JINJA__:Did you correctly set the {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `'{{key}}'`? "
+        expand_msg = "Did you correctly set the {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `'{{key}}'`? "
 
     rep = Reporter.active_reporter
 
@@ -175,7 +175,7 @@ def check_keys(key, missing_msg=None, expand_msg=None, state=None):
         if isinstance(key, str):
             slice_val = ast.Str(s=key)
         else:
-            slice_val = ast.parse('{}'.format(key)).body[0].value
+            slice_val = ast.parse(str(key)).body[0].value
         expr = ast.Subscript(value=ast.Name(id=name, ctx=ast.Load()),
                              slice=ast.Index(value=slice_val),
                              ctx=ast.Load())

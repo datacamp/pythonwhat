@@ -1,6 +1,6 @@
 
 from .test_compound_statement import test_with, test_list_comp, \
-    test_if_else, test_if_exp, test_for_loop, test_while_loop, \
+    test_if_else, test_for_loop, test_while_loop, \
     test_expression_output, test_expression_result, \
     test_object_after_expression, test_function_definition
 
