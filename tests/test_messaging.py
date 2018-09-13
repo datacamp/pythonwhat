@@ -337,10 +337,10 @@ def test_has_import_custom(stu, patt):
 
 @pytest.mark.parametrize('stu, patt, cols, cole', [
     ("my_dict = {'a': 1, 'b': 2}\nfor key, value in my_dict.items(): x = key + ' -- ' + str(value)",
-     "Check the first for statement. Did you correctly specify the body? Are you sure you assigned the correct value to `x`?",
+     "Check the first for loop. Did you correctly specify the body? Are you sure you assigned the correct value to `x`?",
      36, 64),
     ("my_dict = {'a': 1, 'b': 2}\nfor key, value in my_dict.items(): x = key + ' - ' + str(value)",
-     "Check the first for statement. Did you correctly specify the body? Expected the output `a - 1`, but got `no printouts`.",
+     "Check the first for loop. Did you correctly specify the body? Expected the output `a - 1`, but got `no printouts`.",
      36, 63)
 ])
 def test_has_equal_x(stu, patt, cols, cole):
@@ -403,9 +403,9 @@ Ex().test_correct(
 
 @pytest.mark.parametrize('sct, patt', [
     ('Ex().check_for_loop().check_body().check_for_loop().check_body().has_equal_output()',
-        'Check the first for statement. Did you correctly specify the body? Expected the output `1+1`, but got `1-1`.'),
+        'Check the first for loop. Did you correctly specify the body? Expected the output `1+1`, but got `1-1`.'),
     ('Ex().check_for_loop().check_body().check_for_loop().disable_highlighting().check_body().has_equal_output()',
-        'Check the first for statement. Did you correctly specify the body? Check the first for statement. Did you correctly specify the body? Expected the output `1+1`, but got `1-1`.')
+        'Check the first for loop. Did you correctly specify the body? Check the first for loop. Did you correctly specify the body? Expected the output `1+1`, but got `1-1`.')
 ])
 def test_limited_stacking(sct, patt):
     code = '''
@@ -463,3 +463,18 @@ Ex().check_if_else().multi(
     assert not output['correct']
     assert message(output, patt)
     if lines: helper.with_line_info(output,   *lines)
+
+## Jinja handling -------------------------------------------------------------
+
+@pytest.mark.parametrize('msgpart', [
+    "__JINJA__:You did {{stu_eval}}, but should be {{sol_eval}}!",
+    "You did {{stu_eval}}, but should be {{sol_eval}}!"
+])
+def test_jinja_in_custom_msg(msgpart):
+    output = helper.run({
+        'DC_SOLUTION': 'x = 4',
+        'DC_CODE': 'x = 3',
+        'DC_SCT': "Ex().check_object('x').has_equal_value(incorrect_msg=\"%s\")" % msgpart
+    })
+    assert not output['correct']
+    assert message(output, 'You did 3, but should be 4!')

@@ -151,7 +151,7 @@ def has_equal_ast(incorrect_msg=None,
     if append is None: # if not specified, set to False if incorrect_msg was manually specified
         append = incorrect_msg is None
     if incorrect_msg is None:
-        incorrect_msg = "__JINJA__:Expected `{{sol_str}}`, but got `{{stu_str}}`."
+        incorrect_msg = "Expected `{{sol_str}}`, but got `{{stu_str}}`."
 
     def parse_tree(tree):
         # get contents of module.body if only 1 element
@@ -177,12 +177,12 @@ def has_equal_ast(incorrect_msg=None,
 
     return state
 
-DEFAULT_INCORRECT_MSG="__JINJA__:Expected {{test_desc}}`{{sol_eval}}`, but got `{{stu_eval}}`."
-DEFAULT_ERROR_MSG="__JINJA__:Running {{'it' if parent['part'] else 'the higlighted expression'}} generated an error: `{{stu_str}}`."
-DEFAULT_ERROR_MSG_INV="__JINJA__:Running {{'it' if parent['part'] else 'the higlighted expression'}} didn't generate an error, but it should!"
-DEFAULT_UNDEFINED_NAME_MSG="__JINJA__:Running {{'it' if parent['part'] else 'the higlighted expression'}} should define a variable `{{name}}` without errors, but it doesn't."
-DEFAULT_INCORRECT_NAME_MSG="__JINJA__:Are you sure you assigned the correct value to `{{name}}`?"
-DEFAULT_INCORRECT_EXPR_CODE_MSG="__JINJA__:Running the expression `{{expr_code}}` didn't generate the expected result."
+DEFAULT_INCORRECT_MSG="Expected {{test_desc}}`{{sol_eval}}`, but got `{{stu_eval}}`."
+DEFAULT_ERROR_MSG="Running {{'it' if parent['part'] else 'the higlighted expression'}} generated an error: `{{stu_str}}`."
+DEFAULT_ERROR_MSG_INV="Running {{'it' if parent['part'] else 'the higlighted expression'}} didn't generate an error, but it should!"
+DEFAULT_UNDEFINED_NAME_MSG="Running {{'it' if parent['part'] else 'the higlighted expression'}} should define a variable `{{name}}` without errors, but it doesn't."
+DEFAULT_INCORRECT_NAME_MSG="Are you sure you assigned the correct value to `{{name}}`?"
+DEFAULT_INCORRECT_EXPR_CODE_MSG="Running the expression `{{expr_code}}` didn't generate the expected result."
 def has_expr(incorrect_msg=None,
              error_msg=None,
              undefined_msg=None,
@@ -237,7 +237,7 @@ def has_expr(incorrect_msg=None,
 
         if (test == 'error') ^ isinstance(eval_sol, Exception):
             raise InstructorError("Evaluating expression raised error in solution process (or not an error if testing for one). "
-                            "Error: {} - {}".format(type(eval_sol), str_sol))
+                                  "Error: {} - {}".format(type(eval_sol), str_sol))
         if isinstance(eval_sol, ReprFail):
             raise InstructorError("Couldn't extract the value for the highlighted expression from the solution process: " + eval_sol.info)
 
@@ -410,8 +410,8 @@ from pythonwhat.Test import Test, DefinedCollTest, EqualTest
 
 def has_import(name,
                same_as=False,
-               not_imported_msg="__JINJA__:Did you import `{{pkg}}`?",
-               incorrect_as_msg="__JINJA__:Did you import `{{pkg}}` as `{{alias}}`?",
+               not_imported_msg="Did you import `{{pkg}}`?",
+               incorrect_as_msg="Did you import `{{pkg}}` as `{{alias}}`?",
                state=None):
     """Checks whether student imported a package or function correctly.
 
@@ -549,7 +549,7 @@ def has_printout(index,
     state.assert_root('has_printout')
 
     if not_printed_msg is None:
-        not_printed_msg = "__JINJA__:Have you used `{{sol_call}}` to do the appropriate printouts?"
+        not_printed_msg = "Have you used `{{sol_call}}` to do the appropriate printouts?"
 
     try:
         sol_call_ast = state.solution_function_calls['print'][index]['node']

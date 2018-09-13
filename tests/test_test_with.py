@@ -15,7 +15,7 @@ import pytest
         None
     ),
     (
-        "test_with(1, body = [test_function('print', index = i + 1) for i in range(3)], expand_message = False)",
+        "test_with(1, body = [test_function('print', index = i + 1) for i in range(3)])",
         False,
         None,
         [6, 6, 11, 16]

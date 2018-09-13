@@ -13,7 +13,6 @@ TEST_NAMES = [
     "test_object",
     "test_correct",
     "test_if_else",
-    "test_if_exp",
     "test_for_loop",
     "test_function",
     "test_list_comp",
@@ -31,7 +30,6 @@ TEST_NAMES = [
 
 SUB_TESTS = {
     "test_if_else": ['test', 'body', 'orelse'],
-    "test_if_exp": ['test', 'body', 'orelse'],
     "test_list_comp": ['comp_iter', 'body', 'ifs'],
     "check_correct": ['check', 'diagnose'],
     "test_for_loop": ['for_iter', 'body', 'orelse'],

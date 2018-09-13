@@ -18,33 +18,33 @@ __PART_WRAPPERS__ = {
 }
 
 __PART_INDEX_WRAPPERS__ = {
-    'ifs': '{ordinal} if',
-    'bases': '{ordinal} base class',
-    'handlers': '`{index}` `except` block',
-    'context': '{ordinal} context',
+    'ifs': '{{ordinal}} if',
+    'bases': '{{ordinal}} base class',
+    'handlers': '`{{index}}` `except` block',
+    'context': '{{ordinal}} context',
 }
 
 __NODE_WRAPPERS__ = {
-    'list_comp': '{ordinal} list comprehension',
-    'generator_exp': '{ordinal} generator expression',
-    'dict_comp': '{ordinal} dictionary comprehension',
-    'for_loop': '{ordinal} for statement',
-    'function_def': 'definition of `{index}()`',
-    'class_def': 'class definition of `{index}`',
-    'if_exp': '{ordinal} if expression',
-    'if_else': '{ordinal} if statement',
-    'lambda_function': '{ordinal} lambda function',
-    'try_except': '{ordinal} try statement',
-    'while': '{ordinal} `while` loop',
-    'with': '{ordinal} `with` statement',
+    'list_comp': '{{ordinal}} list comprehension',
+    'generator_exp': '{{ordinal}} generator expression',
+    'dict_comp': '{{ordinal}} dictionary comprehension',
+    'for_loop': '{{ordinal}} for loop',
+    'function_def': 'definition of `{{index}}()`',
+    'class_def': 'class definition of `{{index}}`',
+    'if_exp': '{{ordinal}} if expression',
+    'if_else': '{{ordinal}} if statement',
+    'lambda_function': '{{ordinal}} lambda function',
+    'try_except': '{{ordinal}} try statement',
+    'while': '{{ordinal}} `while` loop',
+    'with': '{{ordinal}} `with` statement',
 }
 
 scts = {}
 
 # make has_equal_part wrappers
 
-scts['has_equal_name'] = partial(has_equal_part, 'name', msg='Make sure to use the correct {name}, was expecting {sol_part[name]}, instead got {stu_part[name]}.')
-scts['is_default'] = partial(has_equal_part, 'is_default', msg="__JINJA__:Make sure it {{ 'has' if sol_part.is_default else 'does not have'}} a default argument.")
+scts['has_equal_name'] = partial(has_equal_part, 'name', msg='Make sure to use the correct {{name}}, was expecting {{sol_part[name]}}, instead got {{stu_part[name]}}.')
+scts['is_default'] = partial(has_equal_part, 'is_default', msg="Make sure it {{ 'has' if sol_part.is_default else 'does not have'}} a default argument.")
 
 # include rest of wrappers
 for k, v in __PART_WRAPPERS__.items():

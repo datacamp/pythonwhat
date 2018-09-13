@@ -5,8 +5,8 @@ from pythonwhat.State import State
 from functools import singledispatch
 from pythonwhat.check_funcs import check_part_index
 
-MSG_INCORRECT_LOOP = "FMT:Have you used the correct iterator variable names? Was expecting `{sol_vars}` but got `{stu_vars}`."
-MSG_INCORRECT_WITH = "FMT:Make sure to use the correct context variable names. Was expecting `{sol_vars}` but got `{stu_vars}`."
+MSG_INCORRECT_LOOP = "Have you used the correct iterator variable names? Was expecting `{{sol_vars}}` but got `{{stu_vars}}`."
+MSG_INCORRECT_WITH = "Make sure to use the correct context variable names. Was expecting `{{sol_vars}}` but got `{{stu_vars}}`."
 
 def has_context(incorrect_msg=None, exact_names=False, state=None):
     # call _has_context, since the built-in singledispatch can only use 1st pos arg
@@ -74,7 +74,7 @@ def has_context_with(state, incorrect_msg, exact_names):
     """
 
     for i in range(len(state.solution_parts['context'])):
-        ctxt_state = check_part_index('context', i, '{ordinal} context', state=state)
+        ctxt_state = check_part_index('context', i, '{{ordinal}} context', state=state)
         _has_context(ctxt_state, incorrect_msg or MSG_INCORRECT_WITH, exact_names)
 
     return state
