@@ -113,8 +113,8 @@ However, because we are not merely string-matching the SCT allows for much more 
     rerunning the expressions and comparing the results.
 
 
-``check_for()``
-~~~~~~~~~~~~~~~
+``check_for_loop()``
+~~~~~~~~~~~~~~~~~~~~
 
 The following example checks whether the student properly iterates over a dictionary and does the appropriate printouts:
 
