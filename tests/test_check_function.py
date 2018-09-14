@@ -190,6 +190,19 @@ def test_function_parser(code):
     p.visit(ast.parse(code))
     assert 'round' in p.out
 
+def test_check_function_parser_mappings_1():
+    code = "import numpy as np\nnp.random.randint(1, 7)"
+    s = setup_state(code, code)
+    s.check_function('numpy.random.randint')
+
+# Because the mappings are only found for the substate that is zoomed in on,
+# The `import numpy as np` part is not found, because it's outside of the for loop.
+# This should be fixed!!!
+@pytest.mark.xfail
+def test_check_function_parser_mappings_2():
+    code = "import numpy as np\nfor x in range(0): np.random.randint(1, 7)"
+    s = setup_state(code, code)
+    s.check_for_loop().check_body().check_function('numpy.random.randint')
 
 # Incorrect usage -------------------------------------------------------------
 
