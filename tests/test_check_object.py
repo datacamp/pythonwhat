@@ -305,3 +305,23 @@ def test_several_assignments_2(diff_assign_data):
     })
     assert not res['correct']
     helper.no_line_info(res)
+
+# Object Assignment parser -------------------------------------------------------------
+
+from pythonwhat.parsing import ObjectAssignmentParser
+import ast
+
+@pytest.mark.parametrize('code', [
+    'x = 2',
+    'x = a[1]',
+    'x = a.b[1]',
+    'x = sales.loc[(["ca", "tx"], 2), :]',
+    'x = fun(a)',
+    'x = a + b',
+    'x = (a + b) + c',
+    'x = [ a for b in c ]',
+])
+def test_object_assignment_parser(code):
+    p = ObjectAssignmentParser()
+    p.visit(ast.parse(code))
+    assert 'x' in p.out
