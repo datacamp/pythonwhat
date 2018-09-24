@@ -367,6 +367,17 @@ def test_has_equal_x_2(stu, patt, cols, cole):
     assert message(output, patt)
     assert lines(output, cols, cole)
 
+## Check has no error ---------------------------------------------------------
+
+def test_has_no_error():
+    output = helper.run({
+        'DC_CODE': 'c',
+        'DC_SOLUTION': '',
+        'DC_SCT': 'Ex().has_no_error()'
+    })
+    assert not output['correct']
+    assert message(output, "Have a look at the console: your code contains an error. Fix it and try again!")
+
 ## test_correct ---------------------------------------------------------------
 
 @pytest.mark.parametrize('stu, patt', [

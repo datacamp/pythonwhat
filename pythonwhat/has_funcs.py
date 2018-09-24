@@ -577,6 +577,25 @@ def has_printout(index,
 
     return state
 
+def has_no_error(incorrect_msg="Have a look at the console: your code contains an error. Fix it and try again!", state=None):
+    """Check whether the submission did not generate a runtime error.
+
+    If all SCTs for an exercise pass, before succeeding pythonwhat will automatically check whether
+    the student submission generated an error. If you want to verify whether an error was generated
+    earlier during SCT execution, you can use ``Ex().has_no_error()``.
+
+    Args:
+        incorrect_msg: if specified, this overrides the default message if the student code generated an error.
+    """
+    state.assert_root('has_no_error')
+
+    rep = Reporter.active_reporter
+    if rep.error:
+        _msg = state.build_message(incorrect_msg, { "error": str(rep.error) })
+        rep.do_test(Test(Feedback(_msg, state)))
+
+    return state
+
 MC_VAR_NAME = "selected_option"
 
 def has_chosen(correct, msgs, state=None):
