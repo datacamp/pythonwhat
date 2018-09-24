@@ -105,6 +105,12 @@ def test_has_printout_not_on_root():
     with pytest.raises(InstructorError, match=r"`has_printout\(\)` should only be called from the root state, `Ex\(\)`\."):
         s.check_for_loop().check_body().has_printout(0)
 
+def test_has_no_error_not_on_root():
+    code = 'for i in range(3): pass'
+    s = setup_state(code, code)
+    with pytest.raises(InstructorError, match=r"`has_no_error\(\)` should only be called from the root state, `Ex\(\)`\."):
+        s.check_for_loop().check_body().has_no_error()
+
 def test_check_object_on_root():
     code = 'x = 1'
     check_object = v2_check_functions['check_object']

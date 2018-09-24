@@ -63,7 +63,7 @@ for k in ['with_context', 'check_args', 'check_call']:
     scts[k] = getattr(check_funcs, k)
 
 for k in ['has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'has_equal_part_len',
-          'has_equal_part', 'has_import', 'has_output', 'has_printout', 'has_code', 'has_chosen']:
+          'has_equal_part', 'has_import', 'has_output', 'has_printout', 'has_code', 'has_no_error', 'has_chosen']:
     scts[k] = getattr(has_funcs, k)
 
 # include check_object and friends ------
