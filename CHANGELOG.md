@@ -2,6 +2,21 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.17.0
+
+### Added
+
+- Function `has_no_error()` to check earlier on whether the student did not generate any errors.
+
+### Improved
+
+- Messaging between V1 and V2 is entirely consistent now.
+- No need for `__JINJA__` prefix in custom messages specified in SCTs anymore.
+
+### Removed
+
+- No more support for `expand_message` argument in old 'node checking functions' such as `test_for_loop()`.
+
 ## 2.16.2
 
 ### Added
