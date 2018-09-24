@@ -9,6 +9,7 @@ SCT building blocks
 .. autofunction:: pythonwhat.has_funcs.has_code
 .. autofunction:: pythonwhat.has_funcs.has_output
 .. autofunction:: pythonwhat.has_funcs.has_printout
+.. autofunction:: pythonwhat.has_funcs.has_no_error
 .. autofunction:: pythonwhat.has_funcs.has_import
 .. autofunction:: pythonwhat.has_funcs.has_equal_value
 .. autofunction:: pythonwhat.has_funcs.has_equal_output
