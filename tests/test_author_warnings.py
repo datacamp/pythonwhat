@@ -102,7 +102,7 @@ def test_has_printout_on_root():
 def test_has_printout_not_on_root():
     code = 'for i in range(3): print(i)'
     s = setup_state(code, code)
-    with pytest.raises(InstructorError, match=r"`has_printout\(\)` should only be called from the root state, `Ex\(\)`\."):
+    with pytest.raises(InstructorError, match=r"`has_printout\(\)` should only be called from the root state, `Ex\(\)`\. If you want to check printouts done in e.g. a for loop, you have to use a `check_function\('print'\)` chain instead."):
         s.check_for_loop().check_body().has_printout(0)
 
 def test_has_no_error_not_on_root():
@@ -127,7 +127,7 @@ def test_check_object_not_on_root_v2():
     code = 'for i in range(3): x = 1'
     s = setup_state(code, code)
     with helper.set_v2_only_env('1'):
-        with pytest.raises(InstructorError, match=r"`check_object\(\)` should only be called from the root state, `Ex\(\)`\."):
+        with pytest.raises(InstructorError, match=r"`check_object\(\)` should only be called from the root state, `Ex\(\)`\. If you want to check the value of an object in e.g. a for loop, use `has_equal_value\(name = 'my_obj'\)` instead."):
             s.check_for_loop().check_body().check_object('x')
 
 def test_is_instance_not_on_check_object():

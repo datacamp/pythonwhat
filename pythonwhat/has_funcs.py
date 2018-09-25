@@ -415,30 +415,52 @@ def has_import(name,
                state=None):
     """Checks whether student imported a package or function correctly.
 
+    Python features many ways to import packages.
+    All of these different methods revolve around the ``import``, ``from`` and ``as`` keywords.
+    ``has_import()`` provides a robust way to check whether a student correctly imported a certain package.
+
+    By default, ``has_import()`` allows for different ways of aliasing the imported package or function.
+    If you want to make sure the correct alias was used to refer to the package or function that was imported,
+    set ``same_as=True``.
+
     Args:
         name (str): the name of the package that has to be checked.
         same_as (bool): if True, the alias of the package or function has to be the same. Defaults to False.
         not_imported_msg (str): feedback message when the package is not imported.
         incorrect_as_msg (str): feedback message if the alias is wrong.
 
-
     :Example:
 
-        Student code::
+        Example 1, where aliases don't matter (defaut): ::
 
-            import numpy as np
-            import pandas as pa
+            # solution
+            import matplotlib.pyplot as plt
 
-        Solution code::
+            # sct
+            Ex().has_import("matplotlib.pyplot")
 
-            import numpy as np
-            import pandas as pd
+            # passing submissions
+            import matplotlib.pyplot as plt
+            from matplotlib import pyplot as plt
+            import matplotlib.pyplot as pltttt
 
-        SCT::
+            # failing submissions
+            import matplotlib as mpl
 
-            Ex().has_import("numpy")  # pass
-            Ex().has_import("pandas") # pass
-            Ex().has_import("pandas", same_as=True) # fail
+        Example 2, where the SCT is coded so aliases do matter: ::
+
+            # solution
+            import matplotlib.pyplot as plt
+
+            # sct
+            Ex().has_import("matplotlib.pyplot", same_as=True)
+
+            # passing submissions
+            import matplotlib.pyplot as plt
+            from matplotlib import pyplot as plt
+
+            # failing submissions
+            import matplotlib.pyplot as pltttt
 
     """
 
@@ -546,7 +568,8 @@ def has_printout(index,
             print("random"); print(1, 2, 3, 4)
     """
 
-    state.assert_root('has_printout')
+    extra_msg = "If you want to check printouts done in e.g. a for loop, you have to use a `check_function('print')` chain instead."
+    state.assert_root('has_printout', extra_msg=extra_msg)
 
     if not_printed_msg is None:
         not_printed_msg = "Have you used `{{sol_call}}` to do the appropriate printouts?"

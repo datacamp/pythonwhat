@@ -211,86 +211,6 @@ Check output
     print("this is weird stuff")
     print("Thisis weird stuff")
 
-Check import
-~~~~~~~~~~~~
-
-.. code::
-
-    # solution
-    import matplotlib.pyplot as plt
-
-    # sct
-    Ex().has_import("matplotlib.pyplot")
-
-    # passing submissions
-    import matplotlib.pyplot as plt
-    from matplotlib import pyplot as plt
-    import matplotlib.pyplot as pltttt
-
-    # failing submissions
-    import matplotlib as mpl
-
-
-Check if statement
-~~~~~~~~~~~~~~~~~~
-
-.. code::
-
-    # solution
-    x = 4
-    if x > 0:
-        print("x is strictly positive")
-
-    # sct
-    Ex().check_if_else().multi(
-        check_test().multi([ has_equal_value(extra_env = {'x': i}) for i in [4, -1, 0, 1] ]),
-        check_body().check_function('print', 0).check_args('value').has_equal_value()
-        )
-
-    # passing submission
-    x = 4
-    if 0 < x:
-        print("x is strictly positive")
-
-Check function definition
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code::
-
-    # solution
-    def shout_echo(word1, echo=1):
-        echo_word = word1 * echo
-        shout_words = echo_word + '!!!'
-        return shout_words
-
-    # sct
-    Ex().check_function_def('shout_echo').check_correct(
-        multi(
-            check_call("f('hey', 3)").has_equal_value(),
-            check_call("f('hi', 2)").has_equal_value(),
-            check_call("f('hi')").has_equal_value()
-        ),
-        check_body().set_context('test', 1).multi(
-            has_equal_value(name = 'echo_word'),
-            has_equal_value(name = 'shout_words')
-        )
-    )
-
-Check list comprehensions
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code::
-
-    # solution
-    L2 = [ i*2 for i in range(0,10) if i>2 ]
-
-    # sct
-    Ex().check_list_comp().multi(
-        check_body().has_code('i\*2'),
-        check_iter().has_equal_value(),
-        check_ifs(0).multi([has_equal_value(context_vals=[i]) for i in range(0,10)])
-    )
-
 Check Multiple Choice
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -304,3 +224,23 @@ Check Multiple Choice
                     msgs = ["That's someone who makes soups.",
                             "That's a clown who likes burgers.",
                             "Correct! Head over to the next exercise!"])
+
+Check import
+~~~~~~~~~~~~
+
+`See has_import doc <reference.html#pythonwhat.check_wrappers.has_import>`_
+
+Check if statement
+~~~~~~~~~~~~~~~~~~
+
+`See check_if_else doc <reference.html#pythonwhat.check_wrappers.check_if_else>`_
+
+Check function definition
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`See check_function_def doc <reference.html#pythonwhat.check_wrappers.check_function_def>`_
+
+Check list comprehensions
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`See check_list_comp doc <reference.html#pythonwhat.check_wrappers.check_list_comp>`_

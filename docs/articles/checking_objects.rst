@@ -74,7 +74,7 @@ You can use the `check_keys()` function to 'zoom in' on a particular key in a di
     my_df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
 
     # sct
-    Ex().check_df("my_df").check_key("a").has_equal_value()
+    Ex().check_df("my_df").check_keys("a").has_equal_value()
 
     # passing submissions
     my_df = pd.DataFrame({"a": [1, 1 + 1, 3], "b": [4, 5, 6]})

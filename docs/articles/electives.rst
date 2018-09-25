@@ -175,15 +175,6 @@ by name in the SCT above, they may also be given by position..
 
     Ex().check_for_loop().check_body().set_context(0, 'a').has_equal_output()
 
-
-Instructor Errors
-~~~~~~~~~~~~~~~~~
-
-If you are unsure what variables can be set, it's often easiest to take a guess.
-When you try to set context values that don't match any target variables in the solution code,
-``set_context()`` raises an exception that lists the ones available.
-
-
 with_context
 ============
 
@@ -214,23 +205,5 @@ This code runs by
 
 ``with_context`` was designed to emulate this sequence of events, by setting up context values as in step (1), 
 and replacing step (3) with any sub-tests given as arguments.
-
-
-fail
-====
-
-.. autofunction:: pythonwhat.check_logic.fail
-
-Fails. This function takes a single argument, ``msg``, that is the feedback given to the student.
-Note that this would be a terrible idea for grading submissions, but may be useful while writing SCTs.
-For example, failing a test will highlight the code as if the previous test/check had failed.
-
-As a trivial SCT example,
-
-.. code::
-
-    Ex().check_for_loop().check_body().fail()     # fails boo
-
-This can also be helpful for debugging SCTs, as it can be used to stop testing as a given point.
 
 
