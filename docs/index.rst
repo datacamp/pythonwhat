@@ -21,7 +21,6 @@ The reference docs become useful when you grasp all concepts and want to look up
 
 .. toctree::
    :maxdepth: 2
-   :caption: Reference
 
    reference
 
@@ -34,7 +33,6 @@ The reference docs become useful when you grasp all concepts and want to look up
    articles/checking_function_calls.rst
    articles/make_your_sct_robust.rst
    articles/checking_output.rst
-   articles/checking_imports.rst
    articles/checking_through_string_matching.rst
 
 .. toctree::

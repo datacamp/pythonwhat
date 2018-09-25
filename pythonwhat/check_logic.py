@@ -147,7 +147,23 @@ def check_correct(check, diagnose, state=None):
 # utility functions -----------------------------------------------------------
 
 def fail(msg="", state=None):
-    """Fail test with message"""
+    """Fail SCT
+    
+    This function takes a single argument, ``msg``, that is the feedback given to the student.
+    Note that this would be a terrible idea for grading submissions, but may be useful while writing SCTs.
+    For example, failing a test will highlight the code as if the previous test/check had failed.
+
+    :Example:
+    
+        As a trivial SCT example, ::
+
+            Ex().check_for_loop().check_body().fail()
+
+        This can also be helpful for debugging SCTs, as it can be used to stop testing as a given point.
+
+
+
+"""
     rep = Reporter.active_reporter
     _msg = state.build_message(msg)
     rep.do_test(Test(Feedback(_msg, state)))
@@ -200,8 +216,10 @@ def set_context(*args, state=None, **kwargs):
     the ``has_equal_x()`` functions.
 
     - Note 1: excess args and unmatched kwargs will be unused in the student environment.
-    - Note 2: positional arguments are more robust to the student using different names for context values.
-    - Note 3: You have to specify arguments either by position, either by name. A combination is not possible.
+    - Note 2: When you try to set context values that don't match any target variables in the solution code,
+      ``set_context()`` raises an exception that lists the ones available.
+    - Note 3: positional arguments are more robust to the student using different names for context values.
+    - Note 4: You have to specify arguments either by position, either by name. A combination is not possible.
 
     :Example:
 
@@ -291,8 +309,8 @@ def set_env(state = None, **kwargs):
 
             # check if condition works with different values of a
             Ex().check_if_else().check_test().multi(
-                set_env(a = 3).has_equal_value()
-                set_env(a = 4).has_equal_value()
+                set_env(a = 3).has_equal_value(),
+                set_env(a = 4).has_equal_value(),
                 set_env(a = 5).has_equal_value()
             )
 

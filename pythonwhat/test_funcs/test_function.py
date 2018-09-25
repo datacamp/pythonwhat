@@ -39,7 +39,6 @@ def test_function(name,
     index = index - 1
 
     # if root-level (not in compound statement) calls: use has_printout
-
     if name == 'print' and state.parent_state is None and do_eval:
         try:
             return has_printout(index=index, not_printed_msg=incorrect_msg, state=state)

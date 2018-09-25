@@ -62,7 +62,6 @@ def test_exercise(sct,
 
     return rep.build_final_payload()
 
-
 def success_msg(message):
     """
     Set the succes message of the sct. This message will be the feedback if all tests pass.
