@@ -163,7 +163,7 @@ def is_equal(x, y):
             if objs_are(x, y, [Exception]):
                 # Types of errors don't matter (this is debatable)
                 return str(x) == str(y)
-            if objs_are(x, y, [np.ndarray, dict, list]):
+            if objs_are(x, y, [np.ndarray, dict, list, tuple]):
                 if np.array_equal(x, y): return True
                 np.testing.assert_equal(x, y)
                 return True

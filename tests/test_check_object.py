@@ -34,6 +34,19 @@ def test_check_object_exotic_compare(stu_code, passes):
     assert output['correct'] == passes
 
 @pytest.mark.parametrize('stu_code, passes', [
+    ('x = (np.array([1, 2]), np.array([1, 2]))', False),
+    ('x = (np.array([1, 2]), np.array([3, 4]))', True),
+])
+def test_check_object_exotic_compare2(stu_code, passes):
+    output = helper.run({
+        'DC_PEC': 'import numpy as np',
+        'DC_SOLUTION': 'x = (np.array([1, 2]), np.array([3, 4]))',
+        'DC_SCT': "Ex().check_object('x').has_equal_value()",
+        'DC_CODE': stu_code
+    })
+    assert output['correct'] == passes
+
+@pytest.mark.parametrize('stu_code, passes', [
     ('x = [1, 2, 3]', True),
     ('x = [1, 2, 3, 4]', False)
 ])
