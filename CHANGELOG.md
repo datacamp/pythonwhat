@@ -2,6 +2,16 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.17.1
+
+### Fixed
+
+- Tuples of Numpy arrays can now be checked properly.
+
+### Removed
+
+- Code in `ObjectAssignmentParser` that is not used.
+
 ## 2.17.0
 
 ### Added
