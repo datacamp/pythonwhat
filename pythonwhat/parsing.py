@@ -439,7 +439,6 @@ class ObjectAssignmentParser(Parser):
                 self.out[node.id] = self.get_part(node, self.active_assignment)
             else:
                 self.out[node.id]['highlight'] = None
-                self.out[node.id]['assignments'].append(self.active_assignment)
             self.active_assignment = None
 
     def visit_Attribute(self, node):
@@ -478,11 +477,11 @@ class ObjectAssignmentParser(Parser):
         name = getattr(name_node, 'id', name_node)
         load_name = ast.Name(id=name, ctx=ast.Load())
         ast.fix_missing_locations(load_name)
-        return {'name': name,
-                'node': load_name,
-                'highlight': ass_node or name_node,
-                'assignments': [] if not ass_node else [ass_node]
-                }
+        return {
+            'name': name,
+            'node': load_name,
+            'highlight': ass_node or name_node,
+        }
 
 
 class IfParser(Parser):
