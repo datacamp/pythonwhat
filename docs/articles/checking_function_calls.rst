@@ -72,7 +72,7 @@ Now, the following submissions would fail:
 - ``val=2.718282; dig=3; round(number=val, dig)`` -- same
 - ``int_part = 2; dec_part = 0.718282; round(int_part + dec_part, 3)`` -- the string representation of ``int_part + dec_part`` in the student code is compered to ``2.718282`` in the solution code.
 
-As you can see, doing exact string comparison of arguments is not a good idea, as it is very inflexible.
+As you can see, doing exact string comparison of arguments is not a good idea here, as it is very inflexible.
 There are cases, however, where it makes sense to use this, e.g. when there are very big objects passed to functions,
 and you don't want to spend the processing power to fetch these objects from the student and solution processes.
 
@@ -92,6 +92,27 @@ If the student did not properly call the function, ``check_function()`` will aut
 .. note:
 
     No matter how you import the function, you always have to refer to the function with its full name, e.g. ``package.subpackage1.subpackage2.function``.
+
+has_equal_value? has_equal_ast?
+===============================
+
+In the customizations section above, you could already notice the difference between ``has_equal_value()`` and ``has_equal_ast()`` for checking
+whether arguments are correct. The former **reruns** the expression used to specify the argument in both student and solution process
+and compares their results, while the latter simply compares the expression's AST representations. Clearly, the former is more robust, but there
+are some cases in which ``has_equal_ast()`` can be useful:
+
+- For better feedback. When using ``has_equal_ast()``, the 'expected x got y' message that is automatically generated when the arguments
+  don't match up will use the actual expressions used. ``has_equal_value()`` will use string representations of the evaluations of the expressions,
+  if they make sense, and this is typically less useful.
+- To avoid very expensive object comparisons. If you are 100% sure that the object people have to pass as an argument is already correct (because
+  you checked it earlier in the SCT or because it was already specified in the pre exercise code) and doing an equality check on this object between
+  student and solution project is likely going to be expensive, then you can safely use ``has_equal_ast()`` to speed things up.
+- If you want to save yourself the trouble of building exotic contexts. You'll often find yourself checking function calls in e.g. a for loop.
+  Typically, these function calls will use objects that were generated inside the loop. To easily unit test the body of a for loop, you'll typically
+  have to use ``set_context()`` and ``set_env()``. For exotic for loops, this can become tricky, and it might be a quick fix to be a little more
+  specific about the object names people should use, and just use ``has_equal_ast()`` for the argument comparison. That way, you're bypassing the need
+  to build up a context in the student/solution process and do object comparisions.
+
 
 Signatures
 ==========
@@ -323,7 +344,7 @@ Here:
 - The second SCT is first checking whether ``df.groupby.mean()`` was called and whether calling it gives the right result. Notice several things:
 
   + We describe the entire chain of method calls, leaving out the parentheses and arguments used for method calls in between.
-  + We use ``sig_from_obj()`` to manually specify a Python expression that ``pythonwhat`` can use to derive the signature from.
+  + We use ``sig_from_obj()`` to manually specify a Python expression that pythonwhat can use to derive the signature from.
     If the string you use to describe the function to check evaluates to a method or function in the solution process, like for ``'df.groupby'``,
     pythonwhat can figure out the signature. However, for ``'df.groupby.mean'`` will `not` evaluate to a method object in the solution process,
     so we need to manually specify a valid expression that `will` evaluate to a valid signature with ``sig_from_obj()``.

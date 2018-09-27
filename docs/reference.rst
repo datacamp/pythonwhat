@@ -6,27 +6,6 @@ Reference
     - ``check_`` functions typically 'dive' deeper into a part of the state it was passed. They are typically chained for further checking.
     - ``has_`` functions always return the state that they were intially passed and are used at the 'end' of a chain.
 
-Building blocks
----------------
-
-.. autofunction:: pythonwhat.has_funcs.has_code
-.. autofunction:: pythonwhat.has_funcs.has_output
-.. autofunction:: pythonwhat.has_funcs.has_printout
-.. autofunction:: pythonwhat.has_funcs.has_no_error
-.. autofunction:: pythonwhat.has_funcs.has_import
-.. autofunction:: pythonwhat.has_funcs.has_equal_value
-.. autofunction:: pythonwhat.has_funcs.has_equal_output
-.. autofunction:: pythonwhat.has_funcs.has_equal_error
-.. autofunction:: pythonwhat.has_funcs.has_equal_ast
-
-Combining SCTs
---------------
-
-.. autofunction:: pythonwhat.check_logic.multi
-.. autofunction:: pythonwhat.check_logic.check_correct
-.. autofunction:: pythonwhat.check_logic.check_or
-.. autofunction:: pythonwhat.check_logic.check_not
-
 Objects
 -------
 
@@ -40,6 +19,35 @@ Function calls
 
 .. autofunction:: pythonwhat.check_function.check_function
 .. autofunction:: pythonwhat.check_funcs.check_args
+
+Output
+------
+
+.. autofunction:: pythonwhat.has_funcs.has_output
+.. autofunction:: pythonwhat.has_funcs.has_printout
+.. autofunction:: pythonwhat.has_funcs.has_no_error
+
+Code
+----
+
+.. autofunction:: pythonwhat.has_funcs.has_code
+.. autofunction:: pythonwhat.has_funcs.has_import
+
+has_equal_x
+-----------
+
+.. autofunction:: pythonwhat.has_funcs.has_equal_value
+.. autofunction:: pythonwhat.has_funcs.has_equal_output
+.. autofunction:: pythonwhat.has_funcs.has_equal_error
+.. autofunction:: pythonwhat.has_funcs.has_equal_ast
+
+Combining SCTs
+--------------
+
+.. autofunction:: pythonwhat.check_logic.multi
+.. autofunction:: pythonwhat.check_logic.check_correct
+.. autofunction:: pythonwhat.check_logic.check_or
+.. autofunction:: pythonwhat.check_logic.check_not
 
 Function/Class/Lambda definitions
 ---------------------------------

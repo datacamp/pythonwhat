@@ -29,10 +29,8 @@ The reference docs become useful when you grasp all concepts and want to look up
    :caption: Basic articles
 
    articles/tutorial.rst
-   articles/checking_objects.rst
    articles/checking_function_calls.rst
    articles/make_your_sct_robust.rst
-   articles/checking_output.rst
    articles/checking_through_string_matching.rst
 
 .. toctree::
