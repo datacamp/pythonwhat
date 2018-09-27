@@ -15,30 +15,136 @@ def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="
     Check whether an object is defined in the student's process, and zoom in on its value in both
     student and solution process to inspect quality (with has_equal_value().
 
+    In ``pythonbackend``, both the student's submission as well as the solution code are executed, in separate processes.
+    ``check_object()`` looks at these processes and checks if the referenced object is available in the student process.
+    Next, you can use ``has_equal_value()`` to check whether the objects in the student and solution process correspond.
+
     Args:
         index (str): the name of the object which value has to be checked.
         missing_msg (str): feedback message when the object is not defined in the student process.
-        expand_msg (str): prepending message to put in front.
+        expand_msg (str): If specified, this overrides any messages that are prepended by previous SCT chains.
+
+    :Example:
+        
+        Suppose you want the student to create a variable ``x``, equal to 15: ::
+
+            x = 15
+
+        The following SCT will verify this: ::
+
+            Ex().check_object("x").has_equal_value()
+
+        - ``check_object()`` will check if the variable ``x`` is defined in the student process.
+        - ``has_equal_value()`` will check whether the value of ``x`` in the solution process is the same as in the student process.
+        
+        Note that ``has_equal_value()`` only looks at **end result** of a variable in the student process.
+        In the example, how the object ``x`` came about in the student's submission, does not matter.    
+        This means that all of the following submission will also pass the above SCT: ::
+
+            x = 15
+            x = 12 + 3
+            x = 3; x += 12
 
     :Example:
 
-        Student code::
+        As the previous example mentioned, ``has_equal_value()`` only looks at the **end result**. If your exercise is
+        first initializing and object and further down the script is updating the object, you can only look at the final value!
 
-            b = 1
-            c = 3
+        Suppose you want the student to initialize and populate a list `my_list` as follows: ::
 
-        Solution code::
+            my_list = []
+            for i in range(20):
+                if i % 3 == 0:
+                    my_list.append(i)
 
-            a = 1
-            b = 2
-            c = 3
+        There is no robust way to verify whether `my_list = [0]` was coded correctly in a separate way.
+        The best SCT would look something like this: ::
 
-        SCT::
+            msg = "Have you correctly initialized `my_list`?"
+            Ex().check_correct(
+                check_object('my_list').has_equal_value(),
+                multi(
+                    # check initialization: [] or list()
+                    check_or(
+                        has_equal_ast(code = "[]", incorrect_msg = msg),
+                        check_function('list')
+                    ),
+                    check_for_loop().multi(
+                        check_iter().has_equal_value(),
+                        check_body().check_if_else().multi(
+                            check_test().multi(
+                                set_context(2).has_equal_value(),
+                                set_context(3).has_equal_value()
+                            ),
+                            check_body().set_context(3).\\
+                                set_env(my_list = [0]).\\
+                                has_equal_value(name = 'my_list')
+                        )
+                    )
+                )
+            )
+        
+        - ``check_correct()`` is used to robustly check whether ``my_list`` was built correctly.
+        - If ``my_list`` is not correct, **both** the initialization and the population code are checked.
+    
+    :Example:
 
-            Ex().check_object("a")                    # fail
-            Ex().check_object("b")                    # pass
-            Ex().check_object("b").has_equal_value()  # fail
-            Ex().check_object("c").has_equal_value()  # pass
+        Because checking object correctness incorrectly is such a common misconception, we're adding another example: ::
+
+            import pandas as pd
+            df = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]})
+            df['c'] = [7, 8, 9]
+        
+        The following SCT would be **wrong**, as it does not factor in the possibility that the 'add column ``c``' step could've been wrong: ::
+
+            Ex().check_correct(
+                check_object('df').has_equal_value(),
+                check_function('pandas.DataFrame').check_args(0).has_equal_value()
+            )
+
+        The following SCT would be better, as it is specific to the steps: ::
+
+            # verify the df = pd.DataFrame(...) step
+            Ex().check_correct(
+                check_df('df').multi(
+                    check_keys('a').has_equal_value(),
+                    check_keys('b').has_equal_value()
+                ),
+                check_function('pandas.DataFrame').check_args(0).has_equal_value()
+            )
+
+            # verify the df['c'] = [...] step
+            Ex().check_df('df').check_keys('c').has_equal_value()
+
+    :Example:
+
+        pythonwhat compares the objects in the student and solution process with the ``==`` operator.
+        For basic objects, this ``==`` is operator is properly implemented, so that the objects can be effectively compared.
+        For more complex objects that are produced by third-party packages, however, it's possible that this equality operator is not implemented in a way you'd expect.
+        Often, for these object types the ``==`` will compare the actual object instances: ::
+
+            # pre exercise code
+            class Number():
+                def __init__(self, n):
+                    self.n = n
+
+            # solution
+            x = Number(1)
+
+            # sct that won't work
+            Ex().check_object().has_equal_value()
+
+            # sct
+            Ex().check_object().has_equal_value(expr_code = 'x.n')
+
+            # submissions that will pass this sct
+            x = Number(1)
+            x = Number(2 - 1)
+    
+        The basic SCT like in the previous example will notwork here.
+        Notice how we used the ``expr_code`` argument to _override_ which value `has_equal_value()` is checking.
+        Instead of checking whether `x` corresponds between student and solution process, it's now executing the expression ``x.n``
+        and seeing if the result of running this expression in both student and solution process match.
 
     """
 
@@ -119,7 +225,45 @@ def is_instance(inst, not_instance_msg=None, state=None):
     return state
 
 def check_df(index, missing_msg=None, not_instance_msg=None, expand_msg=None, state=None):
-    """Check whether a DataFrame was defined and it is the right type"""
+    """Check whether a DataFrame was defined and it is the right type
+    
+    ``check_df()`` is a combo of ``check_object()`` and ``is_instance()`` that checks whether the specified object exists
+    and whether the specified object is pandas DataFrame.
+
+    You can continue checking the data frame with ``check_keys()`` function to 'zoom in' on a particular column in the pandas DataFrame:
+
+    Args:
+        index (str): Name of the data frame to zoom in on.
+        missing_msg (str): See ``check_object()``.
+        not_instance_msg (str): See ``is_instance()``.
+        expand_msg (str): If specified, this overrides any messages that are prepended by previous SCT chains.
+
+    :Example:
+
+        Suppose you want the student to create a DataFrame ``my_df`` with two columns.
+        The column ``a`` should contain the numbers 1 to 3,
+        while the contents of column ``b`` can be anything: ::
+
+            import pandas as pd
+            my_df = pd.DataFrame({"a": [1, 2, 3], "b": ["a", "n", "y"]})
+
+        The following SCT would robustly check that: ::
+
+            Ex().check_df("my_df").multi(
+                check_keys("a").has_equal_value(),
+                check_keys("b")
+            )
+
+        - ``check_df()`` checks if ``my_df`` exists (``check_object()`` behind the scenes) and is a DataFrame (``is_instance()``)
+        - ``check_keys("a")`` zooms in on the column ``a`` of the data frame, and ``has_equal_value()`` checks if the columns correspond between student and solution process.
+        - ``check_keys("b")`` zooms in on hte column ``b`` of the data frame, but there's no 'equality checking' happening
+        
+        The following submissions would pass the SCT above: ::
+            
+            my_df = pd.DataFrame({"a": [1, 1 + 1, 3], "b": ["a", "l", "l"]})
+            my_df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6], "c": [7, 8, 9]})
+
+    """
     child = check_object(index, missing_msg=missing_msg, expand_msg=expand_msg, state=state, typestr="pandas DataFrame")
     is_instance(pd.DataFrame, not_instance_msg=not_instance_msg, state=child)
     return child
@@ -134,6 +278,7 @@ def check_keys(key, missing_msg=None, expand_msg=None, state=None):
         key (str): Name of the key that the object should have.
         missing_msg (str): When specified, this overrides the automatically generated
             message in case the key does not exist.
+        expand_msg (str): If specified, this overrides any messages that are prepended by previous SCT chains.
         state (State): The state that is passed in through the SCT chain (don't specify this).
 
     :Example:

@@ -34,8 +34,17 @@ def check_function(name, index=0,
                    state=None):
     """Check whether a particular function is called.
 
-    This function is typically followed by ``check_args()`` to check whether the arguments were
-    specified correctly.
+    ``check_function()`` is typically followed by:
+    
+    - ``check_args()`` to check whether the arguments were specified.
+      In turn, ``check_args()`` can be followed by ``has_equal_value()`` or ``has_equal_ast()``
+      to assert that the arguments were correctly specified.
+    - ``has_equal_value()`` to check whether rerunning the function call coded by the student
+      gives the same result as calling the function call as in the solution.
+
+    Checking function calls is a tricky topic. Please visit the
+    `dedicated article <articles/checking_function_calls.html>`_ for more explanation,
+    edge cases and best practices.
 
     Args:
         name (str): the name of the function to be tested. When checking functions in packages, always

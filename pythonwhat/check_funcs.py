@@ -380,7 +380,7 @@ def check_call(callstr, argstr = None, expand_msg=None, state=None):
         callstr (str): call string that specifies how the function should be called, e.g. `f(1, a = 2)`.
            ``check_call()`` will replace ``f`` with the function/lambda you're targeting.
         argstr (str): If specified, this overrides the way the function call is refered to in the expand message.
-        expand_msg (str): If specified, this overrides the expand message.
+        expand_msg (str): If specified, this overrides any messages that are prepended by previous SCT chains.
         state (State): state object that is chained from.
 
     :Example:

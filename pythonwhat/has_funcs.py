@@ -487,9 +487,12 @@ def has_output(text,
                pattern=True,
                no_output_msg=None,
                state=None):
-    """Search student output.
+    """Search student output for a pattern.
 
-    Checks if the output contains a (pattern of) text.
+    Among the student and solution process, the student submission and solution code as a string,
+    the ``Ex()`` state also contains the output that a student generated with his or her submission.
+
+    With ``has_output()``, you can access this output and match it against a regular or fixed expression.
 
     Args:
         text (str): the text that is searched for
@@ -498,15 +501,22 @@ def has_output(text,
 
     :Example:
 
-        SCT::
+        As an example, suppose we want a student to print out a sentence: ::
 
-            Ex().has_output(r'[H|h]i,*\\s+there!')
+            # Print the "This is some ... stuff"
+            print("This is some weird stuff")
 
-        Submissions::
+        The following SCT tests whether the student prints out ``This is some weird stuff``: ::
 
-            print("Hi, there!")     # pass
-            print("hi  there!")     # pass
-            print("Hello there")    # fail
+            # Using exact string matching
+            Ex().has_output("This is some weird stuff", pattern = False)
+
+            # Using a regular expression (more robust)
+            # pattern = True is the default
+            msg = "Print out ``This is some ... stuff`` to the output, " + \\
+                  "fill in ``...`` with a word you like."
+            Ex().has_output(r"This is some \w* stuff", no_output_msg = msg)
+
     """
     rep = Reporter.active_reporter
 
@@ -529,16 +539,13 @@ def has_printout(index,
                  name=None,
                  copy=False,
                  state=None):
-    """Check if the output of print() statement in the solution is in the output the student generated.
+    """Check if the right printouts happened.
+
+    ``has_printout()`` will look for the printout in the solution code that you specified with ``index`` (0 in this case), rerun the ``print()`` call in
+    the solution process, capture its output, and verify whether the output is present in the output of the student.
 
     This is more robust as ``Ex().check_function('print')`` initiated chains as students can use as many
     printouts as they want, as long as they do the correct one somewhere.
-
-    .. note::
-
-        When zooming in on parts of the student submission (with e.g. ``check_for_loop()``), we are not
-        zooming in on the piece of the student output that is related to that piece of the student code.
-        In other words, ``has_printout()`` always considers the entire student output.
 
     Args:
         index (int): index of the ``print()`` call in the solution whose output you want to search for in the student output.
@@ -552,20 +559,43 @@ def has_printout(index,
 
     :Example:
 
-        Solution::
+        Suppose you want somebody to print out 4: ::
 
             print(1, 2, 3, 4)
 
-        SCT::
+        The following SCT would check that: ::
 
             Ex().has_printout(0)
 
-        Each of these submissions will pass::
+        All of the following SCTs would pass: ::
 
             print(1, 2, 3, 4)
             print('1 2 3 4')
             print(1, 2, '3 4')
             print("random"); print(1, 2, 3, 4)
+
+    :Example:
+
+        Watch out: ``has_printout()`` will effectively **rerun** the ``print()`` call in the solution process after the entire solution script was executed.
+        If your solution script updates the value of `x` after executing it, ``has_printout()`` will not work.
+
+        Suppose you have the following solution: ::
+
+            x = 4
+            print(x)
+            x = 6
+
+        The following SCT will not work: ::
+        
+            Ex().has_printout(0)
+
+        Why? When the ``print(x)`` call is executed, the value of ``x`` will be 6, and pythonwhat will look for the output `'6`' in the output the student generated.
+        In cases like these, default to using the classical pattern to check function calls.
+
+        The following SCT **will** work: ::
+
+            Ex().check_function('print').check_args(0).has_equal_value()
+
     """
 
     extra_msg = "If you want to check printouts done in e.g. a for loop, you have to use a `check_function('print')` chain instead."
@@ -603,12 +633,52 @@ def has_printout(index,
 def has_no_error(incorrect_msg="Have a look at the console: your code contains an error. Fix it and try again!", state=None):
     """Check whether the submission did not generate a runtime error.
 
-    If all SCTs for an exercise pass, before succeeding pythonwhat will automatically check whether
-    the student submission generated an error. If you want to verify whether an error was generated
-    earlier during SCT execution, you can use ``Ex().has_no_error()``.
+    If all SCTs for an exercise pass, before marking the submission as correct pythonwhat will automatically check whether
+    the student submission generated an error. This means it is not needed to use ``has_no_error()`` explicitly.
+
+    However, in some cases, using ``has_no_error()`` explicitly somewhere throughout your SCT execution can be helpful:
+    
+    - If you want to make sure people didn't write typos when writing a long function name.
+    - If you want to first verify whether a function actually runs, before checking whether the arguments were specified correctly.
+    - More generally, if, because of the content, it's instrumental that the script runs without
+      errors before doing any other verifications.
 
     Args:
         incorrect_msg: if specified, this overrides the default message if the student code generated an error.
+
+    :Example:
+
+        Suppose you're verifying an exercise about model training and validation: ::
+
+            # pre exercise code
+            import numpy as np
+            from sklearn.model_selection import train_test_split
+            from sklearn import datasets
+            from sklearn import svm
+
+            iris = datasets.load_iris()
+            iris.data.shape, iris.target.shape
+
+            # solution
+            X_train, X_test, y_train, y_test = train_test_split(
+                iris.data, iris.target, test_size=0.4, random_state=0)
+
+        If you want to make sure that ``train_test_split()`` ran without errors,
+        which would check if the student typed the function without typos and used
+        sensical arguments, you could use the following SCT: ::
+        
+            Ex().has_no_error()
+            Ex().check_function('sklearn.model_selection.train_test_split').multi(
+                check_args(['arrays', 0]).has_equal_value(),
+                check_args(['arrays', 0]).has_equal_value(),
+                check_args(['options', 'test_size']).has_equal_value(),
+                check_args(['options', 'random_state']).has_equal_value()
+            )
+        
+        If, on the other hand, you want to fall back onto pythonwhat's built in behavior,
+        that checks for an error before marking the exercise as correct, you can simply
+        leave of the ``has_no_error()`` step.
+
     """
     state.assert_root('has_no_error')
 
