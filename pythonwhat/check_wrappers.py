@@ -311,6 +311,60 @@ __NODE_WRAPPERS__ = {
                 # passing submission 2
                 def shout_echo(a, b=1):
                     return a * b + '!!!'
+
+        :Example:
+
+            ``check_args()`` is most commonly used in combination with ``check_function()``
+            to verify the arguments of function **calls**, but it can also be used
+            to verify the arguments specified in the signature of a function definition.
+
+            We can extend the SCT for the previous example to explicitly verify the signature: ::
+
+
+                msg1 = "Make sure to specify 2 arguments!"
+                msg2 = "don't specify default arg!"
+                msg3 = "specify a default arg!"
+                Ex().check_function_def('shout_echo').check_correct(
+                    multi(
+                        check_call("f('hey', 3)").has_equal_value(),
+                        check_call("f('hi', 2)").has_equal_value(),
+                        check_call("f('hi')").has_equal_value()
+                    ),
+                    multi(
+                        has_equal_part_len("args", unequal_msg=1),
+                        check_args(0).has_equal_part('is_default', msg=msg2),
+                        check_args('word1').has_equal_part('is_default', msg=msg2),
+                        check_args(1).\\
+                            has_equal_part('is_default', msg=msg3).has_equal_value(),
+                        check_args('echo').\\
+                            has_equal_part('is_default', msg=msg3).has_equal_value(),
+                        check_body().set_context('test', 1).multi(
+                            has_equal_value(name = 'echo_word'),
+                            has_equal_value(name = 'shout_words')
+                        )
+                    )
+                )
+
+            - ``has_equal_part_len("args")`` verifies whether student and solution function
+              definition have the same number of arguments.
+            - ``check_args(0)`` refers to the first argument in the signature by position,
+              and the chain checks whether the student did not specify a default as in the solution.
+            - An alternative for the ``check_args(0)`` chain is to use ``check_args('word1')``
+              to refer to the first argument. This is more restrictive, as the requires the
+              student to use the exact same name.
+            - ``check_args(1)`` refers to the second argument in the signature by position,
+              and the chain checks whether the student specified a default, as in the solution, and
+              whether the value of this default corresponds to the one in the solution.
+            - The ``check_args('echo')`` chain is a more restrictive alternative for the ``check_args(1)``
+              chain.
+
+            Notice that support for verifying arguments is not great yet:
+
+            - A lot of work is needed to verify the number of arguments and whether or not defaults are set.
+            - You ahve to specify custom messages because pythonwhat doesn't automatically generate messages.
+
+            We are working on it!
+
         """
     },
     'class_def': {
