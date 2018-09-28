@@ -183,6 +183,41 @@ DEFAULT_ERROR_MSG_INV="Running {{'it' if parent['part'] else 'the higlighted exp
 DEFAULT_UNDEFINED_NAME_MSG="Running {{'it' if parent['part'] else 'the higlighted expression'}} should define a variable `{{name}}` without errors, but it doesn't."
 DEFAULT_INCORRECT_NAME_MSG="Are you sure you assigned the correct value to `{{name}}`?"
 DEFAULT_INCORRECT_EXPR_CODE_MSG="Running the expression `{{expr_code}}` didn't generate the expected result."
+
+args_string = """
+
+    Args:
+        incorrect_msg (str): feedback message if the {0} of the expression in the solution
+          doesn't match the one of the student. This feedback message will be expanded if it is used
+          in the context of another check function, like ``check_if_else``.
+        error_msg (str): feedback message if there was an error when running the targeted student code.
+          Note that when testing for an error, this message is displayed when none is raised.
+        undefined_msg (str): feedback message if the ``name`` argument is defined, but a variable
+          with that name doesn't exist after running the targeted student code.
+        extra_env (dict): set variables to the extra environment. They will update the student and solution environment in
+          the active state before the student/solution code in the active state is ran. This argument should contain a
+          dictionary with the keys the names of the variables you want to set, and the values are the values of these variables.
+          You can also use ``set_env()`` for this.
+        context_vals (list): set variables which are bound in a ``for`` loop to certain values.
+          This argument is only useful when checking a for loop (or list comprehensions).
+          It contains a list with the values of the bound variables.
+          You can also use ``set_context()`` for this.
+        pre_code (str): the code in string form that should be executed before the expression is executed.
+          This is the ideal place to set a random seed, for example.
+        expr_code (str): if this argument is set, the expression in the student/solution code will not
+          be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
+          and the result will be compared.
+        name (str): If this is specified, the {0} of running this expression after running the focused expression
+          is returned, instead of the {0} of the focussed expression in itself. This is typically used to inspect the
+          {0} of an object after executing the body of e.g. a ``for`` loop.
+        copy (bool): whether to try to deep copy objects in the environment, such as lists, that could
+          accidentally be mutated. Disable to speed up SCTs. Disabling may lead to cryptic mutation issues.
+        func: custom binary function of form f(stu_result, sol_result), for equality testing.
+        override: If specified, this avoids the execution of the targeted code in the solution process. Instead, it
+          will compare the {0} of the expression in the student process with the value specified in ``override``.
+          Typically used in a ``SingleProcessExercise`` or if you want to allow for different solutions other than
+          the one coded up in the solution.
+    """
 def has_expr(incorrect_msg=None,
              error_msg=None,
              undefined_msg=None,
@@ -281,43 +316,6 @@ def has_expr(incorrect_msg=None,
     rep.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, state), func))
 
     return state
-
-
-
-args_string = """
-
-    Args:
-        incorrect_msg (str): feedback message if the {0} of the expression in the solution
-          doesn't match the one of the student. This feedback message will be expanded if it is used
-          in the context of another check function, like ``check_if_else``.
-        error_msg (str): feedback message if there was an error when running the targeted student code.
-          Note that when testing for an error, this message is displayed when none is raised.
-        undefined_msg (str): feedback message if the ``name`` argument is defined, but a variable
-          with that name doesn't exist after running the targeted student code.
-        extra_env (dict): set variables to the extra environment. They will update the student and solution environment in
-          the active state before the student/solution code in the active state is ran. This argument should contain a
-          dictionary with the keys the names of the variables you want to set, and the values are the values of these variables.
-          You can also use ``set_env()`` for this.
-        context_vals (list): set variables which are bound in a ``for`` loop to certain values.
-          This argument is only useful when checking a for loop (or list comprehensions).
-          It contains a list with the values of the bound variables.
-          You can also use ``set_context()`` for this.
-        pre_code (str): the code in string form that should be executed before the expression is executed.
-          This is the ideal place to set a random seed, for example.
-        expr_code (str): if this argument is set, the expression in the student/solution code will not
-          be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
-          and the result will be compared.
-        name (str): If this is specified, the {0} of running this expression after running the focused expression
-          is returned, instead of the {0} of the focussed expression in itself. This is typically used to inspect the
-          {0} of an object after executing the body of e.g. a ``for`` loop.
-        copy (bool): whether to try to deep copy objects in the environment, such as lists, that could
-          accidentally be mutated. Disable to speed up SCTs. Disabling may lead to cryptic mutation issues.
-        func: custom binary function of form f(stu_result, sol_result), for equality testing.
-        override: If specified, this avoids the execution of the targeted code in the solution process. Instead, it
-          will compare the {0} of the expression in the student process with the value specified in ``override``.
-          Typically used in a ``SingleProcessExercise`` or if you want to allow for different solutions other than
-          the one coded up in the solution.
-    """
 
 has_equal_value =  partial(has_expr, test = 'value')
 has_equal_value.__doc__ = """Run targeted student and solution code, and compare returned value.
@@ -590,11 +588,25 @@ def has_printout(index,
             Ex().has_printout(0)
 
         Why? When the ``print(x)`` call is executed, the value of ``x`` will be 6, and pythonwhat will look for the output `'6`' in the output the student generated.
-        In cases like these, default to using the classical pattern to check function calls.
+        In cases like these, ``has_printout()`` cannot be used.
 
-        The following SCT **will** work: ::
+    :Example:
 
-            Ex().check_function('print').check_args(0).has_equal_value()
+        Inside a for loop ``has_printout()`` 
+
+        Suppose you have the following solution: ::
+
+            for i in range(5):
+                print(i)
+
+        The following SCT will not work: ::
+        
+            Ex().check_for_loop().check_body().has_printout(0)
+
+        The reason is that ``has_printout()`` can only be called from the root state. ``Ex()``.
+        If you want to check printouts done in e.g. a for loop, you have to use a `check_function('print')` chain instead: ::
+
+            Ex().check_for_loop().check_body().set_context(0).check_function('print').check_args(0).has_equal_value()
 
     """
 

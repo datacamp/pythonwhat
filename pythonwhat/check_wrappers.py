@@ -361,7 +361,7 @@ __NODE_WRAPPERS__ = {
             Notice that support for verifying arguments is not great yet:
 
             - A lot of work is needed to verify the number of arguments and whether or not defaults are set.
-            - You ahve to specify custom messages because pythonwhat doesn't automatically generate messages.
+            - You have to specify custom messages because pythonwhat doesn't automatically generate messages.
 
             We are working on it!
 
