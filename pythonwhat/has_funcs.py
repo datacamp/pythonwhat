@@ -606,7 +606,9 @@ def has_printout(index,
         The reason is that ``has_printout()`` can only be called from the root state. ``Ex()``.
         If you want to check printouts done in e.g. a for loop, you have to use a `check_function('print')` chain instead: ::
 
-            Ex().check_for_loop().check_body().set_context(0).check_function('print').check_args(0).has_equal_value()
+            Ex().check_for_loop().check_body().\\
+                set_context(0).check_function('print').\\
+                check_args(0).has_equal_value()
 
     """
 
