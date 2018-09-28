@@ -2,6 +2,24 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.17.2
+
+### Improved
+
+Documentation has been improved significantly (hopefully):
+
+- Every 'compound statement check' has an example with explanation in the reference now.
+- Common usecases have additional examples
+- Checking compound statements article has been simplified, limits to context now.
+- More helpful message in case check_object or has_printout not called on root state
+- More helpful message in case the zoomed in on object is not an AST
+- Explain has_equal_value vs has_equal_ast
+- Get rid of some articles in favor of more fleshed out reference documentation
+
+### Fixed
+
+- CI is now using the `datacamp` account on PyPi
+
 ## 2.17.1
 
 ### Fixed
