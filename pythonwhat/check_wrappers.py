@@ -558,7 +558,7 @@ __NODE_WRAPPERS__ = {
 
         :Example:
 
-            Suppose you want to verify whether the student did a `try-except` statement properly:
+            Suppose you want to verify whether the student did a `try-except` statement properly: ::
 
                 do_dangerous_thing = lambda n: n
 
