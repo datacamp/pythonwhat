@@ -7,8 +7,8 @@
 
 Verify Python code submissions and auto-generate meaningful feedback messages. Originally developed for Python exercises on DataCamp for so-called Submission Correctness Tests, but can also be used independently.
 
-- New to teaching on DataCamp? Check out https://authoring.datacamp.com.
-- To learn what SCTs are and how they work, visit [this article](https://authoring.datacamp.com/courses/exercises/technical-details/sct.html) specifically.
+- New to teaching on DataCamp? Check out https://instructor-support.datacamp.com
+- To learn what SCTs are and how they work, visit [this article](https://instructor-support.datacamp.com/courses/course-development/submission-correctness-tests) specifically.
 - For a complete overview of all functionality inside pythonwhat and articles about what to use when, consult https://pythonwhat.readthedocs.io.
 
 ## Installation
@@ -48,7 +48,7 @@ dir(Ex()._state)          # list all elements available in the state object
 Ex()._state.student_code  # access student_code of state object
 ```
 
-To learn how to include an SCT in a DataCamp course, visit https://authoring.datacamp.com.
+To learn how to include an SCT in a DataCamp course, visit https://instructor-support.datacamp.com.
 
 ## Run tests
 
