@@ -12,7 +12,7 @@ When all tests in an SCT pass, pythonwhat will automatically generate a congratu
     success_msg("You are a hero when it comes to variable assignment!")
 
 
-`This article <https://authoring.datacamp.com/courses/exercises/all-exercise-types/success-message.html>`_ on the authoring docs describes how to write good success messages.
+`This article <https://instructor-support.datacamp.com/courses/course-development/success-messages-best-practices>`_ on the authoring docs describes how to write good success messages.
 
 
 Multiple choice exercises

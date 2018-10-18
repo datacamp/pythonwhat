@@ -1,7 +1,7 @@
 Processes
 ---------
 
-As explained on the `SCT authoring homepage <https://authoring.datacamp.com/courses/sct.html>`_, DataCamp's Python coding backends use uses two separate processes: one process to run the solution code, and one process to run the student's submission.
+As explained on the `SCT authoring homepage <https://instructor-support.datacamp.com/courses/course-development/submission-correctness-tests>`_, DataCamp's Python coding backends use uses two separate processes: one process to run the solution code, and one process to run the student's submission.
 As such, pythonwhat has access to the 'ideal ending scenario' of an exercises, which in turn makes it easier to write SCTs.
 Instead of having to specify which value an object should be, we can have pythonwhat look into the solution process and compare the object in that process with the object in the student process.
 
