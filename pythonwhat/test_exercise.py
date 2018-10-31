@@ -14,7 +14,8 @@ def test_exercise(sct,
                   solution_process,
                   raw_student_output,
                   ex_type,
-                  error):
+                  error,
+                  force_diagnose=False):
     """
     Point of interaction with the Python backend.
     Args:
@@ -42,7 +43,8 @@ def test_exercise(sct,
             pre_exercise_code = check_str(pre_exercise_code),
             student_process = check_process(student_process),
             solution_process = check_process(solution_process),
-            raw_student_output = check_str(raw_student_output)
+            raw_student_output = check_str(raw_student_output),
+            force_diagnose = force_diagnose
         )
 
         State.root_state = state

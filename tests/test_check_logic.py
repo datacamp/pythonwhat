@@ -95,6 +95,22 @@ def test_check_correct(sct, passes, msg):
     if msg: assert output['message'] == msg
 
 @pytest.mark.parametrize('sct, passes, msg', [
+    ("Ex().check_correct(has_code('a'), has_code('b'))", False, None),
+    ("Ex().check_correct(has_code('a'), has_code('c'))", False, None),
+    ("Ex().check_correct(has_code('b'), has_code('c', not_typed_msg='x'))", False, 'x'),
+    ("Ex().check_correct(has_code('b', not_typed_msg='x'), has_code('a'))", False, 'x')
+])
+def test_check_correct_force_diagnose(sct, passes, msg):
+    data = {
+        'DC_CODE': "'a'",
+        'DC_SCT': sct,
+        'DC_FORCE_DIAGNOSE': True
+    }
+    output = helper.run(data)
+    assert output['correct'] == passes
+    if msg: assert output['message'] == msg
+
+@pytest.mark.parametrize('sct, passes, msg', [
     ("test_correct(lambda: test_student_typed('a'), lambda: test_student_typed('b'))", True, None),
     ("test_correct(test_student_typed('a'), test_student_typed('b'))", True, None),
     ("Ex().test_correct(has_code('a'), has_code('b'))", True, None),
