@@ -137,12 +137,21 @@ def check_correct(check, diagnose, state=None):
             )
 
     """
-    def diagnose_and_check(state=None):
-        # use multi twice, since diagnose and check may be lists of tests
-        multi(diagnose, state=state)
+    feedback = None
+    try:
         multi(check, state=state)
+    except TestFail as e:
+        feedback = e.feedback
 
-    check_or(diagnose_and_check, check, state=state)
+    try:
+        multi(diagnose, state=state)
+    except TestFail as e:
+        if feedback is not None or state.force_diagnose:
+            feedback = e.feedback
+
+    if feedback is not None:
+        rep = Reporter.active_reporter
+        rep.do_test(Test(feedback))
 
 # utility functions -----------------------------------------------------------
 

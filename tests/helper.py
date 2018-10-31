@@ -16,6 +16,7 @@ def run(data, run_code = True):
     stu_code = data.get("DC_CODE", "")
     sol_code = data.get("DC_SOLUTION", "")
     sct = data.get("DC_SCT", "")
+    force_diagnose = data.get("DC_FORCE_DIAGNOSE", False)
 
     class ChDir(object):
         """
@@ -61,6 +62,7 @@ def run(data, run_code = True):
                                 solution_process=sol_process,
                                 raw_student_output = raw_stu_output,
                                 ex_type = "NormalExercise",
+                                force_diagnose = force_diagnose,
                                 error = error)
 
     return res

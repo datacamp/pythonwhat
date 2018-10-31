@@ -49,6 +49,7 @@ class State(object):
                  student_parts=None, solution_parts=None, 
                  highlight = None,
                  highlighting_disabled = None, messages=None,
+                 force_diagnose = False,
                  **kwargs):
 
         # Set basic fields from kwargs
@@ -57,6 +58,7 @@ class State(object):
         self.student_parts = student_parts
         self.solution_parts = solution_parts
         self.messages = messages if messages else []
+        self.force_diagnose = force_diagnose
 
         # parse code if didn't happen yet
         if not hasattr(self, 'student_tree'):
@@ -194,7 +196,8 @@ class State(object):
                       highlight = highlight,
                       highlighting_disabled = highlighting_disabled,
                       messages = messages,
-                      parent_state = self)
+                      parent_state = self,
+                      force_diagnose=self.force_diagnose)
         return(child)
 
     def update(self, **kwargs):
