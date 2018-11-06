@@ -46,7 +46,7 @@ def state_dec(f):
 class Chain:
     def __init__(self, state):
         self._state = state
-        self._crnt_sct = None
+        self._crnt_sct = None  # last called SCT
         self._waiting_on_call = False
 
     def _double_attr_error(self):
@@ -91,6 +91,7 @@ class F(Chain):
 
     def __call__(self, *args, **kwargs):
         if not self._crnt_sct:
+            # first function in chain
             state = kwargs.get('state') or args[0]
             return reduce(lambda s, f: f(state=s), self._stack, state)
         else:

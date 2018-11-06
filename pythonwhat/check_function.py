@@ -56,7 +56,7 @@ def check_function(name, index=0,
             in case the function parameters were not successfully matched.
         expand_msg (str): If specified, this overrides any messages that are prepended by previous SCT chains.
         signature (Signature): Normally, check_function() can figure out what the function signature is,
-            but it might be necessary to use build_sig to manually build a signature and pass this along.
+            but it might be necessary to use ``sig_from_params()`` to manually build a signature and pass this along.
         state (State): State object that is passed from the SCT Chain (don't specify this).
 
     :Examples:
