@@ -84,6 +84,9 @@ class Chain:
         return chain
 
 class F(Chain):
+    """
+    Chain with deferred State passing
+    """
     def __init__(self, stack = None):
         self._crnt_sct = None
         self._stack = [] if stack is None else stack
@@ -100,8 +103,7 @@ class F(Chain):
     
     @classmethod
     def _from_func(cls, f):
-        func_chain = cls()
-        func_chain._stack.append(f)
+        func_chain = cls(stack = [f])
         return func_chain
 
 def Ex(state = None):
