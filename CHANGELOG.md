@@ -2,6 +2,12 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.18.1
+
+### Fixed
+
+- Local setup with `setup_state` now works correctly (e.g. when the PEC contains a list comprehension)
+
 ## 2.18.0
 
 - Add optional `force_diagnose` parameter to `test_exercise` to force passing the `diagnose` tests in `check_correct`.
