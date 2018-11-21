@@ -7,14 +7,14 @@ from pythonwhat.Reporter import Reporter
 from contextlib import redirect_stdout
 
 class StubShell(object):
-    
+
     def __init__(self, init_code = None):
         self.user_ns = {}
         if init_code:
             self.run_code(init_code)
-            
+
     def run_code(self, code):
-        exec(code, None, self.user_ns)
+        exec(code, self.user_ns)
 
 class StubProcess(object):
 
