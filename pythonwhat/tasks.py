@@ -111,11 +111,11 @@ def get_signature(name, mapped_name, signature, manual_sigs, env):
                         raise InstructorError('signature error - %s not in builtins' % generic_name)
                 else:
                     raise InstructorError('manual signature not found')
-        except:
+        except Exception as e:
             try:
                 signature = inspect.signature(fun)
             except:
-                raise InstructorError('signature error - cannot determine signature')
+                raise InstructorError(e.args[0] + ' and cannot determine signature')
 
     return signature
 
@@ -123,14 +123,11 @@ def get_signature(name, mapped_name, signature, manual_sigs, env):
 # Get the signature of a function based on an object inside the process
 @process_task
 def getSignatureInProcess(name, mapped_name, signature, manual_sigs, process, shell):
-    try:
-        return get_signature(name = name,
-                                mapped_name = mapped_name,
-                                signature = signature,
-                                manual_sigs = manual_sigs,
-                                env = get_env(shell.user_ns))
-    except:
-        return None
+    return get_signature(name = name,
+                         mapped_name = mapped_name,
+                         signature = signature,
+                         manual_sigs = manual_sigs,
+                         env = get_env(shell.user_ns))
 
 @process_task
 def getSignatureFromObjInProcess(obj_char, process, shell):

@@ -121,8 +121,8 @@ def check_function(name, index=0,
         try:
             sol_sig = get_sig(mapped_name=sol_parts['name'], process=state.solution_process)
             sol_parts['args'] = bind_args(sol_sig, sol_parts['args'])
-        except:
-            raise InstructorError("`check_function()` couldn't match the %s call of `%s` to its signature. " % (get_ord(index + 1), name))
+        except Exception as e:
+            raise InstructorError("`check_function()` couldn't match the %s call of `%s` to its signature:\n%s " % (get_ord(index + 1), name, e))
 
         try:
             stu_sig = get_sig(mapped_name=stu_parts['name'], process=state.student_process)
