@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/datacamp/pythonwhat/branch/master/graph/badge.svg)](https://codecov.io/gh/datacamp/pythonwhat)
 [![PyPI version](https://badge.fury.io/py/pythonwhat.svg)](https://badge.fury.io/py/pythonwhat)
 [![Documentation Status](https://readthedocs.org/projects/pythonwhat/badge/?version=stable)](http://pythonwhat.readthedocs.io/en/stable/?badge=stable)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdatacamp%2Fpythonwhat.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdatacamp%2Fpythonwhat?ref=badge_shield)
 
 Verify Python code submissions and auto-generate meaningful feedback messages. Originally developed for Python exercises on DataCamp for so-called Submission Correctness Tests, but can also be used independently.
 
@@ -60,3 +61,7 @@ pytest
 ```
 
 Bugs? Questions? Suggestions? [Create an issue](https://github.com/datacamp/pythonwhat/issues/new), or [contact us](mailto:content-engineering@datacamp.com)!
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdatacamp%2Fpythonwhat.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdatacamp%2Fpythonwhat?ref=badge_large)
