@@ -29,7 +29,7 @@ __NODE_WRAPPERS__ = {
     'list_comp': {
         'typestr': '{{ordinal}} list comprehension',
         'docstr': """Check whether a list comprehension was coded and zoom in on it.
-        
+
         Can be chained with ``check_iter()``, ``check_body()``, and ``check_ifs()``.
 
         Args:
@@ -78,7 +78,7 @@ __NODE_WRAPPERS__ = {
     'generator_exp': {
         'typestr': '{{ordinal}} generator expression',
         'docstr': """Check whether a generator expression was coded and zoom in on it.
-        
+
         Can be chained with ``check_iter()``, ``check_body()``, and ``check_ifs()``.
 
         Args:
@@ -110,7 +110,7 @@ __NODE_WRAPPERS__ = {
     'dict_comp': {
         'typestr': '{{ordinal}} dictionary comprehension',
         'docstr': """Check whether a dictionary comprehension was coded and zoom in on it.
-        
+
         Can be chained with ``check_key()``, ``check_value()``, and ``check_ifs()``.
 
         Args:
@@ -156,7 +156,7 @@ __NODE_WRAPPERS__ = {
         'docstr': """Check whether a for loop was coded and zoom in on it.
 
         Can be chained with ``check_iter()`` and ``check_body()``.
-        
+
         Args:
             index: Index of the for loop (0-based).
             {{typestr}}
@@ -179,7 +179,7 @@ __NODE_WRAPPERS__ = {
                         set_context('b', 2).has_equal_output()
                     )
                 )
-            
+
             - ``check_for_loop()`` zooms in on the ``for`` loop, and makes its parts available for further checking.
             - ``check_iter()`` zooms in on the iterator part of the for loop, ``my_dict.items()`` in the solution.
               ``has_equal_value()`` re-executes the expressions specified by student and solution and compares their results.
@@ -198,7 +198,7 @@ __NODE_WRAPPERS__ = {
                 # passing submission 2
                 my_dict = {'a': 1, 'b': 2}
                 for first, second in my_dict.items():
-                    mess = first + " - " + str(second) 
+                    mess = first + " - " + str(second)
                     print(mess)
 
         :Example:
@@ -252,7 +252,7 @@ __NODE_WRAPPERS__ = {
                         )
                     )
                 )
-                
+
         """
     },
     'function_def': {
@@ -370,7 +370,7 @@ __NODE_WRAPPERS__ = {
     'class_def': {
         'typestr': 'class definition of `{{index}}`',
         'docstr': """Check whether a class was defined and zoom in on its definition
-        
+
         Can be chained with ``check_bases()`` and ``check_body()``.
 
         Args:
@@ -389,7 +389,7 @@ __NODE_WRAPPERS__ = {
 
             The following SCT would verify this: ::
 
-                check_class_def('MyInt').multi(
+                Ex().check_class_def('MyInt').multi(
                     check_bases(0).has_equal_ast(),
                     check_body().check_function_def('__init__').multi(
                         check_args('self'),
@@ -442,7 +442,7 @@ __NODE_WRAPPERS__ = {
                     check_test().multi(
                         set_env(x = -1).has_equal_value(),
                         set_env(x =  1).has_equal_value(),
-                        set_env(x =  0).has_equal_value() 
+                        set_env(x =  0).has_equal_value()
                     ),
                     check_body().check_function('print', 0).\\
                         check_args('value').has_equal_value()
@@ -459,11 +459,11 @@ __NODE_WRAPPERS__ = {
               function ``print()`` and whether its argument is set correctly.
 
         :Example:
-        
+
             In Python, when an if-else statement has an ``elif`` clause, it is held in the `orelse` part.
             In this sense, an if-elif-else statement is represented by python as nested if-elses.
             More specifically, this if-else statement: ::
- 
+
                 if x > 0:
                     print(x)
                 elif y > 0:
@@ -656,7 +656,7 @@ for k, v in __PART_WRAPPERS__.items():
 
     scts['check_'+k] = partial(check_part, k, v)
 
-for k, v in __PART_INDEX_WRAPPERS__.items(): 
+for k, v in __PART_INDEX_WRAPPERS__.items():
     scts['check_'+k] = partial(check_part_index, k, part_msg=v)
 
 for k, v in __NODE_WRAPPERS__.items():
