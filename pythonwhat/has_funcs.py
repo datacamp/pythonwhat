@@ -273,7 +273,7 @@ def has_expr(incorrect_msg=None,
                                     env=state.solution_env)
 
         if (test == 'error') ^ isinstance(eval_sol, Exception):
-            raise InstructorError("Evaluating expression raised error in solution process (or not an error if testing for one). "
+            raise InstructorError("Evaluating expression raised error in solution process (or didn't raise if testing for one). "
                                   "Error: {} - {}".format(type(eval_sol), str_sol))
         if isinstance(eval_sol, ReprFail):
             raise InstructorError("Couldn't extract the value for the highlighted expression from the solution process: " + eval_sol.info)
