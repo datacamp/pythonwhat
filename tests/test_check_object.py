@@ -141,6 +141,7 @@ users = pd.read_csv('https://s3.amazonaws.com/assets.datacamp.com/production/cou
     assert output['correct']
 
 def test_non_dillable():
+    # xlrd needed for Excel support
     code = "xl = pd.ExcelFile('battledeath.xlsx')"
     res = helper.run({
         'DC_PEC': "import pandas as pd; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath.xlsx')",
@@ -194,7 +195,7 @@ def test_equality_challenge_2():
         "DC_SCT": "Ex().check_object('mat').has_equal_value()"
     })
     assert res['correct']
-    
+
 @pytest.mark.parametrize('name, ls, le, cs, ce', [
     ('a', 3, 3, 5, 9),
     ("c", 8, 8, 5, 9),
@@ -303,7 +304,7 @@ df2 = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
 df2.columns = ["c", "d"]
             '''
     }
-    
+
 def test_several_assignments(diff_assign_data):
     res = helper.run({
         **diff_assign_data,
