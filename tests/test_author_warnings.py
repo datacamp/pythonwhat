@@ -44,7 +44,7 @@ def test_check_function_2(state):
         state.check_function('round', 1)
 
 def test_check_function_3(state):
-    with pytest.raises(InstructorError, match=r"`check_function\(\)` couldn't match the first call of `round` to its signature\."):
+    with pytest.raises(InstructorError, match=r"`check_function\(\)` couldn't match the first call of `round` to its signature:"):
         sig = Signature([Parameter('wrong', Parameter.KEYWORD_ONLY)])
         state.check_function('round', 0, signature=sig)
 
