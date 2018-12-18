@@ -318,14 +318,21 @@ def taskRunEval(tree,
             tree = ast.Expression(tree)
 
         # Expression code takes precedence over tree code
-        if expr_code: code = expr_code
-        else:         code = compile(tree, "<script>", mode)
+        if expr_code:
+            code = expr_code
+            tree = ast.parse(code, mode=mode)
+        else:
+            code = compile(tree, "<script>", mode)
 
         # Set up environment --------------------------------------------------
         # avoid deepy copy if specified, or just looking up variable by name
+        if isinstance(tree, ast.Expression):
+            tree = tree.body
         if not copy or (isinstance(tree, (ast.Name, ast.Subscript)) and isinstance(tree.ctx, ast.Load)):
             new_env = dict(get_env(shell.user_ns))
         else:
+            # might raise an error if object refuses pickle interface
+            # used by deepcopy to restore class
             new_env = utils.copy_env(get_env(shell.user_ns))
 
         if env is not None:

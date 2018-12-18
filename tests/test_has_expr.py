@@ -1,6 +1,7 @@
 import pytest
 from pythonwhat.local import setup_state
 import helper
+from pythonwhat.Feedback import InstructorError
 
 @pytest.mark.parametrize('stu, passes', [
     ('', False),
@@ -21,6 +22,31 @@ def test_has_equal_value_name(stu, passes):
     s = setup_state(stu, 'a = 0\nfor i in range(0): a = 1')
     with helper.verify_sct(passes):
         s.check_for_loop().check_body().has_equal_value(name = 'a')
+
+def test_has_equal_value_pickle():
+    """limit deep copy of env when just reading value"""
+    sol = """a = 1
+class NoPickle(list):
+    def __getstate__(self):
+        raise TypeError("Can't pickle this")
+b = NoPickle()
+    """
+    s = setup_state(sol, sol)
+    with helper.verify_sct(True):
+        s.check_object("a").has_equal_value()
+    with helper.verify_sct(True):
+        s.check_object("a").has_equal_value(name="a")
+    with helper.verify_sct(True):
+        s.has_equal_value(expr_code="a")
+    with pytest.raises(InstructorError):
+        s.has_equal_value(expr_code="a", name="a")
+    with pytest.raises(InstructorError):
+        s.has_equal_value(expr_code="print(a)")
+    with pytest.raises(InstructorError):
+        s.has_equal_value(expr_code="print(a)", name="a")
+    with pytest.raises(InstructorError):
+        s.has_equal_value(expr_code="print(a)")
+
 
 @pytest.mark.parametrize('stu, passes', [
     ('a = 0\nfor i in range(0): pass', False),
