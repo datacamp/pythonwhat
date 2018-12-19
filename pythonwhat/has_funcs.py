@@ -38,7 +38,7 @@ def has_part(name, msg, state=None, fmt_kwargs=None, index=None):
     except (KeyError, IndexError):
         raise InstructorError(_err_msg)
 
-    try: 
+    try:
         verify(state.student_parts[name], index)
     except (KeyError, IndexError):
         rep.do_test(Test(Feedback(_msg, state)))
@@ -101,6 +101,8 @@ def has_equal_ast(incorrect_msg=None,
     ``has_equal_ast()`` can be used in two ways:
 
     * As a robust version of ``has_code()``. By setting ``code``, you can look for the AST representation of ``code`` in the student's submission.
+      But be aware that ``a`` and ``a = 1`` won't match, as reading and assigning are not the same in an AST.
+      Use ``ast.dump(ast.parse(code))`` to see an AST representation of ``code``.
     * As an expression-based check when using more advanced SCT chain, e.g. to compare the equality of expressions to set function arguments.
 
     Args:
@@ -252,7 +254,7 @@ def has_expr(incorrect_msg=None,
 
     rep = Reporter.active_reporter
 
-    get_func = partial(evalCalls[test], 
+    get_func = partial(evalCalls[test],
                        extra_env=extra_env,
                        context_vals=context_vals,
                        pre_code=pre_code,
@@ -584,7 +586,7 @@ def has_printout(index,
             x = 6
 
         The following SCT will not work: ::
-        
+
             Ex().has_printout(0)
 
         Why? When the ``print(x)`` call is executed, the value of ``x`` will be 6, and pythonwhat will look for the output `'6`' in the output the student generated.
@@ -592,7 +594,7 @@ def has_printout(index,
 
     :Example:
 
-        Inside a for loop ``has_printout()`` 
+        Inside a for loop ``has_printout()``
 
         Suppose you have the following solution: ::
 
@@ -600,7 +602,7 @@ def has_printout(index,
                 print(i)
 
         The following SCT will not work: ::
-        
+
             Ex().check_for_loop().check_body().has_printout(0)
 
         The reason is that ``has_printout()`` can only be called from the root state. ``Ex()``.
@@ -651,7 +653,7 @@ def has_no_error(incorrect_msg="Have a look at the console: your code contains a
     the student submission generated an error. This means it is not needed to use ``has_no_error()`` explicitly.
 
     However, in some cases, using ``has_no_error()`` explicitly somewhere throughout your SCT execution can be helpful:
-    
+
     - If you want to make sure people didn't write typos when writing a long function name.
     - If you want to first verify whether a function actually runs, before checking whether the arguments were specified correctly.
     - More generally, if, because of the content, it's instrumental that the script runs without
@@ -680,7 +682,7 @@ def has_no_error(incorrect_msg="Have a look at the console: your code contains a
         If you want to make sure that ``train_test_split()`` ran without errors,
         which would check if the student typed the function without typos and used
         sensical arguments, you could use the following SCT: ::
-        
+
             Ex().has_no_error()
             Ex().check_function('sklearn.model_selection.train_test_split').multi(
                 check_args(['arrays', 0]).has_equal_value(),
@@ -688,7 +690,7 @@ def has_no_error(incorrect_msg="Have a look at the console: your code contains a
                 check_args(['options', 'test_size']).has_equal_value(),
                 check_args(['options', 'random_state']).has_equal_value()
             )
-        
+
         If, on the other hand, you want to fall back onto pythonwhat's built in behavior,
         that checks for an error before marking the exercise as correct, you can simply
         leave of the ``has_no_error()`` step.
