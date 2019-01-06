@@ -8,26 +8,26 @@ from functools import partial
 from jinja2 import Template
 
 __PART_WRAPPERS__ = {
-    'iter': 'iterable part',
-    'body': 'body',
-    'key' : 'key part',
-    'value': 'value part',
-    'orelse': 'else part',
-    'finalbody': 'finally part',
-    'test': 'condition',
+    "iter": "iterable part",
+    "body": "body",
+    "key": "key part",
+    "value": "value part",
+    "orelse": "else part",
+    "finalbody": "finally part",
+    "test": "condition",
 }
 
 __PART_INDEX_WRAPPERS__ = {
-    'ifs': '{{ordinal}} if',
-    'bases': '{{ordinal}} base class',
-    'handlers': '`{{index}}` `except` block',
-    'context': '{{ordinal}} context',
+    "ifs": "{{ordinal}} if",
+    "bases": "{{ordinal}} base class",
+    "handlers": "`{{index}}` `except` block",
+    "context": "{{ordinal}} context",
 }
 
 __NODE_WRAPPERS__ = {
-    'list_comp': {
-        'typestr': '{{ordinal}} list comprehension',
-        'docstr': """Check whether a list comprehension was coded and zoom in on it.
+    "list_comp": {
+        "typestr": "{{ordinal}} list comprehension",
+        "docstr": """Check whether a list comprehension was coded and zoom in on it.
 
         Can be chained with ``check_iter()``, ``check_body()``, and ``check_ifs()``.
 
@@ -74,9 +74,9 @@ __NODE_WRAPPERS__ = {
 
         """,
     },
-    'generator_exp': {
-        'typestr': '{{ordinal}} generator expression',
-        'docstr': """Check whether a generator expression was coded and zoom in on it.
+    "generator_exp": {
+        "typestr": "{{ordinal}} generator expression",
+        "docstr": """Check whether a generator expression was coded and zoom in on it.
 
         Can be chained with ``check_iter()``, ``check_body()``, and ``check_ifs()``.
 
@@ -106,9 +106,9 @@ __NODE_WRAPPERS__ = {
 
         """,
     },
-    'dict_comp': {
-        'typestr': '{{ordinal}} dictionary comprehension',
-        'docstr': """Check whether a dictionary comprehension was coded and zoom in on it.
+    "dict_comp": {
+        "typestr": "{{ordinal}} dictionary comprehension",
+        "docstr": """Check whether a dictionary comprehension was coded and zoom in on it.
 
         Can be chained with ``check_key()``, ``check_value()``, and ``check_ifs()``.
 
@@ -150,9 +150,9 @@ __NODE_WRAPPERS__ = {
 
         """,
     },
-    'for_loop': {
-        'typestr': '{{ordinal}} for loop',
-        'docstr': """Check whether a for loop was coded and zoom in on it.
+    "for_loop": {
+        "typestr": "{{ordinal}} for loop",
+        "docstr": """Check whether a for loop was coded and zoom in on it.
 
         Can be chained with ``check_iter()`` and ``check_body()``.
 
@@ -252,11 +252,11 @@ __NODE_WRAPPERS__ = {
                     )
                 )
 
-        """
+        """,
     },
-    'function_def': {
-        'typestr': 'definition of `{{index}}()`',
-        'docstr': """Check whether a function was defined and zoom in on it.
+    "function_def": {
+        "typestr": "definition of `{{index}}()`",
+        "docstr": """Check whether a function was defined and zoom in on it.
 
         Can be chained with ``check_call()``, ``check_args()`` and ``check_body()``.
 
@@ -364,11 +364,11 @@ __NODE_WRAPPERS__ = {
 
             We are working on it!
 
-        """
+        """,
     },
-    'class_def': {
-        'typestr': 'class definition of `{{index}}`',
-        'docstr': """Check whether a class was defined and zoom in on its definition
+    "class_def": {
+        "typestr": "class definition of `{{index}}`",
+        "docstr": """Check whether a class was defined and zoom in on its definition
 
         Can be chained with ``check_bases()`` and ``check_body()``.
 
@@ -408,18 +408,18 @@ __NODE_WRAPPERS__ = {
               e.g. to verify whether class methods give the right behavior with ``check_call()``
               before diving into the body of the method itself.
 
-        """
+        """,
     },
-    'if_exp': {
-        'typestr': '{{ordinal}} if expression',
-        'docstr': """Check whether an if expression was coded zoom in on it.
+    "if_exp": {
+        "typestr": "{{ordinal}} if expression",
+        "docstr": """Check whether an if expression was coded zoom in on it.
 
         This function works the exact same way as ``check_if_else()``.
-        """
+        """,
     },
-    'if_else': {
-        'typestr': '{{ordinal}} if statement',
-        'docstr': """Check whether an if statement was coded zoom in on it.
+    "if_else": {
+        "typestr": "{{ordinal}} if statement",
+        "docstr": """Check whether an if statement was coded zoom in on it.
 
         Args:
             index: the index of the if statement to look for (0 based)
@@ -492,11 +492,11 @@ __NODE_WRAPPERS__ = {
                     )
                 )
 
-        """
+        """,
     },
-    'lambda_function': {
-        'typestr': '{{ordinal}} lambda function',
-        'docstr': """Check whether a lambda function was coded zoom in on it.
+    "lambda_function": {
+        "typestr": "{{ordinal}} lambda function",
+        "docstr": """Check whether a lambda function was coded zoom in on it.
 
         Can be chained with ``check_call()``, ``check_args()`` and ``check_body()``.
 
@@ -541,11 +541,11 @@ __NODE_WRAPPERS__ = {
 
                 # passing submission 2
                 lambda y, times=2: len(y) * times
-        """
+        """,
     },
-    'try_except': {
-        'typestr': '{{ordinal}} try statement',
-        'docstr': """Check whether a try except statement was coded zoom in on it.
+    "try_except": {
+        "typestr": "{{ordinal}} try statement",
+        "docstr": """Check whether a try except statement was coded zoom in on it.
 
         Can be chained with ``check_body()``, ``check_handlers()``, ``check_orelse()`` and ``check_finalbody()``.
 
@@ -584,11 +584,11 @@ __NODE_WRAPPERS__ = {
                         check_function('print').check_args(0).has_equal_value()
                 )
 
-        """
+        """,
     },
-    'while': {
-        'typestr': '{{ordinal}} `while` loop',
-        'docstr': """Check whether a while loop was coded and zoom in on it.
+    "while": {
+        "typestr": "{{ordinal}} `while` loop",
+        "docstr": """Check whether a while loop was coded and zoom in on it.
 
         Can be chained with ``check_test()``, ``check_body()`` and ``check_orelse()``.
 
@@ -627,11 +627,11 @@ __NODE_WRAPPERS__ = {
             - ``check_body()`` zooms in on the body of the ``while`` loop, and ``has_equal_value()`` checks whether rerunning this body
               updates ``i`` as expected when ``i`` is temporarily set to 3 with ``set_env()``.
 
-        """
+        """,
     },
-    'with': {
-        'typestr': '{{ordinal}} `with` statement',
-        'docstr': """Check whether a with statement was coded zoom in on it.
+    "with": {
+        "typestr": "{{ordinal}} `with` statement",
+        "docstr": """Check whether a with statement was coded zoom in on it.
 
         Args:
             index: the index of the``with`` statement to verify (0-based)
@@ -639,50 +639,80 @@ __NODE_WRAPPERS__ = {
             {{missing_msg}}
             {{expand_msg}}
 
-        """
+        """,
     },
 }
 
-scts = {}
+scts = dict()
 
 # make has_equal_part wrappers
 
-scts['has_equal_name'] = partial(has_equal_part, 'name', msg='Make sure to use the correct {{name}}, was expecting {{sol_part[name]}}, instead got {{stu_part[name]}}.')
-scts['is_default'] = partial(has_equal_part, 'is_default', msg="Make sure it {{ 'has' if sol_part.is_default else 'does not have'}} a default argument.")
+scts["has_equal_name"] = partial(
+    has_equal_part,
+    "name",
+    msg="Make sure to use the correct {{name}}, was expecting {{sol_part[name]}}, instead got {{stu_part[name]}}.",
+)
+scts["is_default"] = partial(
+    has_equal_part,
+    "is_default",
+    msg="Make sure it {{ 'has' if sol_part.is_default else 'does not have'}} a default argument.",
+)
 
 # include rest of wrappers
 for k, v in __PART_WRAPPERS__.items():
 
-    scts['check_'+k] = partial(check_part, k, v)
+    scts["check_" + k] = partial(check_part, k, v)
 
 for k, v in __PART_INDEX_WRAPPERS__.items():
-    scts['check_'+k] = partial(check_part_index, k, part_msg=v)
+    scts["check_" + k] = partial(check_part_index, k, part_msg=v)
 
 for k, v in __NODE_WRAPPERS__.items():
-    check_fun = partial(check_node, k+'s', typestr=v['typestr'])
-    check_fun.__doc__ = Template(v['docstr']).render(
+    check_fun = partial(check_node, k + "s", typestr=v["typestr"])
+    check_fun.__doc__ = Template(v["docstr"]).render(
         typestr="typestr: If specified, this overrides the standard way of referring to the construct you're zooming in on.",
         missing_msg="missing_msg: If specified, this overrides the automatically generated feedback message in case the construct could not be found.",
-        expand_msg="expand_msg: If specified, this overrides the automatically generated feedback message that is prepended to feedback messages that are thrown further in the SCT chain."
+        expand_msg="expand_msg: If specified, this overrides the automatically generated feedback message that is prepended to feedback messages that are thrown further in the SCT chain.",
     )
-    check_fun.__name__ = 'check_'+k
+    check_fun.__name__ = "check_" + k
     scts[check_fun.__name__] = check_fun
 
-for k in ['set_context', 'set_env', 'disable_highlighting', 'check_not', 'check_or', 'check_correct', 'fail', 'override', 'multi']:
+for k in [
+    "set_context",
+    "set_env",
+    "disable_highlighting",
+    "check_not",
+    "check_or",
+    "check_correct",
+    "fail",
+    "override",
+    "multi",
+]:
     scts[k] = getattr(check_logic, k)
 
-for k in ['with_context', 'check_args', 'check_call']:
+for k in ["with_context", "check_args", "check_call"]:
     scts[k] = getattr(check_funcs, k)
 
-for k in ['has_equal_value', 'has_equal_output', 'has_equal_error', 'has_equal_ast', 'has_equal_part_len',
-          'has_equal_part', 'has_import', 'has_output', 'has_printout', 'has_code', 'has_no_error', 'has_chosen']:
+for k in [
+    "has_equal_value",
+    "has_equal_output",
+    "has_equal_error",
+    "has_equal_ast",
+    "has_equal_part_len",
+    "has_equal_part",
+    "has_import",
+    "has_output",
+    "has_printout",
+    "has_code",
+    "has_no_error",
+    "has_chosen",
+]:
     scts[k] = getattr(has_funcs, k)
 
 # include check_object and friends ------
-for k in ['check_object', 'is_instance', 'check_df', 'check_keys']:
+for k in ["check_object", "is_instance", "check_df", "check_keys"]:
     scts[k] = getattr(check_object, k)
 
-scts['has_context'] = has_context
-scts['check_function'] = check_function
+scts["has_context"] = has_context
+scts["check_function"] = check_function
 
 locals().update(scts)

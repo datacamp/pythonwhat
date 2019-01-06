@@ -6,6 +6,7 @@ from pythonwhat.Feedback import Feedback, InstructorError
 import copy
 import ast
 
+
 def multi(*args, state=None):
     """Run multiple subtests. Return original state (for chaining).
 
@@ -42,6 +43,7 @@ def multi(*args, state=None):
 
     # return original state, so can be chained
     return state
+
 
 def check_not(*tests, msg, state=None):
     """Run multiple subtests that should fail. If all subtests fail, returns original state (for chaining)
@@ -95,6 +97,7 @@ def check_not(*tests, msg, state=None):
     # return original state, so can be chained
     return state
 
+
 def check_or(*tests, state=None):
     """Test whether at least one SCT passes.
 
@@ -127,11 +130,13 @@ def check_or(*tests, state=None):
             multi(test, state=state)
             success = True
         except TestFail as e:
-            if not first_feedback: first_feedback = e.feedback
+            if not first_feedback:
+                first_feedback = e.feedback
         if success:
             return
-    
+
     rep.do_test(Test(first_feedback))
+
 
 def check_correct(check, diagnose, state=None):
     """Allows feedback from a diagnostic SCT, only if a check SCT fails.
@@ -168,7 +173,9 @@ def check_correct(check, diagnose, state=None):
         rep = Reporter.active_reporter
         rep.do_test(Test(feedback))
 
+
 # utility functions -----------------------------------------------------------
+
 
 def fail(msg="", state=None):
     """Fail SCT
@@ -191,6 +198,7 @@ def fail(msg="", state=None):
     rep = Reporter.active_reporter
     _msg = state.build_message(msg)
     rep.do_test(Test(Feedback(_msg, state)))
+
 
 def override(solution, state=None):
     """Override the solution code with something arbitrary.
@@ -217,17 +225,17 @@ def override(solution, state=None):
         expr = new_ast.body[0]
         candidates = [expr, expr.value] if isinstance(expr, ast.Expr) else [expr]
         for node in candidates:
-            if isinstance(node, old_ast.__class__): 
+            if isinstance(node, old_ast.__class__):
                 new_ast = node
                 break
 
-    kwargs  = state.messages[-1] if state.messages else {}
+    kwargs = state.messages[-1] if state.messages else {}
     child = state.to_child_state(
-            solution_subtree = new_ast,
-            student_subtree = state.student_tree,
-            highlight = state.highlight,
-            append_message = {'msg': "", 'kwargs': kwargs}
-            )
+        solution_subtree=new_ast,
+        student_subtree=state.student_tree,
+        highlight=state.highlight,
+        append_message={"msg": "", "kwargs": kwargs},
+    )
 
     return child
 
@@ -279,14 +287,19 @@ def set_context(*args, state=None, **kwargs):
 
     # for now, you can't specify both
     if len(args) > 0 and len(kwargs) > 0:
-        raise InstructorError("In `set_context()`, specify arguments either by position, either by name.")
+        raise InstructorError(
+            "In `set_context()`, specify arguments either by position, either by name."
+        )
 
     # set args specified by pos -----------------------------------------------
     if args:
         # stop if too many pos args for solution
-        if len(args) > len(sol_crnt): 
-            raise InstructorError("Too many positional args. There are {} context vals, but tried to set {}"
-                                  .format(len(sol_crnt), len(args)))
+        if len(args) > len(sol_crnt):
+            raise InstructorError(
+                "Too many positional args. There are {} context vals, but tried to set {}".format(
+                    len(sol_crnt), len(args)
+                )
+            )
         # set pos args
         upd_sol = sol_crnt.update(dict(zip(sol_crnt.keys(), args)))
         upd_stu = stu_crnt.update(dict(zip(stu_crnt.keys(), args)))
@@ -298,22 +311,28 @@ def set_context(*args, state=None, **kwargs):
     if kwargs:
         # stop if keywords don't match with solution
         if set(kwargs) - set(upd_sol):
-            raise InstructorError("`set_context()` failed: context val names are {}, but you tried to set {}."
-                                  .format(upd_sol or "missing", sorted(list(kwargs.keys()))))
+            raise InstructorError(
+                "`set_context()` failed: context val names are {}, but you tried to set {}.".format(
+                    upd_sol or "missing", sorted(list(kwargs.keys()))
+                )
+            )
         out_sol = upd_sol.update(kwargs)
         # need to match keys in kwargs with corresponding keys in stu context
         # in case they used, e.g., different loop variable names
         match_keys = dict(zip(sol_crnt.keys(), stu_crnt.keys()))
-        out_stu = upd_stu.update({match_keys[k]: v for k,v in kwargs.items() if k in match_keys})
+        out_stu = upd_stu.update(
+            {match_keys[k]: v for k, v in kwargs.items() if k in match_keys}
+        )
     else:
         out_sol = upd_sol
         out_stu = upd_stu
 
-    return state.to_child_state(student_context = out_stu,
-                                solution_context = out_sol,
-                                highlight = state.highlight)
+    return state.to_child_state(
+        student_context=out_stu, solution_context=out_sol, highlight=state.highlight
+    )
 
-def set_env(state = None, **kwargs):
+
+def set_env(state=None, **kwargs):
     """Update/set environemnt variables for student and solution environments.
 
     When ``has_equal_x()`` is used after this, the variables specified through this function will
@@ -349,11 +368,12 @@ def set_env(state = None, **kwargs):
     stu_new = stu_crnt.update(kwargs)
     sol_new = sol_crnt.update(kwargs)
 
-    return state.to_child_state(student_env = stu_new,
-                                solution_env = sol_new,
-                                highlight = state.highlight)
+    return state.to_child_state(
+        student_env=stu_new, solution_env=sol_new, highlight=state.highlight
+    )
 
-def disable_highlighting(state = None):
+
+def disable_highlighting(state=None):
     """Disable highlighting in the remainder of the SCT chain.
 
     Include this function if you want to avoid that pythonwhat marks which part of the student submission is incorrect.
@@ -370,4 +390,4 @@ def disable_highlighting(state = None):
             Ex().check_function('round').disable_highlighting().check_args(0).has_equal_ast()
             Ex().check_function('round').check_args(0).disable_highlighting().has_equal_ast()
     """
-    return state.to_child_state(highlighting_disabled = True)
+    return state.to_child_state(highlighting_disabled=True)
