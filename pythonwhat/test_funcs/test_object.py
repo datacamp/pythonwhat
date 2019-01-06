@@ -1,7 +1,7 @@
 from pythonwhat.tasks import getColumnsInProcess
-from pythonwhat.check_object import check_object, check_df, check_keys
-from pythonwhat.has_funcs import has_equal_value
-from pythonwhat.Feedback import InstructorError
+from pythonwhat.checks.check_object import check_object, check_df, check_keys
+from pythonwhat.checks.has_funcs import has_equal_value
+
 
 def test_object(name,
                 eq_condition="equal",

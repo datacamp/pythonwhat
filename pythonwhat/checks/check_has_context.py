@@ -1,9 +1,9 @@
 from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import Test, EqualTest
+from pythonwhat.Test import EqualTest
 from pythonwhat.Feedback import Feedback, InstructorError
 from pythonwhat.State import State
 from functools import singledispatch
-from pythonwhat.check_funcs import check_part_index
+from pythonwhat.checks.check_funcs import check_part_index
 
 MSG_INCORRECT_LOOP = "Have you used the correct iterator variable names? Was expecting `{{sol_vars}}` but got `{{stu_vars}}`."
 MSG_INCORRECT_WITH = "Make sure to use the correct context variable names. Was expecting `{{sol_vars}}` but got `{{stu_vars}}`."

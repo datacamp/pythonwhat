@@ -1,11 +1,8 @@
 import pytest
-from functools import partial
 import helper
 from pythonwhat.local import setup_state
 from pythonwhat.Test import TestFail as TF
 from pythonwhat.Feedback import InstructorError
-from inspect import signature
-from pythonwhat.check_function import bind_args
 from pythonwhat.check_syntax import v2_check_functions
 globals().update(v2_check_functions)
 
@@ -60,7 +57,7 @@ def test_diff_function_types(fun, code, arg):
 def test_bind_args():
     from pythonwhat.local import setup_state
     from inspect import signature
-    from pythonwhat.check_function import bind_args
+    from pythonwhat.checks.check_function import bind_args
     pec = "def my_fun(a, b, *args, **kwargs): pass"
     s = setup_state(pec = pec, stu_code = "my_fun(1, 2, 3, 4, c = 5)")
     args = s._state.student_function_calls['my_fun'][0]['args']

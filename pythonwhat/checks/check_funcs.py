@@ -1,5 +1,5 @@
-from pythonwhat.check_logic import multi
-from pythonwhat.has_funcs import has_part
+from pythonwhat.checks.check_logic import multi
+from pythonwhat.checks.has_funcs import has_part
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import Test
 from pythonwhat.Feedback import Feedback, InstructorError

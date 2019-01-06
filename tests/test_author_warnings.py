@@ -5,7 +5,7 @@ import ast
 from pythonwhat.local import setup_state
 from pythonwhat.Feedback import InstructorError
 from inspect import signature, Signature, Parameter
-from pythonwhat.check_funcs import assert_ast
+from pythonwhat.checks.check_funcs import assert_ast
 
 # Actually wrong usage that breaks --------------------------------------------
 

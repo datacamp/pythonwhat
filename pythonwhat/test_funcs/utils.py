@@ -3,8 +3,8 @@ import ast
 from pythonwhat.Feedback import InstructorError, Feedback
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import Test, EqualTest
-from pythonwhat.check_funcs import StubState
-from pythonwhat.has_funcs import evalCalls
+from pythonwhat.checks.check_funcs import StubState
+from pythonwhat.checks.has_funcs import evalCalls
 from pythonwhat.tasks import ReprFail
 
 

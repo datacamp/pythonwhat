@@ -1,11 +1,10 @@
-from pythonwhat.check_funcs import check_part, check_part_index, check_node
-from pythonwhat.has_funcs import has_equal_part
-from pythonwhat import check_funcs, has_funcs, check_logic, check_object
-from pythonwhat.check_function import check_function
-from pythonwhat.check_has_context import has_context
+from pythonwhat.checks.check_funcs import check_part, check_part_index, check_node
+from pythonwhat.checks.has_funcs import has_equal_part
+from pythonwhat.checks import check_object, check_logic, check_funcs, has_funcs
+from pythonwhat.checks.check_function import check_function
+from pythonwhat.checks.check_has_context import has_context
 
 from functools import partial
-import inspect
 from jinja2 import Template
 
 __PART_WRAPPERS__ = {

@@ -33,4 +33,3 @@ def test_set_env_full_example(stu, passes):
     s = setup_state(stu, "print(a_list[1])", pec="a_list = [0, 1, 2]")
     with helper.verify_sct(passes):
         s.set_env(a_list = list(range(10))).has_equal_output()
-   
