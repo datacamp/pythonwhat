@@ -90,7 +90,7 @@ def test_has_import():
 
 # Incorrect usage that wouldn't throw exceptions ------------------------------
 
-from pythonwhat.check_syntax import v2_check_functions
+from pythonwhat.sct_syntax import v2_check_functions
 
 
 def test_has_printout_on_root():

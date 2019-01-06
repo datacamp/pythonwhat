@@ -8,7 +8,7 @@ from pythonwhat.local import StubProcess
 from contextlib import redirect_stdout, contextmanager
 from pythonwhat.Test import TestFail as TF
 from pythonwhat.test_exercise import test_exercise
-from pythonwhat.check_syntax import Chain
+from pythonwhat.sct_syntax import Chain
 import io
 import pytest
 import tempfile

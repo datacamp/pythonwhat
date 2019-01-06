@@ -3,7 +3,7 @@ import helper
 from pythonwhat.local import setup_state
 from pythonwhat.Test import TestFail as TF
 from pythonwhat.Feedback import InstructorError
-from pythonwhat.check_syntax import v2_check_functions
+from pythonwhat.sct_syntax import v2_check_functions
 globals().update(v2_check_functions)
 
 # Basics ----------------------------------------------------------------------
