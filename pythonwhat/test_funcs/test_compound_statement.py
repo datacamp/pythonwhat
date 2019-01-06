@@ -464,7 +464,7 @@ with open_file('...') as file:
     if body is not None:
         body_state = check_part('body', 'body', state=child2)
 
-        with_context(body, state=body_state)
+        with_context(body, state=body_state, child=child)
 
 def test_list_comp(index=1,
                    not_called_msg=None,
