@@ -192,9 +192,8 @@ def setUpNewEnvInProcess(context, process, shell):
 def context_objs_exit(es):
     try:
         es.close()
-        return False
+        return True
     except Exception as e:
-        raise e
         return e
 
 
