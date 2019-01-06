@@ -150,37 +150,66 @@ def check_node(name,
 
 # context functions -----------------------------------------------------------
 
-def with_context(*args, state=None):
+def with_context(*args, state=None, child=None):
 
     rep = Reporter.active_reporter
 
     # set up context in processes
-    solution_res = setUpNewEnvInProcess(process = state.solution_process,
-                                        context = state.solution_parts['with_items'])
+    solution_res = setUpNewEnvInProcess(
+        process=state.solution_process, context=state.solution_parts["with_items"]
+    )
     if isinstance(solution_res, Exception):
-        raise InstructorError("error in the solution, running test_with(): %s" % str(solution_res))
+        raise InstructorError(
+            "error in the solution, running test_with(): %s" % str(solution_res)
+        )
 
-    student_res = setUpNewEnvInProcess(process = state.student_process,
-                                       context = state.student_parts['with_items'])
+    student_res = setUpNewEnvInProcess(
+        process=state.student_process, context=state.student_parts["with_items"]
+    )
     if isinstance(student_res, AttributeError):
-        rep.do_test(Test(Feedback("In your `with` statement, you're not using a correct context manager.", child.highlight)))
+        rep.do_test(
+            Test(
+                Feedback(
+                    "In your `with` statement, you're not using a correct context manager.",
+                    child.highlight,
+                )
+            )
+        )
 
     if isinstance(student_res, (AssertionError, ValueError, TypeError)):
-        rep.do_test(Test(Feedback("In your `with` statement, the number of values in your context manager "
-                                  "doesn't correspond to the number of variables you're trying to assign it to.", child.highlight)))
+        rep.do_test(
+            Test(
+                Feedback(
+                    "In your `with` statement, the number of values in your context manager "
+                    "doesn't correspond to the number of variables you're trying to assign it to.",
+                    child.highlight,
+                )
+            )
+        )
 
     # run subtests
     try:
         multi(*args, state=state)
     finally:
         # exit context
-        if breakDownNewEnvInProcess(process = state.solution_process):
-            raise InstructorError("error in the solution, closing the `with` fails with: %s" % (close_solution_context))
+        close_solution_context = breakDownNewEnvInProcess(process=state.solution_process)
+        if isinstance(close_solution_context, Exception):
+            raise InstructorError(
+                "error in the solution, closing the `with` fails with: %s"
+                % (close_solution_context)
+            )
 
-        if breakDownNewEnvInProcess(process = state.student_process):
-
-            rep.do_test(Test(Feedback("Your `with` statement can not be closed off correctly, you're " + \
-                            "not using the context manager correctly.", state)))
+        close_student_context = breakDownNewEnvInProcess(process=state.student_process)
+        if isinstance(close_student_context, Exception):
+            rep.do_test(
+                Test(
+                    Feedback(
+                        "Your `with` statement can not be closed off correctly, you're "
+                        + "not using the context manager correctly.",
+                        state,
+                    )
+                )
+            )
     return state
 
 def check_args(name, missing_msg=None, state=None):
