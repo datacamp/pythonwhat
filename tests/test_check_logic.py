@@ -1,15 +1,20 @@
 import pytest
 import helper
 
+
+# TODO: extend tests
 @pytest.mark.parametrize('sct, passes', [
     ("Ex().check_not(has_code('a'), msg = 'x')", False),
     ("Ex().check_not(has_code('a'), has_code('b'), msg = 'x')", False),
     ("Ex().check_not(has_code('b'), msg = 'x')", True),
-    ("Ex().check_not(has_code('b'), has_code('c'), msg = 'x')", True)
+    ("Ex().check_not(has_code('b'), has_code('c'), msg = 'x')", True),
+    ("Ex().check_not(check_object('a').has_equal_value(override=1), msg = 'x')", False),
+    ("Ex().check_not(check_object('a').has_equal_value(override=2), msg = 'x')", True)
 ])
 def test_check_not(sct, passes):
     data = {
-        'DC_CODE': "'a'",
+        'DC_SOLUTION': "a = 1",
+        'DC_CODE': "a = 1",
         'DC_SCT': sct
     }
     output = helper.run(data)
