@@ -12,11 +12,13 @@ the result boolean. A test contains a failure message, which can be used by the 
 show when the test failed.
 """
 
+
 class TestFail(Exception):
     def __init__(self, feedback, payload):
         super().__init__(feedback.message)
         self.feedback = feedback
         self.payload = payload
+
 
 class Test(object):
     """
@@ -38,12 +40,14 @@ class Test(object):
         Args:
             feedback: string or Feedback object
         """
-        if (issubclass(type(feedback), Feedback)):
+        if issubclass(type(feedback), Feedback):
             self.feedback = feedback
-        elif (issubclass(type(feedback), str)):
+        elif issubclass(type(feedback), str):
             self.feedback = Feedback(feedback)
         else:
-           raise TypeError("When creating a test, specify either a string or a Feedback object")
+            raise TypeError(
+                "When creating a test, specify either a string or a Feedback object"
+            )
 
         self.result = None
 
@@ -65,10 +69,11 @@ class Test(object):
         self.result = False
 
     def get_feedback(self):
-        return(self.feedback)
+        return self.feedback
 
 
 ## Testing definition
+
 
 class DefinedProcessTest(Test):
     def __init__(self, name, process, feedback):
@@ -90,6 +95,7 @@ class DefinedCollTest(Test):
         collection (list/dict/set): Contains any object on which the 'in' operator can be performed.
         result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
+
     def __init__(self, name, collection, feedback):
         super().__init__(feedback)
         self.name = name
@@ -97,6 +103,7 @@ class DefinedCollTest(Test):
 
     def specific_test(self):
         self.result = self.name in self.collection
+
 
 class DefinedCollProcessTest(Test):
     def __init__(self, name, key, process, feedback):
@@ -111,6 +118,7 @@ class DefinedCollProcessTest(Test):
 
 ## Testing class
 
+
 class InstanceProcessTest(Test):
     def __init__(self, name, klass, process, feedback):
         super().__init__(feedback)
@@ -121,7 +129,9 @@ class InstanceProcessTest(Test):
     def specific_test(self):
         self.result = isInstanceInProcess(self.name, self.klass, self.process)
 
+
 ## Testing equality
+
 
 class EqualTest(Test):
     """
@@ -135,7 +145,7 @@ class EqualTest(Test):
         result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
     """
 
-    def __init__(self, obj1, obj2, feedback, func = None):
+    def __init__(self, obj1, obj2, feedback, func=None):
         super().__init__(feedback)
         self.obj1 = obj1
         self.obj2 = obj2
@@ -147,43 +157,50 @@ class EqualTest(Test):
         """
         self.result = self.func(self.obj1, self.obj2)
 
+
 ## Helpers for testing equality
 
+
 def objs_are(x, y, list_of_classes):
-    return (
-        any([isinstance(x, klass) for klass in list_of_classes]) &
-        any([isinstance(y, klass) for klass in list_of_classes])
+    return any([isinstance(x, klass) for klass in list_of_classes]) & any(
+        [isinstance(y, klass) for klass in list_of_classes]
     )
+
 
 # For equality of ndarrays, list, dicts, pd Series and pd DataFrames:
 # First try to the faster equality functions. If these don't pass,
 # Run the assertions that are typically slower.
 def is_equal(x, y):
-        try:
-            if objs_are(x, y, [Exception]):
-                # Types of errors don't matter (this is debatable)
-                return str(x) == str(y)
-            if objs_are(x, y, [np.ndarray, dict, list, tuple]):
-                if np.array_equal(x, y): return True
-                np.testing.assert_equal(x, y)
+    try:
+        if objs_are(x, y, [Exception]):
+            # Types of errors don't matter (this is debatable)
+            return str(x) == str(y)
+        if objs_are(x, y, [np.ndarray, dict, list, tuple]):
+            if np.array_equal(x, y):
                 return True
-            elif objs_are(x, y, [map, filter]):
-                return np.array_equal(list(x), list(y))
-            elif objs_are(x, y, [pd.DataFrame]):
-                if x.equals(y): return True
-                pd.util.testing.assert_frame_equal(x, y)
+            np.testing.assert_equal(x, y)
+            return True
+        elif objs_are(x, y, [map, filter]):
+            return np.array_equal(list(x), list(y))
+        elif objs_are(x, y, [pd.DataFrame]):
+            if x.equals(y):
                 return True
-            elif objs_are(x, y, [pd.Series]):
-                if x.equals(y): return True
-                pd.util.testing.assert_series_equal(x, y)
+            pd.util.testing.assert_frame_equal(x, y)
+            return True
+        elif objs_are(x, y, [pd.Series]):
+            if x.equals(y):
                 return True
-            else:
-                return x == y
+            pd.util.testing.assert_series_equal(x, y)
+            return True
+        else:
+            return x == y
 
-        except Exception:
-            return False
+    except Exception:
+        return False
+
 
 ## Others
+
 
 class BiggerTest(Test):
     """
@@ -213,7 +230,7 @@ class BiggerTest(Test):
         """
         Perform the actual test. result is set to False if the objects differ, True otherwise.
         """
-        self.result = (self.obj1 > self.obj2)
+        self.result = self.obj1 > self.obj2
 
 
 class StringContainsTest(Test):
@@ -249,12 +266,6 @@ class StringContainsTest(Test):
         False otherwise.
         """
         if self.pattern:
-            self.result = (
-                re.search(
-                    self.search_string,
-                    self.string) is not None)
+            self.result = re.search(self.search_string, self.string) is not None
         else:
-            self.result = (self.string.find(self.search_string) is not -1)
-
-
-
+            self.result = self.string.find(self.search_string) is not -1

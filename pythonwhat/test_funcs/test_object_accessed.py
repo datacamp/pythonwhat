@@ -3,10 +3,8 @@ from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import BiggerTest
 import pythonwhat.utils
 
-def test_object_accessed(name,
-                         times=1,
-                         not_accessed_msg=None,
-                         state=None):
+
+def test_object_accessed(name, times=1, not_accessed_msg=None, state=None):
     """Test if object accessed
 
     Checks whether an object, or the attribute of an object, are accessed
@@ -48,11 +46,11 @@ def test_object_accessed(name,
         stud_name = name
         if "." in stud_name:
             for orig, full_name in student_mappings.items():
-                if name.startswith(full_name): stud_name = name.replace(full_name, orig)
+                if name.startswith(full_name):
+                    stud_name = name.replace(full_name, orig)
 
         add = " at least %s" % pythonwhat.utils.get_times(times) if times > 1 else ""
         not_accessed_msg = "Have you accessed `%s`%s?" % (stud_name, add)
-
 
     # name should be contained inside the student_object_accesses.
     # hack: add a dot and do a match on the name with the dot,
@@ -60,4 +58,3 @@ def test_object_accessed(name,
     student_hits = [c for c in student_object_accesses if name + "." in c + "."]
     _msg = state.build_message(not_accessed_msg)
     rep.do_test(BiggerTest(len(student_hits) + 1, times, _msg))
-

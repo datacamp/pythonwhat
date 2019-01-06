@@ -19,7 +19,7 @@ from pythonwhat.checks.check_logic import (  # noqa
     check_correct as test_correct,
 )
 
-from pythonwhat.checks.has_funcs import (   # noqa
+from pythonwhat.checks.has_funcs import (  # noqa
     has_code as test_student_typed,
     has_import as test_import,
     has_output as test_output_contains,

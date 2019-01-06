@@ -1,14 +1,25 @@
 from pythonwhat.parsing import ObjectAssignmentParser
-from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, DefinedCollProcessTest
+from pythonwhat.Test import (
+    DefinedProcessTest,
+    InstanceProcessTest,
+    DefinedCollProcessTest,
+)
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback, InstructorError
-from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, isDefinedCollInProcess
+from pythonwhat.tasks import (
+    isDefinedInProcess,
+    isInstanceInProcess,
+    isDefinedCollInProcess,
+)
 from pythonwhat.checks.check_funcs import part_to_child
 from pythonwhat.utils import v2_only
 import pandas as pd
 import ast
 
-def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="variable"):
+
+def check_object(
+    index, missing_msg=None, expand_msg=None, state=None, typestr="variable"
+):
     """Check object existence (and equality)
 
     Check whether an object is defined in the student's process, and zoom in on its value in both
@@ -150,7 +161,7 @@ def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="
     # Only do the assertion if PYTHONWHAT_V2_ONLY is set to '1'
     if v2_only():
         extra_msg = "If you want to check the value of an object in e.g. a for loop, use `has_equal_value(name = 'my_obj')` instead."
-        state.assert_root('check_object', extra_msg=extra_msg)
+        state.assert_root("check_object", extra_msg=extra_msg)
 
     if missing_msg is None:
         missing_msg = "Did you define the {{typestr}} `{{index}}` without errors?"
@@ -160,10 +171,16 @@ def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="
 
     rep = Reporter.active_reporter
 
-    if not isDefinedInProcess(index, state.solution_process) and state.has_different_processes():
-        raise InstructorError("`check_object()` couldn't find object `%s` in the solution process." % index)
+    if (
+        not isDefinedInProcess(index, state.solution_process)
+        and state.has_different_processes()
+    ):
+        raise InstructorError(
+            "`check_object()` couldn't find object `%s` in the solution process."
+            % index
+        )
 
-    append_message = {'msg': expand_msg, 'kwargs': {'index': index, 'typestr': typestr}}
+    append_message = {"msg": expand_msg, "kwargs": {"index": index, "typestr": typestr}}
 
     # create child state, using either parser output, or create part from name
     fallback = lambda: ObjectAssignmentParser.get_part(index)
@@ -171,13 +188,15 @@ def check_object(index, missing_msg=None, expand_msg=None, state=None, typestr="
     sol_part = state.solution_object_assignments.get(index, fallback())
 
     # test object exists
-    _msg = state.build_message(missing_msg, append_message['kwargs'])
+    _msg = state.build_message(missing_msg, append_message["kwargs"])
     rep.do_test(DefinedProcessTest(index, state.student_process, Feedback(_msg)))
 
-    child = part_to_child(stu_part, sol_part, append_message, state,
-                          node_name='object_assignments')
+    child = part_to_child(
+        stu_part, sol_part, append_message, state, node_name="object_assignments"
+    )
 
     return child
+
 
 def is_instance(inst, not_instance_msg=None, state=None):
     """Check whether an object is an instance of a certain class.
@@ -205,25 +224,32 @@ def is_instance(inst, not_instance_msg=None, state=None):
             Ex().check_object('arr').is_instance(numpy.ndarray)
     """
 
-    state.assert_is(['object_assignments'], 'is_instance', ['check_object'])
+    state.assert_is(["object_assignments"], "is_instance", ["check_object"])
 
     rep = Reporter.active_reporter
 
-    sol_name = state.solution_parts.get('name')
-    stu_name = state.student_parts.get('name')
+    sol_name = state.solution_parts.get("name")
+    stu_name = state.student_parts.get("name")
 
-    if not_instance_msg is None: not_instance_msg = "Is it a {{inst.__name__}}?"
+    if not_instance_msg is None:
+        not_instance_msg = "Is it a {{inst.__name__}}?"
 
     if not isInstanceInProcess(sol_name, inst, state.solution_process):
-        raise InstructorError("`is_instance()` noticed that `%s` is not a `%s` in the solution process." % (sol_name, inst.__name__))
+        raise InstructorError(
+            "`is_instance()` noticed that `%s` is not a `%s` in the solution process."
+            % (sol_name, inst.__name__)
+        )
 
-    _msg = state.build_message(not_instance_msg, {'inst': inst})
+    _msg = state.build_message(not_instance_msg, {"inst": inst})
     feedback = Feedback(_msg, state)
     rep.do_test(InstanceProcessTest(stu_name, inst, state.student_process, feedback))
 
     return state
 
-def check_df(index, missing_msg=None, not_instance_msg=None, expand_msg=None, state=None):
+
+def check_df(
+    index, missing_msg=None, not_instance_msg=None, expand_msg=None, state=None
+):
     """Check whether a DataFrame was defined and it is the right type
     
     ``check_df()`` is a combo of ``check_object()`` and ``is_instance()`` that checks whether the specified object exists
@@ -263,9 +289,16 @@ def check_df(index, missing_msg=None, not_instance_msg=None, expand_msg=None, st
             my_df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6], "c": [7, 8, 9]})
 
     """
-    child = check_object(index, missing_msg=missing_msg, expand_msg=expand_msg, state=state, typestr="pandas DataFrame")
+    child = check_object(
+        index,
+        missing_msg=missing_msg,
+        expand_msg=expand_msg,
+        state=state,
+        typestr="pandas DataFrame",
+    )
     is_instance(pd.DataFrame, not_instance_msg=not_instance_msg, state=child)
     return child
+
 
 def check_keys(key, missing_msg=None, expand_msg=None, state=None):
     """Check whether an object (dict, DataFrame, etc) has a key.
@@ -296,7 +329,7 @@ def check_keys(key, missing_msg=None, expand_msg=None, state=None):
 
     """
 
-    state.assert_is(['object_assignments'], 'is_instance', ['check_object', 'check_df'])
+    state.assert_is(["object_assignments"], "is_instance", ["check_object", "check_df"])
 
     if missing_msg is None:
         missing_msg = "There is no {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `'{{key}}'`."
@@ -305,33 +338,38 @@ def check_keys(key, missing_msg=None, expand_msg=None, state=None):
 
     rep = Reporter.active_reporter
 
-    sol_name = state.solution_parts.get('name')
-    stu_name = state.student_parts.get('name')
+    sol_name = state.solution_parts.get("name")
+    stu_name = state.student_parts.get("name")
 
     if not isDefinedCollInProcess(sol_name, key, state.solution_process):
-        raise InstructorError("`check_keys()` couldn't find key `%s` in object `%s` in the solution process." % (key, sol_name))
+        raise InstructorError(
+            "`check_keys()` couldn't find key `%s` in object `%s` in the solution process."
+            % (key, sol_name)
+        )
 
     # check if key available
-    _msg = state.build_message(missing_msg, {'key': key})
-    rep.do_test(DefinedCollProcessTest(stu_name, key, state.student_process, 
-                                       Feedback(_msg, state)))
+    _msg = state.build_message(missing_msg, {"key": key})
+    rep.do_test(
+        DefinedCollProcessTest(
+            stu_name, key, state.student_process, Feedback(_msg, state)
+        )
+    )
 
     def get_part(name, key, highlight):
         if isinstance(key, str):
             slice_val = ast.Str(s=key)
         else:
             slice_val = ast.parse(str(key)).body[0].value
-        expr = ast.Subscript(value=ast.Name(id=name, ctx=ast.Load()),
-                             slice=ast.Index(value=slice_val),
-                             ctx=ast.Load())
+        expr = ast.Subscript(
+            value=ast.Name(id=name, ctx=ast.Load()),
+            slice=ast.Index(value=slice_val),
+            ctx=ast.Load(),
+        )
         ast.fix_missing_locations(expr)
-        return {
-            'node': expr,
-            'highlight': highlight
-        }
+        return {"node": expr, "highlight": highlight}
 
-    stu_part = get_part(stu_name, key, state.student_parts.get('highlight'))
-    sol_part = get_part(sol_name, key, state.solution_parts.get('highlight'))
-    append_message = {'msg': expand_msg, 'kwargs': {'key': key }}
+    stu_part = get_part(stu_name, key, state.student_parts.get("highlight"))
+    sol_part = get_part(sol_name, key, state.solution_parts.get("highlight"))
+    append_message = {"msg": expand_msg, "kwargs": {"key": key}}
     child = part_to_child(stu_part, sol_part, append_message, state)
     return child

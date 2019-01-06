@@ -7,12 +7,14 @@ from pythonwhat.Test import TestFail, Test
 This file holds the reporter class.
 """
 
+
 class Reporter(object):
     """Do reporting.
 
     This class holds the feedback- or success message and tracks whether there are failed tests
     or not. All tests are executed trough do_test() in the Reporter.
     """
+
     active_reporter = None
 
     def __init__(self, error=None):
@@ -30,22 +32,20 @@ class Reporter(object):
         if isinstance(testobj, Test):
             testobj.test()
             result = testobj.result
-            if (not result):
+            if not result:
                 feedback = testobj.get_feedback()
                 raise TestFail(feedback, self.build_failed_payload(feedback))
 
         else:
             result = None
-            testobj()    # run function for side effects
+            testobj()  # run function for side effects
 
         return result
 
-    def build_failed_payload(self, feedback):
+    @staticmethod
+    def build_failed_payload(feedback):
         if not feedback.line_info:
-            return {
-                "correct": False,
-                "message": Reporter.to_html(feedback.message)
-                }
+            return {"correct": False, "message": Reporter.to_html(feedback.message)}
         else:
             return {
                 "correct": False,
@@ -53,22 +53,16 @@ class Reporter(object):
                 "line_start": feedback.line_info["line_start"],
                 "column_start": feedback.line_info["column_start"] + 1,
                 "line_end": feedback.line_info["line_end"],
-                "column_end": feedback.line_info["column_end"]
-                }
+                "column_end": feedback.line_info["column_end"],
+            }
 
     def build_final_payload(self):
-        if (self.error and not self.errors_allowed):
+        if self.error and not self.errors_allowed:
             feedback_msg = "Have a look at the console: your code contains an error. Fix it and try again!"
-            return {
-                "correct": False,
-                "message": Reporter.to_html(feedback_msg)
-                }
+            return {"correct": False, "message": Reporter.to_html(feedback_msg)}
         else:
-            return({
-                "correct": True,
-                "message": Reporter.to_html(self.success_msg)
-                })
+            return {"correct": True, "message": Reporter.to_html(self.success_msg)}
 
     @staticmethod
     def to_html(msg):
-        return(re.sub("<p>(.*)</p>", "\\1", markdown2.markdown(msg)).strip())
+        return re.sub("<p>(.*)</p>", "\\1", markdown2.markdown(msg)).strip()
