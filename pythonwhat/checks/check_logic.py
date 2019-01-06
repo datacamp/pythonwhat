@@ -49,20 +49,35 @@ def check_not(*tests, msg, state=None):
     Args:
         state: State instance describing student and solution code. Can be omitted if used with Ex().
         tests: one or more sub-SCTs that all should not pass.
-        args: one or more sub-SCTs to run.
+        msg: feedback if not all tests fail.
+
+    :Example:
+        The SCT fails with feedback for a specific incorrect value, defined using an override: ::
+
+            Ex().check_object('result').multi(
+                check_not(
+                    has_equal_value(override=100),
+                    msg='100 is incorrect for reason xyz.'
+                ),
+                has_equal_value()
+            )
+
+        Notice that ``check_not`` comes before the ``has_equal_value`` test
+        that checks if the student value is equal to the solution value.
 
     :Example:
         The SCT below runs two ``has_code`` cases: ::
 
             Ex().check_not(
                 has_code('mean'),
-                has_code('median')
+                has_code('median'),
+                msg='Check your code'
             )
 
         If students use ``mean`` or ``median`` anywhere in their code, this SCT will fail.
 
     Note:
-        - This function is currently only tested in working with has_code in the subtests.
+        - This function is not yet tested with all checks, please report unexpected behaviour.
         - This function can be thought as a NOT(x OR y OR ...) statement, since all tests it runs must fail
         - This function can be considered a direct counterpart of multi.
 
