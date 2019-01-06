@@ -1,5 +1,5 @@
 from pythonwhat.Reporter import Reporter
-from pythonwhat.check_funcs import part_to_child, StubState
+from pythonwhat.checks.check_funcs import part_to_child, StubState
 from pythonwhat.tasks import getSignatureInProcess
 from pythonwhat.utils import get_ord, get_times
 from pythonwhat.Test import Test
