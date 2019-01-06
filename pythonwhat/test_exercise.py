@@ -1,10 +1,9 @@
 from pythonwhat.State import State
-from pythonwhat.utils import check_str, check_dict, check_process
+from pythonwhat.utils import check_str, check_process
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import TestFail
 from pythonwhat.utils import include_v1
-from functools import partial
-import os
+
 
 def test_exercise(sct,
                   student_code,

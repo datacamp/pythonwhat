@@ -3,9 +3,8 @@ from pythonwhat.Test import DefinedProcessTest, InstanceProcessTest, DefinedColl
 from pythonwhat.Reporter import Reporter
 from pythonwhat.Feedback import Feedback, InstructorError
 from pythonwhat.tasks import isDefinedInProcess, isInstanceInProcess, isDefinedCollInProcess
-from pythonwhat.check_funcs import part_to_child
+from pythonwhat.checks.check_funcs import part_to_child
 from pythonwhat.utils import v2_only
-from pythonwhat.has_funcs import has_equal_value
 import pandas as pd
 import ast
 
