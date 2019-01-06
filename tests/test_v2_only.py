@@ -3,8 +3,8 @@ import helper
 import importlib
 
 def relooooad():
-    import pythonwhat.check_syntax
-    importlib.reload(pythonwhat.check_syntax)
+    import pythonwhat.sct_syntax
+    importlib.reload(pythonwhat.sct_syntax)
 
 @pytest.fixture
 def data():
