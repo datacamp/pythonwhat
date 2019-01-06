@@ -3,13 +3,15 @@ from pythonwhat.checks.check_object import check_object, check_df, check_keys
 from pythonwhat.checks.has_funcs import has_equal_value
 
 
-def test_object(name,
-                eq_condition="equal",
-                eq_fun=None,
-                do_eval=True,
-                undefined_msg=None,
-                incorrect_msg=None,
-                state=None):
+def test_object(
+    name,
+    eq_condition="equal",
+    eq_fun=None,
+    do_eval=True,
+    undefined_msg=None,
+    incorrect_msg=None,
+    state=None,
+):
 
     expand_msg = "" if undefined_msg or incorrect_msg else None
     child = check_object(name, undefined_msg, expand_msg=expand_msg, state=state)
@@ -17,19 +19,32 @@ def test_object(name,
     if do_eval:
         has_equal_value(incorrect_msg, state=child)
 
-def test_data_frame(name,
-                    columns=None,
-                    undefined_msg=None,
-                    not_data_frame_msg=None,
-                    undefined_cols_msg=None,
-                    incorrect_msg=None,
-                    state=None):
+
+def test_data_frame(
+    name,
+    columns=None,
+    undefined_msg=None,
+    not_data_frame_msg=None,
+    undefined_cols_msg=None,
+    incorrect_msg=None,
+    state=None,
+):
     """Test a pandas dataframe.
     """
 
-    expand_msg = "" if undefined_msg or not_data_frame_msg or undefined_cols_msg or incorrect_msg else None
+    expand_msg = (
+        ""
+        if undefined_msg or not_data_frame_msg or undefined_cols_msg or incorrect_msg
+        else None
+    )
 
-    child = check_df(name, undefined_msg, not_instance_msg=not_data_frame_msg, expand_msg=expand_msg, state=state)
+    child = check_df(
+        name,
+        undefined_msg,
+        not_instance_msg=not_data_frame_msg,
+        expand_msg=expand_msg,
+        state=state,
+    )
 
     # if columns not set, figure them out from solution
     if columns is None:

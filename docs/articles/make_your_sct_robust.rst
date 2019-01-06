@@ -111,7 +111,7 @@ or you can use ``check_or()`` with three separate ``has_code()`` functions:
 
 .. code::
 
-	Ex().check_or(has_code('4'),
+  Ex().check_or(has_code('4'),
                   has_code('5'),
                   has_code('6'))
 

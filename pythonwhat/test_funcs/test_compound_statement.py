@@ -1,16 +1,23 @@
-from pythonwhat.checks.check_funcs import check_node, check_part, check_part_index, with_context
+from pythonwhat.checks.check_funcs import (
+    check_node,
+    check_part,
+    check_part_index,
+    with_context,
+)
 from pythonwhat.test_funcs.utils import fix_format, stringify, call
 from pythonwhat.checks.check_logic import multi
-from pythonwhat.checks.has_funcs import has_equal_part_len, has_equal_part, has_equal_value, has_equal_output
+from pythonwhat.checks.has_funcs import (
+    has_equal_part_len,
+    has_equal_part,
+    has_equal_value,
+    has_equal_output,
+)
 from pythonwhat.checks.check_has_context import has_context
 from functools import partial
 from pythonwhat import utils
 
-def test_if_else(index=1,
-                 test=None,
-                 body=None,
-                 orelse=None,
-                 state=None):
+
+def test_if_else(index=1, test=None, body=None, orelse=None, state=None):
     """Test parts of the if statement.
 
     This test function will allow you to extract parts of a specific if statement and perform a set of tests
@@ -64,16 +71,15 @@ def test_if_else(index=1,
         This SCT will pass as :code:`test_expression_output()` is ran on the body of the if statement and it will output
         the same thing in the solution as in the student code.
     """
-    state = check_node('if_elses', index-1, typestr='{{ordinal}} if expression', state=state)
-    multi(test, state = check_part('test', 'condition', state=state))
-    multi(body, state = check_part('body', 'body', state=state))
-    multi(orelse, state = check_part('orelse', 'else part', state=state))
+    state = check_node(
+        "if_elses", index - 1, typestr="{{ordinal}} if expression", state=state
+    )
+    multi(test, state=check_part("test", "condition", state=state))
+    multi(body, state=check_part("body", "body", state=state))
+    multi(orelse, state=check_part("orelse", "else part", state=state))
 
-def test_for_loop(index=1,
-                  for_iter=None,
-                  body=None,
-                  orelse=None,
-                  state=None):
+
+def test_for_loop(index=1, for_iter=None, body=None, orelse=None, state=None):
     """Test parts of the for loop.
 
     This test function will allow you to extract parts of a specific for loop and perform a set of tests
@@ -121,17 +127,14 @@ def test_for_loop(index=1,
         This SCT will evaluate to True as the function :code:`range` is used in the sequence and the function
         :code:`test_exression_output()` will pass on the body code.
     """
-    state = check_node('for_loops', index-1, "{{ordinal}} for loop", state=state)
+    state = check_node("for_loops", index - 1, "{{ordinal}} for loop", state=state)
 
-    multi(for_iter, state = check_part('iter', 'sequence part', state=state))
-    multi(body,     state = check_part('body', 'body', state=state))
-    multi(orelse,   state = check_part('orelse', 'else part', state=state))
+    multi(for_iter, state=check_part("iter", "sequence part", state=state))
+    multi(body, state=check_part("body", "body", state=state))
+    multi(orelse, state=check_part("orelse", "else part", state=state))
 
-def test_while_loop(index=1,
-                    test=None,
-                    body=None,
-                    orelse=None,
-                    state=None):
+
+def test_while_loop(index=1, test=None, body=None, orelse=None, state=None):
     """Test parts of the while loop.
 
     This test function will allow you to extract parts of a specific while loop and perform a set of tests
@@ -186,29 +189,31 @@ def test_while_loop(index=1,
       This SCT will evaluate to True as condition test will have thes same result in student
       and solution code and `test_exression_output()` will pass on the body code.
     """
-    state = check_node('whiles', index-1, "{{ordinal}} while loop", state=state)
-    multi(test, state = check_part('test', 'condition', state=state))
-    multi(body, state = check_part('body', 'body', state=state))
-    multi(orelse, state = check_part('orelse', 'else part', state=state))
+    state = check_node("whiles", index - 1, "{{ordinal}} while loop", state=state)
+    multi(test, state=check_part("test", "condition", state=state))
+    multi(body, state=check_part("body", "body", state=state))
+    multi(orelse, state=check_part("orelse", "else part", state=state))
 
 
-def test_function_definition(name,
-                             arg_names=True,
-                             arg_defaults=True,
-                             body=None,
-                             results=None,
-                             outputs=None,
-                             errors=None,
-                             not_called_msg=None,
-                             nb_args_msg=None,
-                             other_args_msg=None,
-                             arg_names_msg=None,
-                             arg_defaults_msg=None,
-                             wrong_result_msg=None,
-                             wrong_output_msg=None,
-                             no_error_msg=None,
-                             wrong_error_msg=None,
-                             state=None):
+def test_function_definition(
+    name,
+    arg_names=True,
+    arg_defaults=True,
+    body=None,
+    results=None,
+    outputs=None,
+    errors=None,
+    not_called_msg=None,
+    nb_args_msg=None,
+    other_args_msg=None,
+    arg_names_msg=None,
+    arg_defaults_msg=None,
+    wrong_result_msg=None,
+    wrong_output_msg=None,
+    no_error_msg=None,
+    wrong_error_msg=None,
+    state=None,
+):
     """Test a function definition.
 
     This function helps you test a function definition. Generally four things can be tested:
@@ -280,49 +285,64 @@ def test_function_definition(name,
     """
 
     # what the function will be referred to as
-    child = check_node('function_defs', name, 'definition of `{{index}}()`', state=state)
+    child = check_node(
+        "function_defs", name, "definition of `{{index}}()`", state=state
+    )
 
-    test_args(arg_names, arg_defaults, 
-              nb_args_msg, arg_names_msg, arg_defaults_msg,
-              child)
+    test_args(
+        arg_names, arg_defaults, nb_args_msg, arg_names_msg, arg_defaults_msg, child
+    )
 
-    multi(body, state=check_part('body', "", state=child))
+    multi(body, state=check_part("body", "", state=child))
 
     # Test function calls -----------------------------------------------------
 
-    for el in (results or []):
+    for el in results or []:
         el = fix_format(el)
-        call(el, 'value',
-                incorrect_msg = wrong_result_msg,
-                error_msg = wrong_result_msg,
-                argstr = '`{}{}`'.format(name, stringify(el)),
-                state=child)
+        call(
+            el,
+            "value",
+            incorrect_msg=wrong_result_msg,
+            error_msg=wrong_result_msg,
+            argstr="`{}{}`".format(name, stringify(el)),
+            state=child,
+        )
 
-    for el in (outputs or []):
+    for el in outputs or []:
         el = fix_format(el)
-        call(el, 'output',
-                incorrect_msg = wrong_output_msg,
-                error_msg = wrong_output_msg,
-                argstr = '`{}{}`'.format(name, stringify(el)),
-                state=child)
+        call(
+            el,
+            "output",
+            incorrect_msg=wrong_output_msg,
+            error_msg=wrong_output_msg,
+            argstr="`{}{}`".format(name, stringify(el)),
+            state=child,
+        )
 
-    for el in (errors or []):
+    for el in errors or []:
         el = fix_format(el)
-        call(el, 'error',
-                incorrect_msg = wrong_error_msg,
-                error_msg = no_error_msg,
-                argstr = '`{}{}`'.format(name, stringify(el)),
-                state=child)
+        call(
+            el,
+            "error",
+            incorrect_msg=wrong_error_msg,
+            error_msg=no_error_msg,
+            argstr="`{}{}`".format(name, stringify(el)),
+            state=child,
+        )
 
 
-def test_args(arg_names, arg_defaults, 
-              nb_args_msg, arg_names_msg, arg_defaults_msg, 
-              child):
+def test_args(
+    arg_names, arg_defaults, nb_args_msg, arg_names_msg, arg_defaults_msg, child
+):
 
     MSG_NUM_ARGS = "You should define {{parent[typestr]}} with {{sol_len}} arguments, instead got {{stu_len}}."
     MSG_BAD_ARG_NAME = "The {{parent[ordinal]}} {{parent[part]}} should be called `{{sol_part[name]}}`, instead got `{{stu_part[name]}}`."
-    MSG_BAD_DEFAULT = "The {{parent[part]}} `{{stu_part[name]}}` should have no default."
-    MSG_INC_DEFAULT = "The {{parent[part]}} `{{stu_part[name]}}` does not have the correct default."
+    MSG_BAD_DEFAULT = (
+        "The {{parent[part]}} `{{stu_part[name]}}` should have no default."
+    )
+    MSG_INC_DEFAULT = (
+        "The {{parent[part]}} `{{stu_part[name]}}` does not have the correct default."
+    )
 
     MSG_NO_VARARG = "Have you specified an argument to take a `*` argument and named it `{{sol_part['*args'][name]}}`?"
     MSG_NO_KWARGS = "Have you specified an argument to take a `**` argument and named it `{{sol_part['**kwargs'][name]}}`?"
@@ -331,95 +351,119 @@ def test_args(arg_names, arg_defaults,
 
     if arg_names or arg_defaults:
         # test number of args
-        has_equal_part_len('_spec1_args', nb_args_msg or MSG_NUM_ARGS, state=child)
+        has_equal_part_len("_spec1_args", nb_args_msg or MSG_NUM_ARGS, state=child)
 
         # iterate over each arg, testing name and default
-        for ii in range(len(child.solution_parts['_spec1_args'])):
+        for ii in range(len(child.solution_parts["_spec1_args"])):
             # get argument state
-            arg_state = check_part_index('_spec1_args', ii, 'argument', "NO MISSING MSG", state=child)
+            arg_state = check_part_index(
+                "_spec1_args", ii, "argument", "NO MISSING MSG", state=child
+            )
             # test exact name
-            has_equal_part('name', arg_names_msg or MSG_BAD_ARG_NAME, arg_state)
+            has_equal_part("name", arg_names_msg or MSG_BAD_ARG_NAME, arg_state)
 
             if arg_defaults:
                 # test whether is default
-                has_equal_part('is_default', arg_defaults_msg or MSG_BAD_DEFAULT, arg_state)
+                has_equal_part(
+                    "is_default", arg_defaults_msg or MSG_BAD_DEFAULT, arg_state
+                )
                 # test default value, use if to prevent running a process no default
-                if arg_state.solution_parts['is_default']:
-                    has_equal_value(incorrect_msg = arg_defaults_msg or MSG_INC_DEFAULT, append=True, state=arg_state)
+                if arg_state.solution_parts["is_default"]:
+                    has_equal_value(
+                        incorrect_msg=arg_defaults_msg or MSG_INC_DEFAULT,
+                        append=True,
+                        state=arg_state,
+                    )
 
         # test *args and **kwargs
-        if child.solution_parts['*args']:
-            vararg = check_part('*args', "", missing_msg=MSG_NO_VARARG, state=child)
-            has_equal_part('name', MSG_VARARG_NAME, state=vararg)
-        
-        if child.solution_parts['**kwargs']:
-            kwarg = check_part('**kwargs', "", missing_msg=MSG_NO_KWARGS, state=child)
-            has_equal_part('name', MSG_KWARG_NAME, state=kwarg)
+        if child.solution_parts["*args"]:
+            vararg = check_part("*args", "", missing_msg=MSG_NO_VARARG, state=child)
+            has_equal_part("name", MSG_VARARG_NAME, state=vararg)
+
+        if child.solution_parts["**kwargs"]:
+            kwarg = check_part("**kwargs", "", missing_msg=MSG_NO_KWARGS, state=child)
+            has_equal_part("name", MSG_KWARG_NAME, state=kwarg)
 
 
-def test_expression_result(extra_env=None,
-                           context_vals=None,
-                           incorrect_msg=None,
-                           expr_code=None,
-                           pre_code=None,
-                           error_msg=None,
-                           state=None,
-                           **kwargs):
-    has_equal_value(incorrect_msg=incorrect_msg,
-                    error_msg=error_msg,
-                    extra_env = extra_env,
-                    context_vals=context_vals,
-                    expr_code=expr_code,
-                    pre_code=pre_code,
-                    state = state, **kwargs)
-
-
-def test_expression_output(extra_env=None,
-                           context_vals=None,
-                           incorrect_msg=None,
-                           eq_condition="equal",
-                           expr_code=None,
-                           pre_code=None,
-                           state=None,
-                           **kwargs):
-    has_equal_output(incorrect_msg = incorrect_msg,
-                     extra_env = extra_env,
-                     context_vals=context_vals,
-                     expr_code=expr_code,
-                     pre_code=pre_code,
-                     state = state,
-                     **kwargs)
-
-def test_object_after_expression(name,
-                                 extra_env=None,
-                                 context_vals=None,
-                                 undefined_msg=None,
-                                 incorrect_msg=None,
-                                 expr_code=None,
-                                 pre_code=None,
-                                 state=None,
-                                 **kwargs):
-    state.highlight = state.student_object_assignments.get(name, {}).get('highlight')
+def test_expression_result(
+    extra_env=None,
+    context_vals=None,
+    incorrect_msg=None,
+    expr_code=None,
+    pre_code=None,
+    error_msg=None,
+    state=None,
+    **kwargs
+):
     has_equal_value(
-            incorrect_msg = incorrect_msg,
-            error_msg = undefined_msg,
-            undefined_msg = undefined_msg,
-            extra_env=extra_env,
-            context_vals=context_vals,
-            pre_code=pre_code,
-            name = name,
-            expr_code = expr_code,
-            state=state,
-            **kwargs)
+        incorrect_msg=incorrect_msg,
+        error_msg=error_msg,
+        extra_env=extra_env,
+        context_vals=context_vals,
+        expr_code=expr_code,
+        pre_code=pre_code,
+        state=state,
+        **kwargs
+    )
 
-def test_with(index,
-              context_vals=False, # whether to check number of context vals
-              context_tests=None, # check on context expressions
-              body=None,
-              undefined_msg=None,
-              context_vals_len_msg=None,
-              context_vals_msg=None,
-              state=None):
+
+def test_expression_output(
+    extra_env=None,
+    context_vals=None,
+    incorrect_msg=None,
+    eq_condition="equal",
+    expr_code=None,
+    pre_code=None,
+    state=None,
+    **kwargs
+):
+    has_equal_output(
+        incorrect_msg=incorrect_msg,
+        extra_env=extra_env,
+        context_vals=context_vals,
+        expr_code=expr_code,
+        pre_code=pre_code,
+        state=state,
+        **kwargs
+    )
+
+
+def test_object_after_expression(
+    name,
+    extra_env=None,
+    context_vals=None,
+    undefined_msg=None,
+    incorrect_msg=None,
+    expr_code=None,
+    pre_code=None,
+    state=None,
+    **kwargs
+):
+    state.highlight = state.student_object_assignments.get(name, {}).get("highlight")
+    has_equal_value(
+        incorrect_msg=incorrect_msg,
+        error_msg=undefined_msg,
+        undefined_msg=undefined_msg,
+        extra_env=extra_env,
+        context_vals=context_vals,
+        pre_code=pre_code,
+        name=name,
+        expr_code=expr_code,
+        state=state,
+        **kwargs
+    )
+
+
+def test_with(
+    index,
+    context_vals=False,  # whether to check number of context vals
+    context_tests=None,  # check on context expressions
+    body=None,
+    undefined_msg=None,
+    context_vals_len_msg=None,
+    context_vals_msg=None,
+    state=None,
+):
     """Test a with statement.
 with open_file('...') as bla:
 
@@ -435,54 +479,81 @@ with open_file('...') as file:
     MSG_NUM_CTXT2 = "Make sure to use the correct number of context variables. It seems you defined too little."
     MSG_CTXT_NAMES = "Make sure to use the correct context variable names. Was expecting `{{sol_vars}}` but got `{{stu_vars}}`."
 
-    check_with = partial(check_node, 'withs', index-1, "{{ordinal}} `with` statement", state=state)
+    check_with = partial(
+        check_node, "withs", index - 1, "{{ordinal}} `with` statement", state=state
+    )
 
-    child =  check_with()
+    child = check_with()
     child2 = check_with()
 
     if context_vals:
         # test context var names ----
-        has_context(incorrect_msg=context_vals_msg or MSG_CTXT_NAMES, exact_names = True, state=child)
+        has_context(
+            incorrect_msg=context_vals_msg or MSG_CTXT_NAMES,
+            exact_names=True,
+            state=child,
+        )
 
         # test num context vars ----
-        has_equal_part_len('context', MSG_NUM_CTXT, state=child)
-        
-    
+        has_equal_part_len("context", MSG_NUM_CTXT, state=child)
+
     # Context sub tests ----
-    if context_tests and not isinstance(context_tests, list): context_tests = [context_tests]
+    if context_tests and not isinstance(context_tests, list):
+        context_tests = [context_tests]
 
     for i, context_test in enumerate(context_tests or []):
         # partial the substate check, because the function uses two prepended messages
-        check_context = partial(check_part_index, 'context', i, "%s context"%utils.get_ord(i+1), missing_msg=MSG_NUM_CTXT2)
+        check_context = partial(
+            check_part_index,
+            "context",
+            i,
+            "%s context" % utils.get_ord(i + 1),
+            missing_msg=MSG_NUM_CTXT2,
+        )
 
-        check_context(state=child)                   # test exist
+        check_context(state=child)  # test exist
 
-        ctxt_state = check_context(state=child2)     # sub tests
+        ctxt_state = check_context(state=child2)  # sub tests
         multi(context_test, state=ctxt_state)
-    
+
     # Body sub tests ----
     if body is not None:
-        body_state = check_part('body', 'body', state=child2)
+        body_state = check_part("body", "body", state=child2)
 
         with_context(body, state=body_state, child=child)
 
-def test_list_comp(index=1,
-                   not_called_msg=None,
-                   comp_iter=None,
-                   iter_vars_names=False,
-                   incorrect_iter_vars_msg=None,
-                   body=None,
-                   ifs=None,
-                   insufficient_ifs_msg=None,
-                   state=None):
+
+def test_list_comp(
+    index=1,
+    not_called_msg=None,
+    comp_iter=None,
+    iter_vars_names=False,
+    incorrect_iter_vars_msg=None,
+    body=None,
+    ifs=None,
+    insufficient_ifs_msg=None,
+    state=None,
+):
     """Test list comprehension."""
-    test_comp("{{ordinal}} list comprehension", 'list_comps', **(locals()))
+    test_comp("{{ordinal}} list comprehension", "list_comps", **(locals()))
 
 
-def test_comp(typestr, comptype, index, iter_vars_names,
-              not_called_msg, insufficient_ifs_msg, incorrect_iter_vars_msg,
-              comp_iter, ifs, key=None, body=None, value=None,
-              rep=None, state=None):
+def test_comp(
+    typestr,
+    comptype,
+    index,
+    iter_vars_names,
+    not_called_msg,
+    insufficient_ifs_msg,
+    incorrect_iter_vars_msg,
+    comp_iter,
+    ifs,
+    key=None,
+    body=None,
+    value=None,
+    rep=None,
+    state=None,
+):
 
     MSG_INCORRECT_ITER_VARS = "Have you used the correct iterator variables?"
     MSG_INCORRECT_NUM_ITER_VARS = "Have you used {{num_vars}} iterator variables?"
@@ -493,24 +564,34 @@ def test_comp(typestr, comptype, index, iter_vars_names,
         insufficient_ifs_msg = MSG_INSUFFICIENT_IFS
 
     # get comprehension
-    child = check_node(comptype, index-1, typestr, missing_msg=not_called_msg, state=state)
+    child = check_node(
+        comptype, index - 1, typestr, missing_msg=not_called_msg, state=state
+    )
 
     # test comprehension iter and its variable names (or number of variables)
-    if comp_iter: multi(comp_iter, state=check_part("iter", "iterable part", state=child))
+    if comp_iter:
+        multi(comp_iter, state=check_part("iter", "iterable part", state=child))
 
     # test iterator variables
-    default_msg = MSG_INCORRECT_ITER_VARS if iter_vars_names else MSG_INCORRECT_NUM_ITER_VARS
+    default_msg = (
+        MSG_INCORRECT_ITER_VARS if iter_vars_names else MSG_INCORRECT_NUM_ITER_VARS
+    )
     has_context(incorrect_iter_vars_msg or default_msg, iter_vars_names, state=child)
 
     # test the main expressions.
-    if body:   multi(body,  state=check_part("body", "body", state=child))        # list and gen comp
-    if key:    multi(key,   state=check_part("key", "key part",  state=child))    # dict comp
-    if value:  multi(value, state=check_part("value", "value part", state=child)) # ""
+    if body:
+        multi(body, state=check_part("body", "body", state=child))  # list and gen comp
+    if key:
+        multi(key, state=check_part("key", "key part", state=child))  # dict comp
+    if value:
+        multi(value, state=check_part("value", "value part", state=child))  # ""
 
     # test a list of ifs. each entry corresponds to a filter in the comprehension.
     for i, if_test in enumerate(ifs or []):
         # test that ifs are same length
-        has_equal_part_len('ifs', insufficient_ifs_msg, state=child)
+        has_equal_part_len("ifs", insufficient_ifs_msg, state=child)
         # test individual ifs
-        multi(if_test, state=check_part_index("ifs", i, utils.get_ord(i+1) + " if", state=child))
-
+        multi(
+            if_test,
+            state=check_part_index("ifs", i, utils.get_ord(i + 1) + " if", state=child),
+        )

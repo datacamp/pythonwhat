@@ -9,61 +9,69 @@ from pythonwhat.utils_ast import assert_ast
 import ast
 from jinja2 import Template
 
+
 def render(template, kwargs):
     return Template(template).render(**kwargs)
 
-class StubState():
+
+class StubState:
     def __init__(self, highlight, highlighting_disabled):
         self.highlight = highlight
         self.highlighting_disabled = highlighting_disabled
 
+
 def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
     # stu_part and sol_part will be accessible on all templates
-    append_message['kwargs'].update({'stu_part': stu_part, 'sol_part': sol_part})
+    append_message["kwargs"].update({"stu_part": stu_part, "sol_part": sol_part})
 
     # if the parts are dictionaries, use to deck out child state
     if all(isinstance(p, dict) for p in [stu_part, sol_part]):
-        return state.to_child_state(student_subtree=stu_part['node'],
-                                    solution_subtree=sol_part['node'],
-                                    student_context=stu_part.get('target_vars'),
-                                    solution_context=sol_part.get('target_vars'),
-                                    student_parts=stu_part,
-                                    solution_parts=sol_part,
-                                    highlight = stu_part.get('highlight'),
-                                    append_message = append_message,
-                                    node_name=node_name)
+        return state.to_child_state(
+            student_subtree=stu_part["node"],
+            solution_subtree=sol_part["node"],
+            student_context=stu_part.get("target_vars"),
+            solution_context=sol_part.get("target_vars"),
+            student_parts=stu_part,
+            solution_parts=sol_part,
+            highlight=stu_part.get("highlight"),
+            append_message=append_message,
+            node_name=node_name,
+        )
 
     # otherwise, assume they are just nodes
-    return state.to_child_state(student_subtree=stu_part,
-                                solution_subtree=sol_part,
-                                append_message=append_message,
-                                node_name=node_name)
+    return state.to_child_state(
+        student_subtree=stu_part,
+        solution_subtree=sol_part,
+        append_message=append_message,
+        node_name=node_name,
+    )
 
-def check_part(name, part_msg,
-               missing_msg=None,
-               expand_msg=None,
-               state=None):
+
+def check_part(name, part_msg, missing_msg=None, expand_msg=None, state=None):
     """Return child state with name part as its ast tree"""
 
-    if missing_msg is None: missing_msg = "Are you sure you defined the {{part}}? "
-    if expand_msg is None: expand_msg = "Did you correctly specify the {{part}}? "
+    if missing_msg is None:
+        missing_msg = "Are you sure you defined the {{part}}? "
+    if expand_msg is None:
+        expand_msg = "Did you correctly specify the {{part}}? "
 
-    if not part_msg: part_msg = name
-    append_message = {'msg': expand_msg, 'kwargs': { 'part': part_msg }}
+    if not part_msg:
+        part_msg = name
+    append_message = {"msg": expand_msg, "kwargs": {"part": part_msg}}
 
-    has_part(name, missing_msg, state, append_message['kwargs'])
+    has_part(name, missing_msg, state, append_message["kwargs"])
 
     stu_part = state.student_parts[name]
     sol_part = state.solution_parts[name]
 
-    assert_ast(state, sol_part, append_message['kwargs'])
+    assert_ast(state, sol_part, append_message["kwargs"])
 
     return part_to_child(stu_part, sol_part, append_message, state)
 
-def check_part_index(name, index, part_msg,
-                     missing_msg=None,
-                     expand_msg=None,
-                     state=None):
+
+def check_part_index(
+    name, index, part_msg, missing_msg=None, expand_msg=None, state=None
+):
     """Return child state with indexed name part as its ast tree.
 
     ``index`` can be:
@@ -73,21 +81,17 @@ def check_part_index(name, index, part_msg,
     - a list of indices (which can be integer or string), in which case the student parts are indexed step by step.
     """
 
-    if missing_msg is None: missing_msg = "Are you sure you defined the {{part}}? "
-    if expand_msg is None: expand_msg = "Did you correctly specify the {{part}}? "
+    if missing_msg is None:
+        missing_msg = "Are you sure you defined the {{part}}? "
+    if expand_msg is None:
+        expand_msg = "Did you correctly specify the {{part}}? "
 
     # create message
-    ordinal = get_ord(index+1) if isinstance(index, int) else ""
-    fmt_kwargs = {
-        'index': index,
-        'ordinal': ordinal
-    }
-    fmt_kwargs.update(part = render(part_msg, fmt_kwargs))
+    ordinal = get_ord(index + 1) if isinstance(index, int) else ""
+    fmt_kwargs = {"index": index, "ordinal": ordinal}
+    fmt_kwargs.update(part=render(part_msg, fmt_kwargs))
 
-    append_message = {
-        'msg': expand_msg,
-        'kwargs': fmt_kwargs
-    }
+    append_message = {"msg": expand_msg, "kwargs": fmt_kwargs}
 
     # check there are enough parts for index
     has_part(name, missing_msg, state, fmt_kwargs, index)
@@ -109,31 +113,37 @@ def check_part_index(name, index, part_msg,
     # return child state from part
     return part_to_child(stu_part, sol_part, append_message, state)
 
-def check_node(name,
-               index=0,
-               typestr='{{ordinal}} node',
-               missing_msg=None,
-               expand_msg=None,
-               state=None):
 
-    if missing_msg is None: missing_msg = "The system wants to check the {{typestr}} but hasn't found it."
-    if expand_msg is None: expand_msg = "Check the {{typestr}}. "
+def check_node(
+    name,
+    index=0,
+    typestr="{{ordinal}} node",
+    missing_msg=None,
+    expand_msg=None,
+    state=None,
+):
+
+    if missing_msg is None:
+        missing_msg = "The system wants to check the {{typestr}} but hasn't found it."
+    if expand_msg is None:
+        expand_msg = "Check the {{typestr}}. "
 
     rep = Reporter.active_reporter
-    stu_out = getattr(state, 'student_'+name)
-    sol_out = getattr(state, 'solution_'+name)
+    stu_out = getattr(state, "student_" + name)
+    sol_out = getattr(state, "solution_" + name)
 
     # check if there are enough nodes for index
     fmt_kwargs = {
-        'ordinal': get_ord(index+1) if isinstance(index, int) else "",
-        'index': index,
-        'name': name
+        "ordinal": get_ord(index + 1) if isinstance(index, int) else "",
+        "index": index,
+        "name": name,
     }
-    fmt_kwargs['typestr'] = render(typestr, fmt_kwargs)
+    fmt_kwargs["typestr"] = render(typestr, fmt_kwargs)
 
     # test if node can be indexed succesfully
-    try: stu_out[index]
-    except (KeyError, IndexError):                  # TODO comment errors
+    try:
+        stu_out[index]
+    except (KeyError, IndexError):  # TODO comment errors
         _msg = state.build_message(missing_msg, fmt_kwargs)
         rep.do_test(Test(Feedback(_msg, state)))
 
@@ -141,15 +151,13 @@ def check_node(name,
     stu_part = stu_out[index]
     sol_part = sol_out[index]
 
-    append_message = {
-        'msg': expand_msg,
-        'kwargs': fmt_kwargs
-    }
+    append_message = {"msg": expand_msg, "kwargs": fmt_kwargs}
 
     return part_to_child(stu_part, sol_part, append_message, state, node_name=name)
 
-# context functions -----------------------------------------------------------
 
+# context functions -----------------------------------------------------------
+# TODO: check if still useful
 def with_context(*args, state=None, child=None):
 
     rep = Reporter.active_reporter
@@ -192,7 +200,9 @@ def with_context(*args, state=None, child=None):
         multi(*args, state=state)
     finally:
         # exit context
-        close_solution_context = breakDownNewEnvInProcess(process=state.solution_process)
+        close_solution_context = breakDownNewEnvInProcess(
+            process=state.solution_process
+        )
         if isinstance(close_solution_context, Exception):
             raise InstructorError(
                 "error in the solution, closing the `with` fails with: %s"
@@ -211,6 +221,7 @@ def with_context(*args, state=None, child=None):
                 )
             )
     return state
+
 
 def check_args(name, missing_msg=None, state=None):
     """Check whether a function argument is specified.
@@ -262,30 +273,39 @@ def check_args(name, missing_msg=None, state=None):
 
     """
     if missing_msg is None:
-        missing_msg = 'Did you specify the {{part}}?'
+        missing_msg = "Did you specify the {{part}}?"
 
-    if name in ['*args', '**kwargs']: # for check_function_def
-        return check_part(name, name, state=state, missing_msg = missing_msg)
+    if name in ["*args", "**kwargs"]:  # for check_function_def
+        return check_part(name, name, state=state, missing_msg=missing_msg)
     else:
-        if isinstance(name, list): # dealing with args or kwargs
-            if name[0] == 'args':
-                arg_str = "%s argument passed as a variable length argument"%get_ord(name[1]+1)
+        if isinstance(name, list):  # dealing with args or kwargs
+            if name[0] == "args":
+                arg_str = "%s argument passed as a variable length argument" % get_ord(
+                    name[1] + 1
+                )
             else:
-                arg_str = "argument `%s`"%name[1]
+                arg_str = "argument `%s`" % name[1]
         else:
-            arg_str = "%s argument" % get_ord(name+1) if isinstance(name, int) else "argument `%s`" % name
-        return check_part_index('args', name, arg_str, missing_msg = missing_msg, state=state)
+            arg_str = (
+                "%s argument" % get_ord(name + 1)
+                if isinstance(name, int)
+                else "argument `%s`" % name
+            )
+        return check_part_index(
+            "args", name, arg_str, missing_msg=missing_msg, state=state
+        )
 
 
 # CALL CHECK ==================================================================
 
+
 def build_call(callstr, node):
-    if isinstance(node, ast.FunctionDef): # function name
+    if isinstance(node, ast.FunctionDef):  # function name
         func_expr = ast.Name(id=node.name, ctx=ast.Load())
-        argstr = "`%s`" % callstr.replace('f', node.name)
-    elif isinstance(node, ast.Lambda): # lambda body expr
+        argstr = "`%s`" % callstr.replace("f", node.name)
+    elif isinstance(node, ast.Lambda):  # lambda body expr
         func_expr = node
-        argstr = 'it with the arguments `%s`' % callstr.replace('f', '')
+        argstr = "it with the arguments `%s`" % callstr.replace("f", "")
     else:
         raise TypeError("Can't handle AST that is passed.")
 
@@ -294,7 +314,8 @@ def build_call(callstr, node):
     ast.fix_missing_locations(parsed)
     return parsed, argstr
 
-def check_call(callstr, argstr = None, expand_msg=None, state=None):
+
+def check_call(callstr, argstr=None, expand_msg=None, state=None):
     """When checking a function definition of lambda function,
     prepare has_equal_x for checking the call of a user-defined function.
 
@@ -322,18 +343,18 @@ def check_call(callstr, argstr = None, expand_msg=None, state=None):
     """
 
     state.assert_is(
-        ['function_defs', 'lambda_functions'],
-        'check_call',
-        ['check_function_def', 'check_lambda_function']
+        ["function_defs", "lambda_functions"],
+        "check_call",
+        ["check_function_def", "check_lambda_function"],
     )
 
     if expand_msg is None:
         expand_msg = "To verify it, we reran {{argstr}}. "
 
-    stu_part, _argstr = build_call(callstr, state.student_parts['node'])
-    sol_part, _ = build_call(callstr, state.solution_parts['node'])
+    stu_part, _argstr = build_call(callstr, state.student_parts["node"])
+    sol_part, _ = build_call(callstr, state.solution_parts["node"])
 
-    append_message = { 'msg': expand_msg, 'kwargs': {'argstr': argstr or _argstr }}
+    append_message = {"msg": expand_msg, "kwargs": {"argstr": argstr or _argstr}}
     child = part_to_child(stu_part, sol_part, append_message, state)
 
     return child
