@@ -1,7 +1,7 @@
 import helper
 import pytest
 from pythonwhat.local import setup_state
-from pythonwhat.check_syntax import v2_check_functions
+from pythonwhat.sct_syntax import v2_check_functions
 
 set_env = v2_check_functions['set_env']
 

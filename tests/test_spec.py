@@ -221,7 +221,7 @@ def test_override(k, code):
 
 # Test SCT Ex syntax (copied from sqlwhat)  -----------------------------------
 
-from pythonwhat.check_syntax import Ex, F, state_dec
+from pythonwhat.sct_syntax import Ex, F, state_dec
 
 @pytest.fixture
 def addx():

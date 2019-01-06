@@ -1,7 +1,7 @@
 import io
 import random
 
-from pythonwhat.check_syntax import Ex
+from pythonwhat.sct_syntax import Ex
 from pythonwhat.State import State
 from pythonwhat.Reporter import Reporter
 from contextlib import redirect_stdout

@@ -78,12 +78,12 @@ def allow_errors():
 
 def prep_context():
     cntxt = { 'success_msg': success_msg }
-    from pythonwhat.check_syntax import v2_check_functions
+    from pythonwhat.sct_syntax import v2_check_functions
     from pythonwhat.probe import build_probe_context
     imports = ["from inspect import Parameter as param",
                "from pythonwhat.signatures import sig_from_params, sig_from_obj",
                "from pythonwhat.State import set_converter",
-               "from pythonwhat.check_syntax import F, Ex"]
+               "from pythonwhat.sct_syntax import F, Ex"]
     [ exec(line, None, cntxt) for line in imports ]
 
     # only if PYTHONWHAT_V2_ONLY is not set, support v1
