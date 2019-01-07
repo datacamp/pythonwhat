@@ -1,5 +1,6 @@
 import re
 import os
+from functools import wraps
 
 from pythonwhat.local import StubProcess
 from contextlib import redirect_stdout, contextmanager
@@ -9,6 +10,26 @@ from pythonwhat.check_syntax import Chain
 import io
 import pytest
 import tempfile
+
+
+test_data = list()
+
+
+def capture_test_data(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        result = f(*args, **kwargs)
+        data = kwargs.copy()
+        del data["student_process"]
+        del data["solution_process"]
+        data["result"] = result
+        test_data.append(data.copy())
+        return result
+
+    return wrapper
+
+
+test_exercise = capture_test_data(test_exercise)
 
 def run(data, run_code = True):
 
