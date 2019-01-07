@@ -44,4 +44,10 @@ The reference docs become useful when you grasp all concepts and want to look up
    articles/electives.rst
    articles/test_to_check.rst
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Tests
+
+   tests
+
 For details, questions and suggestions, `contact us <mailto:content-engineering@datacamp.com>`_.
