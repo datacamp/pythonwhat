@@ -22,6 +22,6 @@ codecov==2.0.15
 pytest-cov==2.5.1
 
 # building documentation
-sphinx==1.7.4
+sphinx==1.8.3
 sphinx_rtd_theme==v0.3.1
 

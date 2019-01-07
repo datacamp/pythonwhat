@@ -1,5 +1,15 @@
+import json
+
 import pytest
 import helper
+
+
+@pytest.fixture(scope='session', autouse=True)
+def log_calls():
+    yield
+    print('Output test data')
+    with open("docs/test_data.json", "w") as write_file:
+        json.dump(helper.test_data, write_file)
 
 def test_normal_pass():
 	data = {

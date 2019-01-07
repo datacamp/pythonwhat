@@ -19,7 +19,20 @@ import sys
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('..'))
+
+# enables finding custom extensions in docs directory
+sys.path.insert(0, os.path.abspath("."))
+
+sys.path.insert(0, os.path.abspath(".."))
+
+import json
+
+with open("test_data.json", "r") as read_file:
+    test_data = json.load(read_file)
+
+html_context = {
+    "tests": test_data
+}
 
 import pythonwhat
 
@@ -32,21 +45,21 @@ import pythonwhat
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon']
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon", "data_to_doc"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = 'pythonwhat'
-copyright = '2018, DataCamp'
-author = 'DataCamp'
+project = "pythonwhat"
+copyright = "2018, DataCamp"
+author = "DataCamp"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -67,14 +80,14 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build']
+exclude_patterns = ["_build"]
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
 add_module_names = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -84,7 +97,7 @@ todo_include_todos = False
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -101,19 +114,18 @@ html_theme = 'sphinx_rtd_theme'
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'pythonwhatdoc'
+htmlhelp_basename = "pythonwhatdoc"
 
 
 # -- Options for LaTeX output ---------------------------------------------
 
-latex_elements = { }
+latex_elements = {}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'pythonwhat.tex', 'pythonwhat Documentation',
-     'DataCamp', 'manual'),
+    (master_doc, "pythonwhat.tex", "pythonwhat Documentation", "DataCamp", "manual")
 ]
 
 
@@ -121,10 +133,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'pythonwhat', 'pythonwhat Documentation',
-     [author], 1)
-]
+man_pages = [(master_doc, "pythonwhat", "pythonwhat Documentation", [author], 1)]
 
 # -- Options for Texinfo output -------------------------------------------
 
@@ -132,8 +141,13 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'pythonwhat', 'pythonwhat Documentation',
-     author, 'pythonwhat', 'One line description of project.',
-     'Miscellaneous'),
+    (
+        master_doc,
+        "pythonwhat",
+        "pythonwhat Documentation",
+        author,
+        "pythonwhat",
+        "One line description of project.",
+        "Miscellaneous",
+    )
 ]
-
