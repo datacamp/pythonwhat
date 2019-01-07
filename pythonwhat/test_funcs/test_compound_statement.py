@@ -1,12 +1,9 @@
-from pythonwhat.check_funcs import check_part, check_node, multi
-from pythonwhat.Reporter import Reporter
-from pythonwhat.check_funcs import check_node, check_part, check_part_index, call, fix_format, stringify, with_context
+from pythonwhat.check_funcs import check_node, check_part, check_part_index, with_context
+from pythonwhat.test_funcs.utils import fix_format, stringify, call
 from pythonwhat.check_logic import multi
 from pythonwhat.has_funcs import has_equal_part_len, has_equal_part, has_equal_value, has_equal_output
 from pythonwhat.check_has_context import has_context
 from functools import partial
-from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import EqualTest, Test
 from pythonwhat import utils
 
 def test_if_else(index=1,
