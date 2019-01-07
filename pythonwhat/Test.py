@@ -5,7 +5,7 @@ import pandas as pd
 from pythonwhat.tasks import *
 
 """
-This file contains all tests that can be done on specific objects. All tests are represented
+This file contains all tests that can be done on specific objects. All tests are represented as
 an object. Tests that are alike can inherit from the same superclass. A test is first initialized
 and can then be performed by calling the 'test()' function. The result will be stored inside
 the result boolean. A test contains a failure message, which can be used by the reporter to
@@ -202,35 +202,13 @@ def is_equal(x, y):
 ## Others
 
 
-class BiggerTest(Test):
+class BiggerTest(EqualTest):
     """
-    Check if one object is greater than another. This test should only be used with numeric variables (for now).
-
-    Attributes:
-        feedback (str): A string containing the failure message in case the test fails.
-        obj1 (str): The first object, that should be the greatest
-        obj2 (str): The second object, that should be smaller
-        result (bool): True if the test succeed, False if it failed. None if it hasn't been tested yet.
+    Check if the first object is greater than another.
     """
 
-    def __init__(self, obj1, obj2, feedback):
-        """
-        Initialize with two objects.
-
-        Args:
-            obj1 (str): The first object, obj1 will be set to this.
-            obj2 (str): The second object, obj2 will be set to this.
-            feedback (str): The failure message will be set to this.
-        """
-        super().__init__(feedback)
-        self.obj1 = obj1
-        self.obj2 = obj2
-
-    def specific_test(self):
-        """
-        Perform the actual test. result is set to False if the objects differ, True otherwise.
-        """
-        self.result = self.obj1 > self.obj2
+    def __init__(self, *args):
+        super().__init__(*args, func=lambda obj1, obj2: obj1 > obj2)
 
 
 class StringContainsTest(Test):
