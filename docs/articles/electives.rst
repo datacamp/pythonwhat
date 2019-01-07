@@ -178,7 +178,7 @@ by name in the SCT above, they may also be given by position..
 with_context
 ============
 
-.. autofunction:: pythonwhat.check_funcs.with_context
+.. autofunction:: pythonwhat.checks.check_funcs.with_context
     :noindex:
 
 Runs subtests after setting the context for a ``with`` statement.
