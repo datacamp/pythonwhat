@@ -1,7 +1,7 @@
 import pytest
 from pythonwhat.local import setup_state
 from pythonwhat.Test import TestFail as TF
-import helper
+from tests import helper
 
 
 @pytest.mark.parametrize(

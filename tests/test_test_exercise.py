@@ -1,7 +1,7 @@
 import json
 
 import pytest
-import helper
+from tests import helper
 
 
 @pytest.fixture(scope='session', autouse=True)

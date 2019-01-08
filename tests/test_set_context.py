@@ -1,5 +1,5 @@
-import helper
 import pytest
+from tests import helper
 
 
 @pytest.mark.parametrize("spec", ["'test', 1", "word1 = 'test', echo = 1"])
