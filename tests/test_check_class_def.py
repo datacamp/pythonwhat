@@ -1,5 +1,5 @@
 import pytest
-import helper
+from tests import helper
 from pythonwhat.local import setup_state
 from pythonwhat.sct_syntax import v2_check_functions
 

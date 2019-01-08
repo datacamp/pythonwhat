@@ -1,7 +1,7 @@
 import pytest
 from pythonwhat.local import setup_state
-import helper
 from pythonwhat.Feedback import InstructorError
+from tests import helper
 
 
 @pytest.mark.parametrize(

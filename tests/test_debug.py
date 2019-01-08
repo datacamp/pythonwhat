@@ -1,6 +1,6 @@
 import pytest
-import helper
 import requests
+from tests import helper
 
 
 def build_data(course_id, chapter_id, ex_number, printout=False):

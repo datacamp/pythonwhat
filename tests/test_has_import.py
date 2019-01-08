@@ -1,5 +1,5 @@
-import helper
 import pytest
+from tests import helper
 from pythonwhat.local import setup_state
 
 
