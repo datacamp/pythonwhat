@@ -1,5 +1,5 @@
 import pytest
-import helper
+from tests import helper
 from pythonwhat.Reporter import Reporter
 from difflib import Differ
 

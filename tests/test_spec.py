@@ -1,5 +1,5 @@
-import helper
 import pytest
+from tests import helper
 from pythonwhat.Feedback import InstructorError
 
 

@@ -1,6 +1,6 @@
-import helper
-from pythonwhat.local import setup_state
 import pytest
+from tests import helper
+from pythonwhat.local import setup_state
 
 
 @pytest.mark.parametrize("stu, passes", [("", False), ("c", False), ("a == c", True)])

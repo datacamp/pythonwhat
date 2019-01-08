@@ -1,6 +1,6 @@
 import pytest
-import helper
 import ast
+from tests import helper
 
 from pythonwhat.local import setup_state
 from pythonwhat.Feedback import InstructorError
