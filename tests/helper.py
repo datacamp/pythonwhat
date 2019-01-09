@@ -1,5 +1,7 @@
 import re
 import os
+import inspect
+from collections import defaultdict
 from functools import wraps
 
 from pythonwhat.local import StubProcess
@@ -12,18 +14,28 @@ import pytest
 import tempfile
 
 
-test_data = list()
+test_data = defaultdict(list)
 
 
 def capture_test_data(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         result = f(*args, **kwargs)
+
         data = kwargs.copy()
         del data["student_process"]
         del data["solution_process"]
         data["result"] = result
-        test_data.append(data.copy())
+
+        context = 'other'
+        stack = inspect.stack()
+        for frame in stack:
+            _, filename = os.path.split(frame.filename)
+            if filename and filename.startswith("test_"):
+                context = filename
+                break
+        test_data[context].append(data.copy())
+
         return result
 
     return wrapper
