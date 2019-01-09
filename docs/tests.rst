@@ -1,64 +1,79 @@
 Tests
 =====
 
-{% for member in tests %}
-Example {{loop.index}}
-----------------------
-{% if member.pre_exercise_code %}
-PEC ::
+.. note::
 
-    {{ member.pre_exercise_code | indent(4) }}
+    The examples are numbered and linkable,
+    but numbers (and links) can change between builds of the documentation.
 
-{% else %}
-No PEC
-{% endif %}
-{% if member.solution_code %}
-Solution code ::
+.. jinja:: test_ctx
 
-    {{ member.solution_code | indent(4) }}
+    {% for file, tests in test_data.items() %}
 
-{% else %}
-No solution code
-{% endif %}
-{% if member.student_code %}
-Student code ::
+    {{ file }}
+    {{ "-" * 100 }}
 
-    {{ member.student_code | indent(4) }}
+    {% for test in tests %}
 
-{% else %}
-No student code
-{% endif %}
-{% if member.raw_student_output %}
-Student output ::
+    Example {{loop.index}}
+    ~~~~~~~~~~~~~~~~~~~~~~
+    {% if test.pre_exercise_code %}
+    PEC ::
 
-    {{ member.raw_student_output | indent(4) }}
+        {{ test.pre_exercise_code | indent(4) }}
 
-{% else %}
-No output
-{% endif %}
-{% if member.sct %}
-SCT ::
+    {% else %}
+    No PEC
+    {% endif %}
+    {% if test.solution_code %}
+    Solution code ::
 
-    {{ member.sct | indent(4) }}
+        {{ test.solution_code | indent(4) }}
 
-{% else %}
-No SCT
-{% endif %}
-{% if member.result %}
-Result ::
+    {% else %}
+    No solution code
+    {% endif %}
+    {% if test.student_code %}
+    Student code ::
 
-    {{ member.result.message | indent(4) }}
+        {{ test.student_code | indent(4) }}
 
-{% else %}
-No result
-{% endif %}
-{% if member.error %}
-Error ::
+    {% else %}
+    No student code
+    {% endif %}
+    {% if test.raw_student_output %}
+    Student output ::
 
-    {{ member.error | indent(4) }}
+        {{ test.raw_student_output | indent(4) }}
 
-{% else %}
-No error
-{% endif %}
+    {% else %}
+    No output
+    {% endif %}
+    {% if test.sct %}
+    SCT ::
 
-{% endfor %}
+        {{ test.sct | indent(4) }}
+
+    {% else %}
+    No SCT
+    {% endif %}
+    {% if test.result %}
+    Result ::
+
+        {{ test.result.message | indent(4) }}
+
+    {% else %}
+    No result
+    {% endif %}
+    {% if test.error %}
+    Error ::
+
+        {{ test.error | indent(4) }}
+
+    {% else %}
+    No error
+    {% endif %}
+
+    {% endfor %}
+
+    {% endfor %}

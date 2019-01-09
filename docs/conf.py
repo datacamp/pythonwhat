@@ -16,6 +16,9 @@
 import os
 import sys
 
+import json
+import pythonwhat
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -25,16 +28,17 @@ sys.path.insert(0, os.path.abspath("."))
 
 sys.path.insert(0, os.path.abspath(".."))
 
-import json
+TEST_DATA_FILE = "test_data.json"
 
-with open("test_data.json", "r") as read_file:
+if not os.path.isfile(TEST_DATA_FILE):
+    import subprocess
+
+    subprocess.call("pytest", cwd=os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
+
+with open(TEST_DATA_FILE, "r") as read_file:
     test_data = json.load(read_file)
 
-html_context = {
-    "tests": test_data
-}
-
-import pythonwhat
+jinja_contexts = {"test_ctx": {"test_data": test_data}}
 
 # -- General configuration ------------------------------------------------
 
@@ -45,7 +49,7 @@ import pythonwhat
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon", "data_to_doc"]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon", "sphinxcontrib.jinja", 'sphinxprettysearchresults']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
