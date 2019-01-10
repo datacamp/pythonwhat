@@ -27,14 +27,9 @@ class StubProcess(object):
 
 
 def setup_state(stu_code="", sol_code="", pec="", pid=None):
-
-    stu_output = io.StringIO()
-    with redirect_stdout(stu_output):
-        stu_process = StubProcess("%s\n%s" % (pec, stu_code), pid)
-
-    sol_output = io.StringIO()
-    with redirect_stdout(sol_output):
-        sol_process = StubProcess("%s\n%s" % (pec, sol_code), pid)
+    sol_process, stu_process, raw_stu_output, _ = run_exercise(
+        pec, sol_code, stu_code, pid=pid
+    )
 
     rep = Reporter()
     Reporter.active_reporter = rep
@@ -45,8 +40,31 @@ def setup_state(stu_code="", sol_code="", pec="", pid=None):
         pre_exercise_code=pec,
         student_process=stu_process,
         solution_process=sol_process,
-        raw_student_output=stu_output.getvalue(),
+        raw_student_output=raw_stu_output,
     )
 
     State.root_state = state
     return Ex(state)
+
+
+def run_exercise(pec, sol_code, stu_code, pid=None):
+    stu_process = StubProcess(init_code=pec, pid=pid)
+    raw_stu_output, error = run_code(stu_process, stu_code)
+
+    sol_process = StubProcess(init_code=pec, pid=pid)
+    run_code(sol_process, sol_code)
+
+    return sol_process, stu_process, raw_stu_output, error
+
+
+def run_code(process, code):
+    output = io.StringIO()
+    try:
+        with redirect_stdout(output):
+            process.shell.run_code(code)
+        raw_output = output.getvalue()
+        error = None
+    except Exception as e:
+        raw_output = ""
+        error = str(e)
+    return raw_output, error
