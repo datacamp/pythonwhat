@@ -4,12 +4,11 @@ import inspect
 from collections import defaultdict
 from functools import wraps
 
-from pythonwhat.local import StubProcess
-from contextlib import redirect_stdout, contextmanager
+from pythonwhat.local import StubProcess, run_exercise
+from contextlib import contextmanager
 from pythonwhat.Test import TestFail as TF
 from pythonwhat.test_exercise import test_exercise
 from pythonwhat.sct_syntax import Chain
-import io
 import pytest
 import tempfile
 
@@ -27,7 +26,7 @@ def capture_test_data(f):
         del data["solution_process"]
         data["result"] = result
 
-        context = 'other'
+        context = "other"
         stack = inspect.stack()
         for frame in stack:
             _, filename = os.path.split(frame.filename)
@@ -44,6 +43,22 @@ def capture_test_data(f):
 test_exercise = capture_test_data(test_exercise)
 
 
+class ChDir(object):
+    """
+    Step into a directory temporarily.
+    """
+
+    def __init__(self, path):
+        self.old_dir = os.getcwd()
+        self.new_dir = path
+
+    def __enter__(self):
+        os.chdir(self.new_dir)
+
+    def __exit__(self, *args):
+        os.chdir(self.old_dir)
+
+
 def run(data, run_code=True):
 
     pec = data.get("DC_PEC", "")
@@ -52,37 +67,12 @@ def run(data, run_code=True):
     sct = data.get("DC_SCT", "")
     force_diagnose = data.get("DC_FORCE_DIAGNOSE", False)
 
-    class ChDir(object):
-        """
-        Step into a directory temporarily.
-        """
-
-        def __init__(self, path):
-            self.old_dir = os.getcwd()
-            self.new_dir = path
-
-        def __enter__(self):
-            os.chdir(self.new_dir)
-
-        def __exit__(self, *args):
-            os.chdir(self.old_dir)
-
     with tempfile.TemporaryDirectory() as d:
         with ChDir(d):
             if run_code:
-                stu_output = io.StringIO()
-                stu_process = StubProcess(init_code=pec)
-                try:
-                    with redirect_stdout(stu_output):
-                        stu_process.shell.run_code(stu_code)
-                    raw_stu_output = stu_output.getvalue()
-                    error = None
-                except Exception as e:
-                    raw_stu_output = ""
-                    error = str(e)
-                sol_output = io.StringIO()
-                with redirect_stdout(sol_output):
-                    sol_process = StubProcess(init_code="%s\n%s" % (pec, sol_code))
+                sol_process, stu_process, raw_stu_output, error = run_exercise(
+                    pec, sol_code, stu_code
+                )
             else:
                 raw_stu_output = ""
                 stu_process = StubProcess()
