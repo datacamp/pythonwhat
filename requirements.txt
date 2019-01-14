@@ -1,13 +1,14 @@
 # pythonwhat deps
-scipy==1.0.1
-numpy==1.14.2
-pandas==0.22.0
-dill==0.2.7.1
-markdown2==2.3.5
-asttokens==1.1.10
-jinja2==2.10
+asttokens~=1.1.10
+dill~=0.2.7.1
+markdown2~=2.3.5
+jinja2~=2.10
+
+numpy~=1.14.2
+pandas~=0.22.0
 
 # test deps
+scipy==1.0.1
 bs4==0.0.1
 html5lib==1.0.1
 h5py==2.7.1
