@@ -6,7 +6,8 @@ from os import path
 from setuptools import setup
 
 PACKAGE_NAME = "pythonwhat"
-REQUIREMENT_NAMES = ["markdown2", "jinja2", "asttokens", "dill", "numpy", "pandas"]
+REQUIREMENT_NAMES = ["markdown2", "jinja2", "asttokens", "dill"]
+PEER_REQUIREMENTS = ["numpy", "pandas"]
 
 HERE = path.abspath(path.dirname(__file__))
 VERSION_FILE = path.join(HERE, PACKAGE_NAME, "__init__.py")
@@ -18,11 +19,11 @@ with open(VERSION_FILE, encoding="utf-8") as fp:
     VERSION = str(ast.literal_eval(_version_re.search(fp.read()).group(1)))
 with open(REQUIREMENTS_FILE, encoding="utf-8") as fp:
     req_txt = fp.read()
-    _requirements_re_template = r"^({}(?:\s*[<>=]+\s*\S*)?)\s*(?:#.*)?$"
+    _requirements_re_template = r"^({}(?:\s*[~<>=]+\s*\S*)?)\s*(?:#.*)?$"
     REQUIREMENTS = [
         re.search(_requirements_re_template.format(requirement), req_txt, re.M).group(0)
         for requirement in REQUIREMENT_NAMES
-    ]
+    ] + PEER_REQUIREMENTS
 with open(README_FILE, encoding="utf-8") as fp:
     README = fp.read()
 
