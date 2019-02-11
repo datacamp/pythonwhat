@@ -62,7 +62,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "pythonwhat"
-copyright = "2018, DataCamp"
+copyright = "2019, DataCamp"
 author = "DataCamp"
 
 # The version info for the project you're documenting, acts as replacement for
