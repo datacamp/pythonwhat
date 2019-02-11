@@ -3,7 +3,7 @@ import copy
 import os
 
 def include_v1():
-    return os.environ.get('PYTHONWHAT_V2_ONLY', '') != '1'
+    return False
 
 def v2_only():
     return not include_v1()
