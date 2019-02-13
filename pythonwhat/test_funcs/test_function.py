@@ -6,21 +6,22 @@ from pythonwhat.checks.check_funcs import check_args
 from pythonwhat.checks.has_funcs import has_equal_value, has_equal_ast, has_printout
 
 
-def arg_test(name, do_eval, missing_msg, incorrect_msg, state):
-    arg_state = check_args(name=name, missing_msg=missing_msg, state=state)
+def arg_test(state, name, do_eval, missing_msg, incorrect_msg):
+    arg_state = check_args(state, name=name, missing_msg=missing_msg)
 
     append = incorrect_msg is None
 
     if isinstance(do_eval, bool):
         if do_eval:
             has_equal_value(
-                incorrect_msg=incorrect_msg, append=append, copy=False, state=arg_state
+                arg_state, incorrect_msg=incorrect_msg, append=append, copy=False
             )
         else:
-            has_equal_ast(incorrect_msg=incorrect_msg, append=append, state=arg_state)
+            has_equal_ast(arg_state, incorrect_msg=incorrect_msg, append=append)
 
 
 def test_function(
+    state,
     name,
     index=1,
     args=None,
@@ -31,7 +32,6 @@ def test_function(
     args_not_specified_msg=None,
     incorrect_msg=None,
     add_more=False,
-    state=None,
     **kwargs
 ):
     index = index - 1
@@ -39,13 +39,13 @@ def test_function(
     # if root-level (not in compound statement) calls: use has_printout
     if name == "print" and state.parent_state is None and do_eval:
         try:
-            return has_printout(index=index, not_printed_msg=incorrect_msg, state=state)
+            return has_printout(state, index=index, not_printed_msg=incorrect_msg)
         except TestFail:
             # The test didn't pass; just continue with the more strict check_function test.
             pass
 
     fun_state = check_function(
-        name=name, index=index, missing_msg=not_called_msg, signature=False, state=state
+        state, name=name, index=index, missing_msg=not_called_msg, signature=False
     )
 
     if args is None:
@@ -64,10 +64,10 @@ def test_function(
 
     arg_test_partial = partial(
         arg_test,
+        fun_state,
         do_eval=do_eval,
         missing_msg=args_not_specified_msg,
         incorrect_msg=incorrect_msg,
-        state=fun_state,
     )
 
     [arg_test_partial(name=i) for i in range(len(args))]
@@ -77,6 +77,7 @@ def test_function(
 
 
 def test_function_v2(
+    state,
     name,
     index=1,
     params=[],
@@ -88,7 +89,6 @@ def test_function_v2(
     params_not_specified_msg=None,
     incorrect_msg=None,
     add_more=False,
-    state=None,
     **kwargs
 ):
 
@@ -130,7 +130,7 @@ def test_function_v2(
     if name == "print" and state.parent_state is None and eligible:
         try:
             return has_printout(
-                index=index, not_printed_msg=incorrect_msg[0], state=state
+                state, index=index, not_printed_msg=incorrect_msg[0]
             )
         except TestFail:
             # The test didn't pass; just continue with the more strict check_function test.
@@ -140,21 +140,21 @@ def test_function_v2(
         signature = False
 
     fun_state = check_function(
+        state,
         name=name,
         index=index,
         missing_msg=not_called_msg,
         params_not_matched_msg=params_not_matched_msg,
         signature=signature,
-        state=state,
     )
 
     for i in range(len(params)):
         arg_test(
+            fun_state,
             name=params[i],
             do_eval=do_eval[i],
             missing_msg=params_not_specified_msg[i],
             incorrect_msg=incorrect_msg[i],
-            state=fun_state,
         )
 
     return state

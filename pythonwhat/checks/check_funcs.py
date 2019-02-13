@@ -26,7 +26,7 @@ def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
 
     # if the parts are dictionaries, use to deck out child state
     if all(isinstance(p, dict) for p in [stu_part, sol_part]):
-        return state.to_child_state(
+        child_state = state.to_child_state(
             student_subtree=stu_part["node"],
             solution_subtree=sol_part["node"],
             student_context=stu_part.get("target_vars"),
@@ -37,17 +37,19 @@ def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
             append_message=append_message,
             node_name=node_name,
         )
+    else:
+        # otherwise, assume they are just nodes
+        child_state = state.to_child_state(
+            student_subtree=stu_part,
+            solution_subtree=sol_part,
+            append_message=append_message,
+            node_name=node_name,
+        )
 
-    # otherwise, assume they are just nodes
-    return state.to_child_state(
-        student_subtree=stu_part,
-        solution_subtree=sol_part,
-        append_message=append_message,
-        node_name=node_name,
-    )
+    return child_state
 
 
-def check_part(name, part_msg, missing_msg=None, expand_msg=None, state=None):
+def check_part(state, name, part_msg, missing_msg=None, expand_msg=None):
     """Return child state with name part as its ast tree"""
 
     if missing_msg is None:
@@ -59,7 +61,7 @@ def check_part(name, part_msg, missing_msg=None, expand_msg=None, state=None):
         part_msg = name
     append_message = {"msg": expand_msg, "kwargs": {"part": part_msg}}
 
-    has_part(name, missing_msg, state, append_message["kwargs"])
+    has_part(state, name, missing_msg, append_message["kwargs"])
 
     stu_part = state.student_parts[name]
     sol_part = state.solution_parts[name]
@@ -70,7 +72,7 @@ def check_part(name, part_msg, missing_msg=None, expand_msg=None, state=None):
 
 
 def check_part_index(
-    name, index, part_msg, missing_msg=None, expand_msg=None, state=None
+    state, name, index, part_msg, missing_msg=None, expand_msg=None
 ):
     """Return child state with indexed name part as its ast tree.
 
@@ -94,7 +96,7 @@ def check_part_index(
     append_message = {"msg": expand_msg, "kwargs": fmt_kwargs}
 
     # check there are enough parts for index
-    has_part(name, missing_msg, state, fmt_kwargs, index)
+    has_part(state, name, missing_msg, fmt_kwargs, index)
 
     # get part at index
     stu_part = state.student_parts[name]
@@ -115,12 +117,12 @@ def check_part_index(
 
 
 def check_node(
+    state,
     name,
     index=0,
     typestr="{{ordinal}} node",
     missing_msg=None,
     expand_msg=None,
-    state=None,
 ):
 
     if missing_msg is None:
@@ -158,7 +160,7 @@ def check_node(
 
 # context functions -----------------------------------------------------------
 # TODO: check if still useful
-def with_context(*args, state=None, child=None):
+def with_context(state, *args, child=None):
 
     rep = Reporter.active_reporter
 
@@ -197,7 +199,7 @@ def with_context(*args, state=None, child=None):
 
     # run subtests
     try:
-        multi(*args, state=state)
+        multi(state, *args)
     finally:
         # exit context
         close_solution_context = breakDownNewEnvInProcess(
@@ -223,7 +225,7 @@ def with_context(*args, state=None, child=None):
     return state
 
 
-def check_args(name, missing_msg=None, state=None):
+def check_args(state, name, missing_msg=None):
     """Check whether a function argument is specified.
 
     This function can follow ``check_function()`` in an SCT chain and verifies whether an argument is specified.
@@ -276,7 +278,7 @@ def check_args(name, missing_msg=None, state=None):
         missing_msg = "Did you specify the {{part}}?"
 
     if name in ["*args", "**kwargs"]:  # for check_function_def
-        return check_part(name, name, state=state, missing_msg=missing_msg)
+        return check_part(state, name, name, missing_msg=missing_msg)
     else:
         if isinstance(name, list):  # dealing with args or kwargs
             if name[0] == "args":
@@ -292,7 +294,7 @@ def check_args(name, missing_msg=None, state=None):
                 else "argument `%s`" % name
             )
         return check_part_index(
-            "args", name, arg_str, missing_msg=missing_msg, state=state
+            state, "args", name, arg_str, missing_msg=missing_msg
         )
 
 
@@ -315,7 +317,7 @@ def build_call(callstr, node):
     return parsed, argstr
 
 
-def check_call(callstr, argstr=None, expand_msg=None, state=None):
+def check_call(state, callstr, argstr=None, expand_msg=None):
     """When checking a function definition of lambda function,
     prepare has_equal_x for checking the call of a user-defined function.
 

@@ -4,30 +4,30 @@ from pythonwhat.checks.has_funcs import has_equal_value
 
 
 def test_object(
+    state,
     name,
     eq_condition="equal",
     eq_fun=None,
     do_eval=True,
     undefined_msg=None,
     incorrect_msg=None,
-    state=None,
 ):
 
     expand_msg = "" if undefined_msg or incorrect_msg else None
-    child = check_object(name, undefined_msg, expand_msg=expand_msg, state=state)
+    child = check_object(state, name, undefined_msg, expand_msg=expand_msg)
 
     if do_eval:
-        has_equal_value(incorrect_msg, state=child)
+        has_equal_value(child, incorrect_msg)
 
 
 def test_data_frame(
+    state,
     name,
     columns=None,
     undefined_msg=None,
     not_data_frame_msg=None,
     undefined_cols_msg=None,
     incorrect_msg=None,
-    state=None,
 ):
     """Test a pandas dataframe.
     """
@@ -39,11 +39,11 @@ def test_data_frame(
     )
 
     child = check_df(
+        state,
         name,
         undefined_msg,
         not_instance_msg=not_data_frame_msg,
         expand_msg=expand_msg,
-        state=state,
     )
 
     # if columns not set, figure them out from solution
@@ -51,5 +51,5 @@ def test_data_frame(
         columns = getColumnsInProcess(name, child.solution_process)
 
     for col in columns:
-        colstate = check_keys(col, missing_msg=undefined_cols_msg, state=child)
-        has_equal_value(incorrect_msg=incorrect_msg, state=colstate)
+        colstate = check_keys(child, col, missing_msg=undefined_cols_msg)
+        has_equal_value(colstate, incorrect_msg=incorrect_msg)
