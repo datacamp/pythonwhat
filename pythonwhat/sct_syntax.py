@@ -1,3 +1,4 @@
+from protowhat.sct_syntax import Chain as ProtoChain, F as ProtoF, state_dec_gen
 from pythonwhat.checks.check_wrappers import scts
 from pythonwhat.State import State
 from pythonwhat.probe import Node, Probe, TEST_NAMES
@@ -28,99 +29,17 @@ def multi_dec(f):
     return wrapper
 
 
-def state_dec(f):
-    """Decorate check_* functions to return F chain if no state passed"""
-
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        ba = inspect.signature(f).bind(*args, **kwargs)
-        ba.apply_defaults()
-
-        state_arg = ba.arguments.get("state")
-        if isinstance(state_arg, State):  # proper state, run function
-            return f(*args, **kwargs)
-        elif state_arg is None:  # default state arg, make partial
-            return F._from_func(partial(f, *args, **kwargs))
-        else:  # passed improper state arg
-            raise BaseException(
-                "Did you use the right number of arguments in your SCT?"
-            )
-
-    return wrapper
+state_dec = state_dec_gen(State, ATTR_SCTS)
 
 
-class Chain:
-    def __init__(self, state):
-        self._state = state
-        self._crnt_sct = None  # last called SCT
-        self._waiting_on_call = False
-
-    def _double_attr_error(self):
-        raise AttributeError(
-            "Did you forget to call a statement? "
-            "e.g. Ex().check_list_comp.check_body()"
-        )
-
-    def __getattr__(self, attr):
-        if attr not in ATTR_SCTS:
-            raise AttributeError("No SCT named %s" % attr)
-        elif self._waiting_on_call:
-            self._double_attr_error()
-        else:
-            # make a copy to return,
-            # in case someone does: a = chain.a; b = chain.b
-            return self._sct_copy(ATTR_SCTS[attr])
-
-    def __call__(self, *args, **kwargs):
-        self._state = self._crnt_sct(state=self._state, *args, **kwargs)
-        self._waiting_on_call = False
-        return self
-
-    def __rshift__(self, f):
-        if self._waiting_on_call:
-            self._double_attr_error()
-        elif type(f) == Chain:
-            raise BaseException(
-                "did you use a result of the Ex() function on the right hand side of the >> operator?"
-            )
-        elif not callable(f):
-            raise BaseException(
-                "right hand side of >> operator should be an SCT, so must be callable!"
-            )
-        else:
-            chain = self._sct_copy(f)
-            return chain()
-
-    def _sct_copy(self, f):
-        chain = copy.copy(self)
-        chain._crnt_sct = f
-        chain._waiting_on_call = True
-        return chain
+class Chain(ProtoChain):
+    def __init__(self, state, attr_scts=ATTR_SCTS):
+        super().__init__(state, attr_scts)
 
 
-class F(Chain):
-    """
-    Chain with deferred State passing
-    """
-
-    def __init__(self, stack=None):
-        self._crnt_sct = None
-        self._stack = [] if stack is None else stack
-        self._waiting_on_call = False
-
-    def __call__(self, *args, **kwargs):
-        if not self._crnt_sct:
-            # first function in chain
-            state = kwargs.get("state") or args[0]
-            return reduce(lambda s, f: f(state=s), self._stack, state)
-        else:
-            pf = partial(self._crnt_sct, *args, **kwargs)
-            return self.__class__(self._stack + [pf])
-
-    @classmethod
-    def _from_func(cls, f):
-        func_chain = cls(stack=[f])
-        return func_chain
+class F(ProtoF):
+    def __init__(self, stack=None, attr_scts=ATTR_SCTS):
+        super().__init__(stack, attr_scts)
 
 
 def Ex(state=None):

@@ -4,7 +4,7 @@ from pythonwhat.Test import BiggerTest
 import pythonwhat.utils
 
 
-def test_object_accessed(name, times=1, not_accessed_msg=None, state=None):
+def test_object_accessed(state, name, times=1, not_accessed_msg=None):
     """Test if object accessed
 
     Checks whether an object, or the attribute of an object, are accessed

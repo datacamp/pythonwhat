@@ -69,13 +69,13 @@ MSG_CALL_ERROR_INV = (
 
 
 def call(
+    state,
     args,
     test="value",
     incorrect_msg=None,
     error_msg=None,
     argstr=None,
     func=None,
-    state=None,
     **kwargs
 ):
     """Use ``check_call()`` in combination with ``has_equal_x()`` instead.

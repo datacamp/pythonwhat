@@ -4,6 +4,7 @@ import inspect
 from functools import partial
 from collections import OrderedDict
 from pythonwhat import test_funcs
+from pythonwhat.checks.check_wrappers import partial_with_offset
 
 TEST_NAMES = [
     "test_mc",
@@ -99,7 +100,7 @@ class Node(object):
         """Call original function with its arguments, and optional state"""
         ba = self.data["bound_args"]
         if state:
-            self.data["func"](state=state, *ba.args, **ba.kwargs)
+            self.data["func"](state, *ba.args, **ba.kwargs)
             return state
         else:
             self.data["func"](*ba.args, **ba.kwargs)
@@ -117,7 +118,7 @@ class Node(object):
     def partial(self):
         """Return partial of original function call"""
         ba = self.data["bound_args"]
-        return partial(self.data["func"], *ba.args, **ba.kwargs)
+        return partial_with_offset(self.data["func"], *ba.args, **ba.kwargs)
 
     def update_child_calls(self):
         """Replace child nodes on original function call with their partials"""
@@ -182,7 +183,7 @@ class Probe(object):
 
         """
 
-        bound_args = inspect.signature(self.f).bind(*args, **kwargs)
+        bound_args = inspect.signature(self.f).bind_partial(*args, **kwargs)
 
         data = dict(bound_args=bound_args, func=self.f)
         this_node = Node(data=data, name=self.test_name)

@@ -18,7 +18,7 @@ import ast
 
 
 def check_object(
-    index, missing_msg=None, expand_msg=None, state=None, typestr="variable"
+    state, index, missing_msg=None, expand_msg=None, typestr="variable"
 ):
     """Check object existence (and equality)
 
@@ -198,7 +198,7 @@ def check_object(
     return child
 
 
-def is_instance(inst, not_instance_msg=None, state=None):
+def is_instance(state, inst, not_instance_msg=None):
     """Check whether an object is an instance of a certain class.
 
     ``is_instance()`` can currently only be used when chained from ``check_object()``, the function that is
@@ -248,7 +248,7 @@ def is_instance(inst, not_instance_msg=None, state=None):
 
 
 def check_df(
-    index, missing_msg=None, not_instance_msg=None, expand_msg=None, state=None
+    state, index, missing_msg=None, not_instance_msg=None, expand_msg=None
 ):
     """Check whether a DataFrame was defined and it is the right type
     
@@ -290,17 +290,17 @@ def check_df(
 
     """
     child = check_object(
+        state,
         index,
         missing_msg=missing_msg,
         expand_msg=expand_msg,
-        state=state,
         typestr="pandas DataFrame",
     )
-    is_instance(pd.DataFrame, not_instance_msg=not_instance_msg, state=child)
+    is_instance(child, pd.DataFrame, not_instance_msg=not_instance_msg)
     return child
 
 
-def check_keys(key, missing_msg=None, expand_msg=None, state=None):
+def check_keys(state, key, missing_msg=None, expand_msg=None):
     """Check whether an object (dict, DataFrame, etc) has a key.
 
     ``check_keys()`` can currently only be used when chained from ``check_object()``, the function that is
