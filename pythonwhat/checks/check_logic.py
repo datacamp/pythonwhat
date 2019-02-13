@@ -7,7 +7,7 @@ import copy
 import ast
 
 
-def multi(*args, state=None):
+def multi(state, *args):
     """Run multiple subtests. Return original state (for chaining).
 
     Args:
@@ -39,13 +39,13 @@ def multi(*args, state=None):
         for test in args:
             # assume test is function needing a state argument
             # partial state so reporter can test
-            rep.do_test(partial(test, state=state))
+            rep.do_test(partial(test, state))
 
     # return original state, so can be chained
     return state
 
 
-def check_not(*tests, msg, state=None):
+def check_not(state, *tests, msg):
     """Run multiple subtests that should fail. If all subtests fail, returns original state (for chaining)
 
     Args:
@@ -88,7 +88,7 @@ def check_not(*tests, msg, state=None):
 
     for test in tests:
         try:
-            multi(test, state=state)
+            multi(state, test)
         except TestFail:
             # it fails, as expected, off to next one
             continue
@@ -98,7 +98,7 @@ def check_not(*tests, msg, state=None):
     return state
 
 
-def check_or(*tests, state=None):
+def check_or(state, *tests):
     """Test whether at least one SCT passes.
 
     If all of the tests fail, the feedback of the first test will be presented to the student.
@@ -127,18 +127,18 @@ def check_or(*tests, state=None):
     first_feedback = None
     for test in tests:
         try:
-            multi(test, state=state)
+            multi(state, test)
             success = True
         except TestFail as e:
             if not first_feedback:
                 first_feedback = e.feedback
         if success:
-            return
+            return state  # todo: add test
 
     rep.do_test(Test(first_feedback))
 
 
-def check_correct(check, diagnose, state=None):
+def check_correct(state, check, diagnose):
     """Allows feedback from a diagnostic SCT, only if a check SCT fails.
 
     Args:
@@ -159,12 +159,12 @@ def check_correct(check, diagnose, state=None):
     """
     feedback = None
     try:
-        multi(check, state=state)
+        multi(state, check)
     except TestFail as e:
         feedback = e.feedback
 
     try:
-        multi(diagnose, state=state)
+        multi(state, diagnose)
     except TestFail as e:
         if feedback is not None or state.force_diagnose:
             feedback = e.feedback
@@ -173,11 +173,13 @@ def check_correct(check, diagnose, state=None):
         rep = Reporter.active_reporter
         rep.do_test(Test(feedback))
 
+    return state  # todo: add test
+
 
 # utility functions -----------------------------------------------------------
 
 
-def fail(msg="", state=None):
+def fail(state, msg=""):
     """Fail SCT
     
     This function takes a single argument, ``msg``, that is the feedback given to the student.
@@ -200,7 +202,7 @@ def fail(msg="", state=None):
     rep.do_test(Test(Feedback(_msg, state)))
 
 
-def override(solution, state=None):
+def override(state, solution):
     """Override the solution code with something arbitrary.
 
     There might be cases in which you want to temporarily override the solution code
@@ -240,11 +242,11 @@ def override(solution, state=None):
     return child
 
 
-def set_context(*args, state=None, **kwargs):
+def set_context(state, *args, **kwargs):
     """Update context values for student and solution environments.
     
     When ``has_equal_x()`` is used after this, the context values (in ``for`` loops and function definitions, for example)
-    will have the values specified throught his function. It is the function equivalent of the ``context_vals`` argument of
+    will have the values specified through his function. It is the function equivalent of the ``context_vals`` argument of
     the ``has_equal_x()`` functions.
 
     - Note 1: excess args and unmatched kwargs will be unused in the student environment.
@@ -332,7 +334,7 @@ def set_context(*args, state=None, **kwargs):
     )
 
 
-def set_env(state=None, **kwargs):
+def set_env(state, **kwargs):
     """Update/set environemnt variables for student and solution environments.
 
     When ``has_equal_x()`` is used after this, the variables specified through this function will
@@ -373,7 +375,7 @@ def set_env(state=None, **kwargs):
     )
 
 
-def disable_highlighting(state=None):
+def disable_highlighting(state):
     """Disable highlighting in the remainder of the SCT chain.
 
     Include this function if you want to avoid that pythonwhat marks which part of the student submission is incorrect.

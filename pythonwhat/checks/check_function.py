@@ -38,13 +38,13 @@ PREPEND_MSG = "Check your {{ord + ' ' if index>0}}call of `{{mapped_name}}()`. "
 
 
 def check_function(
+    state,
     name,
     index=0,
     missing_msg=None,
     params_not_matched_msg=None,
     expand_msg=None,
     signature=True,
-    state=None,
 ):
     """Check whether a particular function is called.
 

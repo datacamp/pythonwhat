@@ -294,17 +294,17 @@ from pythonwhat.sct_syntax import Ex, F, state_dec
 
 @pytest.fixture
 def addx():
-    return lambda x, state=None: state + x
+    return lambda state, x: state + x
 
 
 @pytest.fixture
 def f():
-    return F._from_func(lambda state=None: state + "b")
+    return F._from_func(lambda state: state + "b")
 
 
 @pytest.fixture
 def f2():
-    return F._from_func(lambda state=None: state + "c")
+    return F._from_func(lambda state: state + "c")
 
 
 def test_f_from_func(f):
@@ -334,7 +334,7 @@ def test_f_2_funcs(f, addx):
 
 
 def test_f_add_unary_func(f):
-    g = f >> (lambda state=None: state + "c")
+    g = f >> (lambda state: state + "c")
     assert g("a") == "abc"
 
 
@@ -352,7 +352,7 @@ def test_f_from_state_dec(addx):
 
 @pytest.fixture
 def ex():
-    return Ex("state")._sct_copy(lambda x, state=None: state + x)("x")
+    return Ex("state")._sct_copy(lambda state, x: state + x)("x")
 
 
 def test_ex_add_f(ex, f):
@@ -360,7 +360,7 @@ def test_ex_add_f(ex, f):
 
 
 def test_ex_add_unary(ex):
-    (ex >> (lambda state=None: state + "b"))._state == "statexb"
+    (ex >> (lambda state: state + "b"))._state == "statexb"
 
 
 def test_ex_add_ex_err(ex):

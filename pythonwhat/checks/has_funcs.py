@@ -24,7 +24,7 @@ evalCalls = {
 }
 
 
-def has_part(name, msg, state=None, fmt_kwargs=None, index=None):
+def has_part(state, name, msg, fmt_kwargs=None, index=None):
     rep = Reporter.active_reporter
     d = {
         "sol_part": state.solution_parts,
@@ -58,7 +58,7 @@ def has_part(name, msg, state=None, fmt_kwargs=None, index=None):
     return state
 
 
-def has_equal_part(name, msg, state):
+def has_equal_part(state, name, msg):
     rep = Reporter.active_reporter
     d = {
         "stu_part": state.student_parts,
@@ -75,7 +75,7 @@ def has_equal_part(name, msg, state):
 
 
 # TODO: shouldn't have to hardcode message
-def has_equal_part_len(name, unequal_msg, state=None):
+def has_equal_part_len(state, name, unequal_msg):
     """Verify that a part that is zoomed in on has equal length.
 
     Typically used in the context of ``check_function_def()``
@@ -111,7 +111,7 @@ def has_equal_part_len(name, unequal_msg, state=None):
 ## Expression tests -----------------------------------------------------------
 
 
-def has_equal_ast(incorrect_msg=None, code=None, exact=True, append=None, state=None):
+def has_equal_ast(state, incorrect_msg=None, code=None, exact=True, append=None):
     """Test whether abstract syntax trees match between the student and solution code.
 
     ``has_equal_ast()`` can be used in two ways:
@@ -252,6 +252,7 @@ args_string = """
 
 
 def has_expr(
+    state,
     incorrect_msg=None,
     error_msg=None,
     undefined_msg=None,
@@ -264,8 +265,7 @@ def has_expr(
     copy=True,
     func=None,
     override=None,
-    state=None,
-    test=None,
+    test=None,  # todo: default or arg before state
 ):
 
     if (
@@ -423,7 +423,7 @@ has_equal_error.__doc__ = """Run targeted student and solution code, and compare
 from pythonwhat.Test import StringContainsTest
 
 
-def has_code(text, pattern=True, not_typed_msg=None, state=None):
+def has_code(state, text, pattern=True, not_typed_msg=None):
     """Test the student code.
 
     Tests if the student typed a (pattern of) text. It is advised to use ``has_equal_ast()`` instead of ``has_code()``,
@@ -466,11 +466,11 @@ from pythonwhat.Test import Test, DefinedCollTest, EqualTest
 
 
 def has_import(
+    state,
     name,
     same_as=False,
     not_imported_msg="Did you import `{{pkg}}`?",
     incorrect_as_msg="Did you import `{{pkg}}` as `{{alias}}`?",
-    state=None,
 ):
     """Checks whether student imported a package or function correctly.
 
@@ -546,7 +546,7 @@ def has_import(
     return state
 
 
-def has_output(text, pattern=True, no_output_msg=None, state=None):
+def has_output(state, text, pattern=True, no_output_msg=None):
     """Search student output for a pattern.
 
     Among the student and solution process, the student submission and solution code as a string,
@@ -590,7 +590,7 @@ def has_output(text, pattern=True, no_output_msg=None, state=None):
 
 
 def has_printout(
-    index, not_printed_msg=None, pre_code=None, name=None, copy=False, state=None
+    state, index, not_printed_msg=None, pre_code=None, name=None, copy=False
 ):
     """Check if the right printouts happened.
 
@@ -703,14 +703,14 @@ def has_printout(
 
     _msg = state.build_message(not_printed_msg, {"sol_call": sol_call_str})
 
-    has_output(out_sol.strip(), pattern=False, no_output_msg=_msg, state=state)
+    has_output(state, out_sol.strip(), pattern=False, no_output_msg=_msg)
 
     return state
 
 
 def has_no_error(
+    state,
     incorrect_msg="Have a look at the console: your code contains an error. Fix it and try again!",
-    state=None,
 ):
     """Check whether the submission did not generate a runtime error.
 
@@ -774,7 +774,7 @@ def has_no_error(
 MC_VAR_NAME = "selected_option"
 
 
-def has_chosen(correct, msgs, state=None):
+def has_chosen(state, correct, msgs):
     """Test multiple choice exercise.
 
     Test for a MultipleChoiceExercise. The correct answer (as an integer) and feedback messages

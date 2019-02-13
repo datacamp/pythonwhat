@@ -4,7 +4,7 @@ from pythonwhat.checks import check_object, check_logic, check_funcs, has_funcs
 from pythonwhat.checks.check_function import check_function
 from pythonwhat.checks.check_has_context import has_context
 
-from functools import partial
+from functools import partial, wraps
 from jinja2 import Template
 
 __PART_WRAPPERS__ = {
@@ -647,12 +647,48 @@ scts = dict()
 
 # make has_equal_part wrappers
 
-scts["has_equal_name"] = partial(
+
+# todo: check @wraps implementation
+
+# def partial_with_state(func, *partial_args, **partial_kwargs):
+#     @wraps(func)
+#     def state_partial(state, *args, **kwargs):
+#         func(state, *partial_args, *args, **{**partial_kwargs, **kwargs})
+#     return state_partial
+
+
+# def right_args_partial(func, *last_args, **partial_kwargs):
+#     kwargs_partial = partial(func, **partial_kwargs)
+#
+#     @wraps(func)
+#     def full_partial(*first_args, **kwargs):
+#         kwargs_partial(*first_args, *last_args, **kwargs)
+#
+#     return full_partial
+
+
+def partial_with_offset(func, *partial_args, offset=1, **partial_kwargs):
+    kwargs_partial = partial(func, **partial_kwargs)
+
+    @wraps(func)
+    def full_partial(*args, **kwargs):
+        full_args = args[:offset] + partial_args + args[offset:]
+        return kwargs_partial(*full_args, **kwargs)
+
+    return full_partial
+
+
+def rename_function(func, name):
+    # see functools.wraps
+    func.__name__ = func.__qualname__ = name
+
+
+scts["has_equal_name"] = partial_with_offset(
     has_equal_part,
     "name",
     msg="Make sure to use the correct {{name}}, was expecting {{sol_part[name]}}, instead got {{stu_part[name]}}.",
 )
-scts["is_default"] = partial(
+scts["is_default"] = partial_with_offset(
     has_equal_part,
     "is_default",
     msg="Make sure it {{ 'has' if sol_part.is_default else 'does not have'}} a default argument.",
@@ -660,20 +696,23 @@ scts["is_default"] = partial(
 
 # include rest of wrappers
 for k, v in __PART_WRAPPERS__.items():
-
-    scts["check_" + k] = partial(check_part, k, v)
+    check_fun = partial_with_offset(check_part, k, v)
+    rename_function(check_fun, "check_" + k)
+    scts[check_fun.__name__] = check_fun
 
 for k, v in __PART_INDEX_WRAPPERS__.items():
-    scts["check_" + k] = partial(check_part_index, k, part_msg=v)
+    check_fun = partial_with_offset(check_part_index, k, part_msg=v)
+    rename_function(check_fun, "check_" + k)
+    scts[check_fun.__name__] = check_fun
 
 for k, v in __NODE_WRAPPERS__.items():
-    check_fun = partial(check_node, k + "s", typestr=v["typestr"])
+    check_fun = partial_with_offset(check_node, k + "s", typestr=v["typestr"])
     check_fun.__doc__ = Template(v["docstr"]).render(
         typestr="typestr: If specified, this overrides the standard way of referring to the construct you're zooming in on.",
         missing_msg="missing_msg: If specified, this overrides the automatically generated feedback message in case the construct could not be found.",
         expand_msg="expand_msg: If specified, this overrides the automatically generated feedback message that is prepended to feedback messages that are thrown further in the SCT chain.",
     )
-    check_fun.__name__ = "check_" + k
+    rename_function(check_fun, "check_" + k)
     scts[check_fun.__name__] = check_fun
 
 for k in [
