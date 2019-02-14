@@ -4,6 +4,7 @@ import inspect
 from functools import partial
 from collections import OrderedDict
 from pythonwhat import test_funcs
+from pythonwhat.State import State
 from pythonwhat.checks.check_wrappers import partial_with_offset
 
 TEST_NAMES = [
@@ -100,7 +101,9 @@ class Node(object):
         """Call original function with its arguments, and optional state"""
         ba = self.data["bound_args"]
         if state:
-            self.data["func"](state, *ba.args, **ba.kwargs)
+            func = self.data["func"]
+            ba = inspect.signature(func).bind(state, *ba.args[1:], **ba.kwargs)
+            func(*ba.args, **ba.kwargs)
             return state
         else:
             self.data["func"](*ba.args, **ba.kwargs)
@@ -118,7 +121,7 @@ class Node(object):
     def partial(self):
         """Return partial of original function call"""
         ba = self.data["bound_args"]
-        return partial_with_offset(self.data["func"], *ba.args, **ba.kwargs)
+        return partial_with_offset(self.data["func"], *ba.args[1:], **ba.kwargs)
 
     def update_child_calls(self):
         """Replace child nodes on original function call with their partials"""
@@ -182,8 +185,11 @@ class Probe(object):
         instances are assembled into a tree.
 
         """
+        if (len(args) > 0 and not isinstance(args[0], State)) or len(args) == 0:
+            # no state placeholder if a state is passed
+            args = ['state_placeholder'] + list(args)
 
-        bound_args = inspect.signature(self.f).bind_partial(*args, **kwargs)
+        bound_args = inspect.signature(self.f).bind(*args, **kwargs)
 
         data = dict(bound_args=bound_args, func=self.f)
         this_node = Node(data=data, name=self.test_name)
