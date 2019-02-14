@@ -71,9 +71,7 @@ def check_part(state, name, part_msg, missing_msg=None, expand_msg=None):
     return part_to_child(stu_part, sol_part, append_message, state)
 
 
-def check_part_index(
-    state, name, index, part_msg, missing_msg=None, expand_msg=None
-):
+def check_part_index(state, name, index, part_msg, missing_msg=None, expand_msg=None):
     """Return child state with indexed name part as its ast tree.
 
     ``index`` can be:
@@ -117,12 +115,7 @@ def check_part_index(
 
 
 def check_node(
-    state,
-    name,
-    index=0,
-    typestr="{{ordinal}} node",
-    missing_msg=None,
-    expand_msg=None,
+    state, name, index=0, typestr="{{ordinal}} node", missing_msg=None, expand_msg=None
 ):
 
     if missing_msg is None:
@@ -282,20 +275,18 @@ def check_args(state, name, missing_msg=None):
     else:
         if isinstance(name, list):  # dealing with args or kwargs
             if name[0] == "args":
-                arg_str = "%s argument passed as a variable length argument" % get_ord(
-                    name[1] + 1
+                arg_str = "{} argument passed as a variable length argument".format(
+                    get_ord(name[1] + 1)
                 )
             else:
-                arg_str = "argument `%s`" % name[1]
+                arg_str = "argument `{}`".format(name[1])
         else:
             arg_str = (
-                "%s argument" % get_ord(name + 1)
+                "{} argument".format(get_ord(name + 1))
                 if isinstance(name, int)
-                else "argument `%s`" % name
+                else "argument `{}`".format(name)
             )
-        return check_part_index(
-            state, "args", name, arg_str, missing_msg=missing_msg
-        )
+        return check_part_index(state, "args", name, arg_str, missing_msg=missing_msg)
 
 
 # CALL CHECK ==================================================================
