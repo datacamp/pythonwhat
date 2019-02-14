@@ -57,13 +57,14 @@ class Tree(object):
         self.crnt_node = self.root
 
     @classmethod
-    def str_branch(cls, node, str_func=lambda s: ""):
+    def str_branch(cls, node, str_func=lambda s: str(s)):
+        # dict(getattr(s.data.get("bound_args", {}), 'arguments', {}))
         f = node.data.get("func")
         this_node = (
-            "  " * node.depth
+            "  " * node.depth + "("
             + getattr(f, "__name__", node.name)
             + str_func(node)
-            + "\n"
+            + ")\n"
         )
         return this_node + "".join(
             map(lambda x: cls.str_branch(x, str_func), node.child_list)
@@ -111,8 +112,7 @@ class Node(object):
             return ba.arguments["state"]
 
     def __str__(self):
-        # TODO print function signature without defaults (or with)
-        return pp.pformat(self.data)
+        return pp.pformat(dict(getattr(self.data.get("bound_args", {}), 'arguments', {})))
 
     def __iter__(self):
         for c in self.child_list:
@@ -131,9 +131,9 @@ class Node(object):
         self.updated = True
 
     def remove_child(self, node):
-        indx = self.child_list.index(node)
-        del self.child_list[indx]
-        return indx
+        index = self.child_list.index(node)
+        del self.child_list[index]
+        return index
 
     def add_child(self, child):
         # since it is a tree, there is only one parent
@@ -197,10 +197,10 @@ class Probe(object):
             self.tree.crnt_node.add_child(this_node)
 
         # First pass to set up branches off node
-        da = bound_args.arguments
-        for st in self.sub_tests:  # TODO: auto sub test detection
-            if st in da and da[st]:
-                self.build_sub_test_nodes(da[st], self.tree, this_node, st)
+        arguments = bound_args.arguments
+        for subtest in self.sub_tests:  # TODO: auto sub test detection
+            if subtest in arguments and arguments[subtest]:
+                self.build_sub_test_nodes(arguments[subtest], self.tree, this_node, subtest)
 
         # Second pass to build node and all its children into a subtest
         for node in this_node.descend(include_me=True):
