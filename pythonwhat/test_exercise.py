@@ -1,7 +1,7 @@
 from pythonwhat.State import State
 from pythonwhat.utils import check_str, check_process
-from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import TestFail
+from protowhat.Reporter import Reporter
+from protowhat.Test import TestFail
 from pythonwhat.utils import include_v1
 
 
@@ -34,9 +34,6 @@ def test_exercise(
               tags - the tags belonging to the SCT execution.
     """
 
-    rep = Reporter(error)
-    Reporter.active_reporter = rep
-
     try:
         state = State(
             student_code=check_str(student_code),
@@ -46,6 +43,7 @@ def test_exercise(
             solution_process=check_process(solution_process),
             raw_student_output=check_str(raw_student_output),
             force_diagnose=force_diagnose,
+            reporter=Reporter([error] if error else [])
         )
 
         State.root_state = state
@@ -63,22 +61,21 @@ def test_exercise(
     except TestFail as e:
         return e.payload
 
-    return rep.build_final_payload()
+    return state.reporter.build_final_payload()
 
 
+# TODO: consistent success_msg and allow_errors
 def success_msg(message):
     """
     Set the succes message of the sct. This message will be the feedback if all tests pass.
     Args:
             message (str): A string containing the feedback message.
     """
-    rep = Reporter.active_reporter
-    rep.success_msg = message
+    State.root_state.reporter.success_msg = message
 
 
 def allow_errors():
-    rep = Reporter.active_reporter
-    rep.errors_allowed = True
+    State.root_state.reporter.errors_allowed = True
 
 
 def prep_context():

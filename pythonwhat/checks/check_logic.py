@@ -1,8 +1,8 @@
 from types import GeneratorType
 from functools import partial
-from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import Test, TestFail
-from pythonwhat.Feedback import Feedback, InstructorError
+from protowhat.Test import Test, TestFail
+from protowhat.Feedback import InstructorError
+from pythonwhat.Feedback import Feedback
 import copy
 import ast
 
@@ -30,8 +30,6 @@ def multi(state, *args):
 
     """
     if any(args):
-        rep = Reporter.active_reporter
-
         # when input is a single list of subtests
         if len(args) == 1 and isinstance(args[0], (list, tuple, GeneratorType)):
             args = args[0]
@@ -39,7 +37,7 @@ def multi(state, *args):
         for test in args:
             # assume test is function needing a state argument
             # partial state so reporter can test
-            rep.do_test(partial(test, state))
+            state.do_test(partial(test, state))
 
     # return original state, so can be chained
     return state
@@ -84,15 +82,13 @@ def check_not(state, *tests, msg):
         - This function can be considered a direct counterpart of multi.
 
     """
-    rep = Reporter.active_reporter
-
     for test in tests:
         try:
             multi(state, test)
         except TestFail:
             # it fails, as expected, off to next one
             continue
-        return rep.do_test(Test(msg))
+        return state.do_test(Test(msg))
 
     # return original state, so can be chained
     return state
@@ -120,11 +116,9 @@ def check_or(state, *tests):
         the first SCT, will be presented to the student.
 
     """
-
-    rep = Reporter.active_reporter
-
     success = False
     first_feedback = None
+
     for test in tests:
         try:
             multi(state, test)
@@ -135,7 +129,7 @@ def check_or(state, *tests):
         if success:
             return state  # todo: add test
 
-    rep.do_test(Test(first_feedback))
+    state.do_test(Test(first_feedback))
 
 
 def check_correct(state, check, diagnose):
@@ -170,8 +164,7 @@ def check_correct(state, check, diagnose):
             feedback = e.feedback
 
     if feedback is not None:
-        rep = Reporter.active_reporter
-        rep.do_test(Test(feedback))
+        state.do_test(Test(feedback))
 
     return state  # todo: add test
 
@@ -197,9 +190,8 @@ def fail(state, msg=""):
 
 
 """
-    rep = Reporter.active_reporter
     _msg = state.build_message(msg)
-    rep.do_test(Test(Feedback(_msg, state)))
+    state.do_test(Test(Feedback(_msg, state)))
 
 
 def override(state, solution):

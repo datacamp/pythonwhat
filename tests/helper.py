@@ -6,7 +6,7 @@ from functools import wraps
 
 from pythonwhat.local import StubProcess, run_exercise
 from contextlib import contextmanager
-from pythonwhat.Test import TestFail as TF
+from protowhat.Test import TestFail as TF
 from pythonwhat.test_exercise import test_exercise
 from pythonwhat.sct_syntax import Chain
 import pytest

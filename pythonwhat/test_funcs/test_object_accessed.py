@@ -1,5 +1,3 @@
-from pythonwhat.State import State
-from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import BiggerTest
 import pythonwhat.utils
 
@@ -36,9 +34,6 @@ def test_object_accessed(state, name, times=1, not_accessed_msg=None):
         | ``test_object_accessed("arr.shape")``: pass.
         | ``test_object_accessed("arr.dtype")``: fail.
     """
-
-    rep = Reporter.active_reporter
-
     student_object_accesses = state.student_object_accesses
     student_mappings = state.student_oa_mappings
 
@@ -57,4 +52,4 @@ def test_object_accessed(state, name, times=1, not_accessed_msg=None):
     # to make sure you're not matching substrings
     student_hits = [c for c in student_object_accesses if name + "." in c + "."]
     _msg = state.build_message(not_accessed_msg)
-    rep.do_test(BiggerTest(len(student_hits) + 1, times, _msg))
+    state.do_test(BiggerTest(len(student_hits) + 1, times, _msg))
