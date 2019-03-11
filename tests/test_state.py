@@ -1,6 +1,6 @@
 import pytest
 from pythonwhat.State import State
-from pythonwhat.Feedback import InstructorError
+from protowhat.Feedback import InstructorError
 
 
 def test_pec_parsing_error():

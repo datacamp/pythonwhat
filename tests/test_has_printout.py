@@ -1,6 +1,6 @@
 import pytest
 from pythonwhat.local import setup_state
-from pythonwhat.Test import TestFail as TF
+from protowhat.Test import TestFail as TF
 from tests import helper
 
 

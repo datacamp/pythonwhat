@@ -1,7 +1,7 @@
 from functools import partial
 from pythonwhat.checks.check_function import check_function
-from pythonwhat.Feedback import InstructorError
-from pythonwhat.Test import TestFail
+from protowhat.Feedback import InstructorError
+from protowhat.Test import TestFail
 from pythonwhat.checks.check_funcs import check_args
 from pythonwhat.checks.has_funcs import has_equal_value, has_equal_ast, has_printout
 

@@ -3,7 +3,7 @@ import random
 
 from pythonwhat.sct_syntax import Ex
 from pythonwhat.State import State
-from pythonwhat.Reporter import Reporter
+from protowhat.Reporter import Reporter
 from contextlib import redirect_stdout
 
 
@@ -31,9 +31,6 @@ def setup_state(stu_code="", sol_code="", pec="", pid=None):
         pec, sol_code, stu_code, pid=pid
     )
 
-    rep = Reporter()
-    Reporter.active_reporter = rep
-
     state = State(
         student_code=stu_code,
         solution_code=sol_code,
@@ -41,6 +38,7 @@ def setup_state(stu_code="", sol_code="", pec="", pid=None):
         student_process=stu_process,
         solution_process=sol_process,
         raw_student_output=raw_stu_output,
+        reporter=Reporter()
     )
 
     State.root_state = state

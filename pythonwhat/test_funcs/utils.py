@@ -1,8 +1,9 @@
 import ast
 
-from pythonwhat.Feedback import InstructorError, Feedback
-from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import Test, EqualTest
+from protowhat.Feedback import InstructorError
+from pythonwhat.Feedback import Feedback
+from protowhat.Test import Test
+from pythonwhat.Test import EqualTest
 from pythonwhat.checks.check_funcs import StubState
 from pythonwhat.checks.has_funcs import evalCalls
 from pythonwhat.tasks import ReprFail
@@ -86,8 +87,6 @@ def call(
     if error_msg is None:
         error_msg = MSG_CALL_ERROR_INV if test == "error" else MSG_CALL_ERROR
 
-    rep = Reporter.active_reporter
-
     assert test in ("value", "output", "error")
 
     get_func = evalCalls[test]
@@ -135,10 +134,10 @@ def call(
     stu_state = StubState(stu_node, state.highlighting_disabled)
     if (test == "error") ^ isinstance(eval_stu, Exception):
         _msg = state.build_message(error_msg, fmt_kwargs)
-        rep.do_test(Test(Feedback(_msg, stu_state)))
+        state.do_test(Test(Feedback(_msg, stu_state)))
 
     # incorrect result
     _msg = state.build_message(incorrect_msg, fmt_kwargs)
-    rep.do_test(EqualTest(eval_sol, eval_stu, Feedback(_msg, stu_state), func))
+    state.do_test(EqualTest(eval_sol, eval_stu, Feedback(_msg, stu_state), func))
 
     return state

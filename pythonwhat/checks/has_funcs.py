@@ -8,9 +8,10 @@ from pythonwhat.tasks import (
     ReprFail,
     UndefinedValue,
 )
-from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import Test, EqualTest
-from pythonwhat.Feedback import Feedback, InstructorError
+from protowhat.Test import Test
+from pythonwhat.Test import EqualTest, DefinedCollTest
+from protowhat.Feedback import InstructorError
+from pythonwhat.Feedback import Feedback
 from pythonwhat import utils
 from functools import partial
 import re
@@ -25,7 +26,6 @@ evalCalls = {
 
 
 def has_part(state, name, msg, fmt_kwargs=None, index=None):
-    rep = Reporter.active_reporter
     d = {
         "sol_part": state.solution_parts,
         "stu_part": state.student_parts,
@@ -53,13 +53,12 @@ def has_part(state, name, msg, fmt_kwargs=None, index=None):
     try:
         verify(state.student_parts[name], index)
     except (KeyError, IndexError):
-        rep.do_test(Test(Feedback(_msg, state)))
+        state.do_test(Test(Feedback(_msg, state)))
 
     return state
 
 
 def has_equal_part(state, name, msg):
-    rep = Reporter.active_reporter
     d = {
         "stu_part": state.student_parts,
         "sol_part": state.solution_parts,
@@ -67,7 +66,7 @@ def has_equal_part(state, name, msg):
     }
 
     _msg = state.build_message(msg, d)
-    rep.do_test(
+    state.do_test(
         EqualTest(d["stu_part"][name], d["sol_part"][name], Feedback(_msg, state))
     )
 
@@ -96,19 +95,18 @@ def has_equal_part_len(state, name, unequal_msg):
 
             Ex().check_function_def('shout').has_equal_part_len('args', 'not enough args!')
     """
-    rep = Reporter.active_reporter
     d = dict(
         stu_len=len(state.student_parts[name]), sol_len=len(state.solution_parts[name])
     )
 
     if d["stu_len"] != d["sol_len"]:
         _msg = state.build_message(unequal_msg, d)
-        rep.do_test(Test(Feedback(_msg, state)))
+        state.do_test(Test(Feedback(_msg, state)))
 
     return state
 
 
-## Expression tests -----------------------------------------------------------
+# Expression tests -----------------------------------------------------------
 
 
 def has_equal_ast(state, incorrect_msg=None, code=None, exact=True, append=None):
@@ -156,8 +154,6 @@ def has_equal_ast(state, incorrect_msg=None, code=None, exact=True, append=None)
             Ex().check_function('numpy.mean').check_args('a').has_equal_ast()
 
     """
-    rep = Reporter.active_reporter
-
     if utils.v2_only():
         state.assert_is_not(["object_assignments"], "has_equal_ast", ["check_object"])
         state.assert_is_not(["function_calls"], "has_equal_ast", ["check_function"])
@@ -197,9 +193,9 @@ def has_equal_ast(state, incorrect_msg=None, code=None, exact=True, append=None)
     _msg = state.build_message(incorrect_msg, fmt_kwargs, append=append)
 
     if exact and not code:
-        rep.do_test(EqualTest(stu_rep, sol_rep, Feedback(_msg, state)))
+        state.do_test(EqualTest(stu_rep, sol_rep, Feedback(_msg, state)))
     elif not sol_rep in stu_rep:
-        rep.do_test(Test(Feedback(_msg, state)))
+        state.do_test(Test(Feedback(_msg, state)))
 
     return state
 
@@ -287,8 +283,6 @@ def has_expr(
         else:
             error_msg = DEFAULT_ERROR_MSG
 
-    rep = Reporter.active_reporter
-
     get_func = partial(
         evalCalls[test],
         extra_env=extra_env,
@@ -354,16 +348,16 @@ def has_expr(
         fmt_kwargs["stu_str"] = str_stu
         _msg = state.build_message(error_msg, fmt_kwargs, append=append)
         feedback = Feedback(_msg, state)
-        rep.do_test(Test(feedback))
+        state.do_test(Test(feedback))
 
     # name is undefined after running expression
     if isinstance(eval_stu, UndefinedValue):
         _msg = state.build_message(undefined_msg, fmt_kwargs, append=append)
-        rep.do_test(Test(Feedback(_msg, state)))
+        state.do_test(Test(Feedback(_msg, state)))
 
     # test equality of results
     _msg = state.build_message(incorrect_msg, fmt_kwargs, append=append)
-    rep.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, state), func))
+    state.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, state), func))
 
     return state
 
@@ -446,8 +440,6 @@ def has_code(state, text, pattern=True, not_typed_msg=None):
             Ex().has_code(r"1\\s*\\+2\\s*\\+3")
 
     """
-    rep = Reporter.active_reporter
-
     if not not_typed_msg:
         if pattern:
             not_typed_msg = "Could not find the correct pattern in your code."
@@ -457,12 +449,9 @@ def has_code(state, text, pattern=True, not_typed_msg=None):
     student_code = state.student_code
 
     _msg = state.build_message(not_typed_msg)
-    rep.do_test(StringContainsTest(student_code, text, pattern, Feedback(_msg, state)))
+    state.do_test(StringContainsTest(student_code, text, pattern, Feedback(_msg, state)))
 
     return state
-
-
-from pythonwhat.Test import Test, DefinedCollTest, EqualTest
 
 
 def has_import(
@@ -522,9 +511,6 @@ def has_import(
             import matplotlib.pyplot as pltttt
 
     """
-
-    rep = Reporter.active_reporter
-
     student_imports = state.student_imports
     solution_imports = state.solution_imports
 
@@ -537,11 +523,11 @@ def has_import(
     fmt_kwargs = {"pkg": name, "alias": solution_imports[name]}
 
     _msg = state.build_message(not_imported_msg, fmt_kwargs)
-    rep.do_test(DefinedCollTest(name, student_imports, _msg))
+    state.do_test(DefinedCollTest(name, student_imports, _msg))
 
     if same_as:
         _msg = state.build_message(incorrect_as_msg, fmt_kwargs)
-        rep.do_test(EqualTest(solution_imports[name], student_imports[name], _msg))
+        state.do_test(EqualTest(solution_imports[name], student_imports[name], _msg))
 
     return state
 
@@ -578,13 +564,11 @@ def has_output(state, text, pattern=True, no_output_msg=None):
             Ex().has_output(r"This is some \w* stuff", no_output_msg = msg)
 
     """
-    rep = Reporter.active_reporter
-
     if not no_output_msg:
         no_output_msg = "You did not output the correct things."
 
     _msg = state.build_message(no_output_msg)
-    rep.do_test(StringContainsTest(state.raw_student_output, text, pattern, _msg))
+    state.do_test(StringContainsTest(state.raw_student_output, text, pattern, _msg))
 
     return state
 
@@ -763,10 +747,9 @@ def has_no_error(
     """
     state.assert_root("has_no_error")
 
-    rep = Reporter.active_reporter
-    if rep.error:
-        _msg = state.build_message(incorrect_msg, {"error": str(rep.error)})
-        rep.do_test(Test(Feedback(_msg, state)))
+    if state.reporter.errors:
+        _msg = state.build_message(incorrect_msg, {"error": str(state.reporter.errors[0])})
+        state.do_test(Test(Feedback(_msg, state)))
 
     return state
 
@@ -790,7 +773,6 @@ def has_chosen(state, correct, msgs):
             "Inside `has_chosen()`, the argument `correct` should be an integer."
         )
 
-    rep = Reporter.active_reporter
     student_process = state.student_process
     if not isDefinedInProcess(MC_VAR_NAME, student_process):
         raise InstructorError("Option not available in the student process")
@@ -809,6 +791,6 @@ def has_chosen(state, correct, msgs):
 
         feedback_msg = msgs[selected_option - 1]
 
-        rep.success_msg = msgs[correct - 1]
+        state.reporter.success_msg = msgs[correct - 1]
 
-        rep.do_test(EqualTest(selected_option, correct, feedback_msg))
+        state.do_test(EqualTest(selected_option, correct, feedback_msg))

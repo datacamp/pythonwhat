@@ -1,8 +1,8 @@
 from pythonwhat.checks.check_logic import multi
 from pythonwhat.checks.has_funcs import has_part
-from pythonwhat.Reporter import Reporter
-from pythonwhat.Test import Test
-from pythonwhat.Feedback import Feedback, InstructorError
+from protowhat.Test import Test
+from protowhat.Feedback import InstructorError
+from pythonwhat.Feedback import Feedback
 from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
 from pythonwhat.utils import get_ord
 from pythonwhat.utils_ast import assert_ast
@@ -123,7 +123,6 @@ def check_node(
     if expand_msg is None:
         expand_msg = "Check the {{typestr}}. "
 
-    rep = Reporter.active_reporter
     stu_out = getattr(state, "student_" + name)
     sol_out = getattr(state, "solution_" + name)
 
@@ -140,7 +139,7 @@ def check_node(
         stu_out[index]
     except (KeyError, IndexError):  # TODO comment errors
         _msg = state.build_message(missing_msg, fmt_kwargs)
-        rep.do_test(Test(Feedback(_msg, state)))
+        state.do_test(Test(Feedback(_msg, state)))
 
     # get node at index
     stu_part = stu_out[index]
@@ -155,8 +154,6 @@ def check_node(
 # TODO: check if still useful
 def with_context(state, *args, child=None):
 
-    rep = Reporter.active_reporter
-
     # set up context in processes
     solution_res = setUpNewEnvInProcess(
         process=state.solution_process, context=state.solution_parts["with_items"]
@@ -170,17 +167,17 @@ def with_context(state, *args, child=None):
         process=state.student_process, context=state.student_parts["with_items"]
     )
     if isinstance(student_res, AttributeError):
-        rep.do_test(
+        state.do_test(
             Test(
                 Feedback(
                     "In your `with` statement, you're not using a correct context manager.",
-                    child.highlight,
+                    child.highlight,  # TODO
                 )
             )
         )
 
     if isinstance(student_res, (AssertionError, ValueError, TypeError)):
-        rep.do_test(
+        state.do_test(
             Test(
                 Feedback(
                     "In your `with` statement, the number of values in your context manager "
@@ -206,7 +203,7 @@ def with_context(state, *args, child=None):
 
         close_student_context = breakDownNewEnvInProcess(process=state.student_process)
         if isinstance(close_student_context, Exception):
-            rep.do_test(
+            state.do_test(
                 Test(
                     Feedback(
                         "Your `with` statement can not be closed off correctly, you're "

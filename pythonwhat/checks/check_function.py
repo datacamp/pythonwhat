@@ -1,9 +1,9 @@
-from pythonwhat.Reporter import Reporter
 from pythonwhat.checks.check_funcs import part_to_child, StubState
 from pythonwhat.tasks import getSignatureInProcess
 from pythonwhat.utils import get_ord, get_times
-from pythonwhat.Test import Test
-from pythonwhat.Feedback import Feedback, InstructorError
+from protowhat.Test import Test
+from protowhat.Feedback import InstructorError
+from pythonwhat.Feedback import Feedback
 from pythonwhat.parsing import IndexedDict
 from functools import partial
 
@@ -99,7 +99,6 @@ def check_function(
     if params_not_matched_msg is None:
         params_not_matched_msg = SIG_ISSUE_MSG
 
-    rep = Reporter.active_reporter
     stu_out = state.student_function_calls
     sol_out = state.solution_function_calls
 
@@ -132,7 +131,7 @@ def check_function(
         stu_parts = {**stu_out[name][index]}
     except (KeyError, IndexError):
         _msg = state.build_message(missing_msg, fmt_kwargs, append=append_missing)
-        rep.do_test(Test(Feedback(_msg, state)))
+        state.do_test(Test(Feedback(_msg, state)))
 
     # Signatures -----
     if signature:
@@ -164,7 +163,7 @@ def check_function(
             _msg = state.build_message(
                 params_not_matched_msg, fmt_kwargs, append=append_params_not_matched
             )
-            rep.do_test(
+            state.do_test(
                 Test(
                     Feedback(
                         _msg, StubState(stu_parts["node"], state.highlighting_disabled)
