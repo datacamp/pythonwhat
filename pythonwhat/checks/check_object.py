@@ -4,8 +4,8 @@ from pythonwhat.Test import (
     InstanceProcessTest,
     DefinedCollProcessTest,
 )
-from pythonwhat.Reporter import Reporter
-from pythonwhat.Feedback import Feedback, InstructorError
+from protowhat.Feedback import InstructorError
+from pythonwhat.Feedback import Feedback
 from pythonwhat.tasks import (
     isDefinedInProcess,
     isInstanceInProcess,
@@ -169,8 +169,6 @@ def check_object(
     if expand_msg is None:
         expand_msg = "Did you correctly define the {{typestr}} `{{index}}`? "
 
-    rep = Reporter.active_reporter
-
     if (
         not isDefinedInProcess(index, state.solution_process)
         and state.has_different_processes()
@@ -189,7 +187,7 @@ def check_object(
 
     # test object exists
     _msg = state.build_message(missing_msg, append_message["kwargs"])
-    rep.do_test(DefinedProcessTest(index, state.student_process, Feedback(_msg)))
+    state.do_test(DefinedProcessTest(index, state.student_process, Feedback(_msg)))
 
     child = part_to_child(
         stu_part, sol_part, append_message, state, node_name="object_assignments"
@@ -226,8 +224,6 @@ def is_instance(state, inst, not_instance_msg=None):
 
     state.assert_is(["object_assignments"], "is_instance", ["check_object"])
 
-    rep = Reporter.active_reporter
-
     sol_name = state.solution_parts.get("name")
     stu_name = state.student_parts.get("name")
 
@@ -242,7 +238,7 @@ def is_instance(state, inst, not_instance_msg=None):
 
     _msg = state.build_message(not_instance_msg, {"inst": inst})
     feedback = Feedback(_msg, state)
-    rep.do_test(InstanceProcessTest(stu_name, inst, state.student_process, feedback))
+    state.do_test(InstanceProcessTest(stu_name, inst, state.student_process, feedback))
 
     return state
 
@@ -336,8 +332,6 @@ def check_keys(state, key, missing_msg=None, expand_msg=None):
     if expand_msg is None:
         expand_msg = "Did you correctly set the {{ 'column' if 'DataFrame' in parent.typestr else 'key' }} `'{{key}}'`? "
 
-    rep = Reporter.active_reporter
-
     sol_name = state.solution_parts.get("name")
     stu_name = state.student_parts.get("name")
 
@@ -349,7 +343,7 @@ def check_keys(state, key, missing_msg=None, expand_msg=None):
 
     # check if key available
     _msg = state.build_message(missing_msg, {"key": key})
-    rep.do_test(
+    state.do_test(
         DefinedCollProcessTest(
             stu_name, key, state.student_process, Feedback(_msg, state)
         )

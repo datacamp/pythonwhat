@@ -9,7 +9,7 @@ from pickle import PicklingError
 from pythonwhat.utils_env import set_context_vals, assign_from_ast
 from contextlib import contextmanager
 from functools import partial, wraps
-from pythonwhat.Feedback import InstructorError
+from protowhat.Feedback import InstructorError
 
 # Shell is passed as a parameter to partially applied functions in executeTask
 # Process is passed as a parameter in SCT function

@@ -8,22 +8,22 @@ numpy~=1.14.2
 pandas~=0.22.0
 
 # test deps
-scipy==1.0.1
-bs4==0.0.1
-html5lib==1.0.1
-h5py==2.7.1
-requests==2.20.0
-seaborn==0.8.1
-sqlalchemy==1.2.6
-xlrd==1.1.0
+scipy~=1.0.1
+bs4~=0.0.1
+html5lib~=1.0.1
+h5py~=2.7.1
+requests~=2.20.0
+seaborn~=0.8.1
+sqlalchemy~=1.2.6
+xlrd~=1.1.0
 
 # test-utils deps
-pytest==3.5.0
-codecov==2.0.15
-pytest-cov==2.5.1
+pytest~=3.5.0
+codecov~=2.0.15
+pytest-cov~=2.5.1
 
 # building documentation
-sphinx==1.8.3
-sphinx_rtd_theme==v0.3.1
-sphinx-jinja==1.1.0
-sphinxprettysearchresults==0.3.5
+sphinx~=1.8.3
+sphinx_rtd_theme~=v0.3.1
+sphinx-jinja~=1.1.0
+sphinxprettysearchresults~=0.3.5

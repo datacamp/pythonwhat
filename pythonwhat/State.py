@@ -9,13 +9,12 @@ from pythonwhat.parsing import (
     ObjectAccessParser,
     parser_dict,
 )
-from pythonwhat.Reporter import Reporter
-from pythonwhat.Feedback import Feedback, InstructorError
-from pythonwhat.Test import Test
+from protowhat.Feedback import InstructorError
+from pythonwhat.Feedback import Feedback
+from protowhat.Test import Test
 from pythonwhat import signatures
 from pythonwhat.converters import get_manual_converters
 from collections.abc import Mapping
-from itertools import chain
 from jinja2 import Template
 import asttokens
 from pythonwhat.utils_ast import wrap_in_module
@@ -42,12 +41,16 @@ class Context(Mapping):
         return len(self._items)
 
 
-class State(object):
+class State:
     """State of the SCT environment.
 
     This class holds all information relevevant to test the correctness of an exercise.
     It is coded suboptimally and it will be refactored soon, and documented thouroughly
     after that.
+
+    kwargs:
+    ...
+     - reporter
 
     """
 
@@ -76,12 +79,12 @@ class State(object):
 
         # parse code if didn't happen yet
         if not hasattr(self, "student_tree"):
-            self.student_tree_tokens, self.student_tree = State.parse_external(
+            self.student_tree_tokens, self.student_tree = self.parse_external(
                 self.student_code
             )
 
         if not hasattr(self, "solution_tree"):
-            self.solution_tree_tokens, self.solution_tree = State.parse_internal(
+            self.solution_tree_tokens, self.solution_tree = self.parse_internal(
                 self.solution_code
             )
 
@@ -147,6 +150,9 @@ class State(object):
             return "".join(out_list)
         else:
             return out_list[-1]
+
+    def do_test(self, test):
+        return self.reporter.do_test(test)
 
     def to_child_state(
         self,
@@ -239,6 +245,7 @@ class State(object):
             highlighting_disabled=highlighting_disabled,
             messages=messages,
             parent_state=self,
+            reporter=self.reporter,
             force_diagnose=self.force_diagnose,
         )
         return child
@@ -281,19 +288,16 @@ class State(object):
                 % (fun, " or ".join(["`%s()`" % pf for pf in prev_fun]))
             )
 
-    @staticmethod
-    def parse_external(x):
-        rep = Reporter.active_reporter
-
+    def parse_external(self, x):
         res = (None, None)
         try:
             res = asttokens.ASTTokens(x, parse=True)
-            return (res, res._tree)
+            return (res, res.tree)
 
         except IndentationError as e:
             e.filename = "script.py"
             # no line info for now
-            rep.do_test(
+            self.do_test(
                 Test(
                     Feedback(
                         "Your code could not be parsed due to an error in the indentation:<br>`%s.`"
@@ -305,7 +309,7 @@ class State(object):
         except SyntaxError as e:
             e.filename = "script.py"
             # no line info for now
-            rep.do_test(
+            self.do_test(
                 Test(
                     Feedback(
                         "Your code can not be executed due to a syntax error:<br>`%s.`"
@@ -317,7 +321,7 @@ class State(object):
         # Can happen, can't catch this earlier because we can't differentiate between
         # TypeError in parsing or TypeError within code (at runtime).
         except:
-            rep.do_test(Test(Feedback("Something went wrong while parsing your code.")))
+            self.do_test(Test(Feedback("Something went wrong while parsing your code.")))
 
         return res
 

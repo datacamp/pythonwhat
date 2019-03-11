@@ -1,6 +1,6 @@
-from pythonwhat.Reporter import Reporter
 from pythonwhat.Test import EqualTest
-from pythonwhat.Feedback import Feedback, InstructorError
+from protowhat.Feedback import InstructorError
+from pythonwhat.Feedback import Feedback
 from pythonwhat.State import State
 from functools import singledispatch
 from pythonwhat.checks.check_funcs import check_part_index
@@ -15,7 +15,6 @@ def has_context(state, incorrect_msg=None, exact_names=False):
 
 
 def _test(state, incorrect_msg, exact_names, tv_name, highlight_name):
-    rep = Reporter.active_reporter
     # get parts for testing from state
     # TODO: this could be rewritten to use check_part_index -> has_equal_part, etc..
     stu_vars = state.student_parts[tv_name]
@@ -33,12 +32,12 @@ def _test(state, incorrect_msg, exact_names, tv_name, highlight_name):
         # message for wrong iter var names
         _msg = state.build_message(incorrect_msg, d)
         # test
-        rep.do_test(EqualTest(stu_vars, sol_vars, Feedback(_msg, child_state)))
+        state.do_test(EqualTest(stu_vars, sol_vars, Feedback(_msg, child_state)))
     else:
         # message for wrong number of iter vars
         _msg = state.build_message(incorrect_msg, d)
         # test
-        rep.do_test(
+        state.do_test(
             EqualTest(len(stu_vars), len(sol_vars), Feedback(_msg, child_state))
         )
 
