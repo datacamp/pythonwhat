@@ -1,19 +1,11 @@
-from types import GeneratorType
-from functools import partial
+from protowhat.checks.check_logic import multi, check_not, check_or, check_correct
 from protowhat.Test import Test, TestFail
 from protowhat.Feedback import InstructorError
 from pythonwhat.Feedback import Feedback
-import copy
 import ast
 
 
-def multi(state, *args):
-    """Run multiple subtests. Return original state (for chaining).
-
-    Args:
-        state: State instance describing student and solution code. Can be omitted if used with Ex().
-        tests: sub-SCTs that all should pass.
-
+multi.__doc__ = str(multi.__doc__) + """
     :Example:
 
         Suppose we want to verify the following function call: ::
@@ -27,30 +19,10 @@ def multi(state, *args):
                 check_args(0).has_equal_value(),
                 check_args('ndigits').has_equal_value()
             )
-
     """
-    if any(args):
-        # when input is a single list of subtests
-        if len(args) == 1 and isinstance(args[0], (list, tuple, GeneratorType)):
-            args = args[0]
-
-        for test in args:
-            # assume test is function needing a state argument
-            # partial state so reporter can test
-            state.do_test(partial(test, state))
-
-    # return original state, so can be chained
-    return state
 
 
-def check_not(state, *tests, msg):
-    """Run multiple subtests that should fail. If all subtests fail, returns original state (for chaining)
-
-    Args:
-        state: State instance describing student and solution code. Can be omitted if used with Ex().
-        tests: one or more sub-SCTs that all should not pass.
-        msg: feedback if not all tests fail.
-
+check_not.__doc__ = str(check_not.__doc__) + """
     :Example:
         The SCT fails with feedback for a specific incorrect value, defined using an override: ::
 
@@ -82,27 +54,9 @@ def check_not(state, *tests, msg):
         - This function can be considered a direct counterpart of multi.
 
     """
-    for test in tests:
-        try:
-            multi(state, test)
-        except TestFail:
-            # it fails, as expected, off to next one
-            continue
-        return state.do_test(Test(msg))
-
-    # return original state, so can be chained
-    return state
 
 
-def check_or(state, *tests):
-    """Test whether at least one SCT passes.
-
-    If all of the tests fail, the feedback of the first test will be presented to the student.
-
-    Args:
-        state: State instance describing student and solution code. Can be omitted if used with Ex().
-        tests: one or more sub-SCTs to run.
-
+check_or.__doc__ = str(check_or.__doc__) + """
     :Example:
 
         The SCT below tests that the student typed either 'mean' or 'median': ::
@@ -116,30 +70,9 @@ def check_or(state, *tests):
         the first SCT, will be presented to the student.
 
     """
-    success = False
-    first_feedback = None
-
-    for test in tests:
-        try:
-            multi(state, test)
-            success = True
-        except TestFail as e:
-            if not first_feedback:
-                first_feedback = e.feedback
-        if success:
-            return state  # todo: add test
-
-    state.do_test(Test(first_feedback))
 
 
-def check_correct(state, check, diagnose):
-    """Allows feedback from a diagnostic SCT, only if a check SCT fails.
-
-    Args:
-        state: State instance describing student and solution code. Can be omitted if used with Ex().
-        check: An sct chain that must succeed.
-        diagnose: An sct chain to run if the check fails.
-
+check_correct.__doc__ = str(check_correct.__doc__) + """
     :Example:
 
         The SCT below tests whether an object is correct. Only if the object is not correct, will
@@ -151,22 +84,6 @@ def check_correct(state, check, diagnose):
             )
 
     """
-    feedback = None
-    try:
-        multi(state, check)
-    except TestFail as e:
-        feedback = e.feedback
-
-    try:
-        multi(state, diagnose)
-    except TestFail as e:
-        if feedback is not None or state.force_diagnose:
-            feedback = e.feedback
-
-    if feedback is not None:
-        state.do_test(Test(feedback))
-
-    return state  # todo: add test
 
 
 # utility functions -----------------------------------------------------------
