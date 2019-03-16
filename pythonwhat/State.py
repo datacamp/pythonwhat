@@ -154,7 +154,7 @@ class State:
     def do_test(self, test):
         return self.reporter.do_test(test)
 
-    def to_child_state(
+    def to_child(
         self,
         student_subtree=None,
         solution_subtree=None,
@@ -212,7 +212,7 @@ class State:
         messages = [*self.messages, append_message]
 
         if not (solution_subtree and student_subtree):
-            return self.update(
+            return self._update(
                 student_context=student_context,
                 solution_context=solution_context,
                 student_env=student_env,
@@ -250,7 +250,7 @@ class State:
         )
         return child
 
-    def update(self, **kwargs):
+    def _update(self, **kwargs):
         """Return a copy of set, setting kwargs as attributes"""
         child = copy(self)
         for k, v in kwargs.items():
