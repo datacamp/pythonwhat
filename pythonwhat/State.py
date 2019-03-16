@@ -11,7 +11,7 @@ from pythonwhat.parsing import (
 )
 from protowhat.Feedback import InstructorError
 from pythonwhat.Feedback import Feedback
-from protowhat.Test import Test
+from protowhat.Test import Fail
 from pythonwhat import signatures
 from pythonwhat.converters import get_manual_converters
 from collections.abc import Mapping
@@ -79,17 +79,15 @@ class State:
 
         # parse code if didn't happen yet
         if not hasattr(self, "student_tree"):
-            self.student_tree_tokens, self.student_tree = self.parse_external(
-                self.student_code
-            )
+            self.student_tree_tokens, self.student_tree = self.parse(self.student_code)
 
         if not hasattr(self, "solution_tree"):
-            self.solution_tree_tokens, self.solution_tree = self.parse_internal(
-                self.solution_code
+            self.solution_tree_tokens, self.solution_tree = self.parse(
+                self.solution_code, test=False
             )
 
         if not hasattr(self, "pre_exercise_tree"):
-            _, self.pre_exercise_tree = State.parse_internal(self.pre_exercise_code)
+            _, self.pre_exercise_tree = self.parse(self.pre_exercise_code, test=False)
 
         if not hasattr(self, "parent_state"):
             self.parent_state = None
@@ -298,7 +296,7 @@ class State:
             e.filename = "script.py"
             # no line info for now
             self.do_test(
-                Test(
+                Fail(
                     Feedback(
                         "Your code could not be parsed due to an error in the indentation:<br>`%s.`"
                         % str(e)
@@ -310,7 +308,7 @@ class State:
             e.filename = "script.py"
             # no line info for now
             self.do_test(
-                Test(
+                Fail(
                     Feedback(
                         "Your code can not be executed due to a syntax error:<br>`%s.`"
                         % str(e)
@@ -321,13 +319,14 @@ class State:
         # Can happen, can't catch this earlier because we can't differentiate between
         # TypeError in parsing or TypeError within code (at runtime).
         except:
-            self.do_test(Test(Feedback("Something went wrong while parsing your code.")))
+            self.do_test(
+                Fail(Feedback("Something went wrong while parsing your code."))
+            )
 
         return res
 
     @staticmethod
     def parse_internal(x):
-        res = (None, None)
         try:
             res = asttokens.ASTTokens(x, parse=True)
             return (res, res._tree)
@@ -335,6 +334,14 @@ class State:
             raise InstructorError(
                 "Something went wrong when parsing PEC or solution code: %s" % str(e)
             )
+
+    def parse(self, text, test=True):
+        if test:
+            parse_method = self.parse_external
+        else:
+            parse_method = self.parse_internal
+
+        return parse_method(text)
 
 
 # add property methods for retrieving parser outputs --------------------------
