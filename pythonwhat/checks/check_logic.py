@@ -141,7 +141,7 @@ def override(state, solution):
                 break
 
     kwargs = state.messages[-1] if state.messages else {}
-    child = state.to_child_state(
+    child = state.to_child(
         solution_subtree=new_ast,
         student_subtree=state.student_tree,
         highlight=state.highlight,
@@ -238,7 +238,7 @@ def set_context(state, *args, **kwargs):
         out_sol = upd_sol
         out_stu = upd_stu
 
-    return state.to_child_state(
+    return state.to_child(
         student_context=out_stu, solution_context=out_sol, highlight=state.highlight
     )
 
@@ -279,7 +279,7 @@ def set_env(state, **kwargs):
     stu_new = stu_crnt.update(kwargs)
     sol_new = sol_crnt.update(kwargs)
 
-    return state.to_child_state(
+    return state.to_child(
         student_env=stu_new, solution_env=sol_new, highlight=state.highlight
     )
 
@@ -301,4 +301,4 @@ def disable_highlighting(state):
             Ex().check_function('round').disable_highlighting().check_args(0).has_equal_ast()
             Ex().check_function('round').check_args(0).disable_highlighting().has_equal_ast()
     """
-    return state.to_child_state(highlighting_disabled=True)
+    return state.to_child(highlighting_disabled=True)

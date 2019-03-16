@@ -26,7 +26,7 @@ def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
 
     # if the parts are dictionaries, use to deck out child state
     if all(isinstance(p, dict) for p in [stu_part, sol_part]):
-        child_state = state.to_child_state(
+        child_state = state.to_child(
             student_subtree=stu_part["node"],
             solution_subtree=sol_part["node"],
             student_context=stu_part.get("target_vars"),
@@ -39,7 +39,7 @@ def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
         )
     else:
         # otherwise, assume they are just nodes
-        child_state = state.to_child_state(
+        child_state = state.to_child(
             student_subtree=stu_part,
             solution_subtree=sol_part,
             append_message=append_message,
