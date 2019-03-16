@@ -2,7 +2,7 @@ import ast
 import inspect
 import string
 from copy import copy
-from functools import partial
+from functools import partialmethod
 from pythonwhat.parsing import (
     TargetVars,
     FunctionParser,
@@ -88,6 +88,8 @@ class State:
 
         if not hasattr(self, "pre_exercise_tree"):
             _, self.pre_exercise_tree = self.parse(self.pre_exercise_code, test=False)
+
+        self.ast_dispatcher = Dispatcher(self.pre_exercise_tree)
 
         if not hasattr(self, "parent_state"):
             self.parent_state = None
@@ -286,12 +288,10 @@ class State:
                 % (fun, " or ".join(["`%s()`" % pf for pf in prev_fun]))
             )
 
-    def parse_external(self, x):
+    def parse_external(self, code):
         res = (None, None)
         try:
-            res = asttokens.ASTTokens(x, parse=True)
-            return (res, res.tree)
-
+            return Dispatcher.parse(code)
         except IndentationError as e:
             e.filename = "script.py"
             # no line info for now
@@ -326,10 +326,9 @@ class State:
         return res
 
     @staticmethod
-    def parse_internal(x):
+    def parse_internal(code):
         try:
-            res = asttokens.ASTTokens(x, parse=True)
-            return (res, res._tree)
+            return Dispatcher.parse(code)
         except Exception as e:
             raise InstructorError(
                 "Something went wrong when parsing PEC or solution code: %s" % str(e)
@@ -344,54 +343,60 @@ class State:
         return parse_method(text)
 
 
-# add property methods for retrieving parser outputs --------------------------
-# note that this code is an alternative means of using something like..
-#   @property
-#   def student_withs(self): ...
-# when defining the State class.
-def getx(tree_name, Parser, ext_attr, self):
-    """getter for Parser outputs"""
-    # return cached output if possible
-    cache_key = tree_name + Parser.__name__
-    if self._parser_cache.get(cache_key):
-        p = self._parser_cache[cache_key]
-    else:
-        # otherwise, run parser over tree
-        p = Parser()
-        # set mappings for parsers that inspect attribute access
-        if ext_attr != "mappings" and Parser in [FunctionParser, ObjectAccessParser]:
-            p.mappings = self.pre_exercise_mappings.copy()
-        # run parser
-        p.visit(getattr(self, tree_name))
-        # cache
-        self._parser_cache[cache_key] = p
-    return getattr(p, ext_attr)
+class Dispatcher:
+    def __init__(self, pre_exercise_tree):
+        self._parser_cache = dict()
+        self.pre_exercise_mappings = self._getx(FunctionParser, "mappings", pre_exercise_tree)
+
+    def __call__(self, name, node):
+        return getattr(self, name)(node)
+
+    @staticmethod
+    def parse(code):
+        res = asttokens.ASTTokens(code, parse=True)
+        return res, res.tree
+
+    # add methods for retrieving parser outputs --------------------------
+    def _getx(self, Parser, ext_attr, tree):
+        """getter for Parser outputs"""
+        # return cached output if possible
+        cache_key = Parser.__name__ + str(hash(tree))
+        if self._parser_cache.get(cache_key):
+            p = self._parser_cache[cache_key]
+        else:
+            # otherwise, run parser over tree
+            p = Parser()
+            # set mappings for parsers that inspect attribute access
+            if ext_attr != "mappings" and Parser in [FunctionParser, ObjectAccessParser]:
+                p.mappings = self.pre_exercise_mappings.copy()
+            # run parser
+            p.visit(tree)
+            # cache
+            self._parser_cache[cache_key] = p
+        return getattr(p, ext_attr)
 
 
-# put a property getter on state for each parsed ast tree output.
-# since the getter takes only one argument, self, partial functions
-# are used to set all other arguments on getx
-for s in ["student", "solution"]:
-    tree_name = s + "_tree"
-    for k, Parser in parser_dict.items():
-        setattr(State, s + "_" + k, property(partial(getx, tree_name, Parser, "out")))
+# put a function on the dispatcher
+for k, Parser in parser_dict.items():
+    setattr(Dispatcher, k, partialmethod(Dispatcher._getx, Parser, "out"))
 
-    # mappings from ObjectAccessParser
-    prop_oa_map = property(partial(getx, tree_name, ObjectAccessParser, "mappings"))
-    setattr(State, s + "_oa_mappings", prop_oa_map)
+# mappings from ObjectAccessParser
+prop_oa_map = partialmethod(Dispatcher._getx, ObjectAccessParser, "mappings")
+setattr(Dispatcher, "oa_mappings", prop_oa_map)
 
-    # mappings from FunctionParser
-    prop_map = property(partial(getx, tree_name, FunctionParser, "mappings"))
-    setattr(State, s + "_mappings", prop_map)
+# mappings from FunctionParser
+prop_map = partialmethod(Dispatcher._getx, FunctionParser, "mappings")
+setattr(Dispatcher, "mappings", prop_map)
 
 # mappings for pre exercise code from FunctionParser
-pec_prop_map = property(partial(getx, "pre_exercise_tree", FunctionParser, "mappings"))
-setattr(State, "pre_exercise_mappings", pec_prop_map)
+pec_prop_map = partialmethod(Dispatcher._getx, FunctionParser, "mappings")
+setattr(Dispatcher, "pre_exercise_mappings", pec_prop_map)
 
 # State subclasses based on parsed output -------------------------------------
 State.SUBCLASSES = {
     node_name: type(node_name, (State,), {}) for node_name in parser_dict
 }
+
 
 # global setters on State -----------------------------------------------------
 def set_converter(key, fundef):

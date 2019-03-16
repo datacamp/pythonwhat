@@ -99,10 +99,10 @@ def check_function(
     if params_not_matched_msg is None:
         params_not_matched_msg = SIG_ISSUE_MSG
 
-    stu_out = state.student_function_calls
-    sol_out = state.solution_function_calls
+    stu_out = state.ast_dispatcher("function_calls", state.student_tree)
+    sol_out = state.ast_dispatcher("function_calls", state.solution_tree)
 
-    student_mappings = state.student_mappings
+    student_mappings = state.ast_dispatcher("mappings", state.student_tree)
 
     fmt_kwargs = {
         "times": get_times(index + 1),
