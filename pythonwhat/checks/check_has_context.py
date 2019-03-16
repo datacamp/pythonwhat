@@ -20,7 +20,7 @@ def _test(state, incorrect_msg, exact_names, tv_name, highlight_name):
     stu_vars = state.student_parts[tv_name]
     sol_vars = state.solution_parts[tv_name]
 
-    child_state = state.to_child_state(
+    child_state = state.to_child(
         student_subtree=state.student_parts.get(highlight_name),
         solution_subtree=state.solution_parts.get(highlight_name),
     )
