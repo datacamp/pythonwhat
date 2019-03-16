@@ -123,8 +123,8 @@ def check_node(
     if expand_msg is None:
         expand_msg = "Check the {{typestr}}. "
 
-    stu_out = getattr(state, "student_" + name)
-    sol_out = getattr(state, "solution_" + name)
+    stu_out = state.ast_dispatcher(name, state.student_tree)
+    sol_out = state.ast_dispatcher(name, state.solution_tree)
 
     # check if there are enough nodes for index
     fmt_kwargs = {
