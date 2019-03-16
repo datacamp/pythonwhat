@@ -439,7 +439,7 @@ def test_object_after_expression(
     pre_code=None,
     **kwargs
 ):
-    state.highlight = state.student_object_assignments.get(name, {}).get("highlight")
+    state.highlight = state.ast_dispatcher("object_assignments", state.student_tree).get(name, {}).get("highlight")
     has_equal_value(
         state,
         incorrect_msg=incorrect_msg,
