@@ -1,6 +1,4 @@
-import ast
 import inspect
-import string
 from copy import copy
 from functools import partialmethod
 from pythonwhat.parsing import (
@@ -9,13 +7,13 @@ from pythonwhat.parsing import (
     ObjectAccessParser,
     parser_dict,
 )
+from protowhat.State import State as ProtoState
 from protowhat.Feedback import InstructorError
 from pythonwhat.Feedback import Feedback
 from protowhat.Test import Fail
 from pythonwhat import signatures
 from pythonwhat.converters import get_manual_converters
 from collections.abc import Mapping
-from jinja2 import Template
 import asttokens
 from pythonwhat.utils_ast import wrap_in_module
 
@@ -41,7 +39,7 @@ class Context(Mapping):
         return len(self._items)
 
 
-class State:
+class State(ProtoState):
     """State of the SCT environment.
 
     This class holds all information relevevant to test the correctness of an exercise.
@@ -56,64 +54,58 @@ class State:
 
     def __init__(
         self,
-        student_context=None,
-        solution_context=None,
-        student_env=None,
-        solution_env=None,
-        student_parts=None,
-        solution_parts=None,
+        student_code,
+        solution_code,
+        pre_exercise_code,
+        student_process,
+        solution_process,
+        raw_student_output,
+        # solution output
+        reporter,
+        force_diagnose=False,
         highlight=None,
         highlighting_disabled=None,
         messages=None,
-        force_diagnose=False,
-        **kwargs
+        parent_state=None,
+        pre_exercise_ast=None,
+        student_ast=None,
+        solution_ast=None,
+        student_ast_tokens=None,
+        solution_ast_tokens=None,
+        student_parts=None,
+        solution_parts=None,
+        student_context=Context(),
+        solution_context=Context(),
+        student_env=Context(),
+        solution_env=Context(),
     ):
+        args = locals().copy()
+        self.params = list()
 
-        # Set basic fields from kwargs
-        self.__dict__.update(kwargs)
+        for k, v in args.items():
+            if k not in ["self", "args"]:
+                self.params.append(k)
+                setattr(self, k, v)
 
-        self.student_parts = student_parts
-        self.solution_parts = solution_parts
-        self.messages = messages if messages else []
-        self.force_diagnose = force_diagnose
+        if pre_exercise_ast is None:
+            _, self.pre_exercise_ast = self.parse_internal(pre_exercise_code)
+
+        self.ast_dispatcher = self.get_dispatcher()  # use updated pre_exercise_ast
 
         # parse code if didn't happen yet
-        if not hasattr(self, "student_tree"):
-            self.student_tree_tokens, self.student_tree = self.parse(self.student_code)
+        if student_ast is None:
+            self.student_ast = self.parse(student_code)
+        if solution_ast is None:
+            self.solution_ast = self.parse(solution_code, test=False)
 
-        if not hasattr(self, "solution_tree"):
-            self.solution_tree_tokens, self.solution_tree = self.parse(
-                self.solution_code, test=False
-            )
+        if highlight is None and parent_state:
+            self.highlight = self.student_ast
 
-        if not hasattr(self, "pre_exercise_tree"):
-            _, self.pre_exercise_tree = self.parse(self.pre_exercise_code, test=False)
-
-        self.ast_dispatcher = Dispatcher(self.pre_exercise_tree)
-
-        if not hasattr(self, "parent_state"):
-            self.parent_state = None
-
-        self.student_context = (
-            Context(student_context) if student_context is None else student_context
-        )
-        self.solution_context = (
-            Context(solution_context) if solution_context is None else solution_context
-        )
-        self.student_env = Context(student_env) if student_env is None else student_env
-        self.solution_env = (
-            Context(solution_env) if solution_env is None else solution_env
-        )
-
-        self.highlight = (
-            self.student_tree if (not highlight) and self.parent_state else highlight
-        )
-        self.highlighting_disabled = highlighting_disabled
+        self.messages = messages if messages else []
 
         self.converters = get_manual_converters()  # accessed only from root state
 
         self.manual_sigs = None
-        self._parser_cache = {}
 
     def get_manual_sigs(self):
         if self.manual_sigs is None:
@@ -121,140 +113,55 @@ class State:
 
         return self.manual_sigs
 
-    def build_message(self, tail="", fmt_kwargs=None, append=True):
-
-        if not fmt_kwargs:
-            fmt_kwargs = {}
-        out_list = []
-        # add trailing message to msg list
-        msgs = self.messages[:] + [{"msg": tail or "", "kwargs": fmt_kwargs}]
-        # format messages in list, by iterating over previous, current, and next message
-        for prev_d, d, next_d in zip([{}, *msgs[:-1]], msgs, [*msgs[1:], {}]):
-            tmp_kwargs = {
-                "parent": prev_d.get("kwargs"),
-                "child": next_d.get("kwargs"),
-                "this": d["kwargs"],
-                **d["kwargs"],
-            }
-            # don't bother appending if there is no message
-            if not d["msg"]:
-                continue
-            out = Template(d["msg"].replace("__JINJA__:", "")).render(**tmp_kwargs)
-            out_list.append(out)
-
-        # if highlighting info is available, don't put all expand messages
-        if self.highlight and not self.highlighting_disabled:
-            out_list = out_list[-3:]
-
-        if append:
-            return "".join(out_list)
-        else:
-            return out_list[-1]
-
-    def do_test(self, test):
-        return self.reporter.do_test(test)
-
-    def to_child(
-        self,
-        student_subtree=None,
-        solution_subtree=None,
-        student_context=None,
-        solution_context=None,
-        student_env=None,
-        solution_env=None,
-        student_parts=None,
-        solution_parts=None,
-        highlight=None,
-        highlighting_disabled=None,
-        append_message="",
-        node_name="",
-    ):
+    def to_child(self, append_message="", node_name="", **kwargs):
         """Dive into nested tree.
 
         Set the current state as a state with a subtree of this syntax tree as
         student tree and solution tree. This is necessary when testing if statements or
         for loops for example.
         """
-
-        if isinstance(student_subtree, list):
-            student_subtree = wrap_in_module(student_subtree)
-        if isinstance(solution_subtree, list):
-            solution_subtree = wrap_in_module(solution_subtree)
-
-        # get new contexts
-        if solution_context is not None:
-            solution_context = self.solution_context.update_ctx(solution_context)
-        else:
-            solution_context = self.solution_context
-
-        if student_context is not None:
-            student_context = self.student_context.update_ctx(student_context)
-        else:
-            student_context = self.student_context
-
-        # get new envs
-        if solution_env is not None:
-            solution_env = self.solution_env.update_ctx(solution_env)
-        else:
-            solution_env = self.solution_env
-
-        if student_env is not None:
-            student_env = self.student_env.update_ctx(student_env)
-        else:
-            student_env = self.student_env
-
-        if highlighting_disabled is None:
-            highlighting_disabled = self.highlighting_disabled
+        base_kwargs = {attr: getattr(self, attr) for attr in self.params if attr not in ['highlight']}
 
         if not isinstance(append_message, dict):
             append_message = {"msg": append_message, "kwargs": {}}
 
-        messages = [*self.messages, append_message]
+        kwargs["messages"] = [*self.messages, append_message]
+        kwargs["parent_state"] = self
 
-        if not (solution_subtree and student_subtree):
-            return self._update(
-                student_context=student_context,
-                solution_context=solution_context,
-                student_env=student_env,
-                solution_env=solution_env,
-                highlight=highlight,
-                highlighting_disabled=highlighting_disabled,
-                messages=messages,
+        def update_kwarg(name, func):
+            kwargs[name] = func(kwargs[name])
+
+        def update_context(name):
+            update_kwarg(name, getattr(self, name).update_ctx)
+
+        if isinstance(kwargs.get("student_ast", None), list):
+            update_kwarg("student_ast", wrap_in_module)
+        if isinstance(kwargs.get("solution_ast", None), list):
+            update_kwarg("solution_ast", wrap_in_module)
+
+        if "student_ast" in kwargs:
+            kwargs["student_code"] = self.student_ast_tokens.get_text(
+                kwargs["student_ast"]
+            )
+        if "solution_ast" in kwargs:
+            kwargs["solution_code"] = self.solution_ast_tokens.get_text(
+                kwargs["solution_ast"]
             )
 
-        klass = State if not node_name else self.SUBCLASSES[node_name]
-        child = klass(
-            student_code=self.student_tree_tokens.get_text(student_subtree),
-            solution_code=self.solution_tree_tokens.get_text(solution_subtree),
-            student_tree_tokens=self.student_tree_tokens,
-            solution_tree_tokens=self.solution_tree_tokens,
-            pre_exercise_code=self.pre_exercise_code,
-            student_context=student_context,
-            solution_context=solution_context,
-            student_env=student_env,
-            solution_env=solution_env,
-            student_process=self.student_process,
-            solution_process=self.solution_process,
-            raw_student_output=self.raw_student_output,
-            pre_exercise_tree=self.pre_exercise_tree,
-            student_tree=student_subtree,
-            solution_tree=solution_subtree,
-            student_parts=student_parts,
-            solution_parts=solution_parts,
-            highlight=highlight,
-            highlighting_disabled=highlighting_disabled,
-            messages=messages,
-            parent_state=self,
-            reporter=self.reporter,
-            force_diagnose=self.force_diagnose,
-        )
-        return child
+        # get new contexts
+        if "solution_context" in kwargs:
+            update_context("solution_context")
+        if "student_context" in kwargs:
+            update_context("student_context")
 
-    def _update(self, **kwargs):
-        """Return a copy of set, setting kwargs as attributes"""
-        child = copy(self)
-        for k, v in kwargs.items():
-            setattr(child, k, v)
+        # get new envs
+        if "solution_env" in kwargs:
+            update_context("solution_env")
+        if "student_env" in kwargs:
+            update_context("student_env")
+
+        klass = self.SUBCLASSES[node_name] if node_name else State
+        child = klass(**{**base_kwargs, **kwargs})
         return child
 
     def has_different_processes(self):
@@ -337,16 +244,26 @@ class State:
     def parse(self, text, test=True):
         if test:
             parse_method = self.parse_external
+            token_attr = 'student_ast_tokens'
         else:
             parse_method = self.parse_internal
+            token_attr = 'solution_ast_tokens'
 
-        return parse_method(text)
+        tokens, ast = parse_method(text)
+        setattr(self, token_attr, tokens)
+
+        return ast
+
+    def get_dispatcher(self):
+        return Dispatcher(self.pre_exercise_ast)
 
 
 class Dispatcher:
-    def __init__(self, pre_exercise_tree):
+    def __init__(self, pre_exercise_ast):
         self._parser_cache = dict()
-        self.pre_exercise_mappings = self._getx(FunctionParser, "mappings", pre_exercise_tree)
+        self.pre_exercise_mappings = self._getx(
+            FunctionParser, "mappings", pre_exercise_ast
+        )
 
     def __call__(self, name, node):
         return getattr(self, name)(node)
@@ -367,7 +284,10 @@ class Dispatcher:
             # otherwise, run parser over tree
             p = Parser()
             # set mappings for parsers that inspect attribute access
-            if ext_attr != "mappings" and Parser in [FunctionParser, ObjectAccessParser]:
+            if ext_attr != "mappings" and Parser in [
+                FunctionParser,
+                ObjectAccessParser,
+            ]:
                 p.mappings = self.pre_exercise_mappings.copy()
             # run parser
             p.visit(tree)

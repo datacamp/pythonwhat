@@ -34,8 +34,8 @@ def test_object_accessed(state, name, times=1, not_accessed_msg=None):
         | ``test_object_accessed("arr.shape")``: pass.
         | ``test_object_accessed("arr.dtype")``: fail.
     """
-    student_object_accesses = state.ast_dispatcher("object_accesses", state.student_tree)
-    student_mappings = state.ast_dispatcher("oa_mappings", state.student_tree)
+    student_object_accesses = state.ast_dispatcher("object_accesses", state.student_ast)
+    student_mappings = state.ast_dispatcher("oa_mappings", state.student_ast)
 
     if not not_accessed_msg:
         stud_name = name
