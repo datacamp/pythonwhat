@@ -439,7 +439,7 @@ def test_object_after_expression(
     pre_code=None,
     **kwargs
 ):
-    state.highlight = state.ast_dispatcher("object_assignments", state.student_tree).get(name, {}).get("highlight")
+    state.highlight = state.ast_dispatcher("object_assignments", state.student_ast).get(name, {}).get("highlight")
     has_equal_value(
         state,
         incorrect_msg=incorrect_msg,
@@ -535,7 +535,7 @@ def test_list_comp(
     insufficient_ifs_msg=None,
 ):
     """Test list comprehension."""
-    kwargs = locals()
+    kwargs = locals().copy()
     kwargs['typestr'] = "{{ordinal}} list comprehension"
     kwargs['comptype'] = "list_comps"
     test_comp(**kwargs)

@@ -182,8 +182,8 @@ def has_equal_ast(state, incorrect_msg=None, code=None, exact=True, append=None)
         # remove Expr if it exists
         return ast.dump(crnt.value if isinstance(crnt, ast.Expr) else crnt)
 
-    stu_rep = parse_tree(state.student_tree)
-    sol_rep = parse_tree(state.solution_tree if not code else ast.parse(code))
+    stu_rep = parse_tree(state.student_ast)
+    sol_rep = parse_tree(state.solution_ast if not code else ast.parse(code))
 
     fmt_kwargs = {
         "sol_str": state.solution_code if not code else code,
@@ -299,7 +299,7 @@ def has_expr(
         eval_sol, str_sol = override, str(override)
     else:
         eval_sol, str_sol = get_func(
-            tree=state.solution_tree,
+            tree=state.solution_ast,
             process=state.solution_process,
             context=state.solution_context,
             env=state.solution_env,
@@ -317,7 +317,7 @@ def has_expr(
             )
 
     eval_stu, str_stu = get_func(
-        tree=state.student_tree,
+        tree=state.student_ast,
         process=state.student_process,
         context=state.student_context,
         env=state.student_env,
@@ -511,8 +511,8 @@ def has_import(
             import matplotlib.pyplot as pltttt
 
     """
-    student_imports = state.ast_dispatcher("imports", state.student_tree)
-    solution_imports = state.ast_dispatcher("imports", state.solution_tree)
+    student_imports = state.ast_dispatcher("imports", state.student_ast)
+    solution_imports = state.ast_dispatcher("imports", state.solution_ast)
 
     if name not in solution_imports:
         raise InstructorError(
@@ -660,7 +660,7 @@ def has_printout(
         )
 
     try:
-        sol_call_ast = state.ast_dispatcher("function_calls", state.solution_tree)["print"][index]["node"]
+        sol_call_ast = state.ast_dispatcher("function_calls", state.solution_ast)["print"][index]["node"]
     except (KeyError, IndexError):
         raise InstructorError(
             "`has_printout({})` couldn't find the {} print call in your solution.".format(
@@ -677,7 +677,7 @@ def has_printout(
         copy=copy,
     )
 
-    sol_call_str = state.solution_tree_tokens.get_text(sol_call_ast)
+    sol_call_str = state.solution_ast_tokens.get_text(sol_call_ast)
 
     if isinstance(str_sol, Exception):
         raise InstructorError(

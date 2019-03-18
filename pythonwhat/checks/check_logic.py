@@ -1,5 +1,5 @@
-from protowhat.checks.check_logic import multi, check_not, check_or, check_correct
-from protowhat.Test import Test, TestFail
+from protowhat.checks.check_logic import multi, check_not, check_or, check_correct, disable_highlighting, fail
+from protowhat.Test import Fail
 from protowhat.Feedback import InstructorError
 from pythonwhat.Feedback import Feedback
 import ast
@@ -89,13 +89,7 @@ check_correct.__doc__ = str(check_correct.__doc__) + """
 # utility functions -----------------------------------------------------------
 
 
-def fail(state, msg=""):
-    """Fail SCT
-    
-    This function takes a single argument, ``msg``, that is the feedback given to the student.
-    Note that this would be a terrible idea for grading submissions, but may be useful while writing SCTs.
-    For example, failing a test will highlight the code as if the previous test/check had failed.
-
+fail.__doc__ = str(fail.__doc__) + """
     :Example:
     
         As a trivial SCT example, ::
@@ -103,12 +97,7 @@ def fail(state, msg=""):
             Ex().check_for_loop().check_body().fail()
 
         This can also be helpful for debugging SCTs, as it can be used to stop testing as a given point.
-
-
-
-"""
-    _msg = state.build_message(msg)
-    state.do_test(Test(Feedback(_msg, state)))
+    """
 
 
 def override(state, solution):
@@ -130,7 +119,7 @@ def override(state, solution):
     # (1) ast.Module, or for single expressions...
     # (2) whatever was grabbed using module.body[0]
     # (3) module.body[0].value, when module.body[0] is an Expr node
-    old_ast = state.solution_tree
+    old_ast = state.solution_ast
     new_ast = ast.parse(solution)
     if not isinstance(old_ast, ast.Module) and len(new_ast.body) == 1:
         expr = new_ast.body[0]
@@ -142,8 +131,8 @@ def override(state, solution):
 
     kwargs = state.messages[-1] if state.messages else {}
     child = state.to_child(
-        solution_subtree=new_ast,
-        student_subtree=state.student_tree,
+        solution_ast=new_ast,
+        student_ast=state.student_ast,
         highlight=state.highlight,
         append_message={"msg": "", "kwargs": kwargs},
     )
@@ -284,11 +273,7 @@ def set_env(state, **kwargs):
     )
 
 
-def disable_highlighting(state):
-    """Disable highlighting in the remainder of the SCT chain.
-
-    Include this function if you want to avoid that pythonwhat marks which part of the student submission is incorrect.
-
+disable_highlighting.__doc__ = str(disable_highlighting.__doc__) + """
     :Examples:
 
         SCT that will mark the 'number' portion if it is incorrect::
@@ -301,4 +286,3 @@ def disable_highlighting(state):
             Ex().check_function('round').disable_highlighting().check_args(0).has_equal_ast()
             Ex().check_function('round').check_args(0).disable_highlighting().has_equal_ast()
     """
-    return state.to_child(highlighting_disabled=True)
