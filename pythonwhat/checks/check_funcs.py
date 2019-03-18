@@ -27,8 +27,8 @@ def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
     # if the parts are dictionaries, use to deck out child state
     if all(isinstance(p, dict) for p in [stu_part, sol_part]):
         child_state = state.to_child(
-            student_subtree=stu_part["node"],
-            solution_subtree=sol_part["node"],
+            student_ast=stu_part["node"],
+            solution_ast=sol_part["node"],
             student_context=stu_part.get("target_vars"),
             solution_context=sol_part.get("target_vars"),
             student_parts=stu_part,
@@ -40,8 +40,8 @@ def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
     else:
         # otherwise, assume they are just nodes
         child_state = state.to_child(
-            student_subtree=stu_part,
-            solution_subtree=sol_part,
+            student_ast=stu_part,
+            solution_ast=sol_part,
             append_message=append_message,
             node_name=node_name,
         )
@@ -123,8 +123,8 @@ def check_node(
     if expand_msg is None:
         expand_msg = "Check the {{typestr}}. "
 
-    stu_out = state.ast_dispatcher(name, state.student_tree)
-    sol_out = state.ast_dispatcher(name, state.solution_tree)
+    stu_out = state.ast_dispatcher(name, state.student_ast)
+    sol_out = state.ast_dispatcher(name, state.solution_ast)
 
     # check if there are enough nodes for index
     fmt_kwargs = {

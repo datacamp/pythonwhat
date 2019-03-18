@@ -182,8 +182,8 @@ def check_object(
 
     # create child state, using either parser output, or create part from name
     fallback = lambda: ObjectAssignmentParser.get_part(index)
-    stu_part = state.ast_dispatcher("object_assignments", state.student_tree).get(index, fallback())
-    sol_part = state.ast_dispatcher("object_assignments", state.solution_tree).get(index, fallback())
+    stu_part = state.ast_dispatcher("object_assignments", state.student_ast).get(index, fallback())
+    sol_part = state.ast_dispatcher("object_assignments", state.solution_ast).get(index, fallback())
 
     # test object exists
     _msg = state.build_message(missing_msg, append_message["kwargs"])

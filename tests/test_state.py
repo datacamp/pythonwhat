@@ -9,4 +9,8 @@ def test_pec_parsing_error():
             student_code="parses",
             solution_code="parses",
             pre_exercise_code="does not parse",
+            student_process=None,
+            solution_process=None,
+            reporter=None,
+            raw_student_output=None
         )

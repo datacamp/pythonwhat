@@ -86,7 +86,7 @@ def test_bind_args():
 
     pec = "def my_fun(a, b, *args, **kwargs): pass"
     s = setup_state(pec=pec, stu_code="my_fun(1, 2, 3, 4, c = 5)")
-    args = s._state.ast_dispatcher("function_calls", s._state.student_tree)["my_fun"][0]["args"]
+    args = s._state.ast_dispatcher("function_calls", s._state.student_ast)["my_fun"][0]["args"]
     sig = signature(s._state.student_process.shell.user_ns["my_fun"])
     binded_args = bind_args(sig, args)
     assert binded_args["a"]["node"].n == 1
