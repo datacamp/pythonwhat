@@ -131,7 +131,7 @@ def check_function(
         stu_parts = {**stu_out[name][index]}
     except (KeyError, IndexError):
         _msg = state.build_message(missing_msg, fmt_kwargs, append=append_missing)
-        state.do_test(Test(Feedback(_msg, state)))
+        state.report(Feedback(_msg, state))
 
     # Signatures -----
     if signature:
@@ -163,11 +163,9 @@ def check_function(
             _msg = state.build_message(
                 params_not_matched_msg, fmt_kwargs, append=append_params_not_matched
             )
-            state.do_test(
-                Test(
-                    Feedback(
-                        _msg, StubState(stu_parts["node"], state.highlighting_disabled)
-                    )
+            state.report(
+                Feedback(
+                    _msg, StubState(stu_parts["node"], state.highlighting_disabled)
                 )
             )
 

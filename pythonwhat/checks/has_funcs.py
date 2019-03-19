@@ -53,7 +53,7 @@ def has_part(state, name, msg, fmt_kwargs=None, index=None):
     try:
         verify(state.student_parts[name], index)
     except (KeyError, IndexError):
-        state.do_test(Test(Feedback(_msg, state)))
+        state.report(Feedback(_msg, state))
 
     return state
 
@@ -101,7 +101,7 @@ def has_equal_part_len(state, name, unequal_msg):
 
     if d["stu_len"] != d["sol_len"]:
         _msg = state.build_message(unequal_msg, d)
-        state.do_test(Test(Feedback(_msg, state)))
+        state.report(Feedback(_msg, state))
 
     return state
 
@@ -195,7 +195,7 @@ def has_equal_ast(state, incorrect_msg=None, code=None, exact=True, append=None)
     if exact and not code:
         state.do_test(EqualTest(stu_rep, sol_rep, Feedback(_msg, state)))
     elif not sol_rep in stu_rep:
-        state.do_test(Test(Feedback(_msg, state)))
+        state.report(Feedback(_msg, state))
 
     return state
 
@@ -348,12 +348,12 @@ def has_expr(
         fmt_kwargs["stu_str"] = str_stu
         _msg = state.build_message(error_msg, fmt_kwargs, append=append)
         feedback = Feedback(_msg, state)
-        state.do_test(Test(feedback))
+        state.report(feedback)
 
     # name is undefined after running expression
     if isinstance(eval_stu, UndefinedValue):
         _msg = state.build_message(undefined_msg, fmt_kwargs, append=append)
-        state.do_test(Test(Feedback(_msg, state)))
+        state.report(Feedback(_msg, state))
 
     # test equality of results
     _msg = state.build_message(incorrect_msg, fmt_kwargs, append=append)
@@ -449,7 +449,9 @@ def has_code(state, text, pattern=True, not_typed_msg=None):
     student_code = state.student_code
 
     _msg = state.build_message(not_typed_msg)
-    state.do_test(StringContainsTest(student_code, text, pattern, Feedback(_msg, state)))
+    state.do_test(
+        StringContainsTest(student_code, text, pattern, Feedback(_msg, state))
+    )
 
     return state
 
@@ -660,7 +662,9 @@ def has_printout(
         )
 
     try:
-        sol_call_ast = state.ast_dispatcher("function_calls", state.solution_ast)["print"][index]["node"]
+        sol_call_ast = state.ast_dispatcher("function_calls", state.solution_ast)[
+            "print"
+        ][index]["node"]
     except (KeyError, IndexError):
         raise InstructorError(
             "`has_printout({})` couldn't find the {} print call in your solution.".format(
@@ -748,8 +752,10 @@ def has_no_error(
     state.assert_root("has_no_error")
 
     if state.reporter.errors:
-        _msg = state.build_message(incorrect_msg, {"error": str(state.reporter.errors[0])})
-        state.do_test(Test(Feedback(_msg, state)))
+        _msg = state.build_message(
+            incorrect_msg, {"error": str(state.reporter.errors[0])}
+        )
+        state.report(Feedback(_msg, state))
 
     return state
 
