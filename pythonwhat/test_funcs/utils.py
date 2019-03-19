@@ -134,7 +134,7 @@ def call(
     stu_state = StubState(stu_node, state.highlighting_disabled)
     if (test == "error") ^ isinstance(eval_stu, Exception):
         _msg = state.build_message(error_msg, fmt_kwargs)
-        state.do_test(Test(Feedback(_msg, stu_state)))
+        state.report(Feedback(_msg, stu_state))
 
     # incorrect result
     _msg = state.build_message(incorrect_msg, fmt_kwargs)
