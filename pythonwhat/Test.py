@@ -2,7 +2,7 @@ import re
 import numpy as np
 import pandas as pd
 from pythonwhat.tasks import *
-from protowhat.Test import TestFail, Test
+from protowhat.Test import Test
 
 """
 This file contains all tests that can be done on specific objects. All tests are represented as

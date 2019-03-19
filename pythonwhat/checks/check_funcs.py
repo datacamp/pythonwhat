@@ -139,7 +139,7 @@ def check_node(
         stu_out[index]
     except (KeyError, IndexError):  # TODO comment errors
         _msg = state.build_message(missing_msg, fmt_kwargs)
-        state.do_test(Test(Feedback(_msg, state)))
+        state.report(Feedback(_msg, state))
 
     # get node at index
     stu_part = stu_out[index]
@@ -167,23 +167,19 @@ def with_context(state, *args, child=None):
         process=state.student_process, context=state.student_parts["with_items"]
     )
     if isinstance(student_res, AttributeError):
-        state.do_test(
-            Test(
-                Feedback(
-                    "In your `with` statement, you're not using a correct context manager.",
-                    child.highlight,  # TODO
-                )
+        state.report(
+            Feedback(
+                "In your `with` statement, you're not using a correct context manager.",
+                child.highlight,  # TODO
             )
         )
 
     if isinstance(student_res, (AssertionError, ValueError, TypeError)):
-        state.do_test(
-            Test(
-                Feedback(
-                    "In your `with` statement, the number of values in your context manager "
-                    "doesn't correspond to the number of variables you're trying to assign it to.",
-                    child.highlight,
-                )
+        state.report(
+            Feedback(
+                "In your `with` statement, the number of values in your context manager "
+                "doesn't correspond to the number of variables you're trying to assign it to.",
+                child.highlight,
             )
         )
 
@@ -203,13 +199,11 @@ def with_context(state, *args, child=None):
 
         close_student_context = breakDownNewEnvInProcess(process=state.student_process)
         if isinstance(close_student_context, Exception):
-            state.do_test(
-                Test(
-                    Feedback(
-                        "Your `with` statement can not be closed off correctly, you're "
-                        + "not using the context manager correctly.",
-                        state,
-                    )
+            state.report(
+                Feedback(
+                    "Your `with` statement can not be closed off correctly, you're "
+                    + "not using the context manager correctly.",
+                    state,
                 )
             )
     return state

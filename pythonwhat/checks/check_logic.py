@@ -1,7 +1,5 @@
 from protowhat.checks.check_logic import multi, check_not, check_or, check_correct, disable_highlighting, fail
-from protowhat.Test import Fail
 from protowhat.Feedback import InstructorError
-from pythonwhat.Feedback import Feedback
 import ast
 
 
