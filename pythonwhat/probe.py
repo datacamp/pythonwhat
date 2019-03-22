@@ -5,7 +5,7 @@ from functools import partial
 from collections import OrderedDict
 from pythonwhat import test_funcs
 from pythonwhat.State import State
-from pythonwhat.checks.check_wrappers import partial_with_offset
+from pythonwhat.checks.check_wrappers import state_partial
 
 TEST_NAMES = [
     "test_mc",
@@ -121,7 +121,7 @@ class Node(object):
     def partial(self):
         """Return partial of original function call"""
         ba = self.data["bound_args"]
-        return partial_with_offset(self.data["func"], *ba.args[1:], **ba.kwargs)
+        return state_partial(self.data["func"], *ba.args[1:], **ba.kwargs)
 
     def update_child_calls(self):
         """Replace child nodes on original function call with their partials"""
