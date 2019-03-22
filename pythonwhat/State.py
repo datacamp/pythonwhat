@@ -6,6 +6,7 @@ from pythonwhat.parsing import (
     parser_dict,
 )
 from protowhat.State import State as ProtoState
+from protowhat.selectors import DispatcherInterface
 from protowhat.Feedback import InstructorError
 from pythonwhat.Feedback import Feedback
 from pythonwhat import signatures
@@ -253,7 +254,7 @@ class State(ProtoState):
         return Dispatcher(self.pre_exercise_ast)
 
 
-class Dispatcher:
+class Dispatcher(DispatcherInterface):
     def __init__(self, pre_exercise_ast):
         self._parser_cache = dict()
         self.pre_exercise_mappings = self._getx(
