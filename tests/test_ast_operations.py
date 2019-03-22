@@ -1,5 +1,5 @@
 import pytest
-from pythonwhat.State import State
+from pythonwhat.State import Dispatcher
 
 
 @pytest.mark.parametrize(
@@ -34,4 +34,4 @@ from pythonwhat.State import State
     ],
 )
 def test_parses_without_error(script):
-    State.parse_internal(script)
+    Dispatcher().parse(script)

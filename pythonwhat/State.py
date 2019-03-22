@@ -65,7 +65,6 @@ class State(ProtoState):
         highlighting_disabled=None,
         messages=None,
         parent_state=None,
-        pre_exercise_ast=None,
         student_ast=None,
         solution_ast=None,
         student_ast_tokens=None,
@@ -85,10 +84,7 @@ class State(ProtoState):
                 self.params.append(k)
                 setattr(self, k, v)
 
-        if pre_exercise_ast is None:
-            _, self.pre_exercise_ast = self.parse_internal(pre_exercise_code)
-
-        self.ast_dispatcher = self.get_dispatcher()  # use updated pre_exercise_ast
+        self.ast_dispatcher = self.get_dispatcher()
 
         # parse code if didn't happen yet
         if student_ast is None:
@@ -200,7 +196,7 @@ class State(ProtoState):
     def parse_external(self, code):
         res = (None, None)
         try:
-            return Dispatcher.parse(code)
+            return self.ast_dispatcher.parse(code)
         except IndentationError as e:
             e.filename = "script.py"
             # no line info for now
@@ -228,13 +224,12 @@ class State(ProtoState):
 
         return res
 
-    @staticmethod
-    def parse_internal(code):
+    def parse_internal(self, code):
         try:
-            return Dispatcher.parse(code)
+            return self.ast_dispatcher.parse(code)
         except Exception as e:
             raise InstructorError(
-                "Something went wrong when parsing PEC or solution code: %s" % str(e)
+                "Something went wrong when parsing the solution code: %s" % str(e)
             )
 
     def parse(self, text, test=True):
@@ -251,21 +246,32 @@ class State(ProtoState):
         return ast
 
     def get_dispatcher(self):
-        return Dispatcher(self.pre_exercise_ast)
+        try:
+            return Dispatcher(self.pre_exercise_code)
+        except Exception as e:
+            raise InstructorError(
+                "Something went wrong when parsing the PEC: %s" % str(e)
+            )
 
 
 class Dispatcher(DispatcherInterface):
-    def __init__(self, pre_exercise_ast):
+    _context_cache = dict()
+
+    def __init__(self, context_code=""):
         self._parser_cache = dict()
-        self.pre_exercise_mappings = self._getx(
-            FunctionParser, "mappings", pre_exercise_ast
+        context_ast = getattr(self._context_cache, context_code, None)
+        if context_ast is None:
+            context_ast = self._context_cache[context_code] = self.parse(
+                context_code
+            )[1]
+        self.context_mappings = self._getx(
+            FunctionParser, "mappings", context_ast
         )
 
-    def __call__(self, name, node):
+    def __call__(self, name, node, *args, **kwargs):
         return getattr(self, name)(node)
 
-    @staticmethod
-    def parse(code):
+    def parse(self, code):
         res = asttokens.ASTTokens(code, parse=True)
         return res, res.tree
 
@@ -284,7 +290,7 @@ class Dispatcher(DispatcherInterface):
                 FunctionParser,
                 ObjectAccessParser,
             ]:
-                p.mappings = self.pre_exercise_mappings.copy()
+                p.mappings = self.context_mappings.copy()
             # run parser
             p.visit(tree)
             # cache
@@ -304,9 +310,6 @@ setattr(Dispatcher, "oa_mappings", prop_oa_map)
 prop_map = partialmethod(Dispatcher._getx, FunctionParser, "mappings")
 setattr(Dispatcher, "mappings", prop_map)
 
-# mappings for pre exercise code from FunctionParser
-pec_prop_map = partialmethod(Dispatcher._getx, FunctionParser, "mappings")
-setattr(Dispatcher, "pre_exercise_mappings", pec_prop_map)
 
 # State subclasses based on parsed output -------------------------------------
 State.SUBCLASSES = {

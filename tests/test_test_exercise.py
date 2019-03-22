@@ -44,7 +44,7 @@ def test_normal_error():
     }
     output = helper.run(data)
     assert not output["correct"]
-    assert "your code contains an error." in output["message"]
+    assert "Your code generated an error." in output["message"]
 
 
 def test_syntax_error():
