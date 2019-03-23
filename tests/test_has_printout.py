@@ -1,7 +1,7 @@
 import pytest
 from pythonwhat.local import setup_state
 from protowhat.Test import TestFail as TF
-from tests import helper
+import tests.helper as helper
 
 
 @pytest.mark.parametrize(

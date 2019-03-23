@@ -298,9 +298,9 @@ def getResultFromProcess(res, tempname, process):
     """Get a value from process, return tuple of value, res if succesful"""
     if not isinstance(res, (UndefinedValue, Exception)):
         value = getRepresentation(tempname, process)
-        return (value, res)
+        return value, res
     else:
-        return (res, str(res))
+        return res, str(res)
 
 
 # decorator to automatically get value after running process task function
@@ -332,9 +332,9 @@ def get_output(f, process, shell, *args, **kwargs):
     out_str = out[0].strip()
     if not isinstance(res, Exception):
         toret = out_str or "no printouts"
-        return (toret, toret)
+        return toret, toret
     else:
-        return (res, str(res))
+        return res, str(res)
 
 
 @process_task

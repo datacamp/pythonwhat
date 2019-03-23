@@ -1,7 +1,7 @@
 import pytest
 from pythonwhat.local import setup_state
 from protowhat.Feedback import InstructorError
-from tests import helper
+import tests.helper as helper
 
 
 @pytest.mark.parametrize(
