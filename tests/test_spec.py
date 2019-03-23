@@ -1,5 +1,5 @@
 import pytest
-from tests import helper
+import tests.helper as helper
 from protowhat.Feedback import InstructorError
 
 

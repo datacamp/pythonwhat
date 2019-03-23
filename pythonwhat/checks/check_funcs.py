@@ -194,7 +194,7 @@ def with_context(state, *args, child=None):
         if isinstance(close_solution_context, Exception):
             raise InstructorError(
                 "error in the solution, closing the `with` fails with: %s"
-                % (close_solution_context)
+                % close_solution_context
             )
 
         close_student_context = breakDownNewEnvInProcess(process=state.student_process)

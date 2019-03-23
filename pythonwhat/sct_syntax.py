@@ -4,9 +4,7 @@ from pythonwhat.State import State
 from pythonwhat.probe import Node, Probe, TEST_NAMES
 from pythonwhat.utils import include_v1
 from pythonwhat import test_funcs
-from functools import partial, reduce, wraps
-import inspect
-import copy
+from functools import wraps
 
 # TODO: could define scts for check_wrappers at the module level
 ATTR_SCTS = scts.copy()

@@ -2,7 +2,6 @@ import ast
 
 from protowhat.Feedback import InstructorError
 from pythonwhat.Feedback import Feedback
-from protowhat.Test import Test
 from pythonwhat.Test import EqualTest
 from pythonwhat.checks.check_funcs import StubState
 from pythonwhat.checks.has_funcs import evalCalls
