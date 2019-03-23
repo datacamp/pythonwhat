@@ -1,5 +1,5 @@
 import pytest
-from tests import helper
+import tests.helper as helper
 
 
 @pytest.mark.parametrize("stu, passes", [("c", False), ("a = 3", True)])
