@@ -253,7 +253,7 @@ def getRepresentation(name, process):
     if obj_class in converters:
         repres = convert(name, dill.dumps(converters[obj_class]), process)
         if errored(repres):
-            return ReprFail("manual conversion failed")
+            return ReprFail("manual conversion failed: {}".format(repres))
         else:
             return repres
     else:
