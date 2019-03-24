@@ -24,8 +24,7 @@ class Context(Mapping):
         self._items = {**self.prev, **self.context.defined_items()}
 
     def update_ctx(self, new_ctx):
-        upd_prev = {**self.prev, **self.context.defined_items()}
-        return self.__class__(new_ctx, upd_prev)
+        return self.__class__(new_ctx, self._items)
 
     def __getitem__(self, x):
         return self._items[x]
@@ -137,11 +136,11 @@ class State(ProtoState):
         if isinstance(kwargs.get("solution_ast", None), list):
             update_kwarg("solution_ast", wrap_in_module)
 
-        if "student_ast" in kwargs:
+        if kwargs.get("student_ast", None):
             kwargs["student_code"] = self.student_ast_tokens.get_text(
                 kwargs["student_ast"]
             )
-        if "solution_ast" in kwargs:
+        if kwargs.get("solution_ast", None):
             kwargs["solution_code"] = self.solution_ast_tokens.get_text(
                 kwargs["solution_ast"]
             )
