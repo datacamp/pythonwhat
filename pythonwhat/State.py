@@ -125,6 +125,10 @@ class State(ProtoState):
         kwargs["messages"] = [*self.messages, append_message]
         kwargs["parent_state"] = self
 
+        for kwarg in ["solution_context", "student_context"]:
+            if kwarg in kwargs and not kwargs[kwarg]:
+                kwargs.pop(kwarg, None)
+
         def update_kwarg(name, func):
             kwargs[name] = func(kwargs[name])
 
@@ -136,11 +140,11 @@ class State(ProtoState):
         if isinstance(kwargs.get("solution_ast", None), list):
             update_kwarg("solution_ast", wrap_in_module)
 
-        if kwargs.get("student_ast", None):
+        if "student_ast" in kwargs:
             kwargs["student_code"] = self.student_ast_tokens.get_text(
                 kwargs["student_ast"]
             )
-        if kwargs.get("solution_ast", None):
+        if "solution_ast" in kwargs:
             kwargs["solution_code"] = self.solution_ast_tokens.get_text(
                 kwargs["solution_ast"]
             )
