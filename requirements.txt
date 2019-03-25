@@ -1,6 +1,5 @@
 # pythonwhat deps
-#protowhat~=1.6.0
-git+https://github.com/datacamp/protowhat.git@v1.6.0-rc.0
+protowhat~=1.6.0
 asttokens~=1.1.10
 dill~=0.2.7.1
 markdown2~=2.3.5
