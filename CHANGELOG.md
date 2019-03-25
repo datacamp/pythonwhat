@@ -2,6 +2,15 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.19.0
+
+- `state` is now the first argument to SCT functions (instead of a keyword argument)
+- functionality is shared with protowhat:
+  - `Reporter`, `Chain`, `F` and logic SCTs are reused
+  - `State` and `Feedback` inherit
+  - `Dispatcher` handles parsing (decoupled from `State`)
+  - `Test` moved
+
 ## 2.18.1
 
 ### Fixed
