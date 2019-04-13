@@ -49,7 +49,7 @@ def check_function(
     """Check whether a particular function is called.
 
     ``check_function()`` is typically followed by:
-    
+
     - ``check_args()`` to check whether the arguments were specified.
       In turn, ``check_args()`` can be followed by ``has_equal_value()`` or ``has_equal_ast()``
       to assert that the arguments were correctly specified.
@@ -99,10 +99,10 @@ def check_function(
     if params_not_matched_msg is None:
         params_not_matched_msg = SIG_ISSUE_MSG
 
-    stu_out = state.ast_dispatcher("function_calls", state.student_ast)
-    sol_out = state.ast_dispatcher("function_calls", state.solution_ast)
+    stu_out = state.ast_dispatcher.find("function_calls", state.student_ast)
+    sol_out = state.ast_dispatcher.find("function_calls", state.solution_ast)
 
-    student_mappings = state.ast_dispatcher("mappings", state.student_ast)
+    student_mappings = state.ast_dispatcher.find("mappings", state.student_ast)
 
     fmt_kwargs = {
         "times": get_times(index + 1),

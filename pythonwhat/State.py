@@ -271,7 +271,7 @@ class Dispatcher(DispatcherInterface):
             FunctionParser, "mappings", context_ast
         )
 
-    def __call__(self, name, node, *args, **kwargs):
+    def find(self, name, node, *args, **kwargs):
         return getattr(self, name)(node)
 
     def parse(self, code):

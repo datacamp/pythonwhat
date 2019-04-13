@@ -275,10 +275,10 @@ def test_function_definition(
             test_function_definition('shout')                          # fail
             test_function_definition('shout', arg_defaults = False)    # pass
             test_function_definition('shout', arg_defaults = False,    # fail
-                                            outputs = [('help')])    
+                                            outputs = [('help')])
 
             test_function_definition('shout', arg_defaults = False,    # pass
-                                            results = [('help', 2)]) 
+                                            results = [('help', 2)])
 
             test_function_definition('shout', args_defaults = False    # pass
                     body = test_function('print', args = []]))
@@ -439,7 +439,7 @@ def test_object_after_expression(
     pre_code=None,
     **kwargs
 ):
-    state.highlight = state.ast_dispatcher("object_assignments", state.student_ast).get(name, {}).get("highlight")
+    state.highlight = state.ast_dispatcher.find("object_assignments", state.student_ast).get(name, {}).get("highlight")
     has_equal_value(
         state,
         incorrect_msg=incorrect_msg,

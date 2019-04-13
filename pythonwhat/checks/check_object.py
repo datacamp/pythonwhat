@@ -35,7 +35,7 @@ def check_object(
         expand_msg (str): If specified, this overrides any messages that are prepended by previous SCT chains.
 
     :Example:
-        
+
         Suppose you want the student to create a variable ``x``, equal to 15: ::
 
             x = 15
@@ -46,9 +46,9 @@ def check_object(
 
         - ``check_object()`` will check if the variable ``x`` is defined in the student process.
         - ``has_equal_value()`` will check whether the value of ``x`` in the solution process is the same as in the student process.
-        
+
         Note that ``has_equal_value()`` only looks at **end result** of a variable in the student process.
-        In the example, how the object ``x`` came about in the student's submission, does not matter.    
+        In the example, how the object ``x`` came about in the student's submission, does not matter.
         This means that all of the following submission will also pass the above SCT: ::
 
             x = 15
@@ -93,10 +93,10 @@ def check_object(
                     )
                 )
             )
-        
+
         - ``check_correct()`` is used to robustly check whether ``my_list`` was built correctly.
         - If ``my_list`` is not correct, **both** the initialization and the population code are checked.
-    
+
     :Example:
 
         Because checking object correctness incorrectly is such a common misconception, we're adding another example: ::
@@ -104,7 +104,7 @@ def check_object(
             import pandas as pd
             df = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]})
             df['c'] = [7, 8, 9]
-        
+
         The following SCT would be **wrong**, as it does not factor in the possibility that the 'add column ``c``' step could've been wrong: ::
 
             Ex().check_correct(
@@ -150,7 +150,7 @@ def check_object(
             # submissions that will pass this sct
             x = Number(1)
             x = Number(2 - 1)
-    
+
         The basic SCT like in the previous example will notwork here.
         Notice how we used the ``expr_code`` argument to _override_ which value `has_equal_value()` is checking.
         Instead of checking whether `x` corresponds between student and solution process, it's now executing the expression ``x.n``
@@ -182,8 +182,8 @@ def check_object(
 
     # create child state, using either parser output, or create part from name
     fallback = lambda: ObjectAssignmentParser.get_part(index)
-    stu_part = state.ast_dispatcher("object_assignments", state.student_ast).get(index, fallback())
-    sol_part = state.ast_dispatcher("object_assignments", state.solution_ast).get(index, fallback())
+    stu_part = state.ast_dispatcher.find("object_assignments", state.student_ast).get(index, fallback())
+    sol_part = state.ast_dispatcher.find("object_assignments", state.solution_ast).get(index, fallback())
 
     # test object exists
     _msg = state.build_message(missing_msg, append_message["kwargs"])
@@ -247,7 +247,7 @@ def check_df(
     state, index, missing_msg=None, not_instance_msg=None, expand_msg=None
 ):
     """Check whether a DataFrame was defined and it is the right type
-    
+
     ``check_df()`` is a combo of ``check_object()`` and ``is_instance()`` that checks whether the specified object exists
     and whether the specified object is pandas DataFrame.
 
@@ -278,9 +278,9 @@ def check_df(
         - ``check_df()`` checks if ``my_df`` exists (``check_object()`` behind the scenes) and is a DataFrame (``is_instance()``)
         - ``check_keys("a")`` zooms in on the column ``a`` of the data frame, and ``has_equal_value()`` checks if the columns correspond between student and solution process.
         - ``check_keys("b")`` zooms in on hte column ``b`` of the data frame, but there's no 'equality checking' happening
-        
+
         The following submissions would pass the SCT above: ::
-            
+
             my_df = pd.DataFrame({"a": [1, 1 + 1, 3], "b": ["a", "l", "l"]})
             my_df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6], "c": [7, 8, 9]})
 

@@ -513,8 +513,8 @@ def has_import(
             import matplotlib.pyplot as pltttt
 
     """
-    student_imports = state.ast_dispatcher("imports", state.student_ast)
-    solution_imports = state.ast_dispatcher("imports", state.solution_ast)
+    student_imports = state.ast_dispatcher.find("imports", state.student_ast)
+    solution_imports = state.ast_dispatcher.find("imports", state.solution_ast)
 
     if name not in solution_imports:
         raise InstructorError(
@@ -662,7 +662,7 @@ def has_printout(
         )
 
     try:
-        sol_call_ast = state.ast_dispatcher("function_calls", state.solution_ast)[
+        sol_call_ast = state.ast_dispatcher.find("function_calls", state.solution_ast)[
             "print"
         ][index]["node"]
     except (KeyError, IndexError):
