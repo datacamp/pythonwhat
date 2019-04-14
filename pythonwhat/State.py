@@ -63,7 +63,7 @@ class State(ProtoState):
         highlight=None,
         highlighting_disabled=None,
         messages=None,
-        parent_state=None,
+        creator=None,
         student_ast=None,
         solution_ast=None,
         student_ast_tokens=None,
@@ -93,7 +93,7 @@ class State(ProtoState):
         if solution_ast is None:
             self.solution_ast = self.parse(solution_code, test=False)
 
-        if highlight is None and parent_state:
+        if highlight is None:  # todo: check parent_state? (move check to reporting?)
             self.highlight = self.student_ast
 
         self.converters = get_manual_converters()  # accessed only from root state
@@ -123,7 +123,6 @@ class State(ProtoState):
             append_message = {"msg": append_message, "kwargs": {}}
 
         kwargs["messages"] = [*self.messages, append_message]
-        kwargs["parent_state"] = self
 
         for kwarg in ["solution_context", "student_context"]:
             if kwarg in kwargs and not kwargs[kwarg]:
