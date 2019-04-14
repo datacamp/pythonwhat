@@ -83,6 +83,8 @@ class State(ProtoState):
                 self.params.append(k)
                 setattr(self, k, v)
 
+        self.messages = messages if messages else []
+
         self.ast_dispatcher = self.get_dispatcher()
 
         # parse code if didn't happen yet
@@ -93,8 +95,6 @@ class State(ProtoState):
 
         if highlight is None and parent_state:
             self.highlight = self.student_ast
-
-        self.messages = messages if messages else []
 
         self.converters = get_manual_converters()  # accessed only from root state
 
