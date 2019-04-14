@@ -22,7 +22,7 @@ class DefinedProcessTest(Test):
         self.name = name
         self.process = process
 
-    def specific_test(self):
+    def test(self):
         self.result = isDefinedInProcess(self.name, self.process)
 
 
@@ -42,7 +42,7 @@ class DefinedCollTest(Test):
         self.name = name
         self.collection = collection
 
-    def specific_test(self):
+    def test(self):
         self.result = self.name in self.collection
 
 
@@ -53,7 +53,7 @@ class DefinedCollProcessTest(Test):
         self.key = key
         self.process = process
 
-    def specific_test(self):
+    def test(self):
         self.result = isDefinedCollInProcess(self.name, self.key, self.process)
 
 
@@ -67,7 +67,7 @@ class InstanceProcessTest(Test):
         self.klass = klass
         self.process = process
 
-    def specific_test(self):
+    def test(self):
         self.result = isInstanceInProcess(self.name, self.klass, self.process)
 
 
@@ -92,7 +92,7 @@ class EqualTest(Test):
         self.obj2 = obj2
         self.func = func if func is not None else is_equal
 
-    def specific_test(self):
+    def test(self):
         """
         Perform the actual test. result is set to False if the objects differ, True otherwise.
         """
@@ -177,7 +177,7 @@ class StringContainsTest(Test):
         self.search_string = search_string
         self.pattern = pattern
 
-    def specific_test(self):
+    def test(self):
         """
         Perform the actual test. result will be True if string is found (whether or not with a pattern),
         False otherwise.
