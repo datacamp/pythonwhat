@@ -4,6 +4,7 @@ from pythonwhat.checks import check_object, check_logic, check_funcs, has_funcs
 from pythonwhat.checks.check_function import check_function
 from pythonwhat.checks.check_has_context import has_context
 
+from inspect import signature, Parameter
 from functools import partial, wraps
 from jinja2 import Template
 
@@ -648,25 +649,6 @@ scts = dict()
 # make has_equal_part wrappers
 
 
-# todo: check @wraps implementation
-
-# def partial_with_state(func, *partial_args, **partial_kwargs):
-#     @wraps(func)
-#     def state_partial(state, *args, **kwargs):
-#         func(state, *partial_args, *args, **{**partial_kwargs, **kwargs})
-#     return state_partial
-
-
-# def right_args_partial(func, *last_args, **partial_kwargs):
-#     kwargs_partial = partial(func, **partial_kwargs)
-#
-#     @wraps(func)
-#     def full_partial(*first_args, **kwargs):
-#         kwargs_partial(*first_args, *last_args, **kwargs)
-#
-#     return full_partial
-
-
 def partial_with_offset(offset=1):
     def bound_partial_with_offset(func, *partial_args, **partial_kwargs):
         kwargs_partial = partial(func, **partial_kwargs)
@@ -676,7 +658,35 @@ def partial_with_offset(offset=1):
             full_args = args[:offset] + partial_args + args[offset:]
             return kwargs_partial(*full_args, **kwargs)
 
+        # set correct signature of returned partial
+        # todo: pass arguments as keywords to partial, instead of this decorator?
+        #  (where args are always the same)
+        func_sig = signature(full_partial)
+        parameter_names = tuple(func_sig.parameters)
+
+        partialed_positional_indices = []
+        for kwarg in partial_kwargs:
+            param = func_sig.parameters[kwarg]
+            if param.default is param.empty:
+                partialed_positional_indices.append(parameter_names.index(kwarg))
+
+        partial_params = list(func_sig.parameters.values())
+        for index in sorted(partialed_positional_indices, reverse=True):
+            # appending isn't needed for functionality, but more similar to partial
+            # and it shows that these arguments can still be updated as kwargs
+            partial_params.append(
+                partial_params[index].replace(
+                    kind=Parameter.KEYWORD_ONLY,
+                    default=partial_kwargs[partial_params[index].name],
+                )
+            )
+            del partial_params[index]
+        del partial_params[offset : offset + len(partial_args)]
+
+        full_partial.__signature__ = func_sig.replace(parameters=partial_params)
+
         return full_partial
+
     return bound_partial_with_offset
 
 
