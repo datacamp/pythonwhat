@@ -500,3 +500,10 @@ def test_test_function_v2_no_sig():
     s.check_function("numpy.arange", signature=False)
     with pytest.raises(InstructorError):
         s.check_function("numpy.arange")
+
+
+def test_function_call_in_return():
+    code = "def my_func(a): return my_func_in_return(b)"
+    sct = "Ex().check_function_def('my_func').check_body().check_function('my_func_in_return', signature=False)"
+    res = helper.run({"DC_CODE": code, "DC_SOLUTION": code, "DC_SCT": sct})
+    assert res["correct"]
