@@ -79,7 +79,7 @@ class State(ProtoState):
         self.params = list()
 
         for k, v in args.items():
-            if k not in ["self", "args"]:
+            if k != "self":
                 self.params.append(k)
                 setattr(self, k, v)
 
