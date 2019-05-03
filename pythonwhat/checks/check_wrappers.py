@@ -1,3 +1,5 @@
+from protowhat.utils import _debug
+from protowhat.checks.check_files import check_file, has_dir
 from pythonwhat.checks.check_funcs import check_part, check_part_index, check_node
 from pythonwhat.checks.has_funcs import has_equal_part
 from pythonwhat.checks import check_object, check_logic, check_funcs, has_funcs
@@ -768,5 +770,8 @@ for k in ["check_object", "is_instance", "check_df", "check_keys"]:
 
 scts["has_context"] = has_context
 scts["check_function"] = check_function
+scts["check_file"] = check_file
+scts["has_dir"] = has_dir
+scts["_debug"] = _debug
 
 locals().update(scts)
