@@ -3,7 +3,7 @@ import random
 
 from pythonwhat.sct_syntax import Ex
 from pythonwhat.State import State
-from protowhat.Reporter import Reporter
+from pythonwhat.reporter import Reporter
 from contextlib import redirect_stdout
 
 

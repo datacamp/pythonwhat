@@ -1,6 +1,6 @@
 from pythonwhat.State import State
 from pythonwhat.utils import check_str, check_process
-from protowhat.Reporter import Reporter
+from pythonwhat.reporter import Reporter
 from protowhat.Test import TestFail
 from pythonwhat.utils import include_v1
 
@@ -43,7 +43,7 @@ def test_exercise(
             solution_process=check_process(solution_process),
             raw_student_output=check_str(raw_student_output),
             force_diagnose=force_diagnose,
-            reporter=Reporter([error] if error else [])
+            reporter=Reporter(errors=[error] if error else [])
         )
 
         State.root_state = state
