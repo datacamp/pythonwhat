@@ -1,3 +1,4 @@
+from protowhat.sct_syntax import link_to_state
 from pythonwhat.checks.check_funcs import (
     check_node,
     check_part,
@@ -15,6 +16,12 @@ from pythonwhat.checks.has_funcs import (
 from pythonwhat.checks.check_has_context import has_context
 from functools import partial
 from pythonwhat import utils
+
+# this is done by the chain for v2
+# it's only needed when a new state is created and (possibly) used elsewhere
+check_node = link_to_state(check_node)
+check_part = link_to_state(check_part)
+check_part_index = link_to_state(check_part_index)
 
 
 def test_if_else(state, index=1, test=None, body=None, orelse=None):

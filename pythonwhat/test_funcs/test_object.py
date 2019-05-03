@@ -1,6 +1,13 @@
+from protowhat.sct_syntax import link_to_state
 from pythonwhat.tasks import getColumnsInProcess
 from pythonwhat.checks.check_object import check_object, check_df, check_keys
 from pythonwhat.checks.has_funcs import has_equal_value
+
+# this is done by the chain for v2
+# it's only needed when a new state is created and (possibly) used elsewhere
+check_object = link_to_state(check_object)
+check_df = link_to_state(check_df)
+check_keys = link_to_state(check_keys)
 
 
 def test_object(

@@ -1,9 +1,15 @@
 from functools import partial
+
+from protowhat.sct_syntax import link_to_state
 from pythonwhat.checks.check_function import check_function
 from protowhat.Feedback import InstructorError
 from protowhat.Test import TestFail
 from pythonwhat.checks.check_funcs import check_args
 from pythonwhat.checks.has_funcs import has_equal_value, has_equal_ast, has_printout
+
+# this is done by the chain for v2
+# it's only needed when a new state is created and (possibly) used elsewhere
+check_function = link_to_state(check_function)
 
 
 def arg_test(state, name, do_eval, missing_msg, incorrect_msg):
