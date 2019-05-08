@@ -239,7 +239,7 @@ args_string = """
           {0} of an object after executing the body of e.g. a ``for`` loop.
         copy (bool): whether to try to deep copy objects in the environment, such as lists, that could
           accidentally be mutated. Disable to speed up SCTs. Disabling may lead to cryptic mutation issues.
-        func: custom binary function of form f(stu_result, sol_result), for equality testing.
+        func (function): custom binary function of form f(stu_result, sol_result), for equality testing.
         override: If specified, this avoids the execution of the targeted code in the solution process. Instead, it
           will compare the {0} of the expression in the student process with the value specified in ``override``.
           Typically used in a ``SingleProcessExercise`` or if you want to allow for different solutions other than
