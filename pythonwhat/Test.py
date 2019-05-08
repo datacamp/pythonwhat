@@ -96,7 +96,7 @@ class EqualTest(Test):
         """
         Perform the actual test. result is set to False if the objects differ, True otherwise.
         """
-        self.result = self.func(self.obj1, self.obj2)
+        self.result = np.all(self.func(self.obj1, self.obj2))
 
 
 # Helpers for testing equality
