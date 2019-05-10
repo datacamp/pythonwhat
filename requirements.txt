@@ -1,5 +1,5 @@
 # pythonwhat deps
-protowhat~=1.7.0
+protowhat~=1.8.0
 asttokens~=1.1.10
 dill~=0.2.7.1
 markdown2~=2.3.5
