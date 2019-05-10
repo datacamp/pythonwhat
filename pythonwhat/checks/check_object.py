@@ -16,9 +16,7 @@ import pandas as pd
 import ast
 
 
-def check_object(
-    state, index, missing_msg=None, expand_msg=None, typestr="variable"
-):
+def check_object(state, index, missing_msg=None, expand_msg=None, typestr="variable"):
     """Check object existence (and equality)
 
     Check whether an object is defined in the student's process, and zoom in on its value in both
@@ -181,8 +179,12 @@ def check_object(
 
     # create child state, using either parser output, or create part from name
     fallback = lambda: ObjectAssignmentParser.get_part(index)
-    stu_part = state.ast_dispatcher.find("object_assignments", state.student_ast).get(index, fallback())
-    sol_part = state.ast_dispatcher.find("object_assignments", state.solution_ast).get(index, fallback())
+    stu_part = state.ast_dispatcher.find("object_assignments", state.student_ast).get(
+        index, fallback()
+    )
+    sol_part = state.ast_dispatcher.find("object_assignments", state.solution_ast).get(
+        index, fallback()
+    )
 
     # test object exists
     _msg = state.build_message(missing_msg, append_message["kwargs"])
@@ -242,9 +244,7 @@ def is_instance(state, inst, not_instance_msg=None):
     return state
 
 
-def check_df(
-    state, index, missing_msg=None, not_instance_msg=None, expand_msg=None
-):
+def check_df(state, index, missing_msg=None, not_instance_msg=None, expand_msg=None):
     """Check whether a DataFrame was defined and it is the right type
 
     ``check_df()`` is a combo of ``check_object()`` and ``is_instance()`` that checks whether the specified object exists

@@ -1,9 +1,18 @@
-from protowhat.checks.check_logic import multi, check_not, check_or, check_correct, disable_highlighting, fail
+from protowhat.checks.check_logic import (
+    multi,
+    check_not,
+    check_or,
+    check_correct,
+    disable_highlighting,
+    fail,
+)
 from protowhat.Feedback import InstructorError
 import ast
 
 
-multi.__doc__ = str(multi.__doc__) + """
+multi.__doc__ = (
+    str(multi.__doc__)
+    + """
     :Example:
 
         Suppose we want to verify the following function call: ::
@@ -18,9 +27,12 @@ multi.__doc__ = str(multi.__doc__) + """
                 check_args('ndigits').has_equal_value()
             )
     """
+)
 
 
-check_not.__doc__ = str(check_not.__doc__) + """
+check_not.__doc__ = (
+    str(check_not.__doc__)
+    + """
     :Example:
         The SCT fails with feedback for a specific incorrect value, defined using an override: ::
 
@@ -52,9 +64,12 @@ check_not.__doc__ = str(check_not.__doc__) + """
         - This function can be considered a direct counterpart of multi.
 
     """
+)
 
 
-check_or.__doc__ = str(check_or.__doc__) + """
+check_or.__doc__ = (
+    str(check_or.__doc__)
+    + """
     :Example:
 
         The SCT below tests that the student typed either 'mean' or 'median': ::
@@ -68,9 +83,12 @@ check_or.__doc__ = str(check_or.__doc__) + """
         the first SCT, will be presented to the student.
 
     """
+)
 
 
-check_correct.__doc__ = str(check_correct.__doc__) + """
+check_correct.__doc__ = (
+    str(check_correct.__doc__)
+    + """
     :Example:
 
         The SCT below tests whether an object is correct. Only if the object is not correct, will
@@ -82,12 +100,15 @@ check_correct.__doc__ = str(check_correct.__doc__) + """
             )
 
     """
+)
 
 
 # utility functions -----------------------------------------------------------
 
 
-fail.__doc__ = str(fail.__doc__) + """
+fail.__doc__ = (
+    str(fail.__doc__)
+    + """
     :Example:
     
         As a trivial SCT example, ::
@@ -96,6 +117,7 @@ fail.__doc__ = str(fail.__doc__) + """
 
         This can also be helpful for debugging SCTs, as it can be used to stop testing as a given point.
     """
+)
 
 
 def override(state, solution):
@@ -271,7 +293,9 @@ def set_env(state, **kwargs):
     )
 
 
-disable_highlighting.__doc__ = str(disable_highlighting.__doc__) + """
+disable_highlighting.__doc__ = (
+    str(disable_highlighting.__doc__)
+    + """
     :Examples:
 
         SCT that will mark the 'number' portion if it is incorrect::
@@ -284,3 +308,4 @@ disable_highlighting.__doc__ = str(disable_highlighting.__doc__) + """
             Ex().check_function('round').disable_highlighting().check_args(0).has_equal_ast()
             Ex().check_function('round').check_args(0).disable_highlighting().has_equal_ast()
     """
+)

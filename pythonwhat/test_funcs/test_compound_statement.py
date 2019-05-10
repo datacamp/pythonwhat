@@ -292,9 +292,7 @@ def test_function_definition(
     """
 
     # what the function will be referred to as
-    child = check_node(
-        state, "function_defs", name, "definition of `{{index}}()`"
-    )
+    child = check_node(state, "function_defs", name, "definition of `{{index}}()`")
 
     test_args(
         child, arg_names, arg_defaults, nb_args_msg, arg_names_msg, arg_defaults_msg
@@ -339,7 +337,7 @@ def test_function_definition(
 
 
 def test_args(
-        state, arg_names, arg_defaults, nb_args_msg, arg_names_msg, arg_defaults_msg
+    state, arg_names, arg_defaults, nb_args_msg, arg_names_msg, arg_defaults_msg
 ):
 
     MSG_NUM_ARGS = "You should define {{parent[typestr]}} with {{sol_len}} arguments, instead got {{stu_len}}."
@@ -446,7 +444,11 @@ def test_object_after_expression(
     pre_code=None,
     **kwargs
 ):
-    state.highlight = state.ast_dispatcher.find("object_assignments", state.student_ast).get(name, {}).get("highlight")
+    state.highlight = (
+        state.ast_dispatcher.find("object_assignments", state.student_ast)
+        .get(name, {})
+        .get("highlight")
+    )
     has_equal_value(
         state,
         incorrect_msg=incorrect_msg,
@@ -496,9 +498,7 @@ with open_file('...') as file:
     if context_vals:
         # test context var names ----
         has_context(
-            child,
-            incorrect_msg=context_vals_msg or MSG_CTXT_NAMES,
-            exact_names=True,
+            child, incorrect_msg=context_vals_msg or MSG_CTXT_NAMES, exact_names=True
         )
 
         # test num context vars ----
@@ -511,7 +511,8 @@ with open_file('...') as file:
     for i, context_test in enumerate(context_tests or []):
         # partial the substate check, because the function uses two prepended messages
         def check_context(state):
-            return check_part_index(state,
+            return check_part_index(
+                state,
                 "context",
                 i,
                 "%s context" % utils.get_ord(i + 1),
@@ -543,8 +544,8 @@ def test_list_comp(
 ):
     """Test list comprehension."""
     kwargs = locals().copy()
-    kwargs['typestr'] = "{{ordinal}} list comprehension"
-    kwargs['comptype'] = "list_comps"
+    kwargs["typestr"] = "{{ordinal}} list comprehension"
+    kwargs["comptype"] = "list_comps"
     test_comp(**kwargs)
 
 
@@ -574,9 +575,7 @@ def test_comp(
         insufficient_ifs_msg = MSG_INSUFFICIENT_IFS
 
     # get comprehension
-    child = check_node(
-        state, comptype, index - 1, typestr, missing_msg=not_called_msg
-    )
+    child = check_node(state, comptype, index - 1, typestr, missing_msg=not_called_msg)
 
     # test comprehension iter and its variable names (or number of variables)
     if comp_iter:
@@ -601,7 +600,4 @@ def test_comp(
         # test that ifs are same length
         has_equal_part_len(child, "ifs", insufficient_ifs_msg)
         # test individual ifs
-        multi(
-            check_part_index(child, "ifs", i, utils.get_ord(i + 1) + " if"),
-            if_test,
-        )
+        multi(check_part_index(child, "ifs", i, utils.get_ord(i + 1) + " if"), if_test)

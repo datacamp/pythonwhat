@@ -135,9 +135,7 @@ def test_function_v2(
     eligible = do_eval[0] if isinstance(do_eval, list) and len(do_eval) > 0 else do_eval
     if name == "print" and state.parent_state is None and eligible:
         try:
-            return has_printout(
-                state, index=index, not_printed_msg=incorrect_msg[0]
-            )
+            return has_printout(state, index=index, not_printed_msg=incorrect_msg[0])
         except TestFail:
             # The test didn't pass; just continue with the more strict check_function test.
             pass

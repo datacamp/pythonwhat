@@ -4,10 +4,10 @@ import pytest
 import tests.helper as helper
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 def log_calls():
     yield
-    print('Output test data')
+    print("Output test data")
     with open("docs/test_data.json", "w") as write_file:
         json.dump(helper.test_data, write_file)
 
