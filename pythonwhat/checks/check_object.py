@@ -4,8 +4,7 @@ from pythonwhat.Test import (
     InstanceProcessTest,
     DefinedCollProcessTest,
 )
-from protowhat.Feedback import InstructorError
-from pythonwhat.Feedback import Feedback
+from protowhat.Feedback import Feedback, InstructorError
 from pythonwhat.tasks import (
     isDefinedInProcess,
     isInstanceInProcess,

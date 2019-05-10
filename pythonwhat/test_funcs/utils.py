@@ -1,9 +1,7 @@
 import ast
 
-from protowhat.Feedback import InstructorError
-from pythonwhat.Feedback import Feedback
+from protowhat.Feedback import Feedback, InstructorError
 from pythonwhat.Test import EqualTest
-from pythonwhat.checks.check_funcs import StubState
 from pythonwhat.checks.has_funcs import evalCalls
 from pythonwhat.tasks import ReprFail
 
@@ -130,10 +128,10 @@ def call(
 
     # either error test and no error, or vice-versa
     stu_node = state.student_parts["node"]
-    stu_state = StubState(stu_node, state.highlighting_disabled)
+    stu_state = state.to_child(highlight=stu_node)
     if (test == "error") ^ isinstance(eval_stu, Exception):
         _msg = state.build_message(error_msg, fmt_kwargs)
-        state.report(Feedback(_msg, stu_state))
+        stu_state.report(_msg)
 
     # incorrect result
     _msg = state.build_message(incorrect_msg, fmt_kwargs)

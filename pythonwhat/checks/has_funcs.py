@@ -10,8 +10,7 @@ from pythonwhat.tasks import (
 )
 from protowhat.Test import Test
 from pythonwhat.Test import EqualTest, DefinedCollTest
-from protowhat.Feedback import InstructorError
-from pythonwhat.Feedback import Feedback
+from protowhat.Feedback import Feedback, InstructorError
 from pythonwhat import utils
 from functools import partial
 import re
@@ -53,7 +52,7 @@ def has_part(state, name, msg, fmt_kwargs=None, index=None):
     try:
         verify(state.student_parts[name], index)
     except (KeyError, IndexError):
-        state.report(Feedback(_msg, state))
+        state.report(_msg)
 
     return state
 
@@ -101,7 +100,7 @@ def has_equal_part_len(state, name, unequal_msg):
 
     if d["stu_len"] != d["sol_len"]:
         _msg = state.build_message(unequal_msg, d)
-        state.report(Feedback(_msg, state))
+        state.report(_msg)
 
     return state
 
@@ -195,7 +194,7 @@ def has_equal_ast(state, incorrect_msg=None, code=None, exact=True, append=None)
     if exact and not code:
         state.do_test(EqualTest(stu_rep, sol_rep, Feedback(_msg, state)))
     elif not sol_rep in stu_rep:
-        state.report(Feedback(_msg, state))
+        state.report(_msg)
 
     return state
 
@@ -347,13 +346,12 @@ def has_expr(
     if (test == "error") ^ isinstance(eval_stu, Exception):
         fmt_kwargs["stu_str"] = str_stu
         _msg = state.build_message(error_msg, fmt_kwargs, append=append)
-        feedback = Feedback(_msg, state)
-        state.report(feedback)
+        state.report(_msg)
 
     # name is undefined after running expression
     if isinstance(eval_stu, UndefinedValue):
         _msg = state.build_message(undefined_msg, fmt_kwargs, append=append)
-        state.report(Feedback(_msg, state))
+        state.report(_msg)
 
     # test equality of results
     _msg = state.build_message(incorrect_msg, fmt_kwargs, append=append)
@@ -755,7 +753,7 @@ def has_no_error(
         _msg = state.build_message(
             incorrect_msg, {"error": str(state.reporter.errors[0])}
         )
-        state.report(Feedback(_msg, state))
+        state.report(_msg)
 
     return state
 

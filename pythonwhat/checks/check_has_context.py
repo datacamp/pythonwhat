@@ -1,6 +1,5 @@
 from pythonwhat.Test import EqualTest
-from protowhat.Feedback import InstructorError
-from pythonwhat.Feedback import Feedback
+from protowhat.Feedback import Feedback, InstructorError
 from pythonwhat.State import State
 from functools import singledispatch
 from pythonwhat.checks.check_funcs import check_part_index

@@ -1,9 +1,7 @@
-from pythonwhat.checks.check_funcs import part_to_child, StubState
+from pythonwhat.checks.check_funcs import part_to_child
 from pythonwhat.tasks import getSignatureInProcess
 from pythonwhat.utils import get_ord, get_times
-from protowhat.Test import Test
 from protowhat.Feedback import InstructorError
-from pythonwhat.Feedback import Feedback
 from pythonwhat.parsing import IndexedDict
 from functools import partial
 
@@ -131,7 +129,7 @@ def check_function(
         stu_parts = {**stu_out[name][index]}
     except (KeyError, IndexError):
         _msg = state.build_message(missing_msg, fmt_kwargs, append=append_missing)
-        state.report(Feedback(_msg, state))
+        state.report(_msg)
 
     # Signatures -----
     if signature:
@@ -163,11 +161,7 @@ def check_function(
             _msg = state.build_message(
                 params_not_matched_msg, fmt_kwargs, append=append_params_not_matched
             )
-            state.report(
-                Feedback(
-                    _msg, StubState(stu_parts["node"], state.highlighting_disabled)
-                )
-            )
+            state.to_child(highlight=stu_parts["node"]).report(_msg)
 
     # three types of parts: pos_args, keywords, args (e.g. these are bound to sig)
     append_message = {"msg": expand_msg, "kwargs": fmt_kwargs}
