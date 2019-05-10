@@ -12,5 +12,5 @@ def test_pec_parsing_error():
             student_process=None,
             solution_process=None,
             reporter=None,
-            raw_student_output=None
+            raw_student_output=None,
         )

@@ -61,7 +61,8 @@ class Tree(object):
         # dict(getattr(s.data.get("bound_args", {}), 'arguments', {}))
         f = node.data.get("func")
         this_node = (
-            "  " * node.depth + "("
+            "  " * node.depth
+            + "("
             + getattr(f, "__name__", node.name)
             + str_func(node)
             + ")\n"
@@ -112,7 +113,9 @@ class Node(object):
             return ba.arguments["state"]
 
     def __str__(self):
-        return pp.pformat(dict(getattr(self.data.get("bound_args", {}), 'arguments', {})))
+        return pp.pformat(
+            dict(getattr(self.data.get("bound_args", {}), "arguments", {}))
+        )
 
     def __iter__(self):
         for c in self.child_list:
@@ -187,7 +190,7 @@ class Probe(object):
         """
         if (len(args) > 0 and not isinstance(args[0], State)) or len(args) == 0:
             # no state placeholder if a state is passed
-            args = ['state_placeholder'] + list(args)
+            args = ["state_placeholder"] + list(args)
 
         bound_args = inspect.signature(self.f).bind(*args, **kwargs)
 
@@ -200,7 +203,9 @@ class Probe(object):
         arguments = bound_args.arguments
         for subtest in self.sub_tests:  # TODO: auto sub test detection
             if subtest in arguments and arguments[subtest]:
-                self.build_sub_test_nodes(arguments[subtest], self.tree, this_node, subtest)
+                self.build_sub_test_nodes(
+                    arguments[subtest], self.tree, this_node, subtest
+                )
 
         # Second pass to build node and all its children into a subtest
         for node in this_node.descend(include_me=True):

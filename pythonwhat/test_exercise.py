@@ -43,7 +43,7 @@ def test_exercise(
             solution_process=check_process(solution_process),
             raw_student_output=check_str(raw_student_output),
             force_diagnose=force_diagnose,
-            reporter=Reporter(errors=[error] if error else [])
+            reporter=Reporter(errors=[error] if error else []),
         )
 
         State.root_state = state

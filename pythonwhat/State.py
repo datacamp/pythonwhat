@@ -210,8 +210,7 @@ class State(ProtoState):
             e.filename = "script.py"
             # no line info for now
             self.report(
-                "Your code can not be executed due to a syntax error:<br>`%s.`"
-                % str(e)
+                "Your code can not be executed due to a syntax error:<br>`%s.`" % str(e)
             )
 
         # Can happen, can't catch this earlier because we can't differentiate between
@@ -258,12 +257,10 @@ class Dispatcher(DispatcherInterface):
         self._parser_cache = dict()
         context_ast = getattr(self._context_cache, context_code, None)
         if context_ast is None:
-            context_ast = self._context_cache[context_code] = self.parse(
-                context_code
-            )[1]
-        self.context_mappings = self._getx(
-            FunctionParser, "mappings", context_ast
-        )
+            context_ast = self._context_cache[context_code] = self.parse(context_code)[
+                1
+            ]
+        self.context_mappings = self._getx(FunctionParser, "mappings", context_ast)
 
     def find(self, name, node, *args, **kwargs):
         return getattr(self, name)(node)

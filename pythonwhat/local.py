@@ -38,7 +38,7 @@ def setup_state(stu_code="", sol_code="", pec="", pid=None):
         student_process=stu_process,
         solution_process=sol_process,
         raw_student_output=raw_stu_output,
-        reporter=Reporter()
+        reporter=Reporter(),
     )
 
     State.root_state = state
