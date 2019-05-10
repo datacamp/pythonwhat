@@ -2,6 +2,11 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.20.0
+
+- Expose `_debug` function
+- Update protowhat
+
 ## 2.19.0
 
 - `state` is now the first argument to SCT functions (instead of a keyword argument)
