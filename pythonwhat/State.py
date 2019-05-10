@@ -8,7 +8,6 @@ from pythonwhat.parsing import (
 from protowhat.State import State as ProtoState
 from protowhat.selectors import DispatcherInterface
 from protowhat.Feedback import InstructorError
-from pythonwhat.Feedback import Feedback
 from pythonwhat import signatures
 from pythonwhat.converters import get_manual_converters
 from collections.abc import Mapping
@@ -203,26 +202,22 @@ class State(ProtoState):
             e.filename = "script.py"
             # no line info for now
             self.report(
-                Feedback(
-                    "Your code could not be parsed due to an error in the indentation:<br>`%s.`"
-                    % str(e)
-                )
+                "Your code could not be parsed due to an error in the indentation:<br>`%s.`"
+                % str(e)
             )
 
         except SyntaxError as e:
             e.filename = "script.py"
             # no line info for now
             self.report(
-                Feedback(
-                    "Your code can not be executed due to a syntax error:<br>`%s.`"
-                    % str(e)
-                )
+                "Your code can not be executed due to a syntax error:<br>`%s.`"
+                % str(e)
             )
 
         # Can happen, can't catch this earlier because we can't differentiate between
         # TypeError in parsing or TypeError within code (at runtime).
         except:
-            self.report(Feedback("Something went wrong while parsing your code."))
+            self.report("Something went wrong while parsing your code.")
 
         return res
 

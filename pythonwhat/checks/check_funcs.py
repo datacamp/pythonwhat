@@ -1,8 +1,6 @@
 from pythonwhat.checks.check_logic import multi
 from pythonwhat.checks.has_funcs import has_part
-from protowhat.Test import Test
 from protowhat.Feedback import InstructorError
-from pythonwhat.Feedback import Feedback
 from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
 from pythonwhat.utils import get_ord
 from pythonwhat.utils_ast import assert_ast
@@ -12,12 +10,6 @@ from jinja2 import Template
 
 def render(template, kwargs):
     return Template(template).render(**kwargs)
-
-
-class StubState:
-    def __init__(self, highlight, highlighting_disabled):
-        self.highlight = highlight
-        self.highlighting_disabled = highlighting_disabled
 
 
 def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
@@ -139,7 +131,7 @@ def check_node(
         stu_out[index]
     except (KeyError, IndexError):  # TODO comment errors
         _msg = state.build_message(missing_msg, fmt_kwargs)
-        state.report(Feedback(_msg, state))
+        state.report(_msg)
 
     # get node at index
     stu_part = stu_out[index]
@@ -167,20 +159,14 @@ def with_context(state, *args, child=None):
         process=state.student_process, context=state.student_parts["with_items"]
     )
     if isinstance(student_res, AttributeError):
-        state.report(
-            Feedback(
-                "In your `with` statement, you're not using a correct context manager.",
-                child.highlight,  # TODO
-            )
+        child.report(
+            "In your `with` statement, you're not using a correct context manager."
         )
 
     if isinstance(student_res, (AssertionError, ValueError, TypeError)):
-        state.report(
-            Feedback(
-                "In your `with` statement, the number of values in your context manager "
-                "doesn't correspond to the number of variables you're trying to assign it to.",
-                child.highlight,
-            )
+        child.report(
+            "In your `with` statement, the number of values in your context manager "
+            "doesn't correspond to the number of variables you're trying to assign it to."
         )
 
     # run subtests
@@ -200,11 +186,8 @@ def with_context(state, *args, child=None):
         close_student_context = breakDownNewEnvInProcess(process=state.student_process)
         if isinstance(close_student_context, Exception):
             state.report(
-                Feedback(
-                    "Your `with` statement can not be closed off correctly, you're "
-                    + "not using the context manager correctly.",
-                    state,
-                )
+                "Your `with` statement can not be closed off correctly, you're "
+                "not using the context manager correctly."
             )
     return state
 
