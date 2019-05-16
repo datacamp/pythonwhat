@@ -368,7 +368,8 @@ def taskRunEval(
             mode = "exec"
         else:
             mode = "eval"
-            tree = ast.Expression(tree)
+            if not isinstance(tree, (ast.Module, ast.Expression, ast.Expr)):
+                tree = ast.Expression(tree)
 
         # Expression code takes precedence over tree code
         if expr_code:
@@ -379,8 +380,12 @@ def taskRunEval(
 
         # Set up environment --------------------------------------------------
         # avoid deepy copy if specified, or just looking up variable by name
+        if isinstance(tree, ast.Module):
+            tree = tree.body
         if isinstance(tree, ast.Expression):
             tree = tree.body
+        if isinstance(tree, ast.Expr):
+            tree = tree.value
         if not copy or (
             isinstance(tree, (ast.Name, ast.Subscript))
             and isinstance(tree.ctx, ast.Load)
