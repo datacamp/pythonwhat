@@ -379,7 +379,8 @@ def taskRunEval(
             code = compile(tree, "<script>", mode)
 
         # Set up environment --------------------------------------------------
-        # avoid deepy copy if specified, or just looking up variable by name
+        # avoid deep copy if specified, or if just looking up variable by name
+        # unpack 'container nodes' first
         if isinstance(tree, ast.Module):
             tree = tree.body
         if isinstance(tree, ast.Expression):
