@@ -368,7 +368,8 @@ def taskRunEval(
             mode = "exec"
         else:
             mode = "eval"
-            tree = ast.Expression(tree)
+            if not isinstance(tree, (ast.Module, ast.Expression, ast.Expr)):
+                tree = ast.Expression(tree)
 
         # Expression code takes precedence over tree code
         if expr_code:
@@ -378,9 +379,14 @@ def taskRunEval(
             code = compile(tree, "<script>", mode)
 
         # Set up environment --------------------------------------------------
-        # avoid deepy copy if specified, or just looking up variable by name
+        # avoid deep copy if specified, or if just looking up variable by name
+        # unpack 'container nodes' first
+        if isinstance(tree, ast.Module):
+            tree = tree.body
         if isinstance(tree, ast.Expression):
             tree = tree.body
+        if isinstance(tree, ast.Expr):
+            tree = tree.value
         if not copy or (
             isinstance(tree, (ast.Name, ast.Subscript))
             and isinstance(tree.ctx, ast.Load)
