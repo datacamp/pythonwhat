@@ -2,7 +2,7 @@
 protowhat~=1.8.1
 asttokens~=1.1.10
 dill~=0.2.7.1
-markdown2~=2.3.5
+markdown2~=2.3.7
 jinja2~=2.10
 
 numpy~=1.14.2
