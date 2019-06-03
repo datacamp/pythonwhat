@@ -86,10 +86,11 @@ class State(ProtoState):
 
         self.ast_dispatcher = self.get_dispatcher()
 
-        # parse code if didn't happen yet
-        if student_ast is None:
+        # Parse solution and student code
+        # if possible, not done yet and wanted (ast arguments not False)
+        if isinstance(self.student_code, str) and student_ast is None:
             self.student_ast = self.parse(student_code)
-        if solution_ast is None:
+        if isinstance(self.solution_code, str) and solution_ast is None:
             self.solution_ast = self.parse(solution_code, test=False)
 
         if highlight is None:  # todo: check parent_state? (move check to reporting?)
@@ -123,41 +124,36 @@ class State(ProtoState):
 
         kwargs["messages"] = [*self.messages, append_message]
 
-        for kwarg in ["solution_context", "student_context"]:
-            if kwarg in kwargs and not kwargs[kwarg]:
-                kwargs.pop(kwarg, None)
-
         def update_kwarg(name, func):
             kwargs[name] = func(kwargs[name])
 
         def update_context(name):
             update_kwarg(name, getattr(self, name).update_ctx)
 
-        if isinstance(kwargs.get("student_ast", None), list):
-            update_kwarg("student_ast", wrap_in_module)
-        if isinstance(kwargs.get("solution_ast", None), list):
-            update_kwarg("solution_ast", wrap_in_module)
+        for ast_arg in ["student_ast", "solution_ast"]:
+            if isinstance(kwargs.get(ast_arg), list):
+                update_kwarg(ast_arg, wrap_in_module)
 
-        if "student_ast" in kwargs:
+        if kwargs.get("student_ast") and kwargs.get("student_code") is None:
             kwargs["student_code"] = self.student_ast_tokens.get_text(
                 kwargs["student_ast"]
             )
-        if "solution_ast" in kwargs:
+        if kwargs.get("solution_ast") and kwargs.get("solution_code") is None:
             kwargs["solution_code"] = self.solution_ast_tokens.get_text(
                 kwargs["solution_ast"]
             )
 
-        # get new contexts
-        if "solution_context" in kwargs:
-            update_context("solution_context")
-        if "student_context" in kwargs:
-            update_context("student_context")
-
-        # get new envs
-        if "solution_env" in kwargs:
-            update_context("solution_env")
-        if "student_env" in kwargs:
-            update_context("student_env")
+        for context in [
+            "student_context",
+            "solution_context",
+            "student_env",
+            "solution_env",
+        ]:
+            if context in kwargs:
+                if kwargs[context] is not None:
+                    update_context(context)
+                else:
+                    kwargs.pop(context)
 
         klass = self.SUBCLASSES[node_name] if node_name else State
         child = klass(**{**base_kwargs, **kwargs})
