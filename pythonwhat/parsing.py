@@ -816,7 +816,7 @@ class TryExceptParser(Parser):
                     handlers[el.id] = self.parse_handler(handler)
             else:
                 # either general handler, or single error handler
-                k = "all" if not handler.type else handler.type.id
+                k = "all" if not handler.type else self.get_identifier(handler.type)
                 handlers[k] = self.parse_handler(handler)
 
         self.out.append(
@@ -828,6 +828,18 @@ class TryExceptParser(Parser):
                 "handlers": handlers,
             }
         )
+
+    @staticmethod
+    def get_identifier(obj):
+        # if only name needs to be correct
+        return getattr(obj, "id", None) or getattr(obj, "attr")
+        # if full attr chain must match
+        # name = ""
+        # while hasattr(obj, "attr"):
+        #     name = "." + obj.attr + name
+        #     obj = obj.value
+        # name = obj.id + name
+        # return name
 
     @staticmethod
     def parse_handler(handler):
