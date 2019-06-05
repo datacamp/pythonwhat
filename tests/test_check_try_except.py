@@ -11,10 +11,12 @@ try:
     x = max([1, 2, 'a'])
 except TypeError as e:
     x = 'typeerror'
-except ValueError:
+except __builtin__.ValueError:
     x = 'valueerror'
 except (ZeroDivisionError, IOError) as e:
     x = e
+except pd.io.common.CParserError:
+    x = 'CParserError'
 except :
     x = 'someerror'
 else :
@@ -29,6 +31,7 @@ Ex().check_try_except().multi(
     check_handlers('ValueError').has_equal_value(name = 'x'),
     check_handlers('ZeroDivisionError').set_context(e = 'anerror').has_equal_value(name = 'x'),
     check_handlers('IOError').set_context(e = 'anerror').has_equal_value(name = 'x'),
+    check_handlers('CParserError').has_equal_value(name = 'x'),
     check_handlers('all').has_equal_value(name = 'x'),
     check_orelse().has_equal_value(name = 'passed'),
     check_finalbody().check_function('print').check_args(0).has_equal_value()
@@ -199,9 +202,8 @@ except (ZeroDivisionError, IOError) as e:
     assert not sct_payload["correct"]
     assert (
         sct_payload["message"]
-        == "Check the first try statement. Are you sure you defined the <code>all</code> <code>except</code> block?"
+        == "Check the first try statement. Are you sure you defined the <code>CParserError</code> <code>except</code> block?"
     )
-
 
 def test_fail_10(data):
     data[
@@ -215,14 +217,14 @@ except ValueError:
     x = 'valueerror'
 except (ZeroDivisionError, IOError) as e:
     x = e
-except :
-    x = 'someerrors'
-    """
+except pd.io.common.CParserError as e:
+    x = 'CParserError'
+        """
     sct_payload = helper.run(data)
     assert not sct_payload["correct"]
     assert (
         sct_payload["message"]
-        == "Check the first try statement. Did you correctly specify the <code>all</code> <code>except</code> block? Are you sure you assigned the correct value to <code>x</code>?"
+        == "Check the first try statement. Are you sure you defined the <code>all</code> <code>except</code> block?"
     )
 
 
@@ -238,14 +240,16 @@ except ValueError:
     x = 'valueerror'
 except (ZeroDivisionError, IOError) as e:
     x = e
+except pd.io.common.CParserError as e:
+    x = 'CParserError'
 except :
-    x = 'someerror'
-        """
+    x = 'someerrors'
+    """
     sct_payload = helper.run(data)
     assert not sct_payload["correct"]
     assert (
         sct_payload["message"]
-        == "Check the first try statement. Are you sure you defined the else part?"
+        == "Check the first try statement. Did you correctly specify the <code>all</code> <code>except</code> block? Are you sure you assigned the correct value to <code>x</code>?"
     )
 
 
@@ -261,16 +265,16 @@ except ValueError:
     x = 'valueerror'
 except (ZeroDivisionError, IOError) as e:
     x = e
+except pd.io.common.CParserError as e:
+    x = 'CParserError'
 except :
     x = 'someerror'
-else :
-    passed = False
         """
     sct_payload = helper.run(data)
     assert not sct_payload["correct"]
     assert (
         sct_payload["message"]
-        == "Check the first try statement. Did you correctly specify the else part? Are you sure you assigned the correct value to <code>passed</code>?"
+        == "Check the first try statement. Are you sure you defined the else part?"
     )
 
 
@@ -286,16 +290,18 @@ except ValueError:
     x = 'valueerror'
 except (ZeroDivisionError, IOError) as e:
     x = e
+except pd.io.common.CParserError as e:
+    x = 'CParserError'
 except :
     x = 'someerror'
 else :
-    passed = True
-    """
+    passed = False
+        """
     sct_payload = helper.run(data)
     assert not sct_payload["correct"]
     assert (
         sct_payload["message"]
-        == "Check the first try statement. Are you sure you defined the finally part?"
+        == "Check the first try statement. Did you correctly specify the else part? Are you sure you assigned the correct value to <code>passed</code>?"
     )
 
 
@@ -311,6 +317,35 @@ except ValueError:
     x = 'valueerror'
 except (ZeroDivisionError, IOError) as e:
     x = e
+except pd.io.common.CParserError as e:
+    x = 'CParserError'
+except :
+    x = 'someerror'
+else :
+    passed = True
+    """
+    sct_payload = helper.run(data)
+    assert not sct_payload["correct"]
+    assert (
+        sct_payload["message"]
+        == "Check the first try statement. Are you sure you defined the finally part?"
+    )
+
+
+def test_fail_15(data):
+    data[
+        "DC_CODE"
+    ] = """
+try:
+    x = max([1, 2, 'a'])
+except TypeError as e:
+    x = 'typeerror'
+except ValueError:
+    x = 'valueerror'
+except (ZeroDivisionError, IOError) as e:
+    x = e
+except pd.io.common.CParserError as e:
+    x = 'CParserError'
 except :
     x = 'someerror'
 else :
