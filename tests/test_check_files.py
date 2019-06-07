@@ -1,8 +1,11 @@
+import tempfile
 from tempfile import NamedTemporaryFile
 
 import pytest
 import tests.helper as helper
 from protowhat.sct_syntax import F
+from pythonwhat.local import ChDir
+from protowhat.Test import TestFail as TF
 
 from pythonwhat.test_exercise import setup_state
 from protowhat.checks import check_files as cf
@@ -86,3 +89,34 @@ def test_file_content(temp_file):
     chain.check_file(
         temp_file.name, parse=False, solution_code=expected_content
     ).has_code(expected_content)
+
+
+def test_running_file(temp_py_file):
+    content = cf.get_file_content(temp_py_file.name)
+    chain = setup_state("", "", pec="")
+
+    with tempfile.TemporaryDirectory() as d:
+        with ChDir(d):
+            chain.check_file(
+                temp_py_file.name, solution_code=content
+            ).run().has_equal_value(expr_code="a")
+
+    with pytest.raises(TF):
+        with tempfile.TemporaryDirectory() as d:
+            with ChDir(d):
+                chain.check_file(
+                    temp_py_file.name, solution_code=content.replace("1", "2")
+                ).run().has_equal_value(expr_code="a")
+
+    with tempfile.TemporaryDirectory() as d:
+        with ChDir(d):
+            chain.check_file(temp_py_file.name).run().has_equal_value(
+                expr_code="a", override=1
+            )
+
+    with pytest.raises(TF):
+        with tempfile.TemporaryDirectory() as d:
+            with ChDir(d):
+                chain.check_file(temp_py_file.name).run().has_equal_value(
+                    expr_code="a", override=2
+                )

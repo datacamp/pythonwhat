@@ -4,7 +4,7 @@ import inspect
 from collections import defaultdict
 from functools import wraps
 
-from pythonwhat.local import StubProcess, run_exercise
+from pythonwhat.local import StubProcess, run_exercise, ChDir
 from contextlib import contextmanager
 from protowhat.Test import TestFail as TF
 from pythonwhat.test_exercise import test_exercise
@@ -41,22 +41,6 @@ def capture_test_data(f):
 
 
 test_exercise = capture_test_data(test_exercise)
-
-
-class ChDir(object):
-    """
-    Step into a directory temporarily.
-    """
-
-    def __init__(self, path):
-        self.old_dir = os.getcwd()
-        self.new_dir = path
-
-    def __enter__(self):
-        os.chdir(self.new_dir)
-
-    def __exit__(self, *args):
-        os.chdir(self.old_dir)
 
 
 def run(data, run_code=True):
