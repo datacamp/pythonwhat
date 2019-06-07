@@ -1,4 +1,6 @@
 from pythonwhat.State import State
+from pythonwhat.local import run_exercise
+from pythonwhat.sct_syntax import Ex
 from pythonwhat.utils import check_str, check_process
 from pythonwhat.reporter import Reporter
 from protowhat.Test import TestFail
@@ -100,3 +102,22 @@ def prep_context():
 
     cntxt.update(v2_check_functions)
     return tree, cntxt
+
+
+def setup_state(stu_code="", sol_code="", pec="", pid=None):
+    sol_process, stu_process, raw_stu_output, _ = run_exercise(
+        pec, sol_code, stu_code, pid=pid
+    )
+
+    state = State(
+        student_code=stu_code,
+        solution_code=sol_code,
+        pre_exercise_code=pec,
+        student_process=stu_process,
+        solution_process=sol_process,
+        raw_student_output=raw_stu_output,
+        reporter=Reporter(),
+    )
+
+    State.root_state = state
+    return Ex(state)

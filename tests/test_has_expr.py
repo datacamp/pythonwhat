@@ -1,5 +1,5 @@
 import pytest
-from pythonwhat.local import setup_state
+from pythonwhat.test_exercise import setup_state
 from protowhat.Feedback import InstructorError
 import tests.helper as helper
 

@@ -1,7 +1,7 @@
 import pytest
 import tests.helper as helper
 
-from pythonwhat.local import setup_state
+from pythonwhat.test_exercise import setup_state
 from pythonwhat.sct_syntax import v2_check_functions
 
 globals().update(v2_check_functions)

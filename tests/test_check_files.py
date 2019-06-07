@@ -4,7 +4,7 @@ import pytest
 import tests.helper as helper
 from protowhat.sct_syntax import F
 
-from pythonwhat.local import setup_state
+from pythonwhat.test_exercise import setup_state
 from protowhat.checks import check_files as cf
 
 

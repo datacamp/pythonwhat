@@ -1,8 +1,6 @@
 import io
 import random
 
-from pythonwhat.sct_syntax import Ex
-from pythonwhat.State import State
 from pythonwhat.reporter import Reporter
 from contextlib import redirect_stdout
 
@@ -26,23 +24,7 @@ class StubProcess(object):
         return task(self.shell)
 
 
-def setup_state(stu_code="", sol_code="", pec="", pid=None):
-    sol_process, stu_process, raw_stu_output, _ = run_exercise(
-        pec, sol_code, stu_code, pid=pid
-    )
 
-    state = State(
-        student_code=stu_code,
-        solution_code=sol_code,
-        pre_exercise_code=pec,
-        student_process=stu_process,
-        solution_process=sol_process,
-        raw_student_output=raw_stu_output,
-        reporter=Reporter(),
-    )
-
-    State.root_state = state
-    return Ex(state)
 
 
 def run_exercise(pec, sol_code, stu_code, pid=None):

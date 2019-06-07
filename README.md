@@ -34,7 +34,7 @@ _, ctxt = prep_context()
 globals().update(ctxt)
 
 # initialize state with student and solution submission
-from pythonwhat.local import setup_state
+from pythonwhat.test_exercise import setup_state
 setup_state(stu_code = "x = 5", sol_code = "x = 4")
 
 Ex().check_object('x')

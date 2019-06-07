@@ -1,6 +1,6 @@
 import pytest
 import tests.helper as helper
-from pythonwhat.local import setup_state
+from pythonwhat.test_exercise import setup_state
 from protowhat.Test import TestFail as TF
 from protowhat.Feedback import InstructorError
 from pythonwhat.sct_syntax import v2_check_functions
@@ -80,7 +80,7 @@ def test_diff_function_types(fun, code, arg):
 
 
 def test_bind_args():
-    from pythonwhat.local import setup_state
+    from pythonwhat.test_exercise import setup_state
     from inspect import signature
     from pythonwhat.checks.check_function import bind_args
 

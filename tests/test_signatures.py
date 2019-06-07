@@ -1,4 +1,4 @@
-from pythonwhat.local import setup_state
+from pythonwhat.test_exercise import setup_state
 import pytest
 
 # https://docs.python.org/3.x/library/functions.html

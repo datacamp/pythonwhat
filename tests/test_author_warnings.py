@@ -2,7 +2,7 @@ import pytest
 import ast
 import tests.helper as helper
 
-from pythonwhat.local import setup_state
+from pythonwhat.test_exercise import setup_state
 from protowhat.Feedback import InstructorError
 from inspect import signature, Signature, Parameter
 from pythonwhat.checks.check_funcs import assert_ast
