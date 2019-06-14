@@ -158,7 +158,7 @@ def check_object(state, index, missing_msg=None, expand_msg=None, typestr="varia
     # Only do the assertion if PYTHONWHAT_V2_ONLY is set to '1'
     if v2_only():
         extra_msg = "If you want to check the value of an object in e.g. a for loop, use `has_equal_value(name = 'my_obj')` instead."
-        state.assert_root("check_object", extra_msg=extra_msg)
+        state.assert_execution_root("check_object", extra_msg=extra_msg)
 
     if missing_msg is None:
         missing_msg = "Did you define the {{typestr}} `{{index}}` without errors?"

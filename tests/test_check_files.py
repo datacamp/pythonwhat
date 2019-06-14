@@ -17,7 +17,8 @@ def temp_py_file():
         tmp.file.write(
             b"""
 if True:
-    a = 1"""
+    a = 1
+print("Hi!")"""
         )
         tmp.file.flush()
         yield tmp
@@ -85,10 +86,10 @@ def test_file_content(temp_file):
     expected_content = cf.get_file_content(temp_file.name)
     chain = setup_state("", "", pec="")
 
-    chain.check_file(temp_file.name, parse=False).has_code(expected_content)
+    chain.check_file(temp_file.name, parse=False).has_code(expected_content.split("\n")[0])
     chain.check_file(
         temp_file.name, parse=False, solution_code=expected_content
-    ).has_code(expected_content)
+    ).has_code(expected_content.split("\n")[0])
 
 
 def test_running_file(temp_py_file):
@@ -100,6 +101,12 @@ def test_running_file(temp_py_file):
             chain.check_file(
                 temp_py_file.name, solution_code=content
             ).run().has_equal_value(expr_code="a")
+
+    with tempfile.TemporaryDirectory() as d:
+        with ChDir(d):
+            chain.check_file(
+                temp_py_file.name, solution_code=content
+            ).run().check_object("a").has_equal_value()
 
     with pytest.raises(TF):
         with tempfile.TemporaryDirectory() as d:
@@ -120,3 +127,39 @@ def test_running_file(temp_py_file):
                 chain.check_file(temp_py_file.name).run().has_equal_value(
                     expr_code="a", override=2
                 )
+
+
+def test_running_file_with_root_check(temp_py_file):
+    content = cf.get_file_content(temp_py_file.name)
+    chain = setup_state("", "", pec="")
+
+    with tempfile.TemporaryDirectory() as d:
+        with ChDir(d):
+            chain.check_file(
+                temp_py_file.name, solution_code=content
+            ).run().check_object("a").has_equal_value()
+
+    with tempfile.TemporaryDirectory() as d:
+        with ChDir(d):
+            chain.check_file(
+                temp_py_file.name, solution_code=content
+            ).run().has_no_error()
+
+    with tempfile.TemporaryDirectory() as d:
+        with ChDir(d):
+            chain.check_file(
+                temp_py_file.name, solution_code=content
+            ).run().has_printout(0)
+
+    with pytest.raises(TF):
+        with tempfile.TemporaryDirectory() as d:
+            with ChDir(d):
+                chain.check_file(
+                    temp_py_file.name, solution_code="print('Bye!')"
+                ).run().has_printout(0)
+
+    with tempfile.TemporaryDirectory() as d:
+        with ChDir(d):
+            chain.check_file(
+                temp_py_file.name, solution_code=content
+            ).run().has_output("Hi")
