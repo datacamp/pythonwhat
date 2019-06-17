@@ -75,13 +75,20 @@ Loops
 .. autofunction:: pythonwhat.checks.check_wrappers.check_dict_comp
 .. autofunction:: pythonwhat.checks.check_wrappers.check_generator_exp
 
-State Management
+State management
 ----------------
 
 .. autofunction:: pythonwhat.checks.check_logic.override
 .. autofunction:: pythonwhat.checks.check_logic.disable_highlighting
 .. autofunction:: pythonwhat.checks.check_logic.set_context
 .. autofunction:: pythonwhat.checks.check_logic.set_env
+
+Checking files
+--------------
+
+.. autofunction:: pythonwhat.checks.check_wrappers.check_file
+.. autofunction:: pythonwhat.checks.check_wrappers.has_dir
+.. autofunction:: pythonwhat.local.run
 
 Electives
 ---------

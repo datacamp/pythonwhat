@@ -18,6 +18,7 @@ def temp_py_file():
             b"""
 if True:
     a = 1
+
 print("Hi!")"""
         )
         tmp.file.flush()
