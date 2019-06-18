@@ -72,6 +72,7 @@ def run_exercise(pec, sol_code, stu_code, pid=None, sol_wd=None, stu_wd=None):
 
 
 # todo:
+#  imports from local modules (solution needs to be materialised somewhere
 #  converge with xbackend (pythonbackend + look at scalabackend)
 #  move towards xwhat controlling all execution and xbackend providing the execution interface?
 # running with arbitrary wd + path + flags (now only wd) needed?
@@ -83,10 +84,20 @@ def run(state, relative_working_dir="", solution_dir="solution"):
 
     This function can be used after ``check_file`` to execute student and solution code.
     The arguments allow setting the correct context for execution.
-    The ``solution_dir`` allows setting a different root of the solution context so solution side effects don't conflict with those of the student.
+    The ``solution_dir`` allows setting a different root of the solution context
+    so solution side effects don't conflict with those of the student.
 
-    This function does not execute the file itself,
-    but this should only matter when using functionality depending on e.g. ``__file__`` and ``inspect``.
+    .. note::
+
+        This function does not execute the file itself, but code in memory.
+        This can have an impact when:
+
+        - the solution code imports from a different file in the expected solution (code that is not installed)
+        - using functionality depending on e.g. ``__file__`` and ``inspect``
+
+        When the expected code has imports from a different file that is part of the exercise,
+        it can only work if the solution code provided earlier does not have these imports but instead
+        has all that functionality inlined.
 
     Args:
         relative_working_dir (str): if specified, this relative path is the subdirectory
