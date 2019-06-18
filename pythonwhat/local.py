@@ -49,7 +49,7 @@ def run_code(process, code):
             process.shell.run_code(code)
         raw_output = output.getvalue()
         error = None
-    except Exception as e:
+    except BaseException as e:
         raw_output = ""
         error = str(e)
     return raw_output, error
