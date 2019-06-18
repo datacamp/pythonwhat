@@ -62,11 +62,11 @@ def run_single_process(pec, code, pid=None):
 
 
 def run_exercise(pec, sol_code, stu_code, pid=None, sol_wd=None, stu_wd=None):
-    with ChDir(stu_wd or os.getcwd()):
-        stu_process, raw_stu_output, error = run_single_process(pec, stu_code, pid=pid)
-
     with ChDir(sol_wd or os.getcwd()):
         sol_process, _, _ = run_single_process(pec, sol_code, pid=pid)
+
+    with ChDir(stu_wd or os.getcwd()):
+        stu_process, raw_stu_output, error = run_single_process(pec, stu_code, pid=pid)
 
     return sol_process, stu_process, raw_stu_output, error
 
