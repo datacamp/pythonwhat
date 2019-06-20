@@ -178,15 +178,14 @@ class State(ProtoState):
             )
 
     def assert_execution_root(self, fun, extra_msg=""):
-        if not (
-            self.parent_state is None
-            or self.creator
-            and self.creator.get("type") == "run"
-        ):
+        if self.parent_state is not None and not self.assert_creator_type("run"):
             raise InstructorError(
                 "`%s()` should only be called focusing on a full script, following `Ex()` or `run()`. %s"
                 % (fun, extra_msg)
             )
+
+    def assert_creator_type(self, type):
+        return self.creator and self.creator.get("type") == type
 
     def assert_is(self, klasses, fun, prev_fun):
         if self.__class__.__name__ not in klasses:
