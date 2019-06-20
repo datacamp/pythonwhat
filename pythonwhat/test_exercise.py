@@ -66,7 +66,7 @@ def test_exercise(
     return state.reporter.build_final_payload()
 
 
-# TODO: consistent success_msg and allow_errors
+# TODO: consistent success_msg
 def success_msg(message):
     """
     Set the succes message of the sct. This message will be the feedback if all tests pass.
@@ -76,6 +76,7 @@ def success_msg(message):
     State.root_state.reporter.success_msg = message
 
 
+# deprecated
 def allow_errors():
     State.root_state.reporter.errors_allowed = True
 
