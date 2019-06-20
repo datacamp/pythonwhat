@@ -44,10 +44,10 @@ has_equal_x
 Combining SCTs
 --------------
 
-.. autofunction:: pythonwhat.checks.check_logic.multi
-.. autofunction:: pythonwhat.checks.check_logic.check_correct
-.. autofunction:: pythonwhat.checks.check_logic.check_or
-.. autofunction:: pythonwhat.checks.check_logic.check_not
+.. autofunction:: protowhat.checks.check_logic.multi
+.. autofunction:: protowhat.checks.check_logic.check_correct
+.. autofunction:: protowhat.checks.check_logic.check_or
+.. autofunction:: protowhat.checks.check_logic.check_not
 
 Function/Class/Lambda definitions
 ---------------------------------
@@ -95,4 +95,5 @@ Electives
 
 .. autofunction:: pythonwhat.checks.has_funcs.has_chosen
 .. autofunction:: pythonwhat.test_exercise.success_msg
-.. autofunction:: pythonwhat.checks.check_logic.fail
+.. autofunction:: protowhat.checks.check_simple.allow_errors
+.. autofunction:: protowhat.checks.check_logic.fail
