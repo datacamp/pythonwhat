@@ -104,9 +104,9 @@ def prep_context():
     return tree, cntxt
 
 
-def setup_state(stu_code="", sol_code="", pec="", pid=None):
-    sol_process, stu_process, raw_stu_output, _ = run_exercise(
-        pec, sol_code, stu_code, pid=pid
+def setup_state(stu_code="", sol_code="", pec="", **kwargs):
+    sol_process, stu_process, raw_stu_output, error = run_exercise(
+        pec, sol_code, stu_code, **kwargs
     )
 
     state = State(
@@ -116,7 +116,7 @@ def setup_state(stu_code="", sol_code="", pec="", pid=None):
         student_process=stu_process,
         solution_process=sol_process,
         raw_student_output=raw_stu_output,
-        reporter=Reporter(),
+        reporter=Reporter(errors=[error] if error else []),
     )
 
     State.root_state = state

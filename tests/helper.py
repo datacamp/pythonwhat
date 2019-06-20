@@ -4,7 +4,7 @@ import inspect
 from collections import defaultdict
 from functools import wraps
 
-from pythonwhat.local import StubProcess, run_exercise, ChDir
+from pythonwhat.local import StubProcess, run_exercise, ChDir, WorkerProcess
 from contextlib import contextmanager
 from protowhat.Test import TestFail as TF
 from pythonwhat.test_exercise import test_exercise
@@ -59,8 +59,8 @@ def run(data, run_code=True):
                 )
             else:
                 raw_stu_output = ""
-                stu_process = StubProcess()
-                sol_process = StubProcess()
+                stu_process = StubProcess()  # WorkerProcess()
+                sol_process = StubProcess()  # WorkerProcess()
                 error = None
 
             res = test_exercise(

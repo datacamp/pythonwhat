@@ -2,12 +2,17 @@ import io
 import os
 import random
 from pathlib import Path
-
-from pythonwhat.reporter import Reporter
 from contextlib import redirect_stdout
 
+from multiprocessing import Process, Queue
+from pythonbackend import CaptureErrors
+from pythonbackend.shell_utils import create
+from pythonbackend.tasks import TaskKillProcess, TaskCaptureFullOutput
 
-class StubShell(object):
+from pythonwhat.reporter import Reporter
+
+
+class StubShell:
     def __init__(self, init_code=None):
         self.user_ns = {}
         if init_code:
@@ -17,13 +22,89 @@ class StubShell(object):
         exec(code, self.user_ns)
 
 
-class StubProcess(object):
+class StubProcess:
     def __init__(self, init_code=None, pid=None):
         self.shell = StubShell(init_code)
         self._identity = (pid,) if pid else (random.randint(0, 1e12),)
 
     def executeTask(self, task):
         return task(self.shell)
+
+
+class TaskCaptureOutput:
+    def __init__(self, code):
+        self.code = code
+
+    def __call__(self, shell):
+        raw_output, error = run_code(shell.run_code, self.code)
+
+        return raw_output, error
+
+
+# todo: merge with pythonbackend
+class WorkerProcess(Process):
+    instances = []
+
+    def __init__(self, pid=None):
+        Process.__init__(self)
+        self.task_queue = Queue()
+        self.result_queue = Queue()
+        self.daemon = (
+            True
+        )  # when parent process is killed, sub/childprocess get also killed
+        self.instances.append(self)
+        # used to detect single process exercise
+        self._identity = (pid,) if pid else (random.randint(0, 1e12),)
+
+    def get_shell(self):
+        return create({})
+
+    def run(self):
+        shell = self.get_shell()
+        while True:
+            output = []
+            with CaptureErrors(output):
+                next_task = self.task_queue.get()
+                answer = next_task(shell)
+            if len(output) > 0:  # means backend error happened
+                answer = output
+            output = []
+            with CaptureErrors(output):
+                self.result_queue.put_nowait(answer)
+            if len(output) > 0:  # means backend error happened
+                self.result_queue.put_nowait(output)
+            if isinstance(next_task, TaskKillProcess):
+                break  # break while loop -> we do not wait upon new task
+        return
+
+    def executeTask(self, task):
+        self.task_queue.put_nowait(task)
+        return self.result_queue.get()  # wait and fetches next item in queue
+
+    def kill(self):
+        try:
+            if self.is_alive():
+                self.executeTask(TaskKillProcess())
+                self.terminate()
+                self.join(timeout=3.0)
+                if self.is_alive():
+                    raise Exception
+            if self in self.instances:
+                self.instances.remove(self)
+        finally:
+            pass
+            # python 3.7:
+            # self.close()
+
+    @classmethod
+    def kill_all(cls):
+        for instance in list(cls.instances):
+            instance.kill()
+
+
+class SimpleProcess(WorkerProcess):
+    def get_shell(self):
+        return StubShell()
 
 
 class ChDir(object):
@@ -42,31 +123,57 @@ class ChDir(object):
         os.chdir(self.old_dir)
 
 
-def run_code(process, code):
-    output = io.StringIO()
-    try:
-        with redirect_stdout(output):
-            process.shell.run_code(code)
-        raw_output = output.getvalue()
-        error = None
-    except BaseException as e:
-        raw_output = ""
-        error = str(e)
+def run_code(executor, code):
+    with io.StringIO() as output:
+        try:
+            with redirect_stdout(output):
+                executor(code)
+            raw_output = output.getvalue()
+            error = None
+        except BaseException as e:
+            raw_output = ""
+            error = str(e)
     return raw_output, error
 
 
-def run_single_process(pec, code, pid=None):
-    process = StubProcess(init_code=pec, pid=pid)
-    raw_stu_output, error = run_code(process, code)
+def run_single_process(pec, code, pid=None, mode="simple"):
+    if mode == "stub":
+        # no isolation
+        process = StubProcess(init_code=pec, pid=pid)
+        raw_stu_output, error = run_code(process.shell.run_code, code)
+
+    elif mode == "simple":
+        # no advanced functionality
+        process = SimpleProcess(pid)
+        process.start()
+        _ = process.executeTask(TaskCaptureOutput(pec))
+        raw_stu_output, error = process.executeTask(TaskCaptureOutput(code))
+
+    elif mode == "full":
+        # slow
+        process = WorkerProcess(pid)
+        process.start()
+        _ = process.executeTask(
+            TaskCaptureFullOutput((pec,), "<PEC>", None, silent=True)
+        )
+        output, raw_output = process.executeTask(
+            TaskCaptureFullOutput((code,), "script.py", None, silent=True)
+        )
+        raw_stu_output = raw_output["output_stream"]
+        error = raw_output["error"]
+
+    else:
+        raise ValueError("Invalid mode")
+
     return process, raw_stu_output, error
 
 
-def run_exercise(pec, sol_code, stu_code, pid=None, sol_wd=None, stu_wd=None):
+def run_exercise(pec, sol_code, stu_code, sol_wd=None, stu_wd=None, **kwargs):
     with ChDir(sol_wd or os.getcwd()):
-        sol_process, _, _ = run_single_process(pec, sol_code, pid=pid)
+        sol_process, _, _ = run_single_process(pec, sol_code, **kwargs)
 
     with ChDir(stu_wd or os.getcwd()):
-        stu_process, raw_stu_output, error = run_single_process(pec, stu_code, pid=pid)
+        stu_process, raw_stu_output, error = run_single_process(pec, stu_code, **kwargs)
 
     return sol_process, stu_process, raw_stu_output, error
 
@@ -135,7 +242,6 @@ def run(state, relative_working_dir="", solution_dir="solution"):
         pec="",
         sol_code=state.solution_code or "",
         stu_code=state.student_code,
-        pid=None,
         sol_wd=sol_wd,
         stu_wd=stu_wd,
     )
