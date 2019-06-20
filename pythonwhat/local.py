@@ -5,11 +5,15 @@ from pathlib import Path
 from contextlib import redirect_stdout
 
 from multiprocessing import Process, Queue
-from pythonbackend import CaptureErrors
-from pythonbackend.shell_utils import create
-from pythonbackend.tasks import TaskKillProcess, TaskCaptureFullOutput
-
 from pythonwhat.reporter import Reporter
+
+try:
+    from pythonbackend.shell_utils import create
+    from pythonbackend.tasks import TaskCaptureFullOutput
+
+    BACKEND_AVAILABLE = True
+except:
+    BACKEND_AVAILABLE = False
 
 
 class StubShell:
@@ -36,12 +40,27 @@ class TaskCaptureOutput:
         self.code = code
 
     def __call__(self, shell):
-        raw_output, error = run_code(shell.run_code, self.code)
-
-        return raw_output, error
+        return run_code(shell.run_code, self.code)
 
 
-# todo: merge with pythonbackend
+class TaskKillProcess:
+    def __call__(self, shell):
+        return None
+
+
+class CaptureErrors:
+    def __init__(self, output):
+        self.output = output
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exception, traceback):
+        if exc_type is not None:
+            self.output.append({"type": "backend-error", "payload": str(exception)})
+            return True
+
+
 class WorkerProcess(Process):
     instances = []
 
@@ -149,7 +168,7 @@ def run_single_process(pec, code, pid=None, mode="simple"):
         _ = process.executeTask(TaskCaptureOutput(pec))
         raw_stu_output, error = process.executeTask(TaskCaptureOutput(code))
 
-    elif mode == "full":
+    elif mode == "full" and BACKEND_AVAILABLE:
         # slow
         process = WorkerProcess(pid)
         process.start()
