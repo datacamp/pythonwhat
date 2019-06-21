@@ -104,10 +104,10 @@ class WorkerProcess(Process):
         try:
             if self.is_alive():
                 self.executeTask(TaskKillProcess())
-                self.terminate()
                 self.join(timeout=3.0)
                 if self.is_alive():
-                    raise Exception
+                    self.terminate()
+                    self.join(timeout=3.0)
             if self in self.instances:
                 self.instances.remove(self)
         finally:
