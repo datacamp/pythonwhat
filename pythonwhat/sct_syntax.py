@@ -7,7 +7,7 @@ from pythonwhat import test_funcs
 from functools import wraps
 
 # TODO: could define scts for check_wrappers at the module level
-ATTR_SCTS = scts.copy()
+sct_dict = scts.copy()
 
 
 def multi_dec(f):
@@ -27,16 +27,16 @@ def multi_dec(f):
     return wrapper
 
 
-state_dec = state_dec_gen(State, ATTR_SCTS)
+state_dec = state_dec_gen(State, sct_dict)
 
 
 class Chain(ProtoChain):
-    def __init__(self, state, attr_scts=ATTR_SCTS):
+    def __init__(self, state, attr_scts=sct_dict):
         super().__init__(state, attr_scts)
 
 
 class F(ProtoF):
-    def __init__(self, stack=None, attr_scts=ATTR_SCTS):
+    def __init__(self, stack=None, attr_scts=sct_dict):
         super().__init__(stack, attr_scts)
 
 
@@ -49,17 +49,17 @@ if include_v1():
     # decorate functions that may try to run test_* function nodes as subtests
     # so they remove those nodes from the tree
     for k in ["multi", "with_context"]:
-        ATTR_SCTS[k] = multi_dec(ATTR_SCTS[k])
+        sct_dict[k] = multi_dec(sct_dict[k])
 
     # allow test_* functions as chained attributes
     for k in TEST_NAMES:
-        ATTR_SCTS[k] = Probe(tree=None, f=getattr(test_funcs, k), eval_on_call=True)
+        sct_dict[k] = Probe(tree=None, f=getattr(test_funcs, k), eval_on_call=True)
 
     # original logical test_* functions behave like multi
     # this is necessary to allow them to take check_* funcs as args
     # since probe behavior will try to call all SCTs passed (assuming they're also probes)
     for k in ["test_or", "test_correct"]:
-        ATTR_SCTS[k] = multi_dec(getattr(test_funcs, k))
+        sct_dict[k] = multi_dec(getattr(test_funcs, k))
 
 # Prepare check_funcs to be used alone (e.g. test = check_with().check_body())
 v2_check_functions = {k: state_dec(v) for k, v in scts.items()}

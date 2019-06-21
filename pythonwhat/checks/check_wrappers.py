@@ -5,6 +5,7 @@ from pythonwhat.checks.has_funcs import has_equal_part
 from pythonwhat.checks import check_object, check_logic, check_funcs, has_funcs
 from pythonwhat.checks.check_function import check_function
 from pythonwhat.checks.check_has_context import has_context
+from pythonwhat.local import run
 
 from inspect import signature, Parameter
 from functools import partial, wraps
@@ -770,6 +771,7 @@ for k in ["check_object", "is_instance", "check_df", "check_keys"]:
 
 scts["has_context"] = has_context
 scts["check_function"] = check_function
+scts["run"] = run
 scts["check_file"] = check_file
 scts["has_dir"] = has_dir
 scts["_debug"] = _debug

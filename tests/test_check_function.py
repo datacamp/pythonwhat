@@ -1,6 +1,7 @@
 import pytest
 import tests.helper as helper
-from pythonwhat.local import setup_state
+from inspect import getsource
+from pythonwhat.test_exercise import setup_state
 from protowhat.Test import TestFail as TF
 from protowhat.Feedback import InstructorError
 from pythonwhat.sct_syntax import v2_check_functions
@@ -80,22 +81,23 @@ def test_diff_function_types(fun, code, arg):
 
 
 def test_bind_args():
-    from pythonwhat.local import setup_state
+    from pythonwhat.test_exercise import setup_state
     from inspect import signature
     from pythonwhat.checks.check_function import bind_args
 
-    pec = "def my_fun(a, b, *args, **kwargs): pass"
+    def my_fun(a, b, *args, **kwargs): pass
+    pec = getsource(my_fun).strip()
     s = setup_state(pec=pec, stu_code="my_fun(1, 2, 3, 4, c = 5)")
     args = s._state.ast_dispatcher.find("function_calls", s._state.student_ast)[
         "my_fun"
     ][0]["args"]
-    sig = signature(s._state.student_process.shell.user_ns["my_fun"])
-    binded_args = bind_args(sig, args)
-    assert binded_args["a"]["node"].n == 1
-    assert binded_args["b"]["node"].n == 2
-    assert binded_args["args"][0]["node"].n == 3
-    assert binded_args["args"][1]["node"].n == 4
-    assert binded_args["kwargs"]["c"]["node"].n == 5
+    sig = signature(my_fun)
+    bound_args = bind_args(sig, args)
+    assert bound_args["a"]["node"].n == 1
+    assert bound_args["b"]["node"].n == 2
+    assert bound_args["args"][0]["node"].n == 3
+    assert bound_args["args"][1]["node"].n == 4
+    assert bound_args["kwargs"]["c"]["node"].n == 5
 
 
 @pytest.mark.parametrize("argspec", [["args", 0], ["args", 1], ["kwargs", "c"]])

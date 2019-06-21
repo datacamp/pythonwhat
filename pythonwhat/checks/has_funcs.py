@@ -652,7 +652,7 @@ def has_printout(
     """
 
     extra_msg = "If you want to check printouts done in e.g. a for loop, you have to use a `check_function('print')` chain instead."
-    state.assert_root("has_printout", extra_msg=extra_msg)
+    state.assert_execution_root("has_printout", extra_msg=extra_msg)
 
     if not_printed_msg is None:
         not_printed_msg = (
@@ -747,7 +747,7 @@ def has_no_error(
         leave of the ``has_no_error()`` step.
 
     """
-    state.assert_root("has_no_error")
+    state.assert_execution_root("has_no_error")
 
     if state.reporter.errors:
         _msg = state.build_message(

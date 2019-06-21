@@ -2,7 +2,7 @@ import pytest
 import ast
 import tests.helper as helper
 
-from pythonwhat.local import setup_state
+from pythonwhat.test_exercise import setup_state
 from protowhat.Feedback import InstructorError
 from inspect import signature, Signature, Parameter
 from pythonwhat.checks.check_funcs import assert_ast
@@ -162,7 +162,7 @@ def test_has_printout_not_on_root():
     s = setup_state(code, code)
     with pytest.raises(
         InstructorError,
-        match=r"`has_printout\(\)` should only be called from the root state, `Ex\(\)`\. If you want to check printouts done in e.g. a for loop, you have to use a `check_function\('print'\)` chain instead.",
+        match=r"`has_printout\(\)` should only be called focusing on a full script, following `Ex\(\)` or `run\(\)`\. If you want to check printouts done in e.g. a for loop, you have to use a `check_function\('print'\)` chain instead.",
     ):
         s.check_for_loop().check_body().has_printout(0)
 
@@ -172,7 +172,7 @@ def test_has_no_error_not_on_root():
     s = setup_state(code, code)
     with pytest.raises(
         InstructorError,
-        match=r"`has_no_error\(\)` should only be called from the root state, `Ex\(\)`\.",
+        match=r"`has_no_error\(\)` should only be called focusing on a full script, following `Ex\(\)` or `run\(\)`\.",
     ):
         s.check_for_loop().check_body().has_no_error()
 
@@ -197,7 +197,7 @@ def test_check_object_not_on_root_v2():
     with helper.set_v2_only_env("1"):
         with pytest.raises(
             InstructorError,
-            match=r"`check_object\(\)` should only be called from the root state, `Ex\(\)`\. If you want to check the value of an object in e.g. a for loop, use `has_equal_value\(name = 'my_obj'\)` instead.",
+            match=r"`check_object\(\)` should only be called focusing on a full script, following `Ex\(\)` or `run\(\)`\. If you want to check the value of an object in e.g. a for loop, use `has_equal_value\(name = 'my_obj'\)` instead.",
         ):
             s.check_for_loop().check_body().check_object("x")
 
