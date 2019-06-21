@@ -2,6 +2,18 @@ import requests
 import tests.helper as helper
 
 
+def test_debug_on_error():
+    data = {
+        "DC_PEC": "",
+        "DC_CODE": "x = 123",
+        "DC_SOLUTION": "x = 122",
+        "DC_SCT": "Ex()._debug(on_error=True).check_object('x').has_equal_value()",
+    }
+    output = helper.run(data)
+    assert not output["correct"]
+    assert "SCT" in output["message"]
+
+
 def build_data(course_id, chapter_id, ex_number, printout=False):
     url = "https://www.datacamp.com/api/courses/{course_id}/chapters/{chapter_id}/exercises.json".format(
         course_id=course_id, chapter_id=chapter_id
