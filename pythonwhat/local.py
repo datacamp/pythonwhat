@@ -198,7 +198,7 @@ def run_exercise(pec, sol_code, stu_code, sol_wd=None, stu_wd=None, **kwargs):
 
 
 # todo:
-#  imports from local modules (solution needs to be materialised somewhere
+#  imports from local modules (solution needs to be materialised somewhere)
 #  converge with xbackend (pythonbackend + look at scalabackend)
 #  move towards xwhat controlling all execution and xbackend providing the execution interface?
 # running with arbitrary wd + path + flags (now only wd) needed?
@@ -212,6 +212,9 @@ def run(state, relative_working_dir="", solution_dir="solution"):
     The arguments allow setting the correct context for execution.
     The ``solution_dir`` allows setting a different root of the solution context
     so solution side effects don't conflict with those of the student.
+
+    SCT functions chained after this one that execute pieces of code (custom expressions or the focused part of a file)
+    execute in the same location as the file.
 
     .. note::
 
