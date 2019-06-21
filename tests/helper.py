@@ -43,6 +43,13 @@ def capture_test_data(f):
 test_exercise = capture_test_data(test_exercise)
 
 
+@contextmanager
+def in_temp_dir():
+    with tempfile.TemporaryDirectory() as d:
+        with ChDir(d):
+            yield
+
+
 def run(data, run_code=True):
 
     pec = data.get("DC_PEC", "")
@@ -51,30 +58,29 @@ def run(data, run_code=True):
     sct = data.get("DC_SCT", "")
     force_diagnose = data.get("DC_FORCE_DIAGNOSE", False)
 
-    with tempfile.TemporaryDirectory() as d:
-        with ChDir(d):
-            if run_code:
-                sol_process, stu_process, raw_stu_output, error = run_exercise(
-                    pec, sol_code, stu_code
-                )
-            else:
-                raw_stu_output = ""
-                stu_process = StubProcess()  # WorkerProcess()
-                sol_process = StubProcess()  # WorkerProcess()
-                error = None
-
-            res = test_exercise(
-                sct=sct,
-                student_code=stu_code,
-                solution_code=sol_code,
-                pre_exercise_code=pec,
-                student_process=stu_process,
-                solution_process=sol_process,
-                raw_student_output=raw_stu_output,
-                ex_type="NormalExercise",
-                force_diagnose=force_diagnose,
-                error=error,
+    with in_temp_dir():
+        if run_code:
+            sol_process, stu_process, raw_stu_output, error = run_exercise(
+                pec, sol_code, stu_code
             )
+        else:
+            raw_stu_output = ""
+            stu_process = StubProcess()  # WorkerProcess()
+            sol_process = StubProcess()  # WorkerProcess()
+            error = None
+
+        res = test_exercise(
+            sct=sct,
+            student_code=stu_code,
+            solution_code=sol_code,
+            pre_exercise_code=pec,
+            student_process=stu_process,
+            solution_process=sol_process,
+            raw_student_output=raw_stu_output,
+            ex_type="NormalExercise",
+            force_diagnose=force_diagnose,
+            error=error,
+        )
 
     return res
 
