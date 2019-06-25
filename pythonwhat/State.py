@@ -162,11 +162,11 @@ class State(ProtoState):
         init_kwargs = {**base_kwargs, **kwargs}
         child = klass(**init_kwargs)
 
-        extra_attrs = set(vars(self).keys()) - set(self.params)
+        extra_attrs = set(vars(self)) - set(self.params)
         for attr in extra_attrs:
             # don't copy attrs set on new instances in init
             # the cached manual_sigs is passed
-            if attr not in ["params", "ast_dispatcher", "converters"]:
+            if attr not in {"params", "ast_dispatcher", "converters"}:
                 setattr(child, attr, getattr(self, attr))
 
         return child
