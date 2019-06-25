@@ -1,5 +1,9 @@
+import os
+from pathlib import Path
+
 import pytest
 
+from pythonwhat.local import ChDir
 from pythonwhat.test_exercise import setup_state
 from tests.helper import verify_sct, in_temp_dir
 
@@ -50,7 +54,7 @@ urlretrieve('{}', 'LIGO_data.hdf5')""".format(
                 asset
             ),
         )
-        * 2,
+        * 2
     ],
 )
 def test_urlretrieve_in_process(sol_code, stu_code):
@@ -77,7 +81,7 @@ with urllib.request.urlopen({}) as response, open('LIGO_data.hdf5', 'wb') as out
                 asset
             ),
         )
-        * 2,
+        * 2
     ],
 )
 def test_urlopen_in_process(sol_code, stu_code):
@@ -89,3 +93,97 @@ def test_urlopen_in_process(sol_code, stu_code):
 
         with verify_sct(True):
             chain.run()
+
+
+def write_file(path, name, content):
+    os.makedirs(path)
+    with ChDir(path):
+        with open(name, "w") as f:
+            f.write(content)
+
+
+def test_run_relative_working_dir():
+    stu_code = 'from pathlib import Path; c = Path("c").read_text(encoding="utf-8")'
+    sol_code = """c = 'c= Path("c").read_text(encoding="utf-8")'"""
+
+    file_dir = "a/b"
+    file_path = "a/b/c"
+
+    with in_temp_dir():
+
+        write_file(file_dir, "c", stu_code)
+
+        chain = setup_state("", "", pec="")
+
+        child = chain.check_file(file_path, solution_code=sol_code)
+
+        child.run(file_dir).check_object("c")
+        child.run().check_object("c")
+
+
+def test_run_solution_dir():
+    code = 'from pathlib import Path; c = Path("c").read_text(encoding="utf-8")'
+
+    file_dir = "a/b"
+    file_path = "a/b/c"
+    solution_location = "solution"
+
+    with in_temp_dir():
+        write_file(file_dir, "c", code)
+
+        os.makedirs(solution_location)
+        with ChDir(solution_location):
+            write_file(file_dir, "c", code)
+
+        chain = setup_state("", "", pec="")
+
+        child = chain.check_file(file_path, solution_code=code)
+
+        child.run(file_dir).check_object("c")
+        child.run().check_object("c")
+
+
+def test_run_with_absolute_dir():
+    code = 'from pathlib import Path; c = Path("c").read_text(encoding="utf-8")'
+
+    file_dir = "a/b"
+    solution_location = "solution"
+
+    with in_temp_dir():
+        os.makedirs(file_dir)
+        with ChDir(file_dir):
+            abs_dir = os.path.abspath(".")
+            abs_file_path = Path(abs_dir, "c")
+            with open("c", "w") as f:
+                f.write(code)
+
+        write_file(solution_location, "c", code)
+
+        chain = setup_state("", "", pec="")
+
+        child = chain.check_file(abs_file_path, solution_code=code)
+
+        child.run(abs_dir).check_object("c")
+        child.run().check_object("c")
+
+
+def test_run_custom_solution_dir():
+    code = 'from pathlib import Path; c = Path("c").read_text(encoding="utf-8")'
+
+    file_dir = "a/b"
+    file_path = "a/b/c"
+    custom_solution_location = "custom/solution/folder"
+
+    with in_temp_dir():
+        write_file(file_dir, "c", code)
+
+        os.makedirs(custom_solution_location)
+        with ChDir(custom_solution_location):
+            write_file(file_dir, "c", code)
+
+        chain = setup_state("", "", pec="")
+
+        child = chain.check_file(file_path, solution_code=code)
+
+        child.run(file_dir, solution_dir=custom_solution_location).check_object("c")
+        child.run(solution_dir=custom_solution_location).check_object("c")
