@@ -113,6 +113,10 @@ class State(ProtoState):
         student tree and solution tree. This is necessary when testing if statements or
         for loops for example.
         """
+        bad_pars = set(kwargs) - set(self.params)
+        if bad_pars:
+            raise ValueError("Invalid init params for State: %s" % ", ".join(bad_pars))
+
         base_kwargs = {
             attr: getattr(self, attr)
             for attr in self.params
@@ -121,7 +125,6 @@ class State(ProtoState):
 
         if not isinstance(append_message, dict):
             append_message = {"msg": append_message, "kwargs": {}}
-
         kwargs["messages"] = [*self.messages, append_message]
 
         def update_kwarg(name, func):
@@ -156,7 +159,16 @@ class State(ProtoState):
                     kwargs.pop(context)
 
         klass = self.SUBCLASSES[node_name] if node_name else State
-        child = klass(**{**base_kwargs, **kwargs})
+        init_kwargs = {**base_kwargs, **kwargs}
+        child = klass(**init_kwargs)
+
+        extra_attrs = set(vars(self)) - set(self.params)
+        for attr in extra_attrs:
+            # don't copy attrs set on new instances in init
+            # the cached manual_sigs is passed
+            if attr not in {"params", "ast_dispatcher", "converters"}:
+                setattr(child, attr, getattr(self, attr))
+
         return child
 
     def has_different_processes(self):

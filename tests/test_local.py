@@ -1,9 +1,7 @@
 import pytest
 
-from protowhat.Test import TestFail as TF
 from pythonwhat.test_exercise import setup_state
-from tests.helper import verify_sct
-
+from tests.helper import verify_sct, in_temp_dir
 
 modify_sys = (
     """
@@ -58,13 +56,14 @@ urlretrieve('{}', 'LIGO_data.hdf5')""".format(
 def test_urlretrieve_in_process(sol_code, stu_code):
     # on mac an env var needs to be set:
     # OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
-    chain = setup_state("", "", pec="")
+    with in_temp_dir():
+        chain = setup_state("", "", pec="")
 
-    chain._state.solution_code = sol_code
-    chain._state.student_code = stu_code
+        chain._state.solution_code = sol_code
+        chain._state.student_code = stu_code
 
-    with verify_sct(True):
-        chain.run()
+        with verify_sct(True):
+            chain.run()
 
 
 @pytest.mark.parametrize(
@@ -82,10 +81,11 @@ with urllib.request.urlopen({}) as response, open('LIGO_data.hdf5', 'wb') as out
     ],
 )
 def test_urlopen_in_process(sol_code, stu_code):
-    chain = setup_state("", "", pec="")
+    with in_temp_dir():
+        chain = setup_state("", "", pec="")
 
-    chain._state.solution_code = sol_code
-    chain._state.student_code = stu_code
+        chain._state.solution_code = sol_code
+        chain._state.student_code = stu_code
 
-    with verify_sct(True):
-        chain.run()
+        with verify_sct(True):
+            chain.run()
