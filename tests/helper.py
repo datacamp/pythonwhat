@@ -47,7 +47,7 @@ test_exercise = capture_test_data(test_exercise)
 def in_temp_dir():
     with tempfile.TemporaryDirectory() as d:
         with ChDir(d):
-            yield
+            yield d
 
 
 def run(data, run_code=True):

@@ -205,16 +205,14 @@ def run_exercise(pec, sol_code, stu_code, sol_wd=None, stu_wd=None, **kwargs):
 #  e.g. `python -m project.run
 #  allow setting env vars? e.g. PYTHONPATH, could help running more complex setup
 #  allow prepending code? set_env? e.g. (automatically) setting __file__?
-def run(state, relative_working_dir="", solution_dir="solution"):
+def run(state, relative_working_dir=None, solution_dir="solution"):
     """Run the focused student and solution code in the specified location
 
     This function can be used after ``check_file`` to execute student and solution code.
-    The arguments allow setting the correct context for execution.
-    The ``solution_dir`` allows setting a different root of the solution context
-    so solution side effects don't conflict with those of the student.
+    The arguments allow configuring the correct context for execution.
 
     SCT functions chained after this one that execute pieces of code (custom expressions or the focused part of a file)
-    execute in the same location as the file.
+    execute in the same student and solution locations as the file.
 
     .. note::
 
@@ -235,6 +233,14 @@ def run(state, relative_working_dir="", solution_dir="solution"):
             that sets the root of the solution context, relative to that of the student execution context
         state (State): state as passed by the SCT chain. Don't specify this explicitly.
 
+    If ``relative_working_dir`` is not set, it will be the directory the file was loaded from by ``check_file``
+    and fall back to the root of the student execution context (the working directory pythonwhat runs in).
+
+    The ``solution_dir`` helps to prevent solution side effects from conflicting with those of the student.
+    If the set or derived value of ``relative_working_dir`` is an absolute path,
+    ``relative_working_dir`` will not be used to form the solution execution working directory:
+    the solution code will be executed in the root of the solution execution context.
+
     :Example:
 
         Suppose the student and solution have a file ``script.py`` in ``/home/repl/``::
@@ -254,10 +260,20 @@ def run(state, relative_working_dir="", solution_dir="solution"):
                 has_printout(0)
             )
     """
-    # todo: configure these arguments automatically based on check_file info?
-    # once that is implemented, look into executing the file itself
+    # todo:
+    # look into executing the file itself
     # and keeping the process alive to extract values
-    sol_wd = Path(os.getcwd(), solution_dir, relative_working_dir)
+    if relative_working_dir is None:
+        if getattr(state, "path", False):
+            relative_working_dir = state.path.parent
+        else:
+            relative_working_dir = ""
+
+    if not os.path.isabs(str(relative_working_dir)):
+        sol_wd = Path(os.getcwd(), solution_dir, relative_working_dir)
+    else:
+        sol_wd = Path(os.getcwd(), solution_dir)
+
     os.makedirs(str(sol_wd), exist_ok=True)
     stu_wd = Path(os.getcwd(), relative_working_dir)
     sol_process, stu_process, raw_stu_output, error = run_exercise(
