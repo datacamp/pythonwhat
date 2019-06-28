@@ -2,6 +2,10 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.21.0
+
+- Use path info in `run`
+
 ## 2.20.2
 
 - Improve checking exceptions
