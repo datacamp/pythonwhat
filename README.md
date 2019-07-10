@@ -53,15 +53,18 @@ To learn how to include an SCT in a DataCamp course, visit https://instructor-su
 
 ## Run tests
 
-```
+```bash
 pyenv local 3.5.2
 pip install -r requirements.txt
 pip install -e .
 pytest
 ```
 
+## Contributing
+
 Bugs? Questions? Suggestions? [Create an issue](https://github.com/datacamp/pythonwhat/issues/new), or [contact us](mailto:content-engineering@datacamp.com)!
 
 
 ## License
+
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdatacamp%2Fpythonwhat.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdatacamp%2Fpythonwhat?ref=badge_large)
