@@ -345,7 +345,7 @@ def get_error(f, *args, **kwargs):
 
 # General tasks to eval or exec code, with decorated counterparts -------------
 
-# Eval an expression tree or node (with setting envs, pre_code and/or expr_code)
+
 @process_task
 def taskRunEval(
     tree,
@@ -362,12 +362,41 @@ def taskRunEval(
     tempname="_evaluation_object_",
     call=None,
 ):
+    """
+    Eval an expression tree (with setting envs, pre_code and/or expr_code)
+    Utility function later wrapped to extract either result (end state of a variable), output (stdout) or error
+
+    Args:
+        tree (ast): current focused ast, used to get code to execute
+        process: manages shell (see local.py)
+        shell: link to to get process namespace from execution up until now
+        env: update value in focused code by name
+        extra_env: variables to be replaced in focused code by name from extra_env in has_expr
+        context: sum of set_context in sct chain
+        context_vals: extra context argument in has_expr
+        pre_code: argument in has_expr to execute code before evaluating, for example to set a seed
+        expr_code: code to execute instead of focused code
+        name: extract value after executing focused expr_code (~post_code)
+        copy: copy entire env because our expr_code could have side effects
+        tempname: key for the result when it is added to context, only for v1 sct's
+        call: only used in v1 sct's
+
+    Returns:
+        str: output of the executed code
+    """
     try:
         # Prepare code and mode -----------------------------------------------
-        if (expr_code and name) or (not expr_code and isinstance(tree, ast.Module)):
+        # Verify if expr_code is expression code (returning a value) or just runnable code.
+        if (  # expr_code returns nothing and then we will extract a value
+            expr_code and name
+        ) or (  # No expr_code and the tree is of a node type that does not evaluate to have output
+            not expr_code and isinstance(tree, ast.Module)
+        ):
+            # We are not focused on an expression (no output)
             mode = "exec"
         else:
             mode = "eval"
+            # Wrap the focused node in the tree so it can be run with eval()
             if not isinstance(tree, (ast.Module, ast.Expression, ast.Expr)):
                 tree = ast.Expression(tree)
 
@@ -375,28 +404,32 @@ def taskRunEval(
         if expr_code:
             code = expr_code
             tree = ast.parse(code, mode=mode)
-        else:
+        else:  # Compile the tree to Python code
             code = compile(tree, "<script>", mode)
 
         # Set up environment --------------------------------------------------
-        # avoid deep copy if specified, or if just looking up variable by name
-        # unpack 'container nodes' first
+        # Unpack 'container nodes' before checking if a deepcopy is needed
         if isinstance(tree, ast.Module):
             tree = tree.body
         if isinstance(tree, ast.Expression):
             tree = tree.body
         if isinstance(tree, ast.Expr):
             tree = tree.value
+
+        # Avoid a deep copy if specified or if the ast node type indicates we are looking up a variable by name
+        # ast.Name, ast.Subscript and ast.Load most of the time do not have side effects in the environment,
+        #   making a deepcopy unnecessary
         if not copy or (
             isinstance(tree, (ast.Name, ast.Subscript))
             and isinstance(tree.ctx, ast.Load)
         ):
-            new_env = dict(get_env(shell.user_ns))
+            new_env = dict(get_env(shell.user_ns))  # shallow copy of env
         else:
             # might raise an error if object refuses pickle interface
             # used by deepcopy to restore class
             new_env = utils.copy_env(get_env(shell.user_ns))
 
+        # Apply additional env and context variables
         if env is not None:
             new_env.update(deepcopy(env))
         if extra_env is not None:
@@ -422,13 +455,15 @@ def taskRunEval(
             except NameError:
                 return UndefinedValue()
 
-        # call object if dict with args and kwargs was passed
+        # Backwards compatibility with v1 SCT's
+        # If object is callable, args and kwargs can be passed in to be used in a call on object
         if call is not None:
             obj = obj(*call["args"], **call["kwargs"])
 
         # Set object as temp variable in original environment, so we can
         # later get its class, etc.., in order to extract it from process
         get_env(shell.user_ns)[tempname] = obj
+
         return str(obj)
 
     except Exception as e:
