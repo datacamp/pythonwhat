@@ -126,21 +126,21 @@ def test_run_solution_dir():
 
     file_dir = "a/b"
     file_path = "a/b/c"
-    solution_location = "solution"
+    workspace_location = "workspace"
 
     with in_temp_dir():
-        write_file(file_dir, "c", code)
+        write_file("solution/" + file_dir, "c", code)
 
-        os.makedirs(solution_location)
-        with ChDir(solution_location):
+        os.makedirs(workspace_location)
+        with ChDir(workspace_location):
             write_file(file_dir, "c", code)
 
-        chain = setup_state("", "", pec="")
+            chain = setup_state("", "", pec="")
 
-        child = chain.check_file(file_path, solution_code=code)
+            child = chain.check_file(file_path, solution_code=code)
 
-        child.run(file_dir).check_object("c")
-        child.run().check_object("c")
+            child.run(file_dir).check_object("c")
+            child.run().check_object("c")
 
 
 def test_run_with_absolute_dir():
@@ -148,6 +148,7 @@ def test_run_with_absolute_dir():
 
     file_dir = "a/b"
     solution_location = "solution"
+    workspace_location = "workspace"
 
     with in_temp_dir():
         os.makedirs(file_dir)
@@ -159,12 +160,14 @@ def test_run_with_absolute_dir():
 
         write_file(solution_location, "c", code)
 
-        chain = setup_state("", "", pec="")
+        os.makedirs(workspace_location)
+        with ChDir(workspace_location):
+            chain = setup_state("", "", pec="")
 
-        child = chain.check_file(abs_file_path, solution_code=code)
+            child = chain.check_file(abs_file_path, solution_code=code)
 
-        child.run(abs_dir).check_object("c")
-        child.run().check_object("c")
+            child.run(abs_dir).check_object("c")
+            child.run().check_object("c")
 
 
 def test_run_custom_solution_dir():
