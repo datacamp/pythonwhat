@@ -181,22 +181,14 @@ class State(ProtoState):
             # play it safe (most common)
             return True
 
-    # todo: remove (deprecated)
-    def assert_root(self, fun, extra_msg=""):
-        if self.parent_state is not None:
-            raise InstructorError(
-                "`%s()` should only be called from the root state, `Ex()`. %s"
-                % (fun, extra_msg)
-            )
-
     def assert_execution_root(self, fun, extra_msg=""):
-        if self.parent_state is not None and not self.assert_creator_type("run"):
+        if not (self.is_root or self.is_creator_type("run")):
             raise InstructorError(
                 "`%s()` should only be called focusing on a full script, following `Ex()` or `run()`. %s"
                 % (fun, extra_msg)
             )
 
-    def assert_creator_type(self, type):
+    def is_creator_type(self, type):
         return self.creator and self.creator.get("type") == type
 
     def assert_is(self, klasses, fun, prev_fun):
