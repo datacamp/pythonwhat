@@ -1,4 +1,8 @@
-from protowhat.sct_syntax import Chain as ProtoChain, F as ProtoF, state_dec_gen
+from protowhat.sct_syntax import (
+    Chain as ProtoChain,
+    LazyChain as ProtoLazyChain,
+    state_dec_gen,
+)
 from pythonwhat.checks.check_wrappers import scts
 from pythonwhat.State import State
 from pythonwhat.probe import Node, Probe, TEST_NAMES
@@ -35,7 +39,7 @@ class Chain(ProtoChain):
         super().__init__(state, attr_scts)
 
 
-class F(ProtoF):
+class LazyChain(ProtoLazyChain):
     def __init__(self, stack=None, attr_scts=sct_dict):
         super().__init__(stack, attr_scts)
 
