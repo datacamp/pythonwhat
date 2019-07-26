@@ -789,7 +789,7 @@ for i in range(2):
     assert message(output, patt)
 
 
-## test has_expr --------------------------------------------------------------
+# test has_expr --------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -815,7 +815,45 @@ def test_has_expr(sct, patt):
     assert message(output, patt)
 
 
-## check_if_else --------------------------------------------------------------
+def test_has_expr_replace_focus():
+    # Given
+    sct = "Ex().check_if_else().check_test().has_equal_value(expr_code = '__focus__ == \\'valid\\'')"
+    feedback_msg = "Great work!"
+
+    # When
+    output = helper.run(
+        {
+            "DC_SOLUTION": "u = 'valid'\nif u:\n  print('')",
+            "DC_CODE": "u = 'valid'\nif u:\n  print('')",
+            "DC_SCT": sct,
+        }
+    )
+
+    # Then
+    assert output["correct"]
+    assert message(output, feedback_msg)
+
+
+def test_has_expr_replace_focus_fail():
+    # Given
+    sct = "Ex().check_if_else().check_test().has_equal_value(expr_code = '__focus__ == \\'valid\\'')"
+    feedback_msg = "Check the first if statement. Did you correctly specify the condition? Running the expression <code>u == 'valid'</code> didn't generate the expected result."  # nopep8
+
+    # When
+    output = helper.run(
+        {
+            "DC_SOLUTION": "u = 'valid'\nif u:\n  print('')",
+            "DC_CODE": "u = 'wrong'\nif u:\n  print('')",
+            "DC_SCT": sct,
+        }
+    )
+
+    # Then
+    assert not output["correct"]
+    assert message(output, feedback_msg)
+
+
+# check_if_else --------------------------------------------------------------
 
 
 @pytest.mark.parametrize(

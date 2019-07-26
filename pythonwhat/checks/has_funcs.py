@@ -230,11 +230,12 @@ args_string = """
           You can also use ``set_context()`` for this.
         pre_code (str): the code in string form that should be executed before the expression is executed.
           This is the ideal place to set a random seed, for example.
-        expr_code (str): if this argument is set, the expression in the student/solution code will not
+        expr_code (str): If this argument is set, the expression in the student/solution code will not
           be ran. Instead, the given piece of code will be ran in the student as well as the solution environment
-          and the result will be compared.
+          and the result will be compared. However if the string contains one or more placeholders ``__focus__``,
+          they will be substituted by the currently focused code.
         name (str): If this is specified, the {0} of running this expression after running the focused expression
-          is returned, instead of the {0} of the focussed expression in itself. This is typically used to inspect the
+          is returned, instead of the {0} of the focused expression in itself. This is typically used to inspect the
           {0} of an object after executing the body of e.g. a ``for`` loop.
         copy (bool): whether to try to deep copy objects in the environment, such as lists, that could
           accidentally be mutated. Disable to speed up SCTs. Disabling may lead to cryptic mutation issues.
@@ -281,6 +282,9 @@ def has_expr(
             error_msg = DEFAULT_ERROR_MSG_INV
         else:
             error_msg = DEFAULT_ERROR_MSG
+
+    if state.solution_code is not None and isinstance(expr_code, str):
+        expr_code = expr_code.replace("__focus__", state.solution_code)
 
     get_func = partial(
         evalCalls[test],
