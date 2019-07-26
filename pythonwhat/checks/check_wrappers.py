@@ -1,5 +1,6 @@
 from protowhat.utils import _debug
 from protowhat.checks.check_simple import allow_errors
+from protowhat.checks.check_bash_history import has_command
 from protowhat.checks.check_files import check_file, has_dir
 from pythonwhat.checks.check_funcs import check_part, check_part_index, check_node
 from pythonwhat.checks.has_funcs import has_equal_part
@@ -774,6 +775,8 @@ scts["has_context"] = has_context
 scts["check_function"] = check_function
 
 scts["run"] = run
+
+scts["has_command"] = has_command
 
 scts["check_file"] = check_file
 scts["has_dir"] = has_dir

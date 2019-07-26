@@ -90,6 +90,12 @@ Checking files
 .. autofunction:: pythonwhat.checks.check_wrappers.has_dir
 .. autofunction:: pythonwhat.local.run
 
+Bash history checks
+-------------------
+
+.. automodule:: protowhat.checks.check_bash_history
+    :members:
+
 Electives
 ---------
 
