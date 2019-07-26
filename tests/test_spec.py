@@ -289,7 +289,7 @@ def test_override(k, code):
 
 # Test SCT Ex syntax (copied from sqlwhat)  -----------------------------------
 
-from pythonwhat.sct_syntax import Ex, F, state_dec
+from pythonwhat.sct_syntax import Ex, LazyChain, state_dec
 
 
 @pytest.fixture
@@ -299,12 +299,12 @@ def addx():
 
 @pytest.fixture
 def f():
-    return F._from_func(lambda state: state + "b")
+    return LazyChain._from_func(lambda state: state + "b")
 
 
 @pytest.fixture
 def f2():
-    return F._from_func(lambda state: state + "c")
+    return LazyChain._from_func(lambda state: state + "c")
 
 
 def test_f_from_func(f):
@@ -312,11 +312,11 @@ def test_f_from_func(f):
 
 
 def test_f_sct_copy_kw(addx):
-    assert F()._sct_copy(addx)(x="x")("state") == "statex"
+    assert LazyChain()._sct_copy(addx)(x="x")("state") == "statex"
 
 
 def test_f_sct_copy_pos(addx):
-    assert F()._sct_copy(addx)("x")("state") == "statex"
+    assert LazyChain()._sct_copy(addx)("x")("state") == "statex"
 
 
 def test_ex_sct_copy_kw(addx):
@@ -346,7 +346,7 @@ def test_f_add_f(f, f2):
 def test_f_from_state_dec(addx):
     dec_addx = state_dec(addx)
     f = dec_addx(x="x")
-    isinstance(f, F)
+    isinstance(f, LazyChain)
     assert f("state") == "statex"
 
 

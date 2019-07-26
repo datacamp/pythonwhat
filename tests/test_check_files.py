@@ -3,7 +3,7 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 import tests.helper as helper
-from protowhat.sct_syntax import F
+from protowhat.sct_syntax import LazyChain
 from pythonwhat.local import ChDir
 from protowhat.Test import TestFail as TF
 
@@ -68,9 +68,9 @@ def test_file_existence_syntax(temp_py_file):
     assert expected_content in file_chain._state.student_code
 
     with helper.verify_sct(True):
-        file_chain = chain >> F(attr_scts={"check_file": cf.check_file}).check_file(
-            temp_py_file.name
-        )
+        file_chain = chain >> LazyChain(
+            attr_scts={"check_file": cf.check_file}
+        ).check_file(temp_py_file.name)
         assert expected_content in file_chain._state.student_code
 
 

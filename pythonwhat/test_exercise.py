@@ -90,7 +90,7 @@ def prep_context():
         "from inspect import Parameter as param",
         "from pythonwhat.signatures import sig_from_params, sig_from_obj",
         "from pythonwhat.State import set_converter",
-        "from pythonwhat.sct_syntax import F, Ex",
+        "from pythonwhat.sct_syntax import LazyChain as F, Ex",
     ]
     [exec(line, None, cntxt) for line in imports]
 
