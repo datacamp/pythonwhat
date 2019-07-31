@@ -2,6 +2,11 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.22.0
+
+- Add support for replacing the placeholder `__focus__` with the focused code in the `expr_code` argument
+- Expose bash history functionality from protowhat
+
 ## 2.21.0
 
 - Use path info in `run`
