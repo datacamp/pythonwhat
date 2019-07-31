@@ -205,7 +205,7 @@ def run_exercise(pec, sol_code, stu_code, sol_wd=None, stu_wd=None, **kwargs):
 #  e.g. `python -m project.run
 #  allow setting env vars? e.g. PYTHONPATH, could help running more complex setup
 #  allow prepending code? set_env? e.g. (automatically) setting __file__?
-def run(state, relative_working_dir=None, solution_dir="solution"):
+def run(state, relative_working_dir=None, solution_dir="../solution"):
     """Run the focused student and solution code in the specified location
 
     This function can be used after ``check_file`` to execute student and solution code.
