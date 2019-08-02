@@ -507,3 +507,17 @@ def test_function_call_in_return():
     sct = "Ex().check_function_def('my_func').check_body().check_function('my_func_in_return', signature=False)"
     res = helper.run({"DC_CODE": code, "DC_SOLUTION": code, "DC_SCT": sct})
     assert res["correct"]
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "0 < len([])",
+        "len([]) < 3",
+        "0 < len([]) < 3",
+    ],
+)
+def test_function_call_in_comparison(code):
+    sct = "Ex().check_function('len')"
+    res = helper.run({"DC_CODE": code, "DC_SOLUTION": code, "DC_SCT": sct})
+    assert res["correct"]

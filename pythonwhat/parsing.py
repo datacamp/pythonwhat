@@ -297,6 +297,7 @@ class FunctionParser(Parser):
         self.visit(node.value)
 
     def visit_Compare(self, node):
+        self.visit(node.left)
         self.visit_each(node.comparators)
 
     def visit_UnaryOp(self, node):
