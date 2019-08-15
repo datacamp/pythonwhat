@@ -24,7 +24,7 @@ def test_converter_err():
 
 def test_check_syntax_double_getattr():
     s = setup_state()
-    with pytest.raises(AttributeError, match=r"Did you forget to call a statement"):
+    with pytest.raises(AttributeError, match=r"Expected a call of"):
         s.check_list_comp.check_body()
 
 

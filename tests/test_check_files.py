@@ -67,10 +67,9 @@ def test_file_existence_syntax(temp_py_file):
     file_chain = chain.check_file(temp_py_file.name)
     assert expected_content in file_chain._state.student_code
 
+    LazyChain.register_scts({"check_file": cf.check_file})
     with helper.verify_sct(True):
-        file_chain = chain >> LazyChain(
-            attr_scts={"check_file": cf.check_file}
-        ).check_file(temp_py_file.name)
+        file_chain = chain >> LazyChain().check_file(temp_py_file.name)
         assert expected_content in file_chain._state.student_code
 
 
