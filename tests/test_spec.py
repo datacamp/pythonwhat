@@ -289,7 +289,8 @@ def test_override(k, code):
 
 # Test SCT Ex syntax (copied from sqlwhat)  -----------------------------------
 
-from pythonwhat.sct_syntax import Ex, LazyChain, state_dec
+from protowhat.sct_syntax import ChainExtender
+from pythonwhat.sct_syntax import Ex, EagerChain, LazyChain, state_dec
 
 
 @pytest.fixture
@@ -299,12 +300,12 @@ def addx():
 
 @pytest.fixture
 def f():
-    return LazyChain._from_func(lambda state: state + "b")
+    return LazyChain._from_func(lambda state, b: state + b, kwargs={"b": "b"})
 
 
 @pytest.fixture
 def f2():
-    return LazyChain._from_func(lambda state: state + "c")
+    return LazyChain._from_func(lambda state, c: state + c, kwargs={"c": "c"})
 
 
 def test_f_from_func(f):
@@ -312,23 +313,23 @@ def test_f_from_func(f):
 
 
 def test_f_sct_copy_kw(addx):
-    assert LazyChain()._sct_copy(addx)(x="x")("state") == "statex"
+    assert LazyChain((addx, (), {"x": "x"}))("state") == "statex"
 
 
 def test_f_sct_copy_pos(addx):
-    assert LazyChain()._sct_copy(addx)("x")("state") == "statex"
+    assert LazyChain((addx, ("x",), {}))("state") == "statex"
 
 
 def test_ex_sct_copy_kw(addx):
-    assert Ex("state")._sct_copy(addx)(x="x")._state == "statex"
+    assert EagerChain((addx, (), {"x": "x"}), state="state")._state == "statex"
 
 
 def test_ex_sct_copy_pos(addx):
-    assert Ex("state")._sct_copy(addx)("x")._state == "statex"
+    assert EagerChain((addx, ("x",), {}), state="state")._state == "statex"
 
 
 def test_f_2_funcs(f, addx):
-    g = f._sct_copy(addx)
+    g = ChainExtender(f, addx)
 
     assert g(x="x")("a") == "abx"
 
@@ -352,15 +353,19 @@ def test_f_from_state_dec(addx):
 
 @pytest.fixture
 def ex():
-    return Ex("state")._sct_copy(lambda state, x: state + x)("x")
+    return ChainExtender(Ex("state"), lambda state, x: state + x)("x")
 
 
 def test_ex_add_f(ex, f):
-    (ex >> f)._state = "statexb"
+    assert (ex >> f)._state == "statexb"
+
+
+def test_ex_add_f_add_f(ex, f, f2):
+    assert (ex >> (f >> f2))._state == "statexbc"
 
 
 def test_ex_add_unary(ex):
-    (ex >> (lambda state: state + "b"))._state == "statexb"
+    assert (ex >> (lambda state: state + "b"))._state == "statexb"
 
 
 def test_ex_add_ex_err(ex):
