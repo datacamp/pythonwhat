@@ -159,14 +159,14 @@ def run_single_process(pec, code, pid=None, mode="simple"):
     if mode == "stub":
         # no isolation
         process = StubProcess(init_code=pec, pid=pid)
-        raw_stu_output, error = run_code(process.shell.run_code, code)
+        raw_output, error = run_code(process.shell.run_code, code)
 
     elif mode == "simple":
         # no advanced functionality
         process = SimpleProcess(pid)
         process.start()
         _ = process.executeTask(TaskCaptureOutput(pec))
-        raw_stu_output, error = process.executeTask(TaskCaptureOutput(code))
+        raw_output, error = process.executeTask(TaskCaptureOutput(code))
 
     elif mode == "full" and BACKEND_AVAILABLE:
         # slow
@@ -178,13 +178,13 @@ def run_single_process(pec, code, pid=None, mode="simple"):
         output, raw_output = process.executeTask(
             TaskCaptureFullOutput((code,), "script.py", None, silent=True)
         )
-        raw_stu_output = raw_output["output_stream"]
+        raw_output = raw_output["output_stream"]
         error = raw_output["error"]
 
     else:
         raise ValueError("Invalid mode")
 
-    return process, raw_stu_output, error
+    return process, raw_output, error
 
 
 def run_exercise(pec, sol_code, stu_code, sol_wd=None, stu_wd=None, **kwargs):
