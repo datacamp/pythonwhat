@@ -58,7 +58,7 @@ if include_v1():
     for k in ["test_or", "test_correct"]:
         sct_dict[k] = multi_dec(getattr(test_funcs, k))
 
-Chain.register_scts(sct_dict)
+Chain.register_functions(sct_dict)
 
 # Prepare check_funcs to be used alone (e.g. test = check_with().check_body())
 v2_check_functions = {k: state_dec(v) for k, v in scts.items()}
