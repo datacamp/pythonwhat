@@ -289,7 +289,7 @@ def test_override(k, code):
 
 # Test SCT Ex syntax (copied from sqlwhat)  -----------------------------------
 
-from protowhat.sct_syntax import ChainExtender
+from protowhat.sct_syntax import ChainExtender, ChainedCall
 from pythonwhat.sct_syntax import Ex, EagerChain, LazyChain, state_dec
 
 
@@ -300,12 +300,12 @@ def addx():
 
 @pytest.fixture
 def f():
-    return LazyChain._from_func(lambda state, b: state + b, kwargs={"b": "b"})
+    return LazyChain(ChainedCall(lambda state, b: state + b, kwargs={"b": "b"}))
 
 
 @pytest.fixture
 def f2():
-    return LazyChain._from_func(lambda state, c: state + c, kwargs={"c": "c"})
+    return LazyChain(ChainedCall(lambda state, c: state + c, kwargs={"c": "c"}))
 
 
 def test_f_from_func(f):
@@ -313,19 +313,22 @@ def test_f_from_func(f):
 
 
 def test_f_sct_copy_kw(addx):
-    assert LazyChain((addx, (), {"x": "x"}))("state") == "statex"
+    assert LazyChain(ChainedCall(addx, kwargs={"x": "x"}))("state") == "statex"
 
 
 def test_f_sct_copy_pos(addx):
-    assert LazyChain((addx, ("x",), {}))("state") == "statex"
+    assert LazyChain(ChainedCall(addx, ("x",)))("state") == "statex"
 
 
 def test_ex_sct_copy_kw(addx):
-    assert EagerChain((addx, (), {"x": "x"}), state="state")._state == "statex"
+    assert (
+        EagerChain(ChainedCall(addx, kwargs={"x": "x"}), state="state")._state
+        == "statex"
+    )
 
 
 def test_ex_sct_copy_pos(addx):
-    assert EagerChain((addx, ("x",), {}), state="state")._state == "statex"
+    assert EagerChain(ChainedCall(addx, ("x",)), state="state")._state == "statex"
 
 
 def test_f_2_funcs(f, addx):

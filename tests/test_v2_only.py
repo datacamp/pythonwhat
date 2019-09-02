@@ -5,7 +5,7 @@ import importlib
 
 def relooooad():
     import pythonwhat.sct_syntax
-    pythonwhat.sct_syntax.Chain.registered_scts = {}
+    pythonwhat.sct_syntax.Chain.registered_functions = {}
     importlib.reload(pythonwhat.sct_syntax)
 
 
