@@ -1,3 +1,4 @@
+from protowhat.utils_messaging import get_ord
 from protowhat.sct_syntax import link_to_state
 from pythonwhat.checks.check_funcs import (
     check_node,
@@ -15,7 +16,6 @@ from pythonwhat.checks.has_funcs import (
 )
 from pythonwhat.checks.check_has_context import has_context
 from functools import partial
-from pythonwhat import utils
 
 # this is done by the chain for v2
 # it's only needed when a new state is created and (possibly) used elsewhere
@@ -515,7 +515,7 @@ with open_file('...') as file:
                 state,
                 "context",
                 i,
-                "%s context" % utils.get_ord(i + 1),
+                "%s context" % get_ord(i + 1),
                 missing_msg=MSG_NUM_CTXT2,
             )
 
@@ -600,4 +600,4 @@ def test_comp(
         # test that ifs are same length
         has_equal_part_len(child, "ifs", insufficient_ifs_msg)
         # test individual ifs
-        multi(check_part_index(child, "ifs", i, utils.get_ord(i + 1) + " if"), if_test)
+        multi(check_part_index(child, "ifs", i, get_ord(i + 1) + " if"), if_test)

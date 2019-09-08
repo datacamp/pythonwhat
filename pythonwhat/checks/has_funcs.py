@@ -1,3 +1,4 @@
+from protowhat.utils_messaging import get_ord
 from pythonwhat.tasks import (
     getResultInProcess,
     getOutputInProcess,
@@ -670,7 +671,7 @@ def has_printout(
     except (KeyError, IndexError):
         raise InstructorError(
             "`has_printout({})` couldn't find the {} print call in your solution.".format(
-                index, utils.get_ord(index + 1)
+                index, get_ord(index + 1)
             )
         )
 

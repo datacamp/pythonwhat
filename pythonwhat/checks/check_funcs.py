@@ -2,7 +2,7 @@ from pythonwhat.checks.check_logic import multi
 from pythonwhat.checks.has_funcs import has_part
 from protowhat.Feedback import InstructorError
 from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
-from pythonwhat.utils import get_ord
+from protowhat.utils_messaging import get_ord
 from pythonwhat.utils_ast import assert_ast
 import ast
 from jinja2 import Template

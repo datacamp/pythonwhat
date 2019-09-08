@@ -1,6 +1,6 @@
 from pythonwhat.checks.check_funcs import part_to_child
 from pythonwhat.tasks import getSignatureInProcess
-from pythonwhat.utils import get_ord, get_times
+from protowhat.utils_messaging import get_ord, get_times
 from protowhat.Feedback import InstructorError
 from pythonwhat.parsing import IndexedDict
 from functools import partial
