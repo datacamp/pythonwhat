@@ -203,8 +203,8 @@ def check_args(state, name, missing_msg=None):
     specified.
 
     Args:
-        name (str): the name of the argument for which you want to check it is specified. This can also be
-            a number, in which case it refers to the positional arguments. Named argumetns take precedence.
+        name (str): the name of the argument for which you want to check if it is specified. This can also be
+            a number, in which case it refers to the positional arguments. Named arguments take precedence.
         missing_msg (str): If specified, this overrides an automatically generated feedback message in case
             the student did specify the argument.
         state (State): State object that is passed from the SCT Chain (don't specify this).
