@@ -1,6 +1,6 @@
 import pytest
 import tests.helper as helper
-from pythonwhat.reporter import Reporter
+from protowhat.Reporter import Reporter
 from difflib import Differ
 
 

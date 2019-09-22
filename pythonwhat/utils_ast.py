@@ -1,5 +1,6 @@
 import ast
-from protowhat.Feedback import InstructorError
+
+from protowhat.failure import debugger
 
 
 def wrap_in_module(node):
@@ -17,14 +18,13 @@ def wrap_in_module(node):
 
 
 def assert_ast(state, element, fmt_kwargs):
-    patt = (
+    err_msg = (
+        "SCT fails on solution: "
         "You are zooming in on the {{part}}, but it is not an AST, so it can't be re-run."
-        + " If this error occurred because of ``check_args()``,"
-        + "you may have to refer to your argument differently, e.g. `['args', 0]` or `['kwargs', 'a']`. "
-        + "Read https://pythonwhat.readthedocs.io/en/latest/articles/checking_function_calls.html#signatures for more info."
+        " If this error occurred because of ``check_args()``,"
+        "you may have to refer to your argument differently, e.g. `['args', 0]` or `['kwargs', 'a']`. "
+        "Read https://pythonwhat.readthedocs.io/en/latest/articles/checking_function_calls.html#signatures for more info."
     )
-    _err_msg = "SCT fails on solution: "
-    _err_msg += state.build_message(patt, fmt_kwargs)
     # element can also be { 'node': AST }
     if isinstance(element, dict):
         element = element["node"]
@@ -32,4 +32,5 @@ def assert_ast(state, element, fmt_kwargs):
         return
     if isinstance(element, list) and all([isinstance(el, ast.AST) for el in element]):
         return
-    raise InstructorError(_err_msg)
+    with debugger(state):
+        state.report(err_msg, fmt_kwargs)

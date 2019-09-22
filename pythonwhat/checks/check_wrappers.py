@@ -1,4 +1,4 @@
-from protowhat.utils import _debug
+from protowhat.failure import _debug
 from protowhat.checks.check_simple import allow_errors
 from protowhat.checks.check_bash_history import has_command
 from protowhat.checks.check_files import check_file, has_dir

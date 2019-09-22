@@ -1,6 +1,7 @@
 import pytest
+from protowhat.Reporter import Reporter
 from pythonwhat.State import State
-from protowhat.Feedback import InstructorError
+from protowhat.failure import InstructorError
 
 
 def test_pec_parsing_error():
@@ -11,6 +12,6 @@ def test_pec_parsing_error():
             pre_exercise_code="does not parse",
             student_process=None,
             solution_process=None,
-            reporter=None,
+            reporter=Reporter(),
             raw_student_output=None,
         )

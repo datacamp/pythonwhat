@@ -1,6 +1,6 @@
 import pytest
 from pythonwhat.test_exercise import setup_state
-from protowhat.Feedback import InstructorError
+from protowhat.failure import InstructorError
 import tests.helper as helper
 
 

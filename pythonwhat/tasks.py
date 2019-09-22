@@ -9,7 +9,8 @@ from pickle import PicklingError
 from pythonwhat.utils_env import set_context_vals, assign_from_ast
 from contextlib import contextmanager
 from functools import partial, wraps
-from protowhat.Feedback import InstructorError
+from protowhat.failure import InstructorError
+
 
 # Shell is passed as a parameter to partially applied functions in executeTask
 # Process is passed as a parameter in SCT function
@@ -96,14 +97,14 @@ def get_signature(name, mapped_name, signature, manual_sigs, env):
         if signature in manual_sigs:
             signature = inspect.Signature(manual_sigs[signature])
         else:
-            raise InstructorError("signature error - specified signature not found")
+            raise InstructorError.from_message("signature error - specified signature not found")
 
     if signature is None:
         # establish function
         try:
             fun = eval(mapped_name, env)
         except:
-            raise InstructorError("%s() was not found." % mapped_name)
+            raise InstructorError.from_message("%s() was not found." % mapped_name)
 
         # first go through manual sigs
         # try to get signature
@@ -118,20 +119,20 @@ def get_signature(name, mapped_name, signature, manual_sigs, env):
                         els[0] = type(eval(els[0], env)).__name__
                         generic_name = ".".join(els[:])
                     except:
-                        raise InstructorError("signature error - cannot convert call")
+                        raise InstructorError.from_message("signature error - cannot convert call")
                     if generic_name in manual_sigs:
                         signature = inspect.Signature(manual_sigs[generic_name])
                     else:
-                        raise InstructorError(
+                        raise InstructorError.from_message(
                             "signature error - %s not in builtins" % generic_name
                         )
                 else:
-                    raise InstructorError("manual signature not found")
+                    raise InstructorError.from_message("manual signature not found")
         except Exception as e:
             try:
                 signature = inspect.signature(fun)
             except:
-                raise InstructorError(e.args[0] + " and cannot determine signature")
+                raise InstructorError.from_message(e.args[0] + " and cannot determine signature")
 
     return signature
 

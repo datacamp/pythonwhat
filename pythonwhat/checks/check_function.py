@@ -1,7 +1,8 @@
+from protowhat.Feedback import FeedbackComponent
 from pythonwhat.checks.check_funcs import part_to_child
 from pythonwhat.tasks import getSignatureInProcess
 from protowhat.utils_messaging import get_ord, get_times
-from protowhat.Feedback import InstructorError
+from protowhat.failure import debugger
 from pythonwhat.parsing import IndexedDict
 from functools import partial
 
@@ -111,25 +112,25 @@ def check_function(
 
     # Get Parts ----
     # Copy, otherwise signature binding overwrites sol_out[name][index]['args']
-    try:
-        sol_parts = {**sol_out[name][index]}
-    except KeyError:
-        raise InstructorError(
-            "`check_function()` couldn't find a call of `%s()` in the solution code. Make sure you get the mapping right!"
-            % name
-        )
-    except IndexError:
-        raise InstructorError(
-            "`check_function()` couldn't find %s calls of `%s()` in your solution code."
-            % (index + 1, name)
-        )
+    with debugger(state):
+        try:
+            sol_parts = {**sol_out[name][index]}
+        except KeyError:
+            state.report(
+                "`check_function()` couldn't find a call of `%s()` in the solution code. Make sure you get the mapping right!"
+                % name
+            )
+        except IndexError:
+            state.report(
+                "`check_function()` couldn't find %s calls of `%s()` in your solution code."
+                % (index + 1, name)
+            )
 
     try:
         # Copy, otherwise signature binding overwrites stu_out[name][index]['args']
         stu_parts = {**stu_out[name][index]}
     except (KeyError, IndexError):
-        _msg = state.build_message(missing_msg, fmt_kwargs, append=append_missing)
-        state.report(_msg)
+        state.report(missing_msg, fmt_kwargs, append=append_missing)
 
     # Signatures -----
     if signature:
@@ -147,10 +148,11 @@ def check_function(
             )
             sol_parts["args"] = bind_args(sol_sig, sol_parts["args"])
         except Exception as e:
-            raise InstructorError(
-                "`check_function()` couldn't match the %s call of `%s` to its signature:\n%s "
-                % (get_ord(index + 1), name, e)
-            )
+            with debugger(state):
+                state.report(
+                    "`check_function()` couldn't match the %s call of `%s` to its signature:\n%s "
+                    % (get_ord(index + 1), name, e)
+                )
 
         try:
             stu_sig = get_sig(
@@ -158,13 +160,12 @@ def check_function(
             )
             stu_parts["args"] = bind_args(stu_sig, stu_parts["args"])
         except Exception:
-            _msg = state.build_message(
+            state.to_child(highlight=stu_parts["node"]).report(
                 params_not_matched_msg, fmt_kwargs, append=append_params_not_matched
             )
-            state.to_child(highlight=stu_parts["node"]).report(_msg)
 
     # three types of parts: pos_args, keywords, args (e.g. these are bound to sig)
-    append_message = {"msg": expand_msg, "kwargs": fmt_kwargs}
+    append_message = FeedbackComponent(expand_msg, fmt_kwargs)
     child = part_to_child(
         stu_parts, sol_parts, append_message, state, node_name="function_calls"
     )
