@@ -1,6 +1,6 @@
 import pytest
 import tests.helper as helper
-from protowhat.Feedback import InstructorError
+from protowhat.failure import InstructorError
 
 
 @pytest.mark.parametrize(

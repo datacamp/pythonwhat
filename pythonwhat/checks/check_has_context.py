@@ -1,5 +1,6 @@
 from pythonwhat.Test import EqualTest
-from protowhat.Feedback import Feedback, InstructorError
+from protowhat.Feedback import FeedbackComponent
+from protowhat.failure import debugger
 from pythonwhat.State import State
 from functools import singledispatch
 from pythonwhat.checks.check_funcs import check_part_index
@@ -28,16 +29,14 @@ def _test(state, incorrect_msg, exact_names, tv_name, highlight_name):
     d = {"stu_vars": stu_vars, "sol_vars": sol_vars, "num_vars": len(sol_vars)}
 
     if exact_names:
-        # message for wrong iter var names
-        _msg = state.build_message(incorrect_msg, d)
-        # test
-        state.do_test(EqualTest(stu_vars, sol_vars, Feedback(_msg, child_state)))
+        # feedback for wrong iter var names
+        child_state.do_test(
+            EqualTest(stu_vars, sol_vars, FeedbackComponent(incorrect_msg, d))
+        )
     else:
-        # message for wrong number of iter vars
-        _msg = state.build_message(incorrect_msg, d)
-        # test
-        state.do_test(
-            EqualTest(len(stu_vars), len(sol_vars), Feedback(_msg, child_state))
+        # feedback for wrong number of iter vars
+        child_state.do_test(
+            EqualTest(len(stu_vars), len(sol_vars), FeedbackComponent(incorrect_msg, d))
         )
 
     return state
@@ -45,9 +44,10 @@ def _test(state, incorrect_msg, exact_names, tv_name, highlight_name):
 
 @singledispatch
 def _has_context(state, incorrect_msg, exact_names):
-    raise InstructorError(
-        "first argument to _has_context must be a State instance or subclass"
-    )
+    with debugger(state):
+        state.report(
+            "first argument to _has_context must be a State instance or subclass"
+        )
 
 
 @_has_context.register(State)

@@ -5,7 +5,7 @@ from pathlib import Path
 from contextlib import redirect_stdout
 
 from multiprocessing import Process, Queue
-from pythonwhat.reporter import Reporter
+from protowhat.Reporter import Reporter
 
 try:
     from pythonbackend.shell_utils import create

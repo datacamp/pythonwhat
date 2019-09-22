@@ -3,7 +3,7 @@ import ast
 import tests.helper as helper
 
 from pythonwhat.test_exercise import setup_state
-from protowhat.Feedback import InstructorError
+from protowhat.failure import InstructorError
 from inspect import signature, Signature, Parameter
 from pythonwhat.checks.check_funcs import assert_ast
 

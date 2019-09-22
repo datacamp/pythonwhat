@@ -4,7 +4,8 @@ from pythonwhat.Test import (
     InstanceProcessTest,
     DefinedCollProcessTest,
 )
-from protowhat.Feedback import Feedback, InstructorError
+from protowhat.Feedback import FeedbackComponent
+from protowhat.failure import InstructorError
 from pythonwhat.tasks import (
     isDefinedInProcess,
     isInstanceInProcess,
@@ -170,12 +171,12 @@ def check_object(state, index, missing_msg=None, expand_msg=None, typestr="varia
         not isDefinedInProcess(index, state.solution_process)
         and state.has_different_processes()
     ):
-        raise InstructorError(
+        raise InstructorError.from_message(
             "`check_object()` couldn't find object `%s` in the solution process."
             % index
         )
 
-    append_message = {"msg": expand_msg, "kwargs": {"index": index, "typestr": typestr}}
+    append_message = FeedbackComponent(expand_msg, {"index": index, "typestr": typestr})
 
     # create child state, using either parser output, or create part from name
     fallback = lambda: ObjectAssignmentParser.get_part(index)
@@ -187,8 +188,13 @@ def check_object(state, index, missing_msg=None, expand_msg=None, typestr="varia
     )
 
     # test object exists
-    _msg = state.build_message(missing_msg, append_message["kwargs"])
-    state.do_test(DefinedProcessTest(index, state.student_process, Feedback(_msg)))
+    state.do_test(
+        DefinedProcessTest(
+            index,
+            state.student_process,
+            FeedbackComponent(missing_msg, append_message.kwargs),
+        )
+    )
 
     child = part_to_child(
         stu_part, sol_part, append_message, state, node_name="object_assignments"
@@ -232,13 +238,12 @@ def is_instance(state, inst, not_instance_msg=None):
         not_instance_msg = "Is it a {{inst.__name__}}?"
 
     if not isInstanceInProcess(sol_name, inst, state.solution_process):
-        raise InstructorError(
+        raise InstructorError.from_message(
             "`is_instance()` noticed that `%s` is not a `%s` in the solution process."
             % (sol_name, inst.__name__)
         )
 
-    _msg = state.build_message(not_instance_msg, {"inst": inst})
-    feedback = Feedback(_msg, state)
+    feedback = FeedbackComponent(not_instance_msg, {"inst": inst})
     state.do_test(InstanceProcessTest(stu_name, inst, state.student_process, feedback))
 
     return state
@@ -335,16 +340,15 @@ def check_keys(state, key, missing_msg=None, expand_msg=None):
     stu_name = state.student_parts.get("name")
 
     if not isDefinedCollInProcess(sol_name, key, state.solution_process):
-        raise InstructorError(
+        raise InstructorError.from_message(
             "`check_keys()` couldn't find key `%s` in object `%s` in the solution process."
             % (key, sol_name)
         )
 
     # check if key available
-    _msg = state.build_message(missing_msg, {"key": key})
     state.do_test(
         DefinedCollProcessTest(
-            stu_name, key, state.student_process, Feedback(_msg, state)
+            stu_name, key, state.student_process, FeedbackComponent(missing_msg, {"key": key})
         )
     )
 
@@ -363,6 +367,6 @@ def check_keys(state, key, missing_msg=None, expand_msg=None):
 
     stu_part = get_part(stu_name, key, state.student_parts.get("highlight"))
     sol_part = get_part(sol_name, key, state.solution_parts.get("highlight"))
-    append_message = {"msg": expand_msg, "kwargs": {"key": key}}
+    append_message = FeedbackComponent(expand_msg, {"key": key})
     child = part_to_child(stu_part, sol_part, append_message, state)
     return child

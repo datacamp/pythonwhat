@@ -1,6 +1,7 @@
 import ast
 
-from protowhat.Feedback import Feedback, InstructorError
+from protowhat.Feedback import FeedbackComponent
+from protowhat.failure import InstructorError, debugger
 from pythonwhat.Test import EqualTest
 from pythonwhat.checks.has_funcs import evalCalls
 from pythonwhat.tasks import ReprFail
@@ -53,7 +54,9 @@ def run_call(args, node, process, get_func, **kwargs):
     elif isinstance(node, ast.Lambda):  # lambda body expr
         func_expr = node
     else:
-        raise InstructorError("Only function definition or lambda may be called")
+        raise InstructorError.from_message(
+            "Only function definition or lambda may be called"
+        )
 
     ast.fix_missing_locations(func_expr)
     return get_func(process=process, tree=func_expr, call=args, **kwargs)
@@ -94,20 +97,18 @@ def call(
     )
 
     if (test == "error") ^ isinstance(eval_sol, Exception):
-        _msg = (
-            state.build_message(
+        with debugger(state):
+            state.report(
                 "Calling {{argstr}} resulted in an error (or not an error if testing for one). Error message: {{type_err}} {{str_sol}}",
                 dict(type_err=type(eval_sol), str_sol=str_sol, argstr=argstr),
-            ),
-        )
-        raise InstructorError(_msg)
+            )
 
     if isinstance(eval_sol, ReprFail):
-        _msg = state.build_message(
-            "Can't get the result of calling {{argstr}}: {{eval_sol.info}}",
-            dict(argstr=argstr, eval_sol=eval_sol),
-        )
-        raise InstructorError(_msg)
+        with debugger(state):
+            state.report(
+                "Can't get the result of calling {{argstr}}: {{eval_sol.info}}",
+                dict(argstr=argstr, eval_sol=eval_sol),
+            )
 
     # Run for Submission ------------------------------------------------------
     eval_stu, str_stu = run_call(
@@ -130,11 +131,13 @@ def call(
     stu_node = state.student_parts["node"]
     stu_state = state.to_child(highlight=stu_node)
     if (test == "error") ^ isinstance(eval_stu, Exception):
-        _msg = state.build_message(error_msg, fmt_kwargs)
-        stu_state.report(_msg)
+        stu_state.report(error_msg, fmt_kwargs)
 
     # incorrect result
-    _msg = state.build_message(incorrect_msg, fmt_kwargs)
-    state.do_test(EqualTest(eval_sol, eval_stu, Feedback(_msg, stu_state), func))
+    stu_state.do_test(
+        EqualTest(
+            eval_sol, eval_stu, FeedbackComponent(incorrect_msg, fmt_kwargs), func
+        )
+    )
 
     return state

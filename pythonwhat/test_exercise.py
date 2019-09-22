@@ -2,8 +2,8 @@ from pythonwhat.State import State
 from pythonwhat.local import run_exercise
 from pythonwhat.sct_syntax import Ex
 from pythonwhat.utils import check_str, check_process
-from pythonwhat.reporter import Reporter
-from protowhat.Test import TestFail
+from protowhat.Reporter import Reporter
+from protowhat.failure import TestFail, InstructorError
 from pythonwhat.utils import include_v1
 
 
@@ -36,6 +36,9 @@ def test_exercise(
               tags - the tags belonging to the SCT execution.
     """
 
+    reporter = Reporter(errors=[error] if error else [])
+    tree, sct_cntxt = prep_context()
+
     try:
         state = State(
             student_code=check_str(student_code),
@@ -45,12 +48,10 @@ def test_exercise(
             solution_process=check_process(solution_process),
             raw_student_output=check_str(raw_student_output),
             force_diagnose=force_diagnose,
-            reporter=Reporter(errors=[error] if error else []),
+            reporter=reporter,
         )
 
         State.root_state = state
-
-        tree, sct_cntxt = prep_context()
 
         # Actually execute SCTs
         exec(sct, sct_cntxt)
@@ -60,10 +61,13 @@ def test_exercise(
             for test in tree.crnt_node:
                 test(state)
 
-    except TestFail as e:
-        return e.payload
+    except (TestFail, InstructorError) as e:
+        if isinstance(e, InstructorError):
+            # TODO: decide based on context
+            raise e
+        return reporter.build_failed_payload(e.feedback)
 
-    return state.reporter.build_final_payload()
+    return reporter.build_final_payload()
 
 
 # TODO: consistent success_msg

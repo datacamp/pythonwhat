@@ -2,8 +2,7 @@ from functools import partial
 
 from protowhat.sct_syntax import link_to_state
 from pythonwhat.checks.check_function import check_function
-from protowhat.Feedback import InstructorError
-from protowhat.Test import TestFail
+from protowhat.failure import TestFail, InstructorError
 from pythonwhat.checks.check_funcs import check_args
 from pythonwhat.checks.has_funcs import has_equal_value, has_equal_ast, has_printout
 
@@ -101,7 +100,7 @@ def test_function_v2(
     index = index - 1
 
     if not isinstance(params, list):
-        raise InstructorError(
+        raise InstructorError.from_message(
             "Inside test_function_v2, make sure to specify a LIST of params."
         )
 
@@ -109,7 +108,7 @@ def test_function_v2(
         do_eval = [do_eval] * len(params)
 
     if len(params) != len(do_eval):
-        raise InstructorError(
+        raise InstructorError.from_message(
             "Inside test_function_v2, make sure that do_eval has the same length as params."
         )
 
@@ -118,7 +117,7 @@ def test_function_v2(
         params_not_specified_msg = [params_not_specified_msg] * len(params)
 
     if len(params) != len(params_not_specified_msg):
-        raise InstructorError(
+        raise InstructorError.from_message(
             "Inside test_function_v2, make sure that params_not_specified_msg has the same length as params."
         )
 
@@ -127,7 +126,7 @@ def test_function_v2(
         incorrect_msg = [incorrect_msg] * len(params)
 
     if len(params) != len(incorrect_msg):
-        raise InstructorError(
+        raise InstructorError.from_message(
             "Inside test_function_v2, make sure that incorrect_msg has the same length as params."
         )
 

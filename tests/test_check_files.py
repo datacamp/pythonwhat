@@ -5,7 +5,7 @@ import pytest
 import tests.helper as helper
 from protowhat.sct_syntax import LazyChain
 from pythonwhat.local import ChDir
-from protowhat.Test import TestFail as TF
+from protowhat.failure import TestFail as TF
 
 from pythonwhat.test_exercise import setup_state
 from protowhat.checks import check_files as cf
