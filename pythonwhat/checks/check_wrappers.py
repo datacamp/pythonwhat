@@ -765,7 +765,10 @@ for k in [
     "has_no_error",
     "has_chosen",
 ]:
-    scts[k] = getattr(has_funcs, k)
+    sct = getattr(has_funcs, k)
+    if not hasattr(sct, "__name__"):
+        rename_function(sct, k)
+    scts[k] = sct
 
 # include check_object and friends ------
 for k in ["check_object", "is_instance", "check_df", "check_keys"]:
