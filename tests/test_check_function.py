@@ -520,3 +520,22 @@ def test_function_call_in_comparison(code):
     sct = "Ex().check_function('len')"
     res = helper.run({"DC_CODE": code, "DC_SOLUTION": code, "DC_SCT": sct})
     assert res["correct"]
+
+
+def test_ho_function():
+    # TODO: FunctionParser.visit_Call should append something to name to discern HOF calls
+    #  e.g. () if node.func is Func (this should only affect limited exercises)
+    sct = "Ex().check_function('hof').check_args(0).has_equal_value(override=2)"
+
+    code = """
+def hof(arg1):
+    def inner(arg2):
+        return arg1, arg2
+    
+    return inner
+    
+hof(1)(2)
+    """
+
+    res = helper.run({"DC_CODE": code, "DC_SOLUTION": code, "DC_SCT": sct})
+    assert res["correct"]
