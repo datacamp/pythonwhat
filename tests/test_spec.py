@@ -289,8 +289,8 @@ def test_override(k, code):
 
 # Test SCT Ex syntax (copied from sqlwhat)  -----------------------------------
 
-from protowhat.sct_syntax import ChainExtender, ChainedCall
-from pythonwhat.sct_syntax import Ex, EagerChain, LazyChain, state_dec
+from protowhat.sct_syntax import ChainExtender, ChainedCall, LazyChain
+from pythonwhat.sct_syntax import Ex, EagerChain, state_dec
 
 
 @pytest.fixture
