@@ -1,9 +1,4 @@
-from protowhat.sct_syntax import (
-    Chain,
-    EagerChain,
-    LazyChain,
-    state_dec_gen,
-)
+from protowhat.sct_syntax import EagerChain, ExGen, LazyChainStart, state_dec_gen
 from pythonwhat.checks.check_wrappers import scts
 from pythonwhat.State import State
 from pythonwhat.probe import Node, Probe, TEST_NAMES
@@ -32,13 +27,22 @@ def multi_dec(f):
     return wrapper
 
 
-state_dec = state_dec_gen(State)
+state_dec = state_dec_gen(sct_dict)
 
-assert LazyChain  # todo: __all__?
+# todo: __all__?
+assert ExGen
+assert LazyChainStart
 
 
 def Ex(state=None):
-    return EagerChain(state=state or State.root_state)
+    return EagerChain(state=state or State.root_state, chainable_functions=sct_dict)
+
+
+def get_chains():
+    return {
+        "Ex": ExGen(sct_dict, State.root_state),
+        "F": LazyChainStart(sct_dict),
+    }
 
 
 if include_v1():
@@ -57,8 +61,6 @@ if include_v1():
     # since probe behavior will try to call all SCTs passed (assuming they're also probes)
     for k in ["test_or", "test_correct"]:
         sct_dict[k] = multi_dec(getattr(test_funcs, k))
-
-Chain.register_functions(sct_dict)
 
 # Prepare check_funcs to be used alone (e.g. test = check_with().check_body())
 v2_check_functions = {k: state_dec(v) for k, v in scts.items()}

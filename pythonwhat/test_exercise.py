@@ -1,6 +1,6 @@
 from pythonwhat.State import State
 from pythonwhat.local import run_exercise
-from pythonwhat.sct_syntax import Ex
+from pythonwhat.sct_syntax import Ex, get_chains
 from pythonwhat.utils import check_str, check_process
 from protowhat.Reporter import Reporter
 from protowhat.failure import TestFail, InstructorError
@@ -37,7 +37,6 @@ def test_exercise(
     """
 
     reporter = Reporter(errors=[error] if error else [])
-    tree, sct_cntxt = prep_context()
 
     try:
         state = State(
@@ -52,6 +51,7 @@ def test_exercise(
         )
 
         State.root_state = state
+        tree, sct_cntxt = prep_context()
 
         # Actually execute SCTs
         exec(sct, sct_cntxt)
@@ -94,7 +94,6 @@ def prep_context():
         "from inspect import Parameter as param",
         "from pythonwhat.signatures import sig_from_params, sig_from_obj",
         "from pythonwhat.State import set_converter",
-        "from pythonwhat.sct_syntax import LazyChain as F, Ex",
     ]
     [exec(line, None, cntxt) for line in imports]
 
@@ -106,6 +105,7 @@ def prep_context():
         tree = None
 
     cntxt.update(v2_check_functions)
+    cntxt.update(get_chains())
     return tree, cntxt
 
 
