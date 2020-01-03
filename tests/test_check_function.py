@@ -522,18 +522,26 @@ def test_function_call_in_comparison(code):
     assert res["correct"]
 
 
-def test_ho_function():
-    # TODO: FunctionParser.visit_Call should append something to name to discern HOF calls
-    #  e.g. () if node.func is Func (this should only affect limited exercises)
-    sct = "Ex().check_function('hof').check_args(0).has_equal_value(override=2)"
+@pytest.mark.parametrize(
+    "sct",
+    [
+        "Ex().check_function('numpy.array')",
+        "Ex().check_function('hof').check_args(0).has_equal_value(override=1)",
+        "Ex().check_function('hof()').check_args(0).has_equal_value(override=2)",
+    ],
+)
+def test_ho_function(sct):
 
     code = """
+import numpy as np
+np.array([])
+
 def hof(arg1):
     def inner(arg2):
         return arg1, arg2
-    
+
     return inner
-    
+
 hof(1)(2)
     """
 
