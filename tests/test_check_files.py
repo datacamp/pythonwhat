@@ -35,7 +35,7 @@ def temp_txt_file():
 
 @pytest.fixture(params=["temp_py_file", "temp_txt_file"])
 def temp_file(request):
-    return request.getfuncargvalue(request.param)
+    return request.getfixturevalue(request.param)
 
 
 def test_python_file_existence(temp_py_file):
