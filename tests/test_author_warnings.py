@@ -16,7 +16,7 @@ def test_converter_err():
     data = {
         "DC_CODE": code,
         "DC_SOLUTION": code,
-        "DC_SCT": """def convert(): return abc\nset_converter('numpy.ndarray', convert); test_object('x') """,
+        "DC_SCT": """def convert(): return abc\nset_converter('numpy.ndarray', convert); check_object('x') """,
     }
     with pytest.raises(InstructorError):
         helper.run(data)
@@ -187,19 +187,11 @@ def test_check_object_on_root():
 def test_check_object_not_on_root():
     code = "for i in range(3): x = 1"
     s = setup_state(code, code)
-    with helper.set_v2_only_env(""):
+    with pytest.raises(
+        InstructorError,
+        match=r"`check_object\(\)` should only be called focusing on a full script, following `Ex\(\)` or `run\(\)`\. If you want to check the value of an object in e.g. a for loop, use `has_equal_value\(name = 'my_obj'\)` instead.",
+    ):
         s.check_for_loop().check_body().check_object("x")
-
-
-def test_check_object_not_on_root_v2():
-    code = "for i in range(3): x = 1"
-    s = setup_state(code, code)
-    with helper.set_v2_only_env("1"):
-        with pytest.raises(
-            InstructorError,
-            match=r"`check_object\(\)` should only be called focusing on a full script, following `Ex\(\)` or `run\(\)`\. If you want to check the value of an object in e.g. a for loop, use `has_equal_value\(name = 'my_obj'\)` instead.",
-        ):
-            s.check_for_loop().check_body().check_object("x")
 
 
 def test_is_instance_not_on_check_object():
@@ -225,35 +217,21 @@ def test_check_keys_not_on_check_object():
 def test_has_equal_ast_on_check_object():
     code = "x = 1"
     s = setup_state(code, code)
-    s.check_object("x").has_equal_ast()
-
-
-def test_has_equal_ast_on_check_object_v2():
-    code = "x = 1"
-    s = setup_state(code, code)
-    with helper.set_v2_only_env("1"):
-        with pytest.raises(
-            InstructorError,
-            match=r"`has_equal_ast\(\)` should not be called on `check_object\(\)`\.",
-        ):
-            s.check_object("x").has_equal_ast()
+    with pytest.raises(
+        InstructorError,
+        match=r"`has_equal_ast\(\)` should not be called on `check_object\(\)`\.",
+    ):
+        s.check_object("x").has_equal_ast()
 
 
 def test_has_equal_ast_on_check_function():
     code = "round(1)"
     s = setup_state(code, code)
-    s.check_function("round").has_equal_ast()
-
-
-def test_has_equal_ast_on_check_function_v2():
-    code = "round(1)"
-    s = setup_state(code, code)
-    with helper.set_v2_only_env("1"):
-        with pytest.raises(
-            InstructorError,
-            match=r"`has_equal_ast\(\)` should not be called on `check_function\(\)`\.",
-        ):
-            s.check_function("round").has_equal_ast()
+    with pytest.raises(
+        InstructorError,
+        match=r"`has_equal_ast\(\)` should not be called on `check_function\(\)`\.",
+    ):
+        s.check_function("round").has_equal_ast()
 
 
 def test_check_call_not_on_check_function_def():

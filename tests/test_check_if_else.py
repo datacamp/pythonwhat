@@ -6,28 +6,6 @@ import tests.helper as helper
     "sct",
     [
         """
-def condition_test():
-    test_expression_result({"offset": 7})
-    test_expression_result({"offset": 8})
-    test_expression_result({"offset": 9})
-test_if_else(index=1,
-             test = condition_test,
-             body = lambda: test_student_typed(r'x\s*=\s*5'),
-             orelse = lambda: test_function('round'))
-    """,
-        """
-condition_test = [
-    test_expression_result({"offset": 7}),
-    test_expression_result({"offset": 8}),
-    test_expression_result({"offset": 9})
-]
-
-test_if_else(index=1,
-             test = condition_test,
-             body = test_student_typed(r'x\s*=\s*5'),
-             orelse = test_function('round'))
-    """,
-        """
 Ex().check_if_else().multi(
     check_test().multi([ set_env(offset = i).has_equal_value() for i in range(7,10) ]),
     check_body().has_code(r'x\s*=\s*5'),
@@ -63,53 +41,6 @@ def test_check_if_else_basic(sct, stu, passes):
 @pytest.mark.parametrize(
     "sct",
     [
-        """
-def test_test():
-    test_expression_result({"offset": 7})
-    test_expression_result({"offset": 8})
-    test_expression_result({"offset": 9})
-
-def body_test():
-    test_student_typed('5')
-
-def orelse_test():
-    def test_test2():
-        test_expression_result({"offset": 4})
-        test_expression_result({"offset": 5})
-        test_expression_result({"offset": 6})
-    def body_test2():
-        test_student_typed('7')
-    def orelse_test2():
-        test_function('round')
-    test_if_else(index = 1,
-                  test = test_test2,
-                  body = body_test2,
-                  orelse = orelse_test2)
-
-test_if_else(index=1,
-             test=test_test,
-             body=body_test,
-             orelse=orelse_test)
-    """,
-        """
-test_if_else(index=1,
-    test=[
-        test_expression_result({"offset": 7}),
-        test_expression_result({"offset": 8}),
-        test_expression_result({"offset": 9})
-    ],
-    body=test_student_typed('5'),
-    orelse=test_if_else(index = 1,
-        test=[
-            test_expression_result({"offset": 4}),
-            test_expression_result({"offset": 5}),
-            test_expression_result({"offset": 6})
-        ],
-        body = test_student_typed('7'),
-        orelse = test_function('round')
-    )
-)
-    """,
         """
 Ex().check_if_else().multi(
     check_test().multi([ set_env(offset = i).has_equal_value() for i in range(7, 10) ]),

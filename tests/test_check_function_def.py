@@ -73,8 +73,6 @@ def test_check_function_def_name(stu, passes):
     "sct",
     [
         "Ex().check_function_def('shout').check_body().set_context('test').has_equal_output()",
-        "test_function_definition('shout', body = lambda: test_expression_output(context_vals = ['help']))",
-        "test_function_definition('shout', body = test_expression_output(context_vals = ['help']))",
     ],
 )
 def test_old_ways_of_calling(sct):
@@ -92,7 +90,6 @@ Ex().check_function_def('my_fun').multi(
     check_args('**kwargs').has_equal_part('name', msg='x')
 )
     """,
-        "Ex().test_function_definition('my_fun')",
     ],
 )
 def test_old_ways_of_calling_starargs(sct):
@@ -135,7 +132,6 @@ def test_check_function_def_args(stu, passes):
     "sct",
     [
         "Ex().check_function_def('f').has_equal_part_len('args', unequal_msg='wrong')",
-        "Ex().test_function_definition('f')",  # does arg len checking internally
     ],
 )
 @pytest.mark.parametrize(
@@ -199,24 +195,6 @@ def test_check_call_error_types():
         'def test(): raise NameError("boooo")', 'def test(): raise ValueError("boooo")'
     )
     s.check_function_def("test").check_call("f()").has_equal_error()
-
-
-@pytest.mark.parametrize(
-    "sct",
-    [
-        "Ex().test_function_definition('my_fun', results=[[1]])",
-        "Ex().test_function_definition('my_fun', results=[(1,)])",
-        "Ex().test_function_definition('my_fun', outputs=[[1]])",
-        "Ex().test_function_definition('my_fun', outputs=[(1,)])",
-        "Ex().test_function_definition('my_fun', errors=[['1']])",
-        "Ex().test_function_definition('my_fun', errors=[('1',)])",
-        "Ex().test_function_definition('my_fun', errors=['1'])",
-    ],
-)
-def test_check_call_old_way_of_calling(sct):
-    code = "def my_fun(a):\n  print(a + 2)\n  return a + 2"
-    res = helper.run({"DC_CODE": code, "DC_SOLUTION": code, "DC_SCT": sct})
-    assert res["correct"]
 
 
 # Lambdas ---------------------------------------------------------------------

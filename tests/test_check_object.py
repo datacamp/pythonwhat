@@ -6,7 +6,6 @@ from pythonwhat.test_exercise import setup_state
 @pytest.mark.parametrize(
     "sct",
     [
-        "test_object('x', undefined_msg='udm', incorrect_msg='icm')",
         "Ex().check_object('x', missing_msg='udm').has_equal_value(incorrect_msg='icm')",
     ],
 )
@@ -95,8 +94,6 @@ def test_is_instance(stu_code, passes):
 @pytest.mark.parametrize(
     "sct",
     [
-        "test_data_frame('df', columns=['a'], undefined_msg='udm', not_data_frame_msg='ndfm', undefined_cols_msg='ucm', incorrect_msg='icm')",
-        "test_data_frame('df', columns=None, undefined_msg='udm', not_data_frame_msg='ndfm', undefined_cols_msg='ucm', incorrect_msg='icm')",
         """
 import pandas as pd
 Ex().check_object('df', missing_msg='udm', expand_msg='').\
@@ -159,7 +156,6 @@ def test_check_keys(stu_code, passes):
 @pytest.mark.parametrize(
     "sct",
     [
-        "Ex().test_data_frame('pivot')",
         "Ex().check_df('pivot').check_keys(('visitors', 'Austin')).has_equal_value()",
     ],
 )

@@ -152,9 +152,8 @@ def has_equal_ast(state, incorrect_msg=None, code=None, exact=True, append=None)
             Ex().check_function('numpy.mean').check_args('a').has_equal_ast()
 
     """
-    if utils.v2_only():
-        state.assert_is_not(["object_assignments"], "has_equal_ast", ["check_object"])
-        state.assert_is_not(["function_calls"], "has_equal_ast", ["check_function"])
+    state.assert_is_not(["object_assignments"], "has_equal_ast", ["check_object"])
+    state.assert_is_not(["function_calls"], "has_equal_ast", ["check_function"])
 
     if code and incorrect_msg is None:
         raise InstructorError.from_message(

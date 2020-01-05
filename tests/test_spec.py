@@ -42,23 +42,14 @@ def test_f_chain(sct):
         (
             None,
             """
-te = test_expression_result(extra_env={'aa':2}, incorrect_msg='unequal')
-Ex().multi(test_list_comp(body=te))                                                        # spec 1 inside multi
-Ex().check_list_comp(0).check_body().multi(te)                                             # half of each spec
 Ex().check_list_comp(0).check_body().set_context(aa=2).has_equal_value('unequal')          # full spec 2
-test_list_comp(body=te)                                                                    # full spec 1
 """,
             True,
             None,
         ),
-        # TODO: this test fails because spec1 tests are run after spec2 tests,
-        #       even if they come first in the SCT script, due to building the tree
-        #       for spec1 tests but not spec2 (which are run immediately)
         (
             "for aa in range(3): aa",
             """
-test_list_comp(body=test_expression_result(expr_code = 'aa', incorrect_msg='unequal'))
-Ex().check_list_comp(0).check_body().multi(test_expression_result(incorrect_msg='unequal'))
 Ex().check_list_comp(0).check_body().has_equal_value('unequal')
     """,
             False,
@@ -67,11 +58,10 @@ Ex().check_list_comp(0).check_body().has_equal_value('unequal')
         (
             "[aa for aa in range(2)]",
             """
-Ex().test_list_comp(body=test_expression_result(extra_env={'aa': 2}, incorrect_msg = 'spec1'))
 Ex().check_list_comp(0).check_body().set_context(aa=2).has_equal_value('spec2')
     """,
             False,
-            "spec1",
+            "spec2",
         ),
     ],
 )
