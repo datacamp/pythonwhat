@@ -371,6 +371,7 @@ def has_expr(
 
 
 has_equal_value = partial(has_expr, test="value")
+has_equal_value.__name__ = "has_equal_value"
 has_equal_value.__doc__ = (
     """Run targeted student and solution code, and compare returned value.
 
@@ -403,6 +404,7 @@ has_equal_value.__doc__ = (
 
 
 has_equal_output = partial(has_expr, test="output")
+has_equal_output.__name__ = "has_equal_output"
 has_equal_output.__doc__ = """Run targeted student and solution code, and compare output.
 
     When called on an SCT chain, ``has_equal_output()`` will execute the student and solution
@@ -412,6 +414,7 @@ has_equal_output.__doc__ = """Run targeted student and solution code, and compar
 )
 
 has_equal_error = partial(has_expr, test="error")
+has_equal_error.__name__ = "has_equal_error"
 has_equal_error.__doc__ = """Run targeted student and solution code, and compare generated errors.
 
     When called on an SCT chain, ``has_equal_error()`` will execute the student and solution
