@@ -3,7 +3,7 @@ from pythonwhat.local import run_exercise
 from pythonwhat.sct_syntax import Ex, get_chains
 from pythonwhat.utils import check_str, check_process
 from protowhat.Reporter import Reporter
-from protowhat.failure import TestFail, InstructorError
+from protowhat.failure import Failure, InstructorError
 from pythonwhat.utils import include_v1
 
 
@@ -61,7 +61,7 @@ def test_exercise(
             for test in tree.crnt_node:
                 test(state)
 
-    except (TestFail, InstructorError) as e:
+    except Failure as e:
         if isinstance(e, InstructorError):
             # TODO: decide based on context
             raise e
