@@ -1,4 +1,5 @@
 from functools import partialmethod
+from protowhat.utils import parameters_attr
 from pythonwhat.parsing import (
     TargetVars,
     FunctionParser,
@@ -35,6 +36,7 @@ class Context(Mapping):
         return len(self._items)
 
 
+@parameters_attr
 class State(ProtoState):
     """State of the SCT environment.
 
@@ -75,11 +77,9 @@ class State(ProtoState):
         solution_env=Context(),
     ):
         args = locals().copy()
-        self.params = list()
 
         for k, v in args.items():
             if k != "self":
-                self.params.append(k)
                 setattr(self, k, v)
 
         self.messages = messages if messages else []
@@ -113,14 +113,16 @@ class State(ProtoState):
         student tree and solution tree. This is necessary when testing if statements or
         for loops for example.
         """
-        bad_pars = set(kwargs) - set(self.params)
-        if bad_pars:
-            raise ValueError("Invalid init params for State: %s" % ", ".join(bad_pars))
+        bad_parameters = set(kwargs) - set(self.parameters)
+        if bad_parameters:
+            raise ValueError(
+                "Invalid init parameters for State: %s" % ", ".join(bad_parameters)
+            )
 
         base_kwargs = {
             attr: getattr(self, attr)
-            for attr in self.params
-            if attr not in ["highlight"]
+            for attr in self.parameters
+            if hasattr(self, attr) and attr not in ["ast_dispatcher", "highlight"]
         }
 
         if not isinstance(append_message, dict):
@@ -162,11 +164,11 @@ class State(ProtoState):
         init_kwargs = {**base_kwargs, **kwargs}
         child = klass(**init_kwargs)
 
-        extra_attrs = set(vars(self)) - set(self.params)
+        extra_attrs = set(vars(self)) - set(self.parameters)
         for attr in extra_attrs:
             # don't copy attrs set on new instances in init
             # the cached manual_sigs is passed
-            if attr not in {"params", "ast_dispatcher", "converters"}:
+            if attr not in {"ast_dispatcher", "converters"}:
                 setattr(child, attr, getattr(self, attr))
 
         return child
