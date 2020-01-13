@@ -1,6 +1,15 @@
+import asttokens
+
 from functools import partialmethod
-from protowhat.utils import parameters_attr
+from collections.abc import Mapping
+
+from protowhat.failure import debugger
 from protowhat.Feedback import FeedbackComponent
+from protowhat.selectors import DispatcherInterface
+from protowhat.State import State as ProtoState
+from protowhat.utils import parameters_attr
+from pythonwhat import signatures
+from pythonwhat.converters import get_manual_converters
 from pythonwhat.feedback import Feedback
 from pythonwhat.parsing import (
     TargetVars,
@@ -8,13 +17,6 @@ from pythonwhat.parsing import (
     ObjectAccessParser,
     parser_dict,
 )
-from protowhat.State import State as ProtoState
-from protowhat.selectors import DispatcherInterface
-from protowhat.failure import debugger
-from pythonwhat import signatures
-from pythonwhat.converters import get_manual_converters
-from collections.abc import Mapping
-import asttokens
 from pythonwhat.utils_ast import wrap_in_module
 
 
