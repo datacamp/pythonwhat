@@ -41,12 +41,13 @@ def has_part(state, name, msg, fmt_kwargs=None, index=None):
         if part is None:
             raise KeyError
 
-    # Chceck if it's there in the solution
-    err_msg = "SCT fails on solution: " + msg
+    # TODO: instructor error if msg is not str
+    # Check if it's there in the solution
     try:
         verify(state.solution_parts[name], index)
     except (KeyError, IndexError):
         with debugger(state):
+            err_msg = "SCT fails on solution: {}".format(msg)
             state.report(err_msg, d)
 
     try:
