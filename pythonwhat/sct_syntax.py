@@ -1,4 +1,4 @@
-from protowhat.sct_syntax import EagerChain, ExGen, LazyChainStart, state_dec_gen
+from protowhat.sct_syntax import EagerChain, ExGen, LazyChainStart, state_dec_gen, LazyChain
 from pythonwhat.checks.check_wrappers import scts
 from pythonwhat.State import State
 from pythonwhat.probe import Node, Probe, TEST_NAMES
@@ -36,6 +36,10 @@ assert LazyChainStart
 
 def Ex(state=None):
     return EagerChain(state=state or State.root_state, chainable_functions=sct_dict)
+
+
+def F():
+    return LazyChain(chainable_functions=sct_dict)
 
 
 def get_chains():

@@ -94,6 +94,7 @@ def prep_context():
         "from inspect import Parameter as param",
         "from pythonwhat.signatures import sig_from_params, sig_from_obj",
         "from pythonwhat.State import set_converter",
+        "from pythonwhat.sct_syntax import F, Ex"
     ]
     [exec(line, None, cntxt) for line in imports]
 
@@ -105,7 +106,8 @@ def prep_context():
         tree = None
 
     cntxt.update(v2_check_functions)
-    cntxt.update(get_chains())
+    # TODO: ChainStart instances cause errors when dill tries to pass manual converter functions
+    # cntxt.update(get_chains())
     return tree, cntxt
 
 
