@@ -111,7 +111,7 @@ fail.__doc__ = (
     str(fail.__doc__)
     + """
     :Example:
-    
+
         As a trivial SCT example, ::
 
             Ex().check_for_loop().check_body().fail()
@@ -150,7 +150,7 @@ def override(state, solution):
                 new_ast = node
                 break
 
-    kwargs = state.feedback_context.kwargs
+    kwargs = state.feedback_context.kwargs if state.feedback_context else {}
     child = state.to_child(
         solution_ast=new_ast,
         student_ast=state.student_ast,
