@@ -2,6 +2,10 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.23.0
+
+- Update to protowhat v2 (embedding xwhats, `prepare_validation` helper,  for checking bash history, autodebug)
+
 ## 2.22.0
 
 - Add support for replacing the placeholder `__focus__` with the focused code in the `expr_code` argument
