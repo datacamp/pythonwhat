@@ -1,4 +1,4 @@
-from protowhat.utils import _debug
+from protowhat.failure import _debug
 from protowhat.checks.check_simple import allow_errors
 from protowhat.checks.check_bash_history import has_command
 from protowhat.checks.check_files import check_file, has_dir
@@ -703,27 +703,36 @@ def rename_function(func, name):
     func.__name__ = func.__qualname__ = name
 
 
-scts["has_equal_name"] = state_partial(
-    has_equal_part,
-    "name",
-    msg="Make sure to use the correct {{name}}, was expecting {{sol_part[name]}}, instead got {{stu_part[name]}}.",
+def add_partial_sct(func, name):
+    rename_function(func, name)
+    scts[name] = func
+
+
+add_partial_sct(
+    state_partial(
+        has_equal_part,
+        "name",
+        msg="Make sure to use the correct {{name}}, was expecting {{sol_part[name]}}, instead got {{stu_part[name]}}.",
+    ),
+    "has_equal_name",
 )
-scts["is_default"] = state_partial(
-    has_equal_part,
+add_partial_sct(
+    state_partial(
+        has_equal_part,
+        "is_default",
+        msg="Make sure it {{ 'has' if sol_part.is_default else 'does not have'}} a default argument.",
+    ),
     "is_default",
-    msg="Make sure it {{ 'has' if sol_part.is_default else 'does not have'}} a default argument.",
 )
 
 # include rest of wrappers
 for k, v in __PART_WRAPPERS__.items():
     check_fun = state_partial(check_part, k, v)
-    rename_function(check_fun, "check_" + k)
-    scts[check_fun.__name__] = check_fun
+    add_partial_sct(check_fun, "check_" + k)
 
 for k, v in __PART_INDEX_WRAPPERS__.items():
     check_fun = state_partial(check_part_index, k, part_msg=v)
-    rename_function(check_fun, "check_" + k)
-    scts[check_fun.__name__] = check_fun
+    add_partial_sct(check_fun, "check_" + k)
 
 for k, v in __NODE_WRAPPERS__.items():
     check_fun = state_partial(check_node, k + "s", typestr=v["typestr"])
@@ -732,8 +741,7 @@ for k, v in __NODE_WRAPPERS__.items():
         missing_msg="missing_msg: If specified, this overrides the automatically generated feedback message in case the construct could not be found.",
         expand_msg="expand_msg: If specified, this overrides the automatically generated feedback message that is prepended to feedback messages that are thrown further in the SCT chain.",
     )
-    rename_function(check_fun, "check_" + k)
-    scts[check_fun.__name__] = check_fun
+    add_partial_sct(check_fun, "check_" + k)
 
 for k in [
     "set_context",
@@ -765,7 +773,10 @@ for k in [
     "has_no_error",
     "has_chosen",
 ]:
-    scts[k] = getattr(has_funcs, k)
+    sct = getattr(has_funcs, k)
+    if not hasattr(sct, "__name__"):
+        rename_function(sct, k)
+    scts[k] = sct
 
 # include check_object and friends ------
 for k in ["check_object", "is_instance", "check_df", "check_keys"]:

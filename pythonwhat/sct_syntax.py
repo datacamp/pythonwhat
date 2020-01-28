@@ -1,4 +1,4 @@
-from protowhat.sct_syntax import Chain as ProtoChain, F as ProtoF, state_dec_gen
+from protowhat.sct_syntax import EagerChain, ExGen, LazyChainStart, state_dec_gen, LazyChain
 from pythonwhat.checks.check_wrappers import scts
 from pythonwhat.State import State
 from pythonwhat.probe import Node, Probe, TEST_NAMES
@@ -27,21 +27,26 @@ def multi_dec(f):
     return wrapper
 
 
-state_dec = state_dec_gen(State, sct_dict)
+state_dec = state_dec_gen(sct_dict)
 
-
-class Chain(ProtoChain):
-    def __init__(self, state, attr_scts=sct_dict):
-        super().__init__(state, attr_scts)
-
-
-class F(ProtoF):
-    def __init__(self, stack=None, attr_scts=sct_dict):
-        super().__init__(stack, attr_scts)
+# todo: __all__?
+assert ExGen
+assert LazyChainStart
 
 
 def Ex(state=None):
-    return Chain(state or State.root_state)
+    return EagerChain(state=state or State.root_state, chainable_functions=sct_dict)
+
+
+def F():
+    return LazyChain(chainable_functions=sct_dict)
+
+
+def get_chains():
+    return {
+        "Ex": ExGen(sct_dict, State.root_state),
+        "F": LazyChainStart(sct_dict),
+    }
 
 
 if include_v1():

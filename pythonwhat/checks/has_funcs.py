@@ -1,3 +1,4 @@
+from protowhat.utils_messaging import get_ord
 from pythonwhat.tasks import (
     getResultInProcess,
     getOutputInProcess,
@@ -5,12 +6,11 @@ from pythonwhat.tasks import (
     ReprFail,
     isDefinedInProcess,
     getOptionFromProcess,
-    ReprFail,
     UndefinedValue,
 )
-from protowhat.Test import Test
 from pythonwhat.Test import EqualTest, DefinedCollTest
-from protowhat.Feedback import Feedback, InstructorError
+from protowhat.Feedback import Feedback, FeedbackComponent
+from protowhat.failure import InstructorError, debugger
 from pythonwhat import utils
 from functools import partial
 import re
@@ -41,18 +41,19 @@ def has_part(state, name, msg, fmt_kwargs=None, index=None):
         if part is None:
             raise KeyError
 
-    # Chceck if it's there in the solution
-    _msg = state.build_message(msg, d)
-    _err_msg = "SCT fails on solution: " + _msg
+    # TODO: instructor error if msg is not str
+    # Check if it's there in the solution
     try:
         verify(state.solution_parts[name], index)
     except (KeyError, IndexError):
-        raise InstructorError(_err_msg)
+        with debugger(state):
+            err_msg = "SCT fails on solution: {}".format(msg)
+            state.report(err_msg, d)
 
     try:
         verify(state.student_parts[name], index)
     except (KeyError, IndexError):
-        state.report(_msg)
+        state.report(msg, d)
 
     return state
 
@@ -64,9 +65,8 @@ def has_equal_part(state, name, msg):
         "name": name,
     }
 
-    _msg = state.build_message(msg, d)
     state.do_test(
-        EqualTest(d["stu_part"][name], d["sol_part"][name], Feedback(_msg, state))
+        EqualTest(d["stu_part"][name], d["sol_part"][name], FeedbackComponent(msg, d))
     )
 
     return state
@@ -99,8 +99,7 @@ def has_equal_part_len(state, name, unequal_msg):
     )
 
     if d["stu_len"] != d["sol_len"]:
-        _msg = state.build_message(unequal_msg, d)
-        state.report(_msg)
+        state.report(unequal_msg, d)
 
     return state
 
@@ -158,7 +157,7 @@ def has_equal_ast(state, incorrect_msg=None, code=None, exact=True, append=None)
         state.assert_is_not(["function_calls"], "has_equal_ast", ["check_function"])
 
     if code and incorrect_msg is None:
-        raise InstructorError(
+        raise InstructorError.from_message(
             "If you manually specify the code to match inside has_equal_ast(), "
             "you have to explicitly set the `incorrect_msg` argument."
         )
@@ -189,12 +188,16 @@ def has_equal_ast(state, incorrect_msg=None, code=None, exact=True, append=None)
         "stu_str": state.student_code,
     }
 
-    _msg = state.build_message(incorrect_msg, fmt_kwargs, append=append)
-
     if exact and not code:
-        state.do_test(EqualTest(stu_rep, sol_rep, Feedback(_msg, state)))
-    elif not sol_rep in stu_rep:
-        state.report(_msg)
+        state.do_test(
+            EqualTest(
+                stu_rep,
+                sol_rep,
+                FeedbackComponent(incorrect_msg, fmt_kwargs, append=append),
+            )
+        )
+    elif sol_rep not in stu_rep:
+        state.report(incorrect_msg, fmt_kwargs, append=append)
 
     return state
 
@@ -309,12 +312,12 @@ def has_expr(
         )
 
         if (test == "error") ^ isinstance(eval_sol, Exception):
-            raise InstructorError(
+            raise InstructorError.from_message(
                 "Evaluating expression raised error in solution process (or didn't raise if testing for one). "
                 "Error: {} - {}".format(type(eval_sol), str_sol)
             )
         if isinstance(eval_sol, ReprFail):
-            raise InstructorError(
+            raise InstructorError.from_message(
                 "Couldn't extract the value for the highlighted expression from the solution process: "
                 + eval_sol.info
             )
@@ -349,22 +352,27 @@ def has_expr(
     # error in process
     if (test == "error") ^ isinstance(eval_stu, Exception):
         fmt_kwargs["stu_str"] = str_stu
-        _msg = state.build_message(error_msg, fmt_kwargs, append=append)
-        state.report(_msg)
+        state.report(error_msg, fmt_kwargs, append=append)
 
     # name is undefined after running expression
     if isinstance(eval_stu, UndefinedValue):
-        _msg = state.build_message(undefined_msg, fmt_kwargs, append=append)
-        state.report(_msg)
+        state.report(undefined_msg, fmt_kwargs, append=append)
 
     # test equality of results
-    _msg = state.build_message(incorrect_msg, fmt_kwargs, append=append)
-    state.do_test(EqualTest(eval_stu, eval_sol, Feedback(_msg, state), func))
+    state.do_test(
+        EqualTest(
+            eval_stu,
+            eval_sol,
+            FeedbackComponent(incorrect_msg, fmt_kwargs, append=append),
+            func,
+        )
+    )
 
     return state
 
 
 has_equal_value = partial(has_expr, test="value")
+has_equal_value.__name__ = "has_equal_value"
 has_equal_value.__doc__ = (
     """Run targeted student and solution code, and compare returned value.
 
@@ -397,6 +405,7 @@ has_equal_value.__doc__ = (
 
 
 has_equal_output = partial(has_expr, test="output")
+has_equal_output.__name__ = "has_equal_output"
 has_equal_output.__doc__ = """Run targeted student and solution code, and compare output.
 
     When called on an SCT chain, ``has_equal_output()`` will execute the student and solution
@@ -406,6 +415,7 @@ has_equal_output.__doc__ = """Run targeted student and solution code, and compar
 )
 
 has_equal_error = partial(has_expr, test="error")
+has_equal_error.__name__ = "has_equal_error"
 has_equal_error.__doc__ = """Run targeted student and solution code, and compare generated errors.
 
     When called on an SCT chain, ``has_equal_error()`` will execute the student and solution
@@ -450,10 +460,7 @@ def has_code(state, text, pattern=True, not_typed_msg=None):
 
     student_code = state.student_code
 
-    _msg = state.build_message(not_typed_msg)
-    state.do_test(
-        StringContainsTest(student_code, text, pattern, Feedback(_msg, state))
-    )
+    state.do_test(StringContainsTest(student_code, text, pattern, not_typed_msg))
 
     return state
 
@@ -519,19 +526,27 @@ def has_import(
     solution_imports = state.ast_dispatcher.find("imports", state.solution_ast)
 
     if name not in solution_imports:
-        raise InstructorError(
+        raise InstructorError.from_message(
             "`has_import()` couldn't find an import of the package %s in your solution code."
             % name
         )
 
     fmt_kwargs = {"pkg": name, "alias": solution_imports[name]}
 
-    _msg = state.build_message(not_imported_msg, fmt_kwargs)
-    state.do_test(DefinedCollTest(name, student_imports, _msg))
+    state.do_test(
+        DefinedCollTest(
+            name, student_imports, FeedbackComponent(not_imported_msg, fmt_kwargs)
+        )
+    )
 
     if same_as:
-        _msg = state.build_message(incorrect_as_msg, fmt_kwargs)
-        state.do_test(EqualTest(solution_imports[name], student_imports[name], _msg))
+        state.do_test(
+            EqualTest(
+                solution_imports[name],
+                student_imports[name],
+                FeedbackComponent(incorrect_as_msg, fmt_kwargs),
+            )
+        )
 
     return state
 
@@ -571,8 +586,9 @@ def has_output(state, text, pattern=True, no_output_msg=None):
     if not no_output_msg:
         no_output_msg = "You did not output the correct things."
 
-    _msg = state.build_message(no_output_msg)
-    state.do_test(StringContainsTest(state.raw_student_output, text, pattern, _msg))
+    state.do_test(
+        StringContainsTest(state.raw_student_output, text, pattern, no_output_msg)
+    )
 
     return state
 
@@ -668,9 +684,9 @@ def has_printout(
             "print"
         ][index]["node"]
     except (KeyError, IndexError):
-        raise InstructorError(
+        raise InstructorError.from_message(
             "`has_printout({})` couldn't find the {} print call in your solution.".format(
-                index, utils.get_ord(index + 1)
+                index, get_ord(index + 1)
             )
         )
 
@@ -686,14 +702,18 @@ def has_printout(
     sol_call_str = state.solution_ast_tokens.get_text(sol_call_ast)
 
     if isinstance(str_sol, Exception):
-        raise InstructorError(
-            "Evaluating the solution expression {} raised error in solution process."
-            "Error: {} - {}".format(sol_call_str, type(out_sol), str_sol)
-        )
+        with debugger(state):
+            state.report(
+                "Evaluating the solution expression {} raised error in solution process."
+                "Error: {} - {}".format(sol_call_str, type(out_sol), str_sol)
+            )
 
-    _msg = state.build_message(not_printed_msg, {"sol_call": sol_call_str})
-
-    has_output(state, out_sol.strip(), pattern=False, no_output_msg=_msg)
+    has_output(
+        state,
+        out_sol.strip(),
+        pattern=False,
+        no_output_msg=FeedbackComponent(not_printed_msg, {"sol_call": sol_call_str}),
+    )
 
     return state
 
@@ -754,10 +774,7 @@ def has_no_error(
     state.assert_execution_root("has_no_error")
 
     if state.reporter.errors:
-        _msg = state.build_message(
-            incorrect_msg, {"error": str(state.reporter.errors[0])}
-        )
-        state.report(_msg)
+        state.report(incorrect_msg, {"error": str(state.reporter.errors[0])})
 
     return state
 
@@ -777,25 +794,29 @@ def has_chosen(state, correct, msgs):
                           student. The list should have the same length as the number of options.
     """
     if not issubclass(type(correct), int):
-        raise InstructorError(
+        raise InstructorError.from_message(
             "Inside `has_chosen()`, the argument `correct` should be an integer."
         )
 
     student_process = state.student_process
     if not isDefinedInProcess(MC_VAR_NAME, student_process):
-        raise InstructorError("Option not available in the student process")
+        raise InstructorError.from_message(
+            "Option not available in the student process"
+        )
     else:
         selected_option = getOptionFromProcess(student_process, MC_VAR_NAME)
         if not issubclass(type(selected_option), int):
-            raise InstructorError("selected_option should be an integer")
+            raise InstructorError.from_message("selected_option should be an integer")
 
         if selected_option < 1 or correct < 1:
-            raise InstructorError(
+            raise InstructorError.from_message(
                 "selected_option and correct should be greater than zero"
             )
 
         if selected_option > len(msgs) or correct > len(msgs):
-            raise InstructorError("there are not enough feedback messages defined")
+            raise InstructorError.from_message(
+                "there are not enough feedback messages defined"
+            )
 
         feedback_msg = msgs[selected_option - 1]
 

@@ -1,5 +1,6 @@
+from protowhat.Feedback import FeedbackComponent
+from protowhat.utils_messaging import get_times
 from pythonwhat.Test import BiggerTest
-import pythonwhat.utils
 
 
 def test_object_accessed(state, name, times=1, not_accessed_msg=None):
@@ -46,12 +47,13 @@ def test_object_accessed(state, name, times=1, not_accessed_msg=None):
                 if name.startswith(full_name):
                     stud_name = name.replace(full_name, orig)
 
-        add = " at least %s" % pythonwhat.utils.get_times(times) if times > 1 else ""
+        add = " at least %s" % get_times(times) if times > 1 else ""
         not_accessed_msg = "Have you accessed `%s`%s?" % (stud_name, add)
 
     # name should be contained inside the student_object_accesses.
     # hack: add a dot and do a match on the name with the dot,
     # to make sure you're not matching substrings
     student_hits = [c for c in student_object_accesses if name + "." in c + "."]
-    _msg = state.build_message(not_accessed_msg)
-    state.do_test(BiggerTest(len(student_hits) + 1, times, _msg))
+    state.do_test(
+        BiggerTest(len(student_hits) + 1, times, FeedbackComponent(not_accessed_msg))
+    )

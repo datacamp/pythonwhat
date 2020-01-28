@@ -1,3 +1,4 @@
+from protowhat.Feedback import FeedbackComponent
 from protowhat.checks.check_logic import (
     multi,
     check_not,
@@ -6,7 +7,7 @@ from protowhat.checks.check_logic import (
     disable_highlighting,
     fail,
 )
-from protowhat.Feedback import InstructorError
+from protowhat.failure import InstructorError
 import ast
 
 
@@ -110,7 +111,7 @@ fail.__doc__ = (
     str(fail.__doc__)
     + """
     :Example:
-    
+
         As a trivial SCT example, ::
 
             Ex().check_for_loop().check_body().fail()
@@ -149,12 +150,12 @@ def override(state, solution):
                 new_ast = node
                 break
 
-    kwargs = state.messages[-1] if state.messages else {}
+    kwargs = state.feedback_context.kwargs if state.feedback_context else {}
     child = state.to_child(
         solution_ast=new_ast,
         student_ast=state.student_ast,
         highlight=state.highlight,
-        append_message={"msg": "", "kwargs": kwargs},
+        append_message=FeedbackComponent("", kwargs),
     )
 
     return child
@@ -162,7 +163,7 @@ def override(state, solution):
 
 def set_context(state, *args, **kwargs):
     """Update context values for student and solution environments.
-    
+
     When ``has_equal_x()`` is used after this, the context values (in ``for`` loops and function definitions, for example)
     will have the values specified through his function. It is the function equivalent of the ``context_vals`` argument of
     the ``has_equal_x()`` functions.
@@ -207,7 +208,7 @@ def set_context(state, *args, **kwargs):
 
     # for now, you can't specify both
     if len(args) > 0 and len(kwargs) > 0:
-        raise InstructorError(
+        raise InstructorError.from_message(
             "In `set_context()`, specify arguments either by position, either by name."
         )
 
@@ -215,7 +216,7 @@ def set_context(state, *args, **kwargs):
     if args:
         # stop if too many pos args for solution
         if len(args) > len(sol_crnt):
-            raise InstructorError(
+            raise InstructorError.from_message(
                 "Too many positional args. There are {} context vals, but tried to set {}".format(
                     len(sol_crnt), len(args)
                 )
@@ -231,7 +232,7 @@ def set_context(state, *args, **kwargs):
     if kwargs:
         # stop if keywords don't match with solution
         if set(kwargs) - set(upd_sol):
-            raise InstructorError(
+            raise InstructorError.from_message(
                 "`set_context()` failed: context val names are {}, but you tried to set {}.".format(
                     upd_sol or "missing", sorted(list(kwargs.keys()))
                 )

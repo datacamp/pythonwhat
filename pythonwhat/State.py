@@ -1,17 +1,22 @@
+import asttokens
+
 from functools import partialmethod
+from collections.abc import Mapping
+
+from protowhat.failure import debugger
+from protowhat.Feedback import FeedbackComponent
+from protowhat.selectors import DispatcherInterface
+from protowhat.State import State as ProtoState
+from protowhat.utils import parameters_attr
+from pythonwhat import signatures
+from pythonwhat.converters import get_manual_converters
+from pythonwhat.feedback import Feedback
 from pythonwhat.parsing import (
     TargetVars,
     FunctionParser,
     ObjectAccessParser,
     parser_dict,
 )
-from protowhat.State import State as ProtoState
-from protowhat.selectors import DispatcherInterface
-from protowhat.Feedback import InstructorError
-from pythonwhat import signatures
-from pythonwhat.converters import get_manual_converters
-from collections.abc import Mapping
-import asttokens
 from pythonwhat.utils_ast import wrap_in_module
 
 
@@ -35,6 +40,7 @@ class Context(Mapping):
         return len(self._items)
 
 
+@parameters_attr
 class State(ProtoState):
     """State of the SCT environment.
 
@@ -48,6 +54,8 @@ class State(ProtoState):
 
     """
 
+    feedback_cls = Feedback
+
     def __init__(
         self,
         student_code,
@@ -60,8 +68,9 @@ class State(ProtoState):
         reporter,
         force_diagnose=False,
         highlight=None,
+        highlight_offset=None,
         highlighting_disabled=None,
-        messages=None,
+        feedback_context=None,
         creator=None,
         student_ast=None,
         solution_ast=None,
@@ -75,14 +84,11 @@ class State(ProtoState):
         solution_env=Context(),
     ):
         args = locals().copy()
-        self.params = list()
+        self.debug = False
 
         for k, v in args.items():
             if k != "self":
-                self.params.append(k)
                 setattr(self, k, v)
-
-        self.messages = messages if messages else []
 
         self.ast_dispatcher = self.get_dispatcher()
 
@@ -91,7 +97,8 @@ class State(ProtoState):
         if isinstance(self.student_code, str) and student_ast is None:
             self.student_ast = self.parse(student_code)
         if isinstance(self.solution_code, str) and solution_ast is None:
-            self.solution_ast = self.parse(solution_code, test=False)
+            with debugger(self):
+                self.solution_ast = self.parse(solution_code)
 
         if highlight is None:  # todo: check parent_state? (move check to reporting?)
             self.highlight = self.student_ast
@@ -106,26 +113,29 @@ class State(ProtoState):
 
         return self.manual_sigs
 
-    def to_child(self, append_message="", node_name="", **kwargs):
+    def to_child(self, append_message=None, node_name="", **kwargs):
         """Dive into nested tree.
 
         Set the current state as a state with a subtree of this syntax tree as
         student tree and solution tree. This is necessary when testing if statements or
         for loops for example.
         """
-        bad_pars = set(kwargs) - set(self.params)
-        if bad_pars:
-            raise ValueError("Invalid init params for State: %s" % ", ".join(bad_pars))
+        bad_parameters = set(kwargs) - set(self.parameters)
+        if bad_parameters:
+            raise ValueError(
+                "Invalid init parameters for State: %s" % ", ".join(bad_parameters)
+            )
 
         base_kwargs = {
             attr: getattr(self, attr)
-            for attr in self.params
-            if attr not in ["highlight"]
+            for attr in self.parameters
+            if hasattr(self, attr) and attr not in ["ast_dispatcher", "highlight"]
         }
 
-        if not isinstance(append_message, dict):
-            append_message = {"msg": append_message, "kwargs": {}}
-        kwargs["messages"] = [*self.messages, append_message]
+        if append_message and not isinstance(append_message, FeedbackComponent):
+            append_message = FeedbackComponent(append_message)
+        kwargs["feedback_context"] = append_message
+        kwargs["creator"] = {"type": "to_child", "args": {"state": self}}
 
         def update_kwarg(name, func):
             kwargs[name] = func(kwargs[name])
@@ -162,11 +172,11 @@ class State(ProtoState):
         init_kwargs = {**base_kwargs, **kwargs}
         child = klass(**init_kwargs)
 
-        extra_attrs = set(vars(self)) - set(self.params)
+        extra_attrs = set(vars(self)) - set(self.parameters)
         for attr in extra_attrs:
             # don't copy attrs set on new instances in init
             # the cached manual_sigs is passed
-            if attr not in {"params", "ast_dispatcher", "converters"}:
+            if attr not in {"ast_dispatcher", "converters"}:
                 setattr(child, attr, getattr(self, attr))
 
         return child
@@ -183,27 +193,30 @@ class State(ProtoState):
 
     def assert_execution_root(self, fun, extra_msg=""):
         if not (self.is_root or self.is_creator_type("run")):
-            raise InstructorError(
-                "`%s()` should only be called focusing on a full script, following `Ex()` or `run()`. %s"
-                % (fun, extra_msg)
-            )
+            with debugger(self):
+                self.report(
+                    "`%s()` should only be called focusing on a full script, following `Ex()` or `run()`. %s"
+                    % (fun, extra_msg)
+                )
 
     def is_creator_type(self, type):
         return self.creator and self.creator.get("type") == type
 
     def assert_is(self, klasses, fun, prev_fun):
         if self.__class__.__name__ not in klasses:
-            raise InstructorError(
-                "`%s()` can only be called on %s."
-                % (fun, " or ".join(["`%s()`" % pf for pf in prev_fun]))
-            )
+            with debugger(self):
+                self.report(
+                    "`%s()` can only be called on %s."
+                    % (fun, " or ".join(["`%s()`" % pf for pf in prev_fun]))
+                )
 
     def assert_is_not(self, klasses, fun, prev_fun):
         if self.__class__.__name__ in klasses:
-            raise InstructorError(
-                "`%s()` should not be called on %s."
-                % (fun, " or ".join(["`%s()`" % pf for pf in prev_fun]))
-            )
+            with debugger(self):
+                self.report(
+                    "`%s()` should not be called on %s."
+                    % (fun, " or ".join(["`%s()`" % pf for pf in prev_fun]))
+                )
 
     def parse_external(self, code):
         res = (None, None)
@@ -235,17 +248,17 @@ class State(ProtoState):
         try:
             return self.ast_dispatcher.parse(code)
         except Exception as e:
-            raise InstructorError(
+            self.report(
                 "Something went wrong when parsing the solution code: %s" % str(e)
             )
 
-    def parse(self, text, test=True):
-        if test:
-            parse_method = self.parse_external
-            token_attr = "student_ast_tokens"
-        else:
+    def parse(self, text):
+        if self.debug:
             parse_method = self.parse_internal
             token_attr = "solution_ast_tokens"
+        else:
+            parse_method = self.parse_external
+            token_attr = "student_ast_tokens"
 
         tokens, ast = parse_method(text)
         setattr(self, token_attr, tokens)
@@ -256,9 +269,8 @@ class State(ProtoState):
         try:
             return Dispatcher(self.pre_exercise_code)
         except Exception as e:
-            raise InstructorError(
-                "Something went wrong when parsing the PEC: %s" % str(e)
-            )
+            with debugger(self):
+                self.report("Something went wrong when parsing the PEC: %s" % str(e))
 
 
 class Dispatcher(DispatcherInterface):

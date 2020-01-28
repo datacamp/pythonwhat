@@ -3,7 +3,7 @@ import ast
 import tests.helper as helper
 
 from pythonwhat.test_exercise import setup_state
-from protowhat.Feedback import InstructorError
+from protowhat.failure import InstructorError
 from inspect import signature, Signature, Parameter
 from pythonwhat.checks.check_funcs import assert_ast
 
@@ -24,7 +24,7 @@ def test_converter_err():
 
 def test_check_syntax_double_getattr():
     s = setup_state()
-    with pytest.raises(AttributeError, match=r"Did you forget to call a statement"):
+    with pytest.raises(AttributeError, match=r"Expected a call of"):
         s.check_list_comp.check_body()
 
 
@@ -71,7 +71,7 @@ def test_check_function_3(state):
 def test_check_function_4(state):
     with pytest.raises(
         InstructorError,
-        match=r"SCT fails on solution: Check your call of `round\(\)`\. Did you specify the second argument\?",
+        match=r"Check your call of `round\(\)`\. SCT fails on solution: Did you specify the second argument\?",
     ):
         state.check_function("round").check_args(1)
 
@@ -79,7 +79,7 @@ def test_check_function_4(state):
 def test_check_function_5(state):
     with pytest.raises(
         InstructorError,
-        match=r"SCT fails on solution: Check your call of `round\(\)`. You are zooming in on the first argument, but it is not an AST, so it can't be re-run\.",
+        match=r"Check your call of `round\(\)`. SCT fails on solution: You are zooming in on the first argument, but it is not an AST, so it can't be re-run\.",
     ):
 
         def round(*nums):

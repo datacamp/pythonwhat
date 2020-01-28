@@ -3,9 +3,9 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 import tests.helper as helper
-from protowhat.sct_syntax import F
+from protowhat.sct_syntax import LazyChain
 from pythonwhat.local import ChDir
-from protowhat.Test import TestFail as TF
+from protowhat.failure import TestFail as TF
 
 from pythonwhat.test_exercise import setup_state
 from protowhat.checks import check_files as cf
@@ -35,7 +35,7 @@ def temp_txt_file():
 
 @pytest.fixture(params=["temp_py_file", "temp_txt_file"])
 def temp_file(request):
-    return request.getfuncargvalue(request.param)
+    return request.getfixturevalue(request.param)
 
 
 def test_python_file_existence(temp_py_file):
@@ -68,9 +68,9 @@ def test_file_existence_syntax(temp_py_file):
     assert expected_content in file_chain._state.student_code
 
     with helper.verify_sct(True):
-        file_chain = chain >> F(attr_scts={"check_file": cf.check_file}).check_file(
-            temp_py_file.name
-        )
+        file_chain = chain >> LazyChain(
+            chainable_functions={"check_file": cf.check_file}
+        ).check_file(temp_py_file.name)
         assert expected_content in file_chain._state.student_code
 
 

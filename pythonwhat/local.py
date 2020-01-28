@@ -5,7 +5,7 @@ from pathlib import Path
 from contextlib import redirect_stdout
 
 from multiprocessing import Process, Queue
-from pythonwhat.reporter import Reporter
+from protowhat.Reporter import Reporter
 
 try:
     from pythonbackend.shell_utils import create
@@ -159,14 +159,14 @@ def run_single_process(pec, code, pid=None, mode="simple"):
     if mode == "stub":
         # no isolation
         process = StubProcess(init_code=pec, pid=pid)
-        raw_stu_output, error = run_code(process.shell.run_code, code)
+        raw_output, error = run_code(process.shell.run_code, code)
 
     elif mode == "simple":
         # no advanced functionality
         process = SimpleProcess(pid)
         process.start()
         _ = process.executeTask(TaskCaptureOutput(pec))
-        raw_stu_output, error = process.executeTask(TaskCaptureOutput(code))
+        raw_output, error = process.executeTask(TaskCaptureOutput(code))
 
     elif mode == "full" and BACKEND_AVAILABLE:
         # slow
@@ -178,13 +178,13 @@ def run_single_process(pec, code, pid=None, mode="simple"):
         output, raw_output = process.executeTask(
             TaskCaptureFullOutput((code,), "script.py", None, silent=True)
         )
-        raw_stu_output = raw_output["output_stream"]
+        raw_output = raw_output["output_stream"]
         error = raw_output["error"]
 
     else:
         raise ValueError("Invalid mode")
 
-    return process, raw_stu_output, error
+    return process, raw_output, error
 
 
 def run_exercise(pec, sol_code, stu_code, sol_wd=None, stu_wd=None, **kwargs):
@@ -205,7 +205,7 @@ def run_exercise(pec, sol_code, stu_code, sol_wd=None, stu_wd=None, **kwargs):
 #  e.g. `python -m project.run
 #  allow setting env vars? e.g. PYTHONPATH, could help running more complex setup
 #  allow prepending code? set_env? e.g. (automatically) setting __file__?
-def run(state, relative_working_dir=None, solution_dir="../solution"):
+def run(state, relative_working_dir=None, solution_dir="../solution", run_solution=True):
     """Run the focused student and solution code in the specified location
 
     This function can be used after ``check_file`` to execute student and solution code.
@@ -276,9 +276,11 @@ def run(state, relative_working_dir=None, solution_dir="../solution"):
 
     os.makedirs(str(sol_wd), exist_ok=True)
     stu_wd = Path(os.getcwd(), relative_working_dir)
+    sol_code = state.solution_code or "" if run_solution else ""
+
     sol_process, stu_process, raw_stu_output, error = run_exercise(
         pec="",
-        sol_code=state.solution_code or "",
+        sol_code=sol_code,
         stu_code=state.student_code,
         sol_wd=sol_wd,
         stu_wd=stu_wd,

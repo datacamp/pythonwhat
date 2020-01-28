@@ -1,9 +1,9 @@
 from pythonwhat.State import State
 from pythonwhat.local import run_exercise
-from pythonwhat.sct_syntax import Ex
+from pythonwhat.sct_syntax import Ex, get_chains
 from pythonwhat.utils import check_str, check_process
-from pythonwhat.reporter import Reporter
-from protowhat.Test import TestFail
+from protowhat.Reporter import Reporter
+from protowhat.failure import Failure, InstructorError
 from pythonwhat.utils import include_v1
 
 
@@ -36,6 +36,8 @@ def test_exercise(
               tags - the tags belonging to the SCT execution.
     """
 
+    reporter = Reporter(errors=[error] if error else [])
+
     try:
         state = State(
             student_code=check_str(student_code),
@@ -45,11 +47,10 @@ def test_exercise(
             solution_process=check_process(solution_process),
             raw_student_output=check_str(raw_student_output),
             force_diagnose=force_diagnose,
-            reporter=Reporter(errors=[error] if error else []),
+            reporter=reporter,
         )
 
         State.root_state = state
-
         tree, sct_cntxt = prep_context()
 
         # Actually execute SCTs
@@ -60,10 +61,13 @@ def test_exercise(
             for test in tree.crnt_node:
                 test(state)
 
-    except TestFail as e:
-        return e.payload
+    except Failure as e:
+        if isinstance(e, InstructorError):
+            # TODO: decide based on context
+            raise e
+        return reporter.build_failed_payload(e.feedback)
 
-    return state.reporter.build_final_payload()
+    return reporter.build_final_payload()
 
 
 # TODO: consistent success_msg
@@ -90,7 +94,7 @@ def prep_context():
         "from inspect import Parameter as param",
         "from pythonwhat.signatures import sig_from_params, sig_from_obj",
         "from pythonwhat.State import set_converter",
-        "from pythonwhat.sct_syntax import F, Ex",
+        "from pythonwhat.sct_syntax import F, Ex"
     ]
     [exec(line, None, cntxt) for line in imports]
 
@@ -102,6 +106,8 @@ def prep_context():
         tree = None
 
     cntxt.update(v2_check_functions)
+    # TODO: ChainStart instances cause errors when dill tries to pass manual converter functions
+    # cntxt.update(get_chains())
     return tree, cntxt
 
 

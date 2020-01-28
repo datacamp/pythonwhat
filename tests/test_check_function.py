@@ -2,8 +2,7 @@ import pytest
 import tests.helper as helper
 from inspect import getsource
 from pythonwhat.test_exercise import setup_state
-from protowhat.Test import TestFail as TF
-from protowhat.Feedback import InstructorError
+from protowhat.failure import TestFail as TF, InstructorError
 from pythonwhat.sct_syntax import v2_check_functions
 
 globals().update(v2_check_functions)

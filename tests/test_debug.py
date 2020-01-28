@@ -1,6 +1,8 @@
 import requests
 import tests.helper as helper
 
+from protowhat.failure import InstructorError
+
 
 def test_debug_on_error():
     data = {
@@ -9,9 +11,14 @@ def test_debug_on_error():
         "DC_SOLUTION": "x = 122",
         "DC_SCT": "Ex()._debug(on_error=True).check_object('x').has_equal_value()",
     }
-    output = helper.run(data)
-    assert not output["correct"]
-    assert "SCT" in output["message"]
+    try:
+        output = helper.run(data)
+    except InstructorError as e:
+        assert "SCT" in str(e)
+
+    # if InstructorError doesn't raise:
+    # assert not output["correct"]
+    # assert "SCT" in output["message"]
 
 
 def build_data(course_id, chapter_id, ex_number, printout=False):

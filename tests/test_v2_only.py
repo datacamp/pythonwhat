@@ -5,7 +5,6 @@ import importlib
 
 def relooooad():
     import pythonwhat.sct_syntax
-
     importlib.reload(pythonwhat.sct_syntax)
 
 

@@ -1,8 +1,9 @@
+from protowhat.Feedback import FeedbackComponent
 from pythonwhat.checks.check_logic import multi
 from pythonwhat.checks.has_funcs import has_part
-from protowhat.Feedback import InstructorError
+from protowhat.failure import debugger
 from pythonwhat.tasks import setUpNewEnvInProcess, breakDownNewEnvInProcess
-from pythonwhat.utils import get_ord
+from protowhat.utils_messaging import get_ord
 from pythonwhat.utils_ast import assert_ast
 import ast
 from jinja2 import Template
@@ -14,7 +15,7 @@ def render(template, kwargs):
 
 def part_to_child(stu_part, sol_part, append_message, state, node_name=None):
     # stu_part and sol_part will be accessible on all templates
-    append_message["kwargs"].update({"stu_part": stu_part, "sol_part": sol_part})
+    append_message.kwargs.update({"stu_part": stu_part, "sol_part": sol_part})
 
     # if the parts are dictionaries, use to deck out child state
     if all(isinstance(p, dict) for p in [stu_part, sol_part]):
@@ -51,14 +52,14 @@ def check_part(state, name, part_msg, missing_msg=None, expand_msg=None):
 
     if not part_msg:
         part_msg = name
-    append_message = {"msg": expand_msg, "kwargs": {"part": part_msg}}
+    append_message = FeedbackComponent(expand_msg, {"part": part_msg})
 
-    has_part(state, name, missing_msg, append_message["kwargs"])
+    has_part(state, name, missing_msg, append_message.kwargs)
 
     stu_part = state.student_parts[name]
     sol_part = state.solution_parts[name]
 
-    assert_ast(state, sol_part, append_message["kwargs"])
+    assert_ast(state, sol_part, append_message.kwargs)
 
     return part_to_child(stu_part, sol_part, append_message, state)
 
@@ -83,7 +84,7 @@ def check_part_index(state, name, index, part_msg, missing_msg=None, expand_msg=
     fmt_kwargs = {"index": index, "ordinal": ordinal}
     fmt_kwargs.update(part=render(part_msg, fmt_kwargs))
 
-    append_message = {"msg": expand_msg, "kwargs": fmt_kwargs}
+    append_message = FeedbackComponent(expand_msg, fmt_kwargs)
 
     # check there are enough parts for index
     has_part(state, name, missing_msg, fmt_kwargs, index)
@@ -130,14 +131,13 @@ def check_node(
     try:
         stu_out[index]
     except (KeyError, IndexError):  # TODO comment errors
-        _msg = state.build_message(missing_msg, fmt_kwargs)
-        state.report(_msg)
+        state.report(missing_msg, fmt_kwargs)
 
     # get node at index
     stu_part = stu_out[index]
     sol_part = sol_out[index]
 
-    append_message = {"msg": expand_msg, "kwargs": fmt_kwargs}
+    append_message = FeedbackComponent(expand_msg, fmt_kwargs)
 
     return part_to_child(stu_part, sol_part, append_message, state, node_name=name)
 
@@ -151,9 +151,10 @@ def with_context(state, *args, child=None):
         process=state.solution_process, context=state.solution_parts["with_items"]
     )
     if isinstance(solution_res, Exception):
-        raise InstructorError(
-            "error in the solution, running test_with(): %s" % str(solution_res)
-        )
+        with debugger(state):
+            state.report(
+                "error in the solution, running test_with(): %s" % str(solution_res)
+            )
 
     student_res = setUpNewEnvInProcess(
         process=state.student_process, context=state.student_parts["with_items"]
@@ -178,10 +179,11 @@ def with_context(state, *args, child=None):
             process=state.solution_process
         )
         if isinstance(close_solution_context, Exception):
-            raise InstructorError(
-                "error in the solution, closing the `with` fails with: %s"
-                % close_solution_context
-            )
+            with debugger(state):
+                state.report(
+                    "error in the solution, closing the `with` fails with: %s"
+                    % close_solution_context
+                )
 
         close_student_context = breakDownNewEnvInProcess(process=state.student_process)
         if isinstance(close_student_context, Exception):
@@ -205,7 +207,7 @@ def check_args(state, name, missing_msg=None):
     Args:
         name (str): the name of the argument for which you want to check if it is specified. This can also be
             a number, in which case it refers to the positional arguments. Named arguments take precedence.
-        missing_msg (str): If specified, this overrides an automatically generated feedback message in case
+        missing_msg (str): If specified, this overrides the automatically generated feedback message in case
             the student did specify the argument.
         state (State): State object that is passed from the SCT Chain (don't specify this).
 
@@ -321,7 +323,7 @@ def check_call(state, callstr, argstr=None, expand_msg=None):
     stu_part, _argstr = build_call(callstr, state.student_parts["node"])
     sol_part, _ = build_call(callstr, state.solution_parts["node"])
 
-    append_message = {"msg": expand_msg, "kwargs": {"argstr": argstr or _argstr}}
+    append_message = FeedbackComponent(expand_msg, {"argstr": argstr or _argstr})
     child = part_to_child(stu_part, sol_part, append_message, state)
 
     return child
