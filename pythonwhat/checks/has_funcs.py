@@ -341,6 +341,14 @@ def has_expr(
 
     fmt_kwargs["stu_eval"] = utils.shorten_str(str(eval_stu))
     fmt_kwargs["sol_eval"] = utils.shorten_str(str(eval_sol))
+
+    # wrap in quotes if eval_sol or eval_stu are strings
+    if test == "value":
+        if isinstance(eval_stu, str):
+            fmt_kwargs["stu_eval"] = '\'{}\''.format(fmt_kwargs["stu_eval"])
+        if isinstance(eval_sol, str):
+            fmt_kwargs["sol_eval"] = '\'{}\''.format(fmt_kwargs["sol_eval"])
+
     if incorrect_msg == DEFAULT_INCORRECT_MSG and (
         fmt_kwargs["stu_eval"] is None
         or fmt_kwargs["sol_eval"] is None

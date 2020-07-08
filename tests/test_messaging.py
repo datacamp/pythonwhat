@@ -532,7 +532,7 @@ Ex().check_function_def('test').multi(
     [
         (
             "echo_word = (lambda word1, echo: word1 * echo * 2)",
-            "Check the first lambda function. To verify it, we reran it with the arguments `('test', 2)`. Expected `testtest`, but got `testtesttesttest`.",
+            "Check the first lambda function. To verify it, we reran it with the arguments `('test', 2)`. Expected `'testtest'`, but got `'testtesttesttest'`.",
         )
     ],
 )
@@ -693,6 +693,20 @@ def test_has_equal_x_2(stu, patt, cols, cole):
     assert not output["correct"]
     assert message(output, patt)
     assert lines(output, cols, cole)
+
+def test_has_equal_value_wrap_string():
+    sol = """print(' , ')"""
+    stu = """print(', ')"""
+    sct = """Ex().check_function('print', index=0, signature=False).check_args(0).has_equal_value(copy = False)"""
+    output = helper.run(
+        {
+            "DC_CODE": stu,
+            "DC_SOLUTION": sol,
+            "DC_SCT": sct,
+        }
+    )
+    assert not output["correct"]
+    assert output["message"] == "Check your call of <code>print()</code>. Did you correctly specify the first argument? Expected <code>' , '</code>, but got <code>', '</code>."  # nopep8
 
 
 ## Check has no error ---------------------------------------------------------
