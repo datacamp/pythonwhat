@@ -694,6 +694,7 @@ def test_has_equal_x_2(stu, patt, cols, cole):
     assert message(output, patt)
     assert lines(output, cols, cole)
 
+
 def test_has_equal_value_wrap_string():
     sol = """print(' , ')"""
     stu = """print(', ')"""
@@ -708,6 +709,35 @@ def test_has_equal_value_wrap_string():
     assert not output["correct"]
     assert output["message"] == "Check your call of <code>print()</code>. Did you correctly specify the first argument? Expected <code>' , '</code>, but got <code>', '</code>."  # nopep8
 
+
+def test_has_equal_value_dont_wrap_newline():
+    sol = """print('\\n')"""
+    stu = """print('text')"""
+    sct = """Ex().check_function('print', index=0, signature=False).check_args(0).has_equal_value()"""
+    output = helper.run(
+        {
+            "DC_CODE": stu,
+            "DC_SOLUTION": sol,
+            "DC_SCT": sct,
+        }
+    )
+    assert not output["correct"]
+    assert output["message"] == "Check your call of <code>print()</code>. Did you correctly specify the first argument? Expected something different."  # nopep8
+
+
+def test_has_equal_value_dont_wrap_too_long():
+    sol = """print('short text')"""
+    stu = """print('This text is longer than 50 characters if I copy it 3 times. This text is longer than 50 characters if I copy it 3 times. This text is longer than 50 characters if I copy it 3 times.')"""  # nopep8
+    sct = """Ex().check_function('print', index=0, signature=False).check_args(0).has_equal_value()"""
+    output = helper.run(
+        {
+            "DC_CODE": stu,
+            "DC_SOLUTION": sol,
+            "DC_SCT": sct,
+        }
+    )
+    assert not output["correct"]
+    assert output["message"] == "Check your call of <code>print()</code>. Did you correctly specify the first argument? Expected something different."  # nopep8
 
 ## Check has no error ---------------------------------------------------------
 
