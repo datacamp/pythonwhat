@@ -349,6 +349,7 @@ def has_expr(
         if isinstance(eval_sol, str):
             fmt_kwargs["sol_eval"] = '\'{}\''.format(fmt_kwargs["sol_eval"])
 
+    # Check if student or solution evaluations are too long or contain newlines
     if incorrect_msg == DEFAULT_INCORRECT_MSG and (
         utils.unshowable_string(fmt_kwargs["stu_eval"])
         or utils.unshowable_string(fmt_kwargs["sol_eval"])
