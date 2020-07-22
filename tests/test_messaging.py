@@ -710,6 +710,9 @@ def test_has_equal_value_wrap_string():
     assert output["message"] == "Check your call of <code>print()</code>. Did you correctly specify the first argument? Expected <code>' , '</code>, but got <code>', '</code>."  # nopep8
 
 
+# Testing output edge cases -------------------------------------------------
+
+
 def test_has_equal_value_dont_wrap_newline():
     sol = """print('\\n')"""
     stu = """print('text')"""
