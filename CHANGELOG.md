@@ -2,6 +2,10 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.23.1
+
+- Fix string formatting in has_expr(). Strings will now have quotes in error messages. Leading and trailing whitespace is no longer removed.
+
 ## 2.23.0
 
 - Update to protowhat v2 (embedding xwhats, `prepare_validation` helper,  for checking bash history, autodebug)

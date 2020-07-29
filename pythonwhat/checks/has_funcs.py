@@ -339,13 +339,24 @@ def has_expr(
         "expr_code": expr_code,
     }
 
-    fmt_kwargs["stu_eval"] = utils.shorten_str(str(eval_stu))
-    fmt_kwargs["sol_eval"] = utils.shorten_str(str(eval_sol))
+    fmt_kwargs["stu_eval"] = str(eval_stu)
+    fmt_kwargs["sol_eval"] = str(eval_sol)
+
+    # wrap in quotes if eval_sol or eval_stu are strings
+    if test == "value":
+        if isinstance(eval_stu, str):
+            fmt_kwargs["stu_eval"] = '\'{}\''.format(fmt_kwargs["stu_eval"])
+        if isinstance(eval_sol, str):
+            fmt_kwargs["sol_eval"] = '\'{}\''.format(fmt_kwargs["sol_eval"])
+
+    # check if student or solution evaluations are too long or contain newlines
     if incorrect_msg == DEFAULT_INCORRECT_MSG and (
-        fmt_kwargs["stu_eval"] is None
-        or fmt_kwargs["sol_eval"] is None
+        utils.unshowable_string(fmt_kwargs["stu_eval"])
+        or utils.unshowable_string(fmt_kwargs["sol_eval"])
         or fmt_kwargs["stu_eval"] == fmt_kwargs["sol_eval"]
     ):
+        fmt_kwargs["stu_eval"] = None
+        fmt_kwargs["sol_eval"] = None
         incorrect_msg = "Expected something different."
 
     # tests ---
