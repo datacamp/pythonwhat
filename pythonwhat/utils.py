@@ -12,11 +12,11 @@ def v2_only():
 
 def format_string(text):
     text.replace("\n", "&#9166")
-    text = text[0;15] + '...' + text[-16:-1]
+    text = text[0:15] + '...' + text[-16:-1]
+    return text
 
-
-def unshowable_string(text):
-    return "\n" in text or len(text) > 50
+# def unshowable_string(text):
+#     return "\n" in text or len(text) > 50
 
 
 def copy_env(env):
