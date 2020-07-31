@@ -12,7 +12,8 @@ def v2_only():
 
 def format_string(text):
     text.replace("\n", "&#9166")
-    text = text[0:15] + '...' + text[-16:-1]
+    if len(text) > 50:
+        text = text[0:15] + '...' + text[-16:-1]
     return text
 
 # def unshowable_string(text):
