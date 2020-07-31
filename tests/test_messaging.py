@@ -728,7 +728,7 @@ def test_has_equal_value_dont_wrap_newline():
     assert output["message"] == "Check your call of <code>print()</code>. Did you correctly specify the first argument? Expected something different."  # nopep8
 
 
-def test_has_equal_value_dont_wrap_too_long():
+def test_has_equal_value_shorten_too_long():
     sol = """print('short text')"""
     stu = """print('This text is longer than 50 characters if I copy it 3 times. This text is longer than 50 characters if I copy it 3 times. This text is longer than 50 characters if I copy it 3 times.')"""  # nopep8
     sct = """Ex().check_function('print', index=0, signature=False).check_args(0).has_equal_value()"""
@@ -740,7 +740,7 @@ def test_has_equal_value_dont_wrap_too_long():
         }
     )
     assert not output["correct"]
-    assert output["message"] == "Check your call of <code>print()</code>. Did you correctly specify the first argument? Expected something different."  # nopep8
+    assert output["message"] == "Check your call of <code>print()</code>. Did you correctly specify the first argument? Expected <code>'short text'</code>, but got <code>'This text is longer than 50 characters if I ...</code>."  # nopep8
 
 ## Check has no error ---------------------------------------------------------
 
