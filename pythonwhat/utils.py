@@ -10,6 +10,10 @@ def include_v1():
 def v2_only():
     return not include_v1()
 
+def format_string(text):
+    text.replace("\n", "&#9166")
+    text = text[0;15] + '...' + text[-16:-1]
+
 
 def unshowable_string(text):
     return "\n" in text or len(text) > 50
