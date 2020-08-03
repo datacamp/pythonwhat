@@ -349,15 +349,17 @@ def has_expr(
         if isinstance(eval_sol, str):
             fmt_kwargs["sol_eval"] = '\'{}\''.format(fmt_kwargs["sol_eval"])
 
-    # reformat string if it is too long or contains newlines
+    # reformat student evaluation string if it is too long or contains newlines
     if incorrect_msg == DEFAULT_INCORRECT_MSG:
+        print(fmt_kwargs["stu_eval"])
         fmt_kwargs["stu_eval"] = utils.shorten_string(fmt_kwargs["stu_eval"])
-        fmt_kwargs["sol_eval"] = utils.shorten_string(fmt_kwargs["sol_eval"])
+        print(fmt_kwargs["stu_eval"])
+        # print(fmt_kwargs["sol_eval"])
 
     # check if student or solution evaluations are too long or contain newlines
     if incorrect_msg == DEFAULT_INCORRECT_MSG and (
         utils.has_newline(fmt_kwargs["stu_eval"]) or
-        utils.has_newline(fmt_kwargs["stu_eval"]) or
+        utils.has_newline(fmt_kwargs["sol_eval"]) or
         fmt_kwargs["stu_eval"] == fmt_kwargs["sol_eval"]):
             fmt_kwargs["stu_eval"] = None
             fmt_kwargs["sol_eval"] = None
