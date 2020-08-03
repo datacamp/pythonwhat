@@ -12,7 +12,7 @@ def v2_only():
 
 def shorten_string(text):
     if len(text) > 50:
-        text = text[0:40] + "..."
+        text = text[0:45] + "..."
     return text
 
 def has_newline(text):
