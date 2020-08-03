@@ -10,9 +10,13 @@ def include_v1():
 def v2_only():
     return not include_v1()
 
+def shorten_string(text):
+    if len(text) > 50:
+        text = text[0:45] + "..."
+    return text
 
-def unshowable_string(text):
-    return "\n" in text or len(text) > 50
+def has_newline(text):
+    return "\n" in text
 
 
 def copy_env(env):

@@ -2,6 +2,10 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.23.2
+
+- Update behaviour of has_expr() default feedback message. If the student's evaluation is too long, it is now shortened and an ellipsis is added. 
+
 ## 2.23.1
 
 - Fix string formatting in has_expr(). Strings will now have quotes in error messages. Leading and trailing whitespace is no longer removed.
