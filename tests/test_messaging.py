@@ -740,7 +740,7 @@ def test_has_equal_value_shorten_too_long():
         }
     )
     assert not output["correct"]
-    assert output["message"] == "Check your call of <code>print()</code>. Did you correctly specify the first argument? Expected <code>'short text'</code>, but got <code>'This text is longer than 50 characters ...</code>."  # nopep8
+    assert output["message"] == "Check your call of <code>print()</code>. Did you correctly specify the first argument? Expected <code>'short text'</code>, but got <code>'This text is longer than 50 characters if I ...</code>."  # nopep8
 
 ## Check has no error ---------------------------------------------------------
 
