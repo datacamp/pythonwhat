@@ -501,11 +501,11 @@ def test(a, b):
     print(a + b)
     return a + b
 """,
-            "Check the definition of `test()`. To verify it, we reran `test(3, 1)`. Running the higlighted expression generated an error: `wrong`.",
+            "Check the definition of `test()`. To verify it, we reran `test(3, 1)`. Running the highlighted expression generated an error: `wrong`.",
         ),
         (
             "def test(a, b): print(int(a) + int(b)); return int(a) + int(b)",
-            'Check the definition of `test()`. To verify it, we reran `test(1, "2")`. Running the higlighted expression didn\'t generate an error, but it should!',
+            'Check the definition of `test()`. To verify it, we reran `test(1, "2")`. Running the highlighted expression didn\'t generate an error, but it should!',
         ),
     ],
 )

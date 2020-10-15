@@ -203,9 +203,9 @@ def has_equal_ast(state, incorrect_msg=None, code=None, exact=True, append=None)
 
 
 DEFAULT_INCORRECT_MSG = "Expected {{test_desc}}`{{sol_eval}}`, but got `{{stu_eval}}`."
-DEFAULT_ERROR_MSG = "Running {{'it' if parent['part'] else 'the higlighted expression'}} generated an error: `{{stu_str}}`."
-DEFAULT_ERROR_MSG_INV = "Running {{'it' if parent['part'] else 'the higlighted expression'}} didn't generate an error, but it should!"
-DEFAULT_UNDEFINED_NAME_MSG = "Running {{'it' if parent['part'] else 'the higlighted expression'}} should define a variable `{{name}}` without errors, but it doesn't."
+DEFAULT_ERROR_MSG = "Running {{'it' if parent['part'] else 'the highlighted expression'}} generated an error: `{{stu_str}}`."
+DEFAULT_ERROR_MSG_INV = "Running {{'it' if parent['part'] else 'the highlighted expression'}} didn't generate an error, but it should!"
+DEFAULT_UNDEFINED_NAME_MSG = "Running {{'it' if parent['part'] else 'the highlighted expression'}} should define a variable `{{name}}` without errors, but it doesn't."
 DEFAULT_INCORRECT_NAME_MSG = (
     "Are you sure you assigned the correct value to `{{name}}`?"
 )
