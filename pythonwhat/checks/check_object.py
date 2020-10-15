@@ -12,7 +12,6 @@ from pythonwhat.tasks import (
     isDefinedCollInProcess,
 )
 from pythonwhat.checks.check_funcs import part_to_child
-from pythonwhat.utils import v2_only
 import pandas as pd
 import ast
 
@@ -155,11 +154,8 @@ def check_object(state, index, missing_msg=None, expand_msg=None, typestr="varia
         and seeing if the result of running this expression in both student and solution process match.
 
     """
-
-    # Only do the assertion if PYTHONWHAT_V2_ONLY is set to '1'
-    if v2_only():
-        extra_msg = "If you want to check the value of an object in e.g. a for loop, use `has_equal_value(name = 'my_obj')` instead."
-        state.assert_execution_root("check_object", extra_msg=extra_msg)
+    extra_msg = "If you want to check the value of an object in e.g. a for loop, use `has_equal_value(name = 'my_obj')` instead."
+    state.assert_execution_root("check_object", extra_msg=extra_msg)
 
     if missing_msg is None:
         missing_msg = "Did you define the {{typestr}} `{{index}}` without errors?"

@@ -7,7 +7,7 @@ def test_excel():
     data = {
         "DC_PEC": "import pandas as pd; from urllib.request import urlretrieve; urlretrieve('https://s3.amazonaws.com/assets.datacamp.com/production/course_998/datasets/battledeath.xlsx', 'battledeath.xlsx')",
         "DC_SOLUTION": "xl = pd.ExcelFile('battledeath.xlsx')",
-        "DC_SCT": "test_object('xl')",
+        "DC_SCT": "check_object('xl')",
         "DC_CODE": "xl = pd.ExcelFile('battledeath.xlsx')",
     }
     sct_payload = helper.run(data)

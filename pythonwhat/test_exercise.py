@@ -4,7 +4,6 @@ from pythonwhat.sct_syntax import Ex, get_chains
 from pythonwhat.utils import check_str, check_process
 from protowhat.Reporter import Reporter
 from protowhat.failure import Failure, InstructorError
-from pythonwhat.utils import include_v1
 
 
 def test_exercise(
@@ -51,15 +50,10 @@ def test_exercise(
         )
 
         State.root_state = state
-        tree, sct_cntxt = prep_context()
+        sct_cntxt = prep_context()
 
         # Actually execute SCTs
         exec(sct, sct_cntxt)
-
-        # Run remaining nodes on tree (v1 only)
-        if tree:
-            for test in tree.crnt_node:
-                test(state)
 
     except Failure as e:
         if isinstance(e, InstructorError):
@@ -88,7 +82,6 @@ def allow_errors():
 def prep_context():
     cntxt = {"success_msg": success_msg}
     from pythonwhat.sct_syntax import v2_check_functions
-    from pythonwhat.probe import build_probe_context
 
     imports = [
         "from inspect import Parameter as param",
@@ -98,17 +91,9 @@ def prep_context():
     ]
     [exec(line, None, cntxt) for line in imports]
 
-    # only if PYTHONWHAT_V2_ONLY is not set, support v1
-    if include_v1():
-        tree, probe_cntxt = build_probe_context()
-        cntxt.update(probe_cntxt)
-    else:
-        tree = None
-
     cntxt.update(v2_check_functions)
     # TODO: ChainStart instances cause errors when dill tries to pass manual converter functions
     # cntxt.update(get_chains())
-    return tree, cntxt
 
 
 def setup_state(stu_code="", sol_code="", pec="", **kwargs):

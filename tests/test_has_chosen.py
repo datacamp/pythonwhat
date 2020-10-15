@@ -11,11 +11,6 @@ import tests.helper as helper
     ],
 )
 def test_has_chosen(stu_code, passes, mess):
-    data = {"DC_CODE": stu_code, "DC_SCT": "test_mc(2, ['a', 'b', 'c'])"}
-    res = helper.run(data)
-    assert res["correct"] is passes
-    assert res["message"] == mess
-
     data = {"DC_CODE": stu_code, "DC_SCT": "Ex().has_chosen(2, ['a', 'b', 'c'])"}
     res = helper.run(data)
     assert res["correct"] is passes

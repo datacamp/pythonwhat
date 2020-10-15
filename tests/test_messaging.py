@@ -200,7 +200,7 @@ def test_check_function_pkg1(stu, patt):
         {
             "DC_SOLUTION": "import pandas as pd; pd.DataFrame({'a': [1, 2, 3]})",
             "DC_CODE": stu,
-            "DC_SCT": "test_function_v2('pandas.DataFrame')",
+            "DC_SCT": "Ex().check_function('pandas.DataFrame')",
         }
     )
     assert not output["correct"]
@@ -219,7 +219,7 @@ def test_check_function_pkg2(stu, patt):
         {
             "DC_SOLUTION": "import numpy as np; x = np.random.rand(1)",
             "DC_CODE": stu,
-            "DC_SCT": "test_function_v2('numpy.random.rand')",
+            "DC_SCT": "Ex().check_function('numpy.random.rand')",
         }
     )
     assert not output["correct"]
@@ -327,7 +327,6 @@ def test_check_object(stu, patt, cols, cole):
 @pytest.mark.parametrize(
     "sct",
     [
-        "test_data_frame('df', columns=['a'])",
         "import pandas as pd; Ex().check_object('df', typestr = 'pandas DataFrame').is_instance(pd.DataFrame).check_keys('a').has_equal_value()",
     ],
 )
@@ -805,11 +804,11 @@ def test_nesting(stu, patt):
             "DC_SOLUTION": "a = 1; b = a + 1; c = b + 1; print(c)",
             "DC_CODE": stu,
             "DC_SCT": """
-Ex().test_correct(
+Ex().check_correct(
     has_printout(0),
-    F().test_correct(
+    F().check_correct(
         check_object('c').has_equal_value(),
-        F().test_correct(
+        F().check_correct(
             check_object('b').has_equal_value(),
             check_object('a').has_equal_value()
         )

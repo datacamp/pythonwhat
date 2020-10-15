@@ -40,7 +40,7 @@ def test_compount_statement_if_fail(data1):
 @pytest.fixture
 def data2():
     return {
-        "DC_SOLUTION": """    
+        "DC_SOLUTION": """
 my_dict = {'a': 1, 'b': 2}
 for key, value in my_dict.items():
     print(key + " - " + str(value))
@@ -90,7 +90,7 @@ def shout_echo(word1, echo=1):
     return shout_words
         """,
         "DC_SCT": """
-Ex().check_function_def('shout_echo').test_correct(
+Ex().check_function_def('shout_echo').check_correct(
     multi(
         check_call("f('hey', 3)").has_equal_value(),
         check_call("f('hi', 2)").has_equal_value(),
@@ -134,7 +134,7 @@ def counter(lst, key):
     return count
         """,
         "DC_SCT": """
-Ex().check_function_def('counter').test_correct(
+Ex().check_function_def('counter').check_correct(
     multi(
         check_call("f([{'a': 1}], 'a')").has_equal_value(),
         check_call("f([{'b': 1}, {'b': 2}], 'b')").has_equal_value()

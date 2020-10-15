@@ -53,31 +53,12 @@ b = NoPickle()
 
 
 @pytest.mark.parametrize(
-    "stu, passes",
-    [
-        ("a = 0\nfor i in range(0): pass", False),
-        ("a = 0\nfor i in range(0): a = a - 1", False),
-        ("a = 0\nfor i in range(0): a = a + 1", True),
-    ],
-)
-def test_has_equal_value_old(stu, passes):
-    out = helper.run(
-        {
-            "DC_CODE": stu,
-            "DC_SOLUTION": "a = 0\nfor i in range(0): a = a + 1",
-            "DC_SCT": "test_for_loop(body = test_object_after_expression('a'))",
-        }
-    )
-    out["correct"] == passes
-
-
-@pytest.mark.parametrize(
     "stu, passes", [("", False), ('x = {"a": 2}', False), ('x = {"a": 1}', True)]
 )
 def test_has_equal_output_basic(stu, passes):
     s = setup_state(stu, 'x = {"a":1, "b":2, "c": 3}')
     with helper.verify_sct(passes):
-        s.test_expression_output(expr_code='print(x["a"])')
+        s.has_equal_output(expr_code='print(x["a"])')
 
 
 @pytest.mark.parametrize(

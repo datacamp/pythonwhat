@@ -1,14 +1,5 @@
 from types import ModuleType
 import copy
-import os
-
-
-def include_v1():
-    return os.environ.get("PYTHONWHAT_V2_ONLY", "") != "1"
-
-
-def v2_only():
-    return not include_v1()
 
 def shorten_string(text):
     if len(text) > 50:

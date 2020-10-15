@@ -147,8 +147,7 @@ def replace_test_if(sct):
 
 
 @contextmanager
-def set_v2_only_env(new):
-    key = "PYTHONWHAT_V2_ONLY"
+def set_env(key, new):
     old = os.environ.get(key)
     try:
         os.environ[key] = new
