@@ -1,10 +1,10 @@
 sudo: false
 language: python
 python:
-- '3.5'
+- '3.9'
 before_install:
-- pip install -r requirements.txt
-- pip install -e .
+- pip3.9 install -r requirements.txt
+- pip3.9 install -e .
 script: pytest -m "not compiled" --cov=pythonwhat
 after_success: codecov --token=$CODECOV_TOKEN
 deploy:
