@@ -6,7 +6,6 @@ before_install:
 - pip3.9 install -r requirements.txt
 - pip3.9 install -e .
 script: pytest -m "not compiled" --cov=pythonwhat
-after_success: codecov --token=$CODECOV_TOKEN
 deploy:
   provider: pypi
   user: datacamp

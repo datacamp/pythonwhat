@@ -20,7 +20,6 @@ xlrd~=2.0.1
 
 # test-utils deps
 pytest~=6.2.5
-codecov~=2.1.12
 pytest-cov~=2.12.1
 
 # building documentation
