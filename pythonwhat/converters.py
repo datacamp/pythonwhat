@@ -6,6 +6,7 @@ def get_manual_converters():
 
     converters = {
         "pandas.io.excel.ExcelFile": lambda x: x.io,
+        "pandas.io.excel._base.ExcelFile": lambda x: x.io,
         "builtins.dict_keys": lambda x: sorted(x),
         "builtins.dict_items": lambda x: sorted(x),
         "bs4.BeautifulSoup": lambda x: str(x),

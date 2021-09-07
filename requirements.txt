@@ -17,6 +17,7 @@ requests~=2.26.0
 seaborn~=0.11.2
 sqlalchemy~=1.4.23
 xlrd~=2.0.1
+openpyxl~=3.0.7
 
 # test-utils deps
 pytest~=6.2.5
