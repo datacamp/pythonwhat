@@ -4,7 +4,7 @@ from protowhat.failure import debugger
 
 
 def wrap_in_module(node):
-    new_node = ast.Module(node)
+    new_node = ast.Module(node, [])
     if isinstance(node, list):
         if len(node) > 0:
             new_node.first_token = node[0].first_token
