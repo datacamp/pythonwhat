@@ -212,6 +212,7 @@ def check_function_multiple_times():
 # Methods ---------------------------------------------------------------------
 
 
+# Manually create a signature for functions that need self passed
 def test_method_1():
     code = "df.groupby('b').sum()"
     s = setup_state(
@@ -221,26 +222,29 @@ def test_method_1():
     )
     helper.passes(s.check_function("df.groupby").check_args(0).has_equal_value())
     helper.passes(s.check_function("df.groupby.sum", signature=False))
-    from pythonwhat.signatures import sig_from_obj
-    import pandas as pd
 
+    import inspect
+    from inspect import Parameter as param
+    manual_sig = inspect.Signature([
+        param("x", param.POSITIONAL_OR_KEYWORD, default=None),
+        param("axis", param.POSITIONAL_OR_KEYWORD, default=None)
+    ])
     helper.passes(
-        s.check_function("df.groupby.sum", signature=sig_from_obj(pd.Series.sum))
+        s.check_function("df.groupby.sum", signature=manual_sig)
     )
 
 
 def test_method_2():
-    code = "df[df.b == 'x'].a.sum()"
+    code = "print('a')"
     s = setup_state(
         sol_code=code,
         stu_code=code,
-        pec="import pandas as pd; df = pd.DataFrame({'a': [1, 2, 3], 'b': ['x', 'x', 'y']})",
+        pec="",
     )
-    helper.passes(s.check_function("df.a.sum", signature=False))
-    from pythonwhat.signatures import sig_from_obj
-    import pandas as pd
+    helper.passes(s.check_function("print", signature=False))
 
-    helper.passes(s.check_function("df.a.sum", signature=sig_from_obj(pd.Series.sum)))
+    from pythonwhat.signatures import sig_from_obj
+    helper.passes(s.check_function("print", signature=sig_from_obj('print')))
 
 
 from pythonwhat.signatures import sig_from_params, param
