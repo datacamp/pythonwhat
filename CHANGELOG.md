@@ -2,6 +2,11 @@
 
 All notable changes to the pythonwhat project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.24.0
+
+- Support Python version 3.9
+- Update dependencies to up-to-date versions
+
 ## 2.23.2
 
 - Update behaviour of has_expr() default feedback message. If the student's evaluation is too long, it is now shortened and an ellipsis is added. 

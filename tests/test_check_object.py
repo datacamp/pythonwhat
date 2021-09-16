@@ -180,7 +180,7 @@ users = pd.read_csv('https://s3.amazonaws.com/assets.datacamp.com/production/cou
 
 
 def test_non_dillable():
-    # xlrd needed for Excel support
+    # xlrd and openpyxl needed for Excel support
     code = "xl = pd.ExcelFile('battledeath.xlsx')"
     res = helper.run(
         {
