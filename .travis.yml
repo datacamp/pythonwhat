@@ -1,17 +1,16 @@
 sudo: false
 language: python
 python:
-- '3.5'
+- '3.9'
 before_install:
-- pip install -r requirements.txt
-- pip install -e .
+- pip3.9 install -r requirements.txt
+- pip3.9 install -e .
 script: pytest -m "not compiled" --cov=pythonwhat
-after_success: codecov --token=$CODECOV_TOKEN
 deploy:
   provider: pypi
   user: datacamp
   password:
-    secure: oyhm/R427TtmjJFMlvxQAR3UK5CA3vRSQd7CTtGTkL3W2zoZsPI7p3XbJn4CwC1f1XPdAbfN/Km035Fn4NlVHwJT54NTGkcy8GPV8whxEvWptiA1XWO6uwIqHh7rF/cVhX21AYXWAYkFq0Y0w1+q3OK75czMBrclwn9t+m111uoEUdZyowI5EVXbTHfzpNrRY3wA+tVWdz3Yd4IIC5foFsMP28j/5JCuMWXT1Knf53ZaoTSpyoEllAe/8sP/3K6/adgiwz5vL6kTFtSeuX0EQ6uvlXWyP4x8APNcnfVKxEC16iwakOgVzhw4n3uMsQ6tgo11w+A2crJU1N8KxdZtG8gAw42jWSZMmB3SHHx0NQhi71SvrjYXwDwe8bOvRFDHiR+2WQzoYC4WJUyn4WYpScazkQpeqYdoOTBnAr1VNzZHOQNwejX5KpLP15oXj6ima/lqefQWnIRixeBkJibSTdRl2HlvdPzP75DSjg8eA0Xt8/ad2oWV4om9zIUwAkJrnzih3ZsnshSqVZcxpsRDZvV2LXz39JzlNECqxfLGF+Oy6M8QQXnALzYuHhs/BgzPlLdQw8QLwHPqvv38LNfrWo36jR3j9UYu1/45LZauIEJuLGCyPclT1PDnAtxH3SGCEi8aAODzAi2qptbBHxJHjsRcVeMx6Oiz4AmEuxT4QRU=
+    secure: YSxFsCIO8OW/8NyVtVPjvWceAscKcjX3PpDqU8/GwP6TkpE/ORZbc2Gc5zZz6arq/zormtGvv85fxc+mub9GqRdavPtNDaeq1QgzDIWfXOHAoQ5jWBwfXQz/MvP9YS3yk5uex1usga/nlm1Q6Am7RwYnttpNv3TRRJbDDMOc9wzYa+lHYZBlvaispewgusz6uXzeO3M1Aj+KwNSfwMU8yAJNhFGG5mk329yv8EGKMXO9nuTYOLm3JF1E1aiZD0bcVDETvTGq9GyWQG+Od3zvXDpQW0B0rHgRmXCH7AVdHIAxletYf7jEhFmNh+kn8yXxtcnuRo6E90HMGPGU91ErF5NDWpOlCTbdSNj2oGHDZFWiIw717RBWMz7MyfV8aeseL6HKNu+jnDPm+1ANSpzI3V+DUexsKynPDzRT2kZsM5jSxyuncx8oNsmaqt9eRL9vOhzD4tBP6oRI8tPtQMB/4zXv12ihFYc5fYARRgx5jlAxqwYfwvsdF49Sna9XGiubQeJOPs1tDni/eXZrr7ey0Mj8r7eJyxqXcsXqYq1F4jDyijubGcYJyhPXU9F64vlPel/Kvg7Z5c0XOu/6yptoVaapSM3v7NYk65hvGq+GBtX4IexwaZousOVeHMHavXVU5HL4+t7UrFxLKnsZIGZtRVT2nuUV5P/fcUjeF0uw70A=
   distributions: sdist bdist_wheel
   on:
     tags: true

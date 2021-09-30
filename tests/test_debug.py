@@ -1,5 +1,5 @@
-import requests
 import tests.helper as helper
+import json
 
 from protowhat.failure import InstructorError
 
@@ -21,13 +21,10 @@ def test_debug_on_error():
     # assert "SCT" in output["message"]
 
 
-def build_data(course_id, chapter_id, ex_number, printout=False):
-    url = "https://www.datacamp.com/api/courses/{course_id}/chapters/{chapter_id}/exercises.json".format(
-        course_id=course_id, chapter_id=chapter_id
-    )
-    resp = requests.get(url)
-    assert resp.status_code == 200
-    ex = resp.json()[ex_number - 1]
+def build_data(ex_number, printout=False):
+    # "https://www.datacamp.com/api/courses/735/chapters/1842/exercises.json"
+    with open('tests/test_debug_exercises.json') as exercises_json:
+        ex = json.load(exercises_json)[ex_number - 1]
 
     pec = ex.get("pre_exercise_code", "")
     sol = ex.get("solution", "")
@@ -60,6 +57,6 @@ def test_normal_pass():
 
 
 def test_dc_exercise():
-    data = build_data(735, 1842, 2)
+    data = build_data(2)
     output = helper.run(data)
     assert output["correct"]

@@ -1,6 +1,7 @@
 import re
 import numpy as np
 import pandas as pd
+from pandas.testing import assert_frame_equal, assert_series_equal
 from pythonwhat.tasks import *
 from protowhat.Test import Test
 
@@ -115,8 +116,6 @@ def is_equal(x, y):
             # Types of errors don't matter (this is debatable)
             return str(x) == str(y)
         if areinstance(x, y, (np.ndarray, dict, list, tuple)):
-            if np.array_equal(x, y):
-                return True
             np.testing.assert_equal(x, y)
             return True
         elif areinstance(x, y, (map, filter)):
@@ -124,12 +123,12 @@ def is_equal(x, y):
         elif areinstance(x, y, (pd.DataFrame,)):
             if x.equals(y):
                 return True
-            pd.util.testing.assert_frame_equal(x, y)
+            assert_frame_equal(x, y)
             return True
         elif areinstance(x, y, (pd.Series,)):
             if x.equals(y):
                 return True
-            pd.util.testing.assert_series_equal(x, y)
+            assert_series_equal(x, y)
             return True
         else:
             return x == y
@@ -185,4 +184,4 @@ class StringContainsTest(Test):
         if self.pattern:
             self.result = re.search(self.search_string, self.string) is not None
         else:
-            self.result = self.string.find(self.search_string) is not -1
+            self.result = self.string.find(self.search_string) != -1

@@ -10,7 +10,7 @@ def assign_from_ast(node, expr):
     """
     if isinstance(expr, str):
         expr = ast.Name(id=expr, ctx=ast.Load())
-    mod = ast.Module([ast.Assign(targets=[node], value=expr)])
+    mod = ast.Module([ast.Assign(targets=[node], value=expr)], [])
     ast.fix_missing_locations(mod)
     return compile(mod, "<assignment_script>", "exec")
 

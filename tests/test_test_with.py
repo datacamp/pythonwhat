@@ -244,6 +244,7 @@ with open('moby_dick.txt') as file, open('not_moby_dick.txt') as not_file:
         helper.with_line_info(res, *lines)
 
 
+@pytest.mark.skip
 def test_test_with_destructuring():
     code = """
 with A() as (one, *others):
