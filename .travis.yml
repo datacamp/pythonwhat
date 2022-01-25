@@ -1,10 +1,11 @@
 sudo: false
+dist: focal
 language: python
 python:
-- '3.9'
+- "3.10.2"
 before_install:
-- pip3.9 install -r requirements.txt
-- pip3.9 install -e .
+- pip3.10 install -r requirements.txt
+- pip3.10 install -e .
 script: pytest -m "not compiled" --cov=pythonwhat
 deploy:
   provider: pypi

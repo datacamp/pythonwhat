@@ -5,23 +5,23 @@ dill~=0.3.4
 markdown2~=2.3.10
 jinja2~=2.11.3
 
-numpy~=1.19.5
-pandas~=1.3.2
+numpy~=1.22.1
+pandas~=1.4.0
 
 # test deps
-scipy~=1.7.1
+scipy~=1.7.3
 bs4~=0.0.1
 html5lib~=1.1
-h5py~=3.1.0
-requests~=2.26.0
+h5py~=3.6.0
+requests~=2.27.1
 seaborn~=0.11.2
-sqlalchemy~=1.4.23
+sqlalchemy~=1.4.31
 xlrd~=2.0.1
-openpyxl~=3.0.7
+openpyxl~=3.0.9
 
 # test-utils deps
 pytest~=6.2.5
-pytest-cov~=2.12.1
+pytest-cov~=3.0.0
 
 # building documentation
 sphinx~=4.1.2
