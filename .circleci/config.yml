@@ -29,12 +29,15 @@ jobs:
 workflows:
   build:
     jobs:
-      - build-and-test
+      - build-and-test:
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+$/
       - publish:
           requires:
             - build-and-test
           filters:
             tags:
-              only: /^v\d+\.\d+\.\d+(-rc\.\d+)?$/
+              only: /^v\d+\.\d+\.\d+$/
             branches:
               ignore: /.*/
