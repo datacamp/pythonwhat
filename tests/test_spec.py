@@ -137,6 +137,60 @@ def test_has_equal_ast_simple_pass(data):
     assert sct_payload["correct"]
 
 
+def test_has_equal_ast_formatting(data):
+    data["DC_CODE"] = """
+def car_wash(env):
+    car_wash_num = 0
+    while True:
+        car_wash_num += 2
+        
+        # Get the current simulation time and clock-in the process time
+        yield env.timeout(5)
+
+a = 2
+b = 3
+"""
+    data["DC_SOLUTION"] = """
+def car_wash(env):
+    car_wash_num = 0
+    while True:
+        car_wash_num += 1
+        
+        # Get the current simulation time and clock-in the process time
+        yield env.timeout(5)
+
+a = 2
+b = 3
+"""
+    data["DC_SCT"] = """
+Ex().check_function_def("car_wash").multi(
+    check_body().check_while().has_equal_ast()
+)
+"""
+    sct_payload = helper.run(data)
+    assert not sct_payload["correct"]
+    incorrect_msg = """Did you correctly specify the body? Check the first <code>while</code> loop. Expected 
+
+<pre><code>while True:
+    car_wash_num += 1
+
+    # Get the current simulation time and clock-in the process time
+    yield env.timeout(5)
+
+</code></pre>
+
+, but got 
+
+<pre><code>while True:
+    car_wash_num += 2
+
+    # Get the current simulation time and clock-in the process time
+    yield env.timeout(5)
+
+</code></pre>"""
+    assert sct_payload["message"] == incorrect_msg
+
+
 def test_has_equal_ast_simple_fail(data):
     data["DC_SCT"] = "Ex().has_equal_ast()"
     failing_submission(data)

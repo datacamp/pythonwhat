@@ -167,7 +167,11 @@ def has_equal_ast(state, incorrect_msg=None, code=None, exact=True, append=None)
     ):  # if not specified, set to False if incorrect_msg was manually specified
         append = incorrect_msg is None
     if incorrect_msg is None:
-        incorrect_msg = "Expected `{{sol_str}}`, but got `{{stu_str}}`."
+        incorrect_msg = (
+            "Expected \n```\n{{sol_str}}\n```\n, but got \n```\n{{stu_str}}\n```\n"
+            if utils.is_multiline_code(state.student_code, state.solution_code)
+            else "Expected `{{sol_str}}`, but got `{{stu_str}}`."
+        )
 
     def parse_tree(tree):
         # get contents of module.body if only 1 element
@@ -183,10 +187,18 @@ def has_equal_ast(state, incorrect_msg=None, code=None, exact=True, append=None)
     stu_rep = parse_tree(state.student_ast)
     sol_rep = parse_tree(state.solution_ast if not code else ast.parse(code))
 
-    fmt_kwargs = {
-        "sol_str": state.solution_code if not code else code,
-        "stu_str": state.student_code,
-    }
+    if utils.is_multiline_code(state.student_code, state.solution_code):
+        fmt_kwargs = {
+            "sol_str": utils.format_code(state.solution_code)
+            if not code
+            else utils.format_code(code),
+            "stu_str": utils.format_code(state.student_code),
+        }
+    else:
+        fmt_kwargs = {
+            "sol_str": state.solution_code if not code else code,
+            "stu_str": state.student_code,
+        }
 
     if exact and not code:
         state.do_test(
@@ -345,19 +357,20 @@ def has_expr(
     # wrap in quotes if eval_sol or eval_stu are strings
     if test == "value":
         if isinstance(eval_stu, str):
-            fmt_kwargs["stu_eval"] = '\'{}\''.format(fmt_kwargs["stu_eval"])
+            fmt_kwargs["stu_eval"] = "'{}'".format(fmt_kwargs["stu_eval"])
         if isinstance(eval_sol, str):
-            fmt_kwargs["sol_eval"] = '\'{}\''.format(fmt_kwargs["sol_eval"])
+            fmt_kwargs["sol_eval"] = "'{}'".format(fmt_kwargs["sol_eval"])
 
     # reformat student evaluation string if it is too long
     fmt_kwargs["stu_eval"] = utils.shorten_string(fmt_kwargs["stu_eval"])
 
     # check if student or solution evaluations are too long or contain newlines
     if incorrect_msg == DEFAULT_INCORRECT_MSG and (
-        len(fmt_kwargs["sol_eval"]) > 50 or
-        utils.has_newline(fmt_kwargs["stu_eval"]) or
-        utils.has_newline(fmt_kwargs["sol_eval"]) or
-        fmt_kwargs["stu_eval"] == fmt_kwargs["sol_eval"]):
+        len(fmt_kwargs["sol_eval"]) > 50
+        or utils.has_newline(fmt_kwargs["stu_eval"])
+        or utils.has_newline(fmt_kwargs["sol_eval"])
+        or fmt_kwargs["stu_eval"] == fmt_kwargs["sol_eval"]
+    ):
         fmt_kwargs["stu_eval"] = None
         fmt_kwargs["sol_eval"] = None
         incorrect_msg = "Expected something different."

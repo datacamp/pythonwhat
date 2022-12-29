@@ -1,6 +1,19 @@
 from types import ModuleType
 import copy
 import os
+import black
+
+
+def format_code(text):
+    mode = black.FileMode()
+    try:
+        return black.format_file_contents(text, fast=True, mode=mode)
+    except black.NothingChanged:
+        return text
+
+
+def is_multiline_code(stu_code: str, sol_code: str) -> bool:
+    return has_newline(stu_code) or has_newline(sol_code)
 
 
 def include_v1():
@@ -10,10 +23,12 @@ def include_v1():
 def v2_only():
     return not include_v1()
 
+
 def shorten_string(text):
     if len(text) > 50:
         text = text[0:45] + "..."
     return text
+
 
 def has_newline(text):
     return "\n" in text
