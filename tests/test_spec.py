@@ -191,6 +191,69 @@ Ex().check_function_def("car_wash").multi(
     assert sct_payload["message"] == incorrect_msg
 
 
+def test_black_formatting_errors_catch(data):
+    data["DC_CODE"] = """
+# Define a function called plot_timeseries
+def plot_timeseries(axes, x, y, color, xlabel, ylabel):
+
+  # Plot the inputs x,y in the provided color
+  axes.plot(x, y, color=color)
+
+  # Set the x-axis label
+  axes.set_xlabel(xlabel)
+
+  # Set the y-axis label
+  axes.set_ylabel(ylabel, color=color)
+
+  # Set the colors tick params for y-axis
+  axes.tick_params('y', colors=color)
+"""
+    data["DC_SOLUTION"] = """
+# Define a function called plot_timeseries
+def plot_timeseries(axes, x, y, color, xlabel, ylabel):
+
+  # Plot the inputs x,y in the provided color
+  axes.plot(x, y, color=color)
+
+  # Set the x-axis label
+  axes.set_xlabel(xlabel)
+
+  # Set the y-axis label
+  axes.set_ylabel(ylabel, color=color)
+
+  # Set the colors tick params for y-axis
+  axes.tick_params('y', colors=color)
+"""
+    data["DC_SCT"] = """
+msg1 = "Did you plot the x and y in the provided color?"
+msg2 = "Did you set the x-axis label?"
+msg3 = "Did you set the y-axis label?"
+msg4 = "Did you set the colors tick params for y-axis?"
+
+Ex().check_function_def("plot_timeseries").check_body().multi(
+    check_or(
+        has_equal_ast(msg1, "axes.plot(x, y, color=color)", exact = False), 
+        has_equal_ast(msg1, "axes.plot(x, y, c=color)", exact = False)
+    ), 
+    check_or(
+        has_equal_ast(msg2, "axes.set_xlabel(xlabel)", exact = False), 
+        has_equal_ast(msg2, "axes.set_xlabel(xlabel=xlabel)", exact = False)
+    ), 
+    check_or(
+        has_equal_ast(msg3, "axes.set_ylabel(ylabel, color=color)", exact = False),
+        has_equal_ast(msg3, "axes.set_ylabel(ylabel, c=color)", exact = False),
+        has_equal_ast(msg3, "axes.set_ylabel(ylabel=ylabel, color=color)", exact = False), 
+        has_equal_ast(msg3, "axes.set_ylabel(ylabel=ylabel, c=color)", exact = False)
+    ), 
+    has_equal_ast(msg4, "axes.tick_params('y', colors=color)", exact = False),
+)
+
+success_msg("Very good. Next, let's use this function!")
+"""
+    sct_payload = helper.run(data)
+    assert sct_payload["correct"]
+
+
 def test_has_equal_ast_simple_fail(data):
     data["DC_SCT"] = "Ex().has_equal_ast()"
     failing_submission(data)
