@@ -8,7 +8,7 @@ def format_code(text):
     mode = black.FileMode()
     try:
         return black.format_file_contents(text, fast=True, mode=mode)
-    except (black.NothingChanged, black.InvalidInput, black.CannotSplit):
+    except (black.NothingChanged, black.InvalidInput, IndentationError):
         return text
 
 
