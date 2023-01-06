@@ -176,7 +176,6 @@ Ex().check_function_def("car_wash").multi(
 
     # Get the current simulation time and clock-in the process time
     yield env.timeout(5)
-
 </code></pre>
 
 , but got 
@@ -186,7 +185,6 @@ Ex().check_function_def("car_wash").multi(
 
     # Get the current simulation time and clock-in the process time
     yield env.timeout(5)
-
 </code></pre>"""
     assert sct_payload["message"] == incorrect_msg
 
