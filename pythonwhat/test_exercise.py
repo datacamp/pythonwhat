@@ -12,8 +12,6 @@ def test_exercise(
     student_code,
     solution_code,
     pre_exercise_code,
-    student_process,
-    solution_process,
     raw_student_output,
     ex_type,
     error,
