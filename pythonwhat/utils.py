@@ -1,15 +1,10 @@
 from types import ModuleType
 import copy
 import os
-import black
 
 
 def format_code(text):
-    mode = black.FileMode()
-    try:
-        return black.format_file_contents(text, fast=True, mode=mode).rstrip()
-    except (black.NothingChanged, black.InvalidInput, IndentationError):
-        return text
+    return text
 
 
 def is_multiline_code(stu_code: str, sol_code: str) -> bool:
