@@ -1,5 +1,4 @@
 from pythonwhat import utils
-import dill
 import pickle
 import pythonwhat
 import ast
@@ -223,22 +222,9 @@ def getClass(name, process, shell):
 
 
 @process_task
-def convert(name, converter, process, shell):
-    return dill.loads(converter)(get_env(shell.user_ns)[name])
-
-
-@process_task
 def getStreamPickle(name, process, shell):
     try:
         return pickle.dumps(get_env(shell.user_ns)[name])
-    except:
-        return None
-
-
-@process_task
-def getStreamDill(name, process, shell):
-    try:
-        return dill.dumps(get_env(shell.user_ns)[name])
     except:
         return None
 
@@ -252,39 +238,18 @@ def getRepresentation(name, process):
     obj_class = getClass(name, process)
     converters = pythonwhat.State.State.root_state.converters
     if obj_class in converters:
-        repres = convert(name, dill.dumps(converters[obj_class]), process)
-        if errored(repres):
-            return ReprFail("manual conversion failed: {}".format(repres))
-        else:
-            return repres
+        return ReprFail("manual conversion failed: dill not available")
     else:
         # first try to pickle
         try:
             stream = getStreamPickle(name, process)
             if not errored(stream):
                 return pickle.loads(stream)
-        except:
-            pass
-
-        # if it failed, try to dill
-        try:
-            stream = getStreamDill(name, process)
-            if not errored(stream):
-                return dill.loads(stream)
-            return ReprFail(
-                "dilling inside process failed for %s - write manual converter"
-                % obj_class
-            )
-        except PicklingError:
-            return ReprFail(
-                "undilling of bytestream failed with PicklingError - write manual converter"
-            )
         except Exception as e:
             return ReprFail(
                 "undilling of bytestream failed for class %s - write manual converter."
                 "Error: %s - %s" % (obj_class, type(e), e)
             )
-
 
 def errored(el):
     return el is None or (isinstance(el, list) and "backend-error" in str(el))

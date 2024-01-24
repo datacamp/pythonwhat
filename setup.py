@@ -6,7 +6,7 @@ from os import path
 from setuptools import setup
 
 PACKAGE_NAME = "pythonwhat"
-REQUIREMENT_NAMES = ["protowhat", "markdown2", "jinja2", "asttokens", "dill"]
+REQUIREMENT_NAMES = ["protowhat", "markdown2", "jinja2", "asttokens"]
 PEER_REQUIREMENTS = ["numpy", "pandas"]
 
 HERE = path.abspath(path.dirname(__file__))
