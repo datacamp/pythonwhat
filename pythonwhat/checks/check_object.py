@@ -180,6 +180,19 @@ def check_object(state, index, missing_msg=None, expand_msg=None, typestr="varia
 
     # create child state, using either parser output, or create part from name
     fallback = lambda: ObjectAssignmentParser.get_part(index)
+    stu_part_ast_check = state.ast_dispatcher.find("object_assignments", state.student_ast).get(
+        index,
+    )
+    sol_part_ast_check = state.ast_dispatcher.find("object_assignments", state.solution_ast).get(
+        index,
+    )
+
+    if stu_part_ast_check is None or (stu_part_ast_check.get("name") != sol_part_ast_check.get("name")):
+        state.report(
+            missing_msg,
+            append_message.kwargs
+        )
+
     stu_part = state.ast_dispatcher.find("object_assignments", state.student_ast).get(
         index, fallback()
     )
