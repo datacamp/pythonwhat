@@ -12,6 +12,7 @@ from pythonwhat.Test import EqualTest, DefinedCollTest
 from protowhat.Feedback import Feedback, FeedbackComponent
 from protowhat.failure import InstructorError, debugger
 from pythonwhat import utils
+from pythonwhat.local import StubShell
 from functools import partial
 import re
 import copy
@@ -716,31 +717,44 @@ def has_printout(
                 index, get_ord(index + 1)
             )
         )
-
-    out_sol, str_sol = getOutputInProcess(
-        tree=sol_call_ast,
-        process=state.solution_process,
-        context=state.solution_context,
-        env=state.solution_env,
-        pre_code=pre_code,
-        copy=copy,
-    )
-
+    
     sol_call_str = state.solution_ast_tokens.get_text(sol_call_ast)
+    
+    try:
+        student_call_ast = state.ast_dispatcher.find("function_calls", state.student_ast)[
+            "print"
+        ][index]["node"]
+    except (KeyError, IndexError):
+        state.report(
+            not_printed_msg,
+            {"sol_call": sol_call_str}
+        )
 
-    if isinstance(str_sol, Exception):
-        with debugger(state):
-            state.report(
-                "Evaluating the solution expression {} raised error in solution process."
-                "Error: {} - {}".format(sol_call_str, type(out_sol), str_sol)
-            )
+    # out_sol, str_sol = getOutputInProcess(
+    #     shell=StubShell(),
+    #     tree=sol_call_ast,
+    #     process=state.solution_process,
+    #     context=state.solution_context,
+    #     env=state.solution_env,
+    #     pre_code=pre_code,
+    #     copy=copy,
+    # )
 
-    has_output(
-        state,
-        out_sol.strip(),
-        pattern=False,
-        no_output_msg=FeedbackComponent(not_printed_msg, {"sol_call": sol_call_str}),
-    )
+    # sol_call_str = state.solution_ast_tokens.get_text(sol_call_ast)
+
+    # if isinstance(str_sol, Exception):
+    #     with debugger(state):
+    #         state.report(
+    #             "Evaluating the solution expression {} raised error in solution process."
+    #             "Error: {} - {}".format(sol_call_str, type(out_sol), str_sol)
+    #         )
+
+    # has_output(
+    #     state,
+    #     out_sol.strip(),
+    #     pattern=False,
+    #     no_output_msg=FeedbackComponent(not_printed_msg, {"sol_call": sol_call_str}),
+    # )
 
     return state
 
