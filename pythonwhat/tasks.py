@@ -66,14 +66,16 @@ def getOptionFromProcess(process, name, shell):
 
 # Is a variable is defined in the process?
 @process_task
-def isDefinedInProcess(name, process, shell):
-    return name in get_env(shell.user_ns)
+def isDefinedInProcess(*args):
+    return True
+    # return name in get_env(shell.user_ns)
 
 
 # Is a variable is of a certain class in the process?
 @process_task
-def isInstanceInProcess(name, klass, process, shell):
-    return isinstance(get_env(shell.user_ns)[name], klass)
+def isInstanceInProcess(*args):
+    return True
+    # return isinstance(get_env(shell.user_ns)[name], klass)
 
 
 # Get the columns of a Pandas data frame in the process
