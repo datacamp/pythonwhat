@@ -7,9 +7,12 @@ import inspect
 from copy import deepcopy
 from pickle import PicklingError
 from pythonwhat.utils_env import set_context_vals, assign_from_ast
-from contextlib import contextmanager
+from contextlib import contextmanager, redirect_stdout, redirect_stderr
 from functools import partial, wraps
 from protowhat.failure import InstructorError
+
+import io
+from .output import OutputManager
 
 
 # Shell is passed as a parameter to partially applied functions in executeTask
@@ -370,7 +373,7 @@ def taskRunEval(
     Args:
         tree (ast): current focused ast, used to get code to execute
         process: manages shell (see local.py)
-        shell: link to to get process namespace from execution up until now
+        shell: link to get process namespace from execution up until now
         env: update value in focused code by name
         extra_env: variables to be replaced in focused code by name from extra_env in has_expr
         context: sum of set_context in sct chain
@@ -474,3 +477,41 @@ def taskRunEval(
 getResultInProcess = get_rep(taskRunEval)
 getOutputInProcess = partial(get_output, taskRunEval)
 getErrorInProcess = partial(get_error, taskRunEval)
+
+
+class TaskCaptureStdoutAndStdin:
+    def __init__(self, code, **kwargs):
+        self.code = code
+        self.kwargs = kwargs
+
+    def __call__(self, shell):
+        stdout_output = io.StringIO()
+        stderr_output = io.StringIO()
+
+        with redirect_stdout(stdout_output), redirect_stderr(stderr_output):
+            shell.run_cell(self.code, **self.kwargs)
+
+        execution_output = {
+            "output_stream": stdout_output.getvalue(),
+            "error_stream": stderr_output.getvalue(),
+            "result": None,
+            "error": None
+        }
+
+        output = []
+        OutputManager._addCodeOutput(output, execution_output)
+
+        return (output, execution_output)
+
+
+class TaskNoOutput:
+    def __init__(self, code, **kwargs):
+        self.code = code
+        self.kwargs = kwargs
+
+    def __call__(self, shell):
+        stdout_output = io.StringIO()
+        stderr_output = io.StringIO()
+
+        with redirect_stdout(stdout_output), redirect_stderr(stderr_output):
+            shell.run_cell(self.code, **self.kwargs)

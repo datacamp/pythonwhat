@@ -579,7 +579,7 @@ def has_import(
 
 
 def has_output(state, text, pattern=True, no_output_msg=None):
-    """Search student output for a pattern.
+    r"""Search student output for a pattern.
 
     Among the student and solution process, the student submission and solution code as a string,
     the ``Ex()`` state also contains the output that a student generated with his or her submission.
