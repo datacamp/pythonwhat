@@ -54,7 +54,7 @@ To learn how to include an SCT in a DataCamp course, visit https://instructor-su
 
 ```bash
 pyenv local 3.9.6
-pip3.9 install -r requirements.txt
+pip3.9 install -r requirements-test.txt
 pip3.9 install -e .
 pytest
 ```

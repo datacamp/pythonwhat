@@ -1,32 +1,12 @@
 # pythonwhat deps
-protowhat~=2.1.3
-asttokens~=2.0.5
+protowhat~=2.2.0
+asttokens~=2.4.1
 dill~=0.3.4
-markdown2~=2.4.6
-jinja2~=2.11.3
-markupsafe==2.0.1
+markdown2~=2.4.13
+jinja2~=3.1.3
+markupsafe==2.1.5
 black==19.10b0
 Pygments==2.13.0
 
-numpy~=1.19.5
-pandas~=1.3.2
-
-# test deps
-scipy~=1.7.1
-bs4~=0.0.1
-html5lib~=1.1
-h5py~=3.1.0
-requests~=2.26.0
-seaborn~=0.11.2
-sqlalchemy~=1.4.23
-xlrd~=2.0.1
-openpyxl~=3.0.7
-
-# test-utils deps
-pytest~=6.2.5
-pytest-cov~=2.12.1
-
-# building documentation
-sphinx~=4.1.2
-sphinx_rtd_theme~=0.5.2
-sphinx-jinja~=1.1.1
+numpy~=1.26.0
+pandas~=1.5.3
