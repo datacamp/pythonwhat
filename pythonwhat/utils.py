@@ -1,10 +1,9 @@
 from types import ModuleType
 import copy
 import os
-import black
-
 
 def format_code(text):
+    import black
     mode = black.FileMode()
     try:
         return black.format_file_contents(text, fast=True, mode=mode).rstrip()

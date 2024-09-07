@@ -19,7 +19,7 @@ def multi_dec(f):
             args[0] if len(args) == 1 and isinstance(args[0], (list, tuple)) else args
         )
         for arg in args:
-            if isinstance(arg, Node) and arg.parent.name is "root":
+            if isinstance(arg, Node) and arg.parent.name == "root":
                 arg.parent.remove_child(arg)
                 arg.update_child_calls()
         return f(*args, **kwargs)
