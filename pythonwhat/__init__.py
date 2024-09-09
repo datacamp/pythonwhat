@@ -1,3 +1,3 @@
-__version__ = "2.24.4"
+__version__ = "2.25.0"
 
 from .test_exercise import test_exercise, allow_errors

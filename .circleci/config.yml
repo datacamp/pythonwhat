@@ -10,6 +10,7 @@ jobs:
     steps:
       - checkout
       - python/install-packages:
+          pip-dependency-file: requirements-test.txt
           pkg-manager: pip
       - run:
           name: Run tests
