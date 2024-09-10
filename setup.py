@@ -30,7 +30,7 @@ with open(README_FILE, encoding="utf-8") as fp:
 setup(
     name=PACKAGE_NAME,
     version=VERSION,
-    packages=[PACKAGE_NAME, "pythonwhat.checks", "pythonwhat.test_funcs"],
+    packages=[PACKAGE_NAME, "pythonwhat.checks", "pythonwhat.test_funcs", "pythonwhat.pyodide_backend"],
     install_requires=REQUIREMENTS,
     description="Submission correctness tests for Python",
     long_description=README,

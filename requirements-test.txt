@@ -14,3 +14,6 @@ openpyxl~=3.0.7
 # test-utils deps
 pytest~=6.2.5
 pytest-cov~=2.12.1
+
+# dependencies for pyodide_backend, can be removed later
+ipython~=8.18.1

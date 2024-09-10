@@ -77,3 +77,6 @@ tests/.DS_Store
 
 # datasets
 *.csv
+
+# IDEs
+.idea
