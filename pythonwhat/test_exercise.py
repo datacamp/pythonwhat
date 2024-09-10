@@ -22,7 +22,7 @@ def test_exercise(
     """
     Point of interaction with the Python backend.
     Args:
-            sct (str): The solution corectness test as a string of code.
+            sct (str): The solution correctness test as a string of code.
             student_code (str): The code which is entered by the student.
             solution_code (str): The code which is in the solution.
             pre_exercise_code (str): The code which is executed pre exercise.
@@ -73,7 +73,7 @@ def test_exercise(
 # TODO: consistent success_msg
 def success_msg(message):
     """
-    Set the succes message of the sct. This message will be the feedback if all tests pass.
+    Set the success message of the sct. This message will be the feedback if all tests pass.
     Args:
             message (str): A string containing the feedback message.
     """

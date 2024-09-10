@@ -370,7 +370,7 @@ def taskRunEval(
     Args:
         tree (ast): current focused ast, used to get code to execute
         process: manages shell (see local.py)
-        shell: link to to get process namespace from execution up until now
+        shell: link to get process namespace from execution up until now
         env: update value in focused code by name
         extra_env: variables to be replaced in focused code by name from extra_env in has_expr
         context: sum of set_context in sct chain

@@ -31,10 +31,12 @@ workflows:
   build:
     jobs:
       - build-and-test:
+          context: org-global
           filters:
             tags:
               only: /^v\d+\.\d+\.\d+$/
       - publish:
+          context: org-global
           requires:
             - build-and-test
           filters:
