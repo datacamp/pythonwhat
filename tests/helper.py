@@ -51,7 +51,6 @@ def in_temp_dir():
 
 
 def run(data, run_code=True):
-
     pec = data.get("DC_PEC", "")
     stu_code = data.get("DC_CODE", "")
     sol_code = data.get("DC_SOLUTION", "")
