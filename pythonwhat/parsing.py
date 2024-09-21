@@ -1,4 +1,6 @@
 import ast
+import re
+
 from pythonwhat.utils_ast import wrap_in_module
 from collections.abc import Sequence, Mapping
 from collections import OrderedDict
@@ -326,6 +328,7 @@ class FunctionParser(Parser):
     def visit_Call(self, node):
         if self.call_lookup_active:
             self.visit(node.func)
+            self.gen_name += "()"
         else:
             self.call_lookup_active = True
             self.visit(
@@ -333,6 +336,7 @@ class FunctionParser(Parser):
             )  # Need to visit func to start recording the current function name.
 
             if self.gen_name:
+                self.gen_name = re.sub(r"(?:\(\))+(.)", "\\1", self.gen_name)
                 if self.gen_name not in self.out:
                     self.out[self.gen_name] = []
 
