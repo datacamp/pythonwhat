@@ -1,7 +1,5 @@
 import re
 import numpy as np
-import pandas as pd
-from pandas.testing import assert_frame_equal, assert_series_equal
 from pythonwhat.tasks import *
 from protowhat.Test import Test
 
@@ -111,6 +109,8 @@ def areinstance(x, y, tuple_of_classes):
 # First try to the faster equality functions. If these don't pass,
 # Run the assertions that are typically slower.
 def is_equal(x, y):
+    import pandas as pd
+    from pandas.testing import assert_frame_equal, assert_series_equal
     try:
         if areinstance(x, y, (Exception,)):
             # Types of errors don't matter (this is debatable)
