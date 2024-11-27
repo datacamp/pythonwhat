@@ -1,5 +1,4 @@
 import re
-import numpy as np
 from pythonwhat.tasks import *
 from protowhat.Test import Test
 
@@ -95,6 +94,7 @@ class EqualTest(Test):
         """
         Perform the actual test. result is set to False if the objects differ, True otherwise.
         """
+        import numpy as np
         self.result = np.array(self.func(self.obj1, self.obj2)).all()
 
 
@@ -111,6 +111,7 @@ def areinstance(x, y, tuple_of_classes):
 def is_equal(x, y):
     import pandas as pd
     from pandas.testing import assert_frame_equal, assert_series_equal
+    import numpy as np
     try:
         if areinstance(x, y, (Exception,)):
             # Types of errors don't matter (this is debatable)
