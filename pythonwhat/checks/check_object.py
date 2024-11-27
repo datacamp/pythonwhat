@@ -13,7 +13,6 @@ from pythonwhat.tasks import (
 )
 from pythonwhat.checks.check_funcs import part_to_child
 from pythonwhat.utils import v2_only
-import pandas as pd
 import ast
 
 
@@ -289,6 +288,7 @@ def check_df(state, index, missing_msg=None, not_instance_msg=None, expand_msg=N
             my_df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6], "c": [7, 8, 9]})
 
     """
+    import pandas as pd
     child = check_object(
         state,
         index,
