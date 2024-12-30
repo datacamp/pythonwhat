@@ -104,18 +104,30 @@ class EqualTest(Test):
 def areinstance(x, y, tuple_of_classes):
     return isinstance(x, tuple_of_classes) and isinstance(y, tuple_of_classes)
 
+def is_primitive(x):
+    return isinstance(x, (str, int, float, bool, type(None)))
+
+def is_collection_of_primitives(x):
+    return isinstance(x, (list, tuple, set)) and all(is_primitive(element) for element in x)
 
 # For equality of ndarrays, list, dicts, pd Series and pd DataFrames:
 # First try to the faster equality functions. If these don't pass,
 # Run the assertions that are typically slower.
 def is_equal(x, y):
-    import pandas as pd
-    from pandas.testing import assert_frame_equal, assert_series_equal
-    import numpy as np
     try:
+        if areinstance(x, y, (str, int, float, bool, type(None))):
+            return x == y
+        if is_collection_of_primitives(x):
+            return x == y
         if areinstance(x, y, (Exception,)):
             # Types of errors don't matter (this is debatable)
             return str(x) == str(y)
+
+        # Delay importing pandas / numpy until absolutely necessary. This is important for performance in Pyodide.
+        import pandas as pd
+        from pandas.testing import assert_frame_equal, assert_series_equal
+        import numpy as np
+
         if areinstance(x, y, (np.ndarray, dict, list, tuple)):
             np.testing.assert_equal(x, y)
             return True
