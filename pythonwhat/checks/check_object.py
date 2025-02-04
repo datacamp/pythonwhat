@@ -209,7 +209,7 @@ def is_instance(state, inst, not_instance_msg=None):
     used to 'zoom in' on the object of interest.
 
     Args:
-        inst (class): The class that the object should have.
+        inst (str): The class that the object should have as a string.
         not_instance_msg (str): When specified, this overrides the automatically generated message in case
             the object does not have the expected class.
         state (State): The state that is passed in through the SCT chain (don't specify this).
@@ -225,7 +225,7 @@ def is_instance(state, inst, not_instance_msg=None):
 
             # Verify the class of arr
             import numpy
-            Ex().check_object('arr').is_instance(numpy.ndarray)
+            Ex().check_object('arr').is_instance('numpy.ndarray')
     """
 
     state.assert_is(["object_assignments"], "is_instance", ["check_object"])
