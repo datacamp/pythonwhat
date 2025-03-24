@@ -7,7 +7,6 @@ from setuptools import setup
 
 PACKAGE_NAME = "pythonwhat"
 REQUIREMENT_NAMES = ["protowhat", "markdown2", "jinja2", "asttokens", "dill"]
-PEER_REQUIREMENTS = ["numpy", "pandas"]
 
 HERE = path.abspath(path.dirname(__file__))
 VERSION_FILE = path.join(HERE, PACKAGE_NAME, "__init__.py")
@@ -23,7 +22,7 @@ with open(REQUIREMENTS_FILE, encoding="utf-8") as fp:
     REQUIREMENTS = [
         re.search(_requirements_re_template.format(requirement), req_txt, re.M).group(0)
         for requirement in REQUIREMENT_NAMES
-    ] + PEER_REQUIREMENTS
+    ]
 with open(README_FILE, encoding="utf-8") as fp:
     README = fp.read()
 
