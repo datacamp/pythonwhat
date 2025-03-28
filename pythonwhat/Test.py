@@ -94,8 +94,14 @@ class EqualTest(Test):
         """
         Perform the actual test. result is set to False if the objects differ, True otherwise.
         """
-        import numpy as np
-        self.result = np.array(self.func(self.obj1, self.obj2)).all()
+        result = self.func(self.obj1, self.obj2)
+
+        try:
+            import numpy as np
+
+            self.result = np.array(result).all()
+        except ImportError:
+            self.result = result
 
 
 # Helpers for testing equality
@@ -117,34 +123,64 @@ def is_equal(x, y):
     try:
         if areinstance(x, y, (str, int, float, bool, type(None))):
             return x == y
+
         if is_collection_of_primitives(x):
             return x == y
+
         if areinstance(x, y, (Exception,)):
             # Types of errors don't matter (this is debatable)
             return str(x) == str(y)
 
-        # Delay importing pandas / numpy until absolutely necessary. This is important for performance in Pyodide.
-        import pandas as pd
-        from pandas.testing import assert_frame_equal, assert_series_equal
-        import numpy as np
+        if areinstance(x, y, (list, tuple,)):
+            if len(x) != len(y):
+                return False
+            return all(is_equal(x_element, y_element) for x_element, y_element in zip(x, y))
 
-        if areinstance(x, y, (np.ndarray, dict, list, tuple)):
-            np.testing.assert_equal(x, y)
-            return True
-        elif areinstance(x, y, (map, filter)):
-            return np.array_equal(list(x), list(y))
-        elif areinstance(x, y, (pd.DataFrame,)):
-            if x.equals(y):
+        if areinstance(x, y, (map, filter,)):
+            x_list, y_list = list(x), list(y)
+            if len(x_list) != len(y_list):
+                return False
+            return all(is_equal(x_element, y_element) for x_element, y_element in zip(x_list, y_list))
+
+        if areinstance(x, y, (set,)):
+            return is_equal(sorted(x), sorted(y))
+
+        if areinstance(x, y, (dict,)):
+            if x.keys() != y.keys():
+                return False
+            return all(is_equal(x[key], y[key]) for key in x)
+
+        # Delay importing pandas / numpy until absolutely necessary. This is important for performance in Pyodide.
+        # Also, assume they may not be available, as Pyodide won't install them unless they are needed.
+        try:
+            import numpy as np
+
+            if areinstance(x, y, (np.ndarray,)):
+                np.testing.assert_equal(x, y)
                 return True
-            assert_frame_equal(x, y)
-            return True
-        elif areinstance(x, y, (pd.Series,)):
-            if x.equals(y):
+        except ImportError:
+            if areinstance(x, y, (np.ndarray,)):
+                raise RuntimeError("NumPy is required for comparing NumPy objects.")
+
+        try:
+            import pandas as pd
+            from pandas.testing import assert_frame_equal, assert_series_equal
+
+            if areinstance(x, y, (pd.DataFrame,)):
+                if x.equals(y):
+                    return True
+                assert_frame_equal(x, y)
                 return True
-            assert_series_equal(x, y)
-            return True
-        else:
-            return x == y
+            elif areinstance(x, y, (pd.Series,)):
+                if x.equals(y):
+                    return True
+                assert_series_equal(x, y)
+                return True
+        except ImportError:
+            if areinstance(x, y, (pd.DataFrame, pd.Series)):
+                raise RuntimeError("pandas is required for comparing pandas objects.")
+
+        return x == y
 
     except Exception:
         return False
