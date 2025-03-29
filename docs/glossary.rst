@@ -225,6 +225,32 @@ Check Multiple Choice
                             "That's a clown who likes burgers.",
                             "Correct! Head over to the next exercise!"])
 
+Recommended approach for testing train test splits
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code::
+
+    # solution
+    # Perform the train-test split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # sct
+    Ex().check_correct(
+        multi(
+            check_object("X_train").has_equal_value(),
+            check_object("X_test").has_equal_value(),
+            check_object("y_train").has_equal_value(),
+            check_object("y_test").has_equal_value()
+        ),
+        check_function("sklearn.model_selection.train_test_split").multi(
+                check_args(["arrays", 0]).has_equal_value("Did you correctly pass in the feature variable to `train_test_split()`?"),
+                check_args(["arrays", 1]).has_equal_value("Did you correctly pass in the target variable to `train_test_split()`?"),
+                check_args(["options", "test_size"]).has_equal_value("Did you specify the correct train test split?"),
+                check_args(["options", "random_state"]).has_equal_value("Don't change the `random_state` argument we set for you.")
+        )
+    )
+
+
 Check import
 ~~~~~~~~~~~~
 
