@@ -29,7 +29,7 @@ class StubShell:
 class StubProcess:
     def __init__(self, init_code=None, pid=None):
         self.shell = StubShell(init_code)
-        self._identity = (pid,) if pid else (random.randint(0, 1e12),)
+        self._identity = (pid,) if pid else (random.randint(0, int(1e12)),)
 
     def executeTask(self, task):
         return task(self.shell)
@@ -73,7 +73,7 @@ class WorkerProcess(Process):
         )  # when parent process is killed, sub/childprocess get also killed
         self.instances.append(self)
         # used to detect single process exercise
-        self._identity = (pid,) if pid else (random.randint(0, 1e12),)
+        self._identity = (pid,) if pid else (random.randint(0, int(1e12)),)
 
     def get_shell(self):
         return create({})

@@ -354,7 +354,7 @@ def check_keys(state, key, missing_msg=None, expand_msg=None):
 
     def get_part(name, key, highlight):
         if isinstance(key, str):
-            slice_val = ast.Str(s=key)
+            slice_val = ast.Constant(value=key)
         else:
             slice_val = ast.parse(str(key)).body[0].value
         expr = ast.Subscript(

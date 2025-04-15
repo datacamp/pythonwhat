@@ -1,21 +1,20 @@
 -r requirements.txt
 
 # test deps
-scipy~=1.13.1
+scipy~=1.14.1
 bs4~=0.0.1
 html5lib~=1.1
-# h5py~=3.1.0
-requests~=2.26.0
+requests~=2.31.0
 seaborn~=0.11.2
-sqlalchemy~=1.4.23
+sqlalchemy~=2.0.29
 xlrd~=2.0.1
-openpyxl~=3.0.7
-h5py~=3.11.0
+openpyxl~=3.1.0
+h5py~=3.12.1
 
 # test-utils deps
-pytest~=6.2.5
-pytest-cov~=2.12.1
+pytest~=8.1.1
+pytest-cov~=6.1.1
 
 # not included in requirements.txt
-numpy~=1.26.0
-pandas~=1.5.3
+numpy~=2.0.2
+pandas~=2.2.3

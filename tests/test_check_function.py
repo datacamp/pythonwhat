@@ -92,11 +92,11 @@ def test_bind_args():
     ][0]["args"]
     sig = signature(my_fun)
     bound_args = bind_args(sig, args)
-    assert bound_args["a"]["node"].n == 1
-    assert bound_args["b"]["node"].n == 2
-    assert bound_args["args"][0]["node"].n == 3
-    assert bound_args["args"][1]["node"].n == 4
-    assert bound_args["kwargs"]["c"]["node"].n == 5
+    assert bound_args["a"]["node"].value == 1
+    assert bound_args["b"]["node"].value == 2
+    assert bound_args["args"][0]["node"].value == 3
+    assert bound_args["args"][1]["node"].value == 4
+    assert bound_args["kwargs"]["c"]["node"].value == 5
 
 
 @pytest.mark.parametrize("argspec", [["args", 0], ["args", 1], ["kwargs", "c"]])
