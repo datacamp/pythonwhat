@@ -134,7 +134,8 @@ def get_signature(name, mapped_name, signature, manual_sigs, env):
             except:
                 raise InstructorError.from_message(e.args[0] + " and cannot determine signature")
 
-    return signature
+    params = [param.replace(annotation=inspect._empty) for param in signature.parameters.values()]
+    return signature.replace(parameters=params)
 
 
 # Get the signature of a function based on an object inside the process
